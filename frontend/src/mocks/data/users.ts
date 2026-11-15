@@ -1,0 +1,137 @@
+import type { SessionUser } from '@/types/auth';
+
+/** Mật khẩu chung cho mọi tài khoản demo */
+export const DEMO_PASSWORD = '123456';
+/** Mã OTP giả cho chức năng quên mật khẩu */
+export const DEMO_OTP = '123456';
+
+export interface MockAccount extends SessionUser {
+  password: string;
+  locked?: boolean;
+}
+
+/** Dữ liệu giả — tài khoản đăng nhập (mỗi vai trò 1 tài khoản) */
+export const MOCK_ACCOUNTS: MockAccount[] = [
+  {
+    id: 'u-sa',
+    email: 'superadmin@jpcenter.vn',
+    password: DEMO_PASSWORD,
+    fullName: 'Đỗ Quang Huy',
+    portal: 'staff',
+    roleName: 'Super Admin',
+    scope: 'global',
+    branchIds: [],
+    permissions: ['*'],
+  },
+  {
+    id: 'u-ad',
+    email: 'admin@jpcenter.vn',
+    password: DEMO_PASSWORD,
+    fullName: 'Phạm Thu Trang',
+    portal: 'staff',
+    roleName: 'Admin',
+    scope: 'global',
+    branchIds: [],
+    permissions: ['dashboard.*', 'crm.*', 'students.*', 'academic.*', 'library.*', 'finance.*', 'hr.*', 'work.*', 'system.branches', 'system.audit'],
+  },
+  {
+    id: 'u-bm',
+    email: 'quanly.caugiay@jpcenter.vn',
+    password: DEMO_PASSWORD,
+    fullName: 'Lê Hoàng Nam',
+    portal: 'staff',
+    roleName: 'Quản lý chi nhánh',
+    scope: 'branch',
+    branchIds: ['cg'],
+    permissions: ['dashboard.*', 'crm.*', 'students.*', 'academic.*', 'library.*', 'finance.*', 'hr.*', 'work.*'],
+  },
+  {
+    id: 'u-gv',
+    email: 'giaovu@jpcenter.vn',
+    password: DEMO_PASSWORD,
+    fullName: 'Vũ Ngọc Mai',
+    portal: 'staff',
+    roleName: 'Giáo vụ',
+    scope: 'branch',
+    branchIds: ['cg', 'hc'],
+    permissions: ['dashboard.overview', 'students.*', 'academic.*', 'library.*', 'hr.requests', 'work.tasks'],
+  },
+  {
+    id: 'u-sale',
+    email: 'sale@jpcenter.vn',
+    password: DEMO_PASSWORD,
+    fullName: 'Trần Minh Khoa',
+    portal: 'staff',
+    roleName: 'Sale',
+    scope: 'branch',
+    branchIds: ['q1'],
+    permissions: ['dashboard.overview', 'crm.leads', 'crm.placement-tests', 'crm.campaigns', 'students.profiles', 'hr.requests', 'work.tasks', 'work.shifts', 'work.handover'],
+  },
+  {
+    id: 'u-mkt',
+    email: 'marketing@jpcenter.vn',
+    password: DEMO_PASSWORD,
+    fullName: 'Ngô Bảo Anh',
+    portal: 'staff',
+    roleName: 'Marketing',
+    scope: 'global',
+    branchIds: [],
+    permissions: ['dashboard.*', 'crm.*', 'hr.requests', 'work.tasks'],
+  },
+  {
+    id: 'u-kt',
+    email: 'ketoan@jpcenter.vn',
+    password: DEMO_PASSWORD,
+    fullName: 'Hoàng Thị Lan',
+    portal: 'staff',
+    roleName: 'Kế toán',
+    scope: 'global',
+    branchIds: [],
+    permissions: ['dashboard.*', 'students.profiles', 'finance.*', 'hr.requests', 'hr.timesheets', 'work.tasks'],
+  },
+  {
+    id: 'u-teacher',
+    email: 'giaovien@jpcenter.vn',
+    password: DEMO_PASSWORD,
+    fullName: 'Nguyễn Thu Hà',
+    portal: 'teacher',
+    roleName: 'Giáo viên',
+    scope: 'branch',
+    branchIds: ['cg'],
+    permissions: ['teacher.*'],
+  },
+  {
+    id: 'u-student',
+    email: 'hocvien@jpcenter.vn',
+    password: DEMO_PASSWORD,
+    fullName: 'Nguyễn Văn An',
+    portal: 'student',
+    roleName: 'Học viên',
+    scope: 'branch',
+    branchIds: ['cg'],
+    permissions: ['student.*'],
+  },
+  {
+    id: 'u-parent',
+    email: 'phuhuynh@jpcenter.vn',
+    password: DEMO_PASSWORD,
+    fullName: 'Nguyễn Văn Bình',
+    portal: 'parent',
+    roleName: 'Phụ huynh',
+    scope: 'branch',
+    branchIds: ['cg'],
+    permissions: ['parent.*'],
+  },
+  {
+    id: 'u-locked',
+    email: 'bikhoa@jpcenter.vn',
+    password: DEMO_PASSWORD,
+    fullName: 'Tài khoản bị khóa',
+    portal: 'staff',
+    roleName: 'Sale',
+    scope: 'branch',
+    branchIds: ['cg'],
+    permissions: [],
+    locked: true,
+  },
+];

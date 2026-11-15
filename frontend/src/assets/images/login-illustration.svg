@@ -1,0 +1,185 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 800 600" role="img" aria-label="Núi Phú Sĩ, chùa tháp và hoa anh đào">
+  <defs>
+    <!-- Trời bình minh: xanh nhạt → hồng phấn -->
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#D6E8FC"/>
+      <stop offset="0.55" stop-color="#EEF3FC"/>
+      <stop offset="0.8" stop-color="#FCE7EF"/>
+      <stop offset="1" stop-color="#FAD9E4"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.95"/>
+      <stop offset="0.6" stop-color="#FFE4EC" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#FFE4EC" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="fuji" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5D93D8"/>
+      <stop offset="1" stop-color="#2C5FA6"/>
+    </linearGradient>
+    <linearGradient id="fujiShade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0.5" stop-color="#1A3F78" stop-opacity="0"/>
+      <stop offset="1" stop-color="#1A3F78" stop-opacity="0.35"/>
+    </linearGradient>
+    <linearGradient id="snow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#E3ECF8"/>
+    </linearGradient>
+    <linearGradient id="lake" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C9DFF7"/>
+      <stop offset="1" stop-color="#8DB8EA"/>
+    </linearGradient>
+    <linearGradient id="mist" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.75"/>
+    </linearGradient>
+
+    <!-- Bông anh đào 5 cánh -->
+    <g id="petal">
+      <path d="M0 0 C-7 -6 -8 -16 -3 -21 L0 -18 L3 -21 C8 -16 7 -6 0 0 Z"/>
+    </g>
+    <g id="flower">
+      <g fill="#F9C5D5">
+        <use xlink:href="#petal"/>
+        <use xlink:href="#petal" transform="rotate(72)"/>
+        <use xlink:href="#petal" transform="rotate(144)"/>
+        <use xlink:href="#petal" transform="rotate(216)"/>
+        <use xlink:href="#petal" transform="rotate(288)"/>
+      </g>
+      <circle r="4.5" fill="#F48FB1"/>
+      <g fill="#C2185B">
+        <circle cx="0" cy="-6" r="1.2"/><circle cx="5.5" cy="-2" r="1.2"/><circle cx="3.5" cy="5" r="1.2"/>
+        <circle cx="-3.5" cy="5" r="1.2"/><circle cx="-5.5" cy="-2" r="1.2"/>
+      </g>
+    </g>
+    <g id="flowerLight">
+      <g fill="#FDE2EA">
+        <use xlink:href="#petal"/>
+        <use xlink:href="#petal" transform="rotate(72)"/>
+        <use xlink:href="#petal" transform="rotate(144)"/>
+        <use xlink:href="#petal" transform="rotate(216)"/>
+        <use xlink:href="#petal" transform="rotate(288)"/>
+      </g>
+      <circle r="4" fill="#F8A5C2"/>
+    </g>
+    <g id="bud"><ellipse rx="5" ry="7" fill="#F48FB1"/></g>
+    <ellipse id="fall" rx="6" ry="3.4" fill="#F9C5D5"/>
+  </defs>
+
+  <!-- Bầu trời + mặt trời -->
+  <rect width="800" height="600" fill="url(#sky)"/>
+  <circle cx="400" cy="235" r="170" fill="url(#sun)"/>
+  <circle cx="400" cy="235" r="62" fill="#FFF5F8" opacity="0.9"/>
+
+  <!-- Mây mỏng -->
+  <g fill="#FFFFFF" opacity="0.75">
+    <path d="M90 170 h170 a11 11 0 0 1 0 22 h-170 a11 11 0 0 1 0 -22 Z"/>
+    <path d="M140 200 h110 a8 8 0 0 1 0 16 h-110 a8 8 0 0 1 0 -16 Z"/>
+    <path d="M560 300 h150 a10 10 0 0 1 0 20 h-150 a10 10 0 0 1 0 -20 Z"/>
+  </g>
+
+  <!-- Núi Phú Sĩ -->
+  <path d="M95 420 L322 196 Q400 160 478 196 L705 420 Z" fill="url(#fuji)"/>
+  <path d="M400 168 Q440 172 478 196 L705 420 L430 420 Z" fill="url(#fujiShade)"/>
+  <path d="M322 196 Q400 160 478 196 L528 246 L506 240 L488 262 L466 242 L446 272 L424 246 L404 270 L382 244 L360 266 L342 242 L318 254 L290 228 Z" fill="url(#snow)"/>
+  <path d="M400 168 Q440 172 478 196 L528 246 L506 240 L488 262 L466 242 L446 272 L432 252 Z" fill="#C9D9EF" opacity="0.6"/>
+
+  <!-- Đồi xa (phối cảnh mờ dần) -->
+  <path d="M0 405 Q90 360 190 392 T380 398 T590 380 T800 392 L800 440 L0 440 Z" fill="#AFCBEE"/>
+  <path d="M0 425 Q120 395 240 418 T500 414 T800 410 L800 450 L0 450 Z" fill="#8FB3E3"/>
+
+  <!-- Chùa tháp 5 tầng -->
+  <g transform="translate(612 300)" fill="#B94A5E">
+    <rect x="-2" y="-34" width="4" height="22"/>
+    <circle cx="0" cy="-36" r="3"/>
+    <g>
+      <path d="M-26 -12 Q0 -20 26 -12 L20 -8 L-20 -8 Z"/><rect x="-14" y="-8" width="28" height="12"/>
+      <path d="M-32 4 Q0 -5 32 4 L25 9 L-25 9 Z"/><rect x="-17" y="9" width="34" height="13"/>
+      <path d="M-38 22 Q0 12 38 22 L30 28 L-30 28 Z"/><rect x="-20" y="28" width="40" height="14"/>
+      <path d="M-44 42 Q0 31 44 42 L35 48 L-35 48 Z"/><rect x="-23" y="48" width="46" height="15"/>
+      <path d="M-50 63 Q0 51 50 63 L40 70 L-40 70 Z"/><rect x="-26" y="70" width="52" height="20"/>
+    </g>
+    <g fill="#F7D9DF" opacity="0.9">
+      <rect x="-5" y="-4" width="10" height="6" rx="1"/><rect x="-6" y="13" width="12" height="6" rx="1"/>
+      <rect x="-7" y="32" width="14" height="7" rx="1"/><rect x="-8" y="52" width="16" height="7" rx="1"/>
+      <rect x="-9" y="76" width="18" height="10" rx="1"/>
+    </g>
+  </g>
+  <!-- Rừng anh đào dưới chân tháp -->
+  <g opacity="0.95">
+    <circle cx="545" cy="400" r="26" fill="#F6B9CC"/><circle cx="575" cy="392" r="22" fill="#F9C9D7"/>
+    <circle cx="660" cy="398" r="28" fill="#F6B9CC"/><circle cx="700" cy="404" r="24" fill="#F9C9D7"/>
+    <circle cx="740" cy="396" r="30" fill="#F4A9C0"/><circle cx="785" cy="402" r="26" fill="#F9C9D7"/>
+    <circle cx="70" cy="404" r="26" fill="#F9C9D7"/><circle cx="110" cy="398" r="30" fill="#F6B9CC"/>
+    <circle cx="150" cy="408" r="22" fill="#F9C9D7"/>
+  </g>
+  <rect x="0" y="380" width="800" height="70" fill="url(#mist)"/>
+
+  <!-- Hồ + bóng núi -->
+  <rect x="0" y="440" width="800" height="160" fill="url(#lake)"/>
+  <g opacity="0.28" transform="translate(0 880) scale(1 -1)">
+    <path d="M95 440 L322 216 Q400 180 478 216 L705 440 Z" fill="#2C5FA6"/>
+    <path d="M322 216 Q400 180 478 216 L528 266 L488 282 L446 292 L404 290 L360 286 L318 274 L290 248 Z" fill="#FFFFFF"/>
+  </g>
+  <g fill="none" stroke="#FFFFFF" stroke-linecap="round" opacity="0.7">
+    <path d="M70 486 h90" stroke-width="3"/><path d="M250 512 h140" stroke-width="3"/>
+    <path d="M480 494 h110" stroke-width="3"/><path d="M620 534 h120" stroke-width="3"/>
+    <path d="M140 556 h80" stroke-width="2"/><path d="M420 570 h90" stroke-width="2"/>
+  </g>
+
+  <!-- Bờ hồ phía trước -->
+  <path d="M0 560 Q140 540 300 566 T560 560 T800 556 L800 600 L0 600 Z" fill="#6E9BD8" opacity="0.55"/>
+
+  <!-- Cành anh đào trái -->
+  <g stroke="#6B4636" stroke-linecap="round" fill="none">
+    <path d="M-10 70 C70 80 120 110 190 100 C230 95 260 110 290 130" stroke-width="9"/>
+    <path d="M120 98 C140 140 170 160 205 170" stroke-width="5"/>
+    <path d="M60 78 C70 40 100 25 135 20" stroke-width="5"/>
+    <path d="M235 104 C250 80 275 70 300 72" stroke-width="4"/>
+  </g>
+  <g>
+    <use xlink:href="#flower" transform="translate(135 20) rotate(10) scale(1.1)"/>
+    <use xlink:href="#flowerLight" transform="translate(105 34) rotate(40)"/>
+    <use xlink:href="#flower" transform="translate(160 92) rotate(-20) scale(1.2)"/>
+    <use xlink:href="#flowerLight" transform="translate(190 108) rotate(15)"/>
+    <use xlink:href="#flower" transform="translate(205 170) rotate(30) scale(1.05)"/>
+    <use xlink:href="#flowerLight" transform="translate(178 152) rotate(-35) scale(0.9)"/>
+    <use xlink:href="#flower" transform="translate(290 130) rotate(5)"/>
+    <use xlink:href="#flowerLight" transform="translate(262 116) rotate(60) scale(0.95)"/>
+    <use xlink:href="#flower" transform="translate(300 72) rotate(-12) scale(0.9)"/>
+    <use xlink:href="#flower" transform="translate(70 70) rotate(25) scale(1.15)"/>
+    <use xlink:href="#flowerLight" transform="translate(30 82) rotate(-5)"/>
+    <use xlink:href="#bud" transform="translate(228 92) rotate(30)"/>
+    <use xlink:href="#bud" transform="translate(150 132) rotate(-40)"/>
+    <use xlink:href="#bud" transform="translate(320 140) rotate(60)"/>
+  </g>
+
+  <!-- Cành anh đào phải -->
+  <g stroke="#6B4636" stroke-linecap="round" fill="none">
+    <path d="M810 30 C740 50 700 90 640 92 C610 93 590 105 570 122" stroke-width="8"/>
+    <path d="M700 74 C690 110 665 130 640 140" stroke-width="4.5"/>
+  </g>
+  <g>
+    <use xlink:href="#flower" transform="translate(570 122) rotate(15) scale(1.05)"/>
+    <use xlink:href="#flowerLight" transform="translate(600 100) rotate(-25)"/>
+    <use xlink:href="#flower" transform="translate(640 140) rotate(40) scale(1.1)"/>
+    <use xlink:href="#flower" transform="translate(675 80) rotate(-10) scale(1.15)"/>
+    <use xlink:href="#flowerLight" transform="translate(712 66) rotate(20)"/>
+    <use xlink:href="#flower" transform="translate(760 44) rotate(5) scale(1.2)"/>
+    <use xlink:href="#flowerLight" transform="translate(665 118) rotate(55) scale(0.85)"/>
+    <use xlink:href="#bud" transform="translate(620 86) rotate(-30)"/>
+  </g>
+
+  <!-- Cánh hoa rơi -->
+  <g opacity="0.9">
+    <use xlink:href="#fall" transform="translate(250 220) rotate(35)"/>
+    <use xlink:href="#fall" transform="translate(330 300) rotate(-20) scale(0.8)"/>
+    <use xlink:href="#fall" transform="translate(470 150) rotate(60)"/>
+    <use xlink:href="#fall" transform="translate(520 260) rotate(15) scale(0.9)"/>
+    <use xlink:href="#fall" transform="translate(180 300) rotate(-45) scale(0.75)"/>
+    <use xlink:href="#fall" transform="translate(600 210) rotate(80) scale(0.85)"/>
+    <use xlink:href="#fall" transform="translate(700 260) rotate(-10) scale(0.7)"/>
+    <use xlink:href="#fall" transform="translate(90 250) rotate(25) scale(0.8)"/>
+    <use xlink:href="#fall" transform="translate(380 470) rotate(40) scale(0.7)"/>
+    <use xlink:href="#fall" transform="translate(560 500) rotate(-30) scale(0.75)"/>
+  </g>
+</svg>
