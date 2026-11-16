@@ -1,7 +1,6 @@
 import { AppShell } from '@/components/layout/AppShell';
 import { PARENT_MENU, STUDENT_MENU, TEACHER_MENU } from '@/config/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { MOCK_NOTIFICATIONS } from '@/mocks/data/notifications';
 
 /** Cổng giáo viên: header = logo + tên chi nhánh, chuông, người dùng, đăng xuất. */
 export function TeacherLayout() {
@@ -11,7 +10,6 @@ export function TeacherLayout() {
       sidebarItems={TEACHER_MENU}
       sidebarTitle="Giảng dạy"
       logoSubtitle={currentBranch ? `Chi nhánh ${currentBranch.name}` : undefined}
-      notifications={MOCK_NOTIFICATIONS.teacher}
     />
   );
 }
@@ -24,7 +22,6 @@ export function StudentLayout() {
       sidebarItems={STUDENT_MENU}
       sidebarTitle="Học tập"
       logoSubtitle={currentBranch ? `Chi nhánh ${currentBranch.name}` : undefined}
-      notifications={MOCK_NOTIFICATIONS.student}
     />
   );
 }
@@ -37,7 +34,6 @@ export function ParentLayout() {
       sidebarItems={PARENT_MENU}
       sidebarTitle="Theo dõi học tập"
       logoSubtitle={currentBranch ? `Chi nhánh ${currentBranch.name}` : undefined}
-      notifications={MOCK_NOTIFICATIONS.parent}
     />
   );
 }

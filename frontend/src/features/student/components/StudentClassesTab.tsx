@@ -6,7 +6,7 @@ import { EmptyState, StatusTag } from '@/components/common';
 import { cn } from '@/lib/cn';
 import { fmtDate, fmtDateTime } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
-import { MOCK_BRANCHES } from '@/mocks/data/branches';
+import { getBranches } from '@/features/system/useBranches';
 import { ACTIVE_ENROLLMENT, ENROLLMENT_STATUS, PAYMENT_METHODS } from '../constants';
 import { summarizeInvoice, summarizeTuition, useStudentStore } from '../studentStore';
 import type { Invoice } from '../types';
@@ -69,7 +69,7 @@ export function StudentClassesTab({ studentId }: { studentId: string }) {
                     )}
                   </p>
                   <p className="text-[13px] text-ink-muted">
-                    {cls.courseLabel} · {MOCK_BRANCHES.find((b) => b.id === cls.branchId)?.name}
+                    {cls.courseLabel} · {getBranches(false).find((b) => b.id === cls.branchId)?.name}
                   </p>
                 </div>
                 <StatusTag tone={st.tone} icon={st.icon} size="sm">

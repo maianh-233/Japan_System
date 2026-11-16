@@ -7,7 +7,7 @@ import { useCrmStore } from '@/features/crm/crmStore';
 import type { Student } from '@/features/crm/types';
 import { useAuth } from '@/hooks/useAuth';
 import { fmtDate, fmtDateTime } from '@/lib/date';
-import { MOCK_BRANCHES } from '@/mocks/data/branches';
+import { getBranches } from '@/features/system/useBranches';
 import { GENDER_OPTIONS } from '../constants';
 import type { Gender } from '../types';
 
@@ -61,7 +61,7 @@ export function StudentInfoTab({ student }: { student: Student }) {
   const age = student.dob ? dayjs().diff(dayjs(student.dob), 'year') : undefined;
   const meta: [string, string][] = [
     ['Mã học viên', student.code],
-    ['Chi nhánh', MOCK_BRANCHES.find((b) => b.id === student.branchId)?.name ?? student.branchId],
+    ['Chi nhánh', getBranches(false).find((b) => b.id === student.branchId)?.name ?? student.branchId],
     ['Ngày nhập học', fmtDate(student.joinedAt)],
     ['Tuổi', age !== undefined ? `${age} tuổi` : '—'],
   ];

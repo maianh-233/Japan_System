@@ -21,6 +21,7 @@ import {
   GraduationCap,
   HandCoins,
   History,
+  Inbox,
   KeyRound,
   Layers,
   LayoutDashboard,
@@ -90,6 +91,14 @@ const staffItem = (
   permission: `${module}.${key}`,
   features,
   isNew,
+});
+
+/** Mục CÁ NHÂN: mọi nhân viên đăng nhập đều vào được (không gắn mã quyền) */
+const selfItem = (module: string, key: string, label: string, icon: LucideIcon): NavItem => ({
+  key,
+  label,
+  icon,
+  path: `/admin/${module}/${key}`,
 });
 
 const portalItem = (portal: string, key: string, label: string, icon: LucideIcon, features?: string[], isNew?: boolean): NavItem => ({
@@ -212,6 +221,11 @@ export const STAFF_MODULES: NavModule[] = [
         'Duyệt đơn hủy buổi → gợi ý giáo viên dạy thay hoặc xếp học bù',
         'Xác nhận buổi đã dạy → làm căn cứ tính lương giáo viên',
       ]),
+      staffItem('academic', 'requests', 'Đơn chờ xử lý', Inbox, [
+        'Đơn hủy buổi (GV) · đơn xin nghỉ (HV/PH) · đơn từ nhân viên — gom một nơi, kèm lịch sử duyệt',
+        'Duyệt đơn hủy buổi → tự đánh dấu buổi, mở luôn bước mời GV dạy thay hoặc hủy & xếp học bù',
+        'Theo dõi lời mời dạy thay: ai nhận trước thì dạy, lời mời còn lại tự hết hiệu lực',
+      ], true),
       staffItem('academic', 'rooms', 'Phòng học', DoorOpen, [
         'Phòng theo chi nhánh: sức chứa, thiết bị',
         'Lịch sử dụng phòng, tỷ lệ lấp đầy',
@@ -306,11 +320,13 @@ export const STAFF_MODULES: NavModule[] = [
     label: 'Công việc',
     icon: ListTodo,
     items: [
-      staffItem('work', 'tasks', 'Task', ListTodo, [
-        'Cấp trên giao task cho cấp dưới: hạn, ưu tiên, người theo dõi',
+      staffItem('work', 'tasks', 'Task toàn hệ thống', ListTodo, [
+        'Nhân sự / quản lý giao task cho mọi nhân viên: hạn, ưu tiên, người theo dõi',
         'Xem dạng Kanban / danh sách, task lặp lại',
         'Gắn task vào lead, lớp, học viên; nhắc hạn',
       ]),
+      // Ai có nhân viên dưới quyền (theo cây quản lý) đều dùng được — không cần quyền riêng
+      selfItem('work', 'team-tasks', 'Giao việc cấp dưới', Users),
       staffItem('work', 'shifts', 'Xếp ca làm việc', CalendarClock, [
         'Quản lý xếp lịch ca cho nhân viên "Làm theo ca" (theo tuần)',
         'Nhân viên đăng ký ca mong muốn, xin đổi ca',
@@ -320,6 +336,19 @@ export const STAFF_MODULES: NavModule[] = [
         'Cuối ca ghi lại: lead đang dở, tiền mặt tại quầy, việc tồn',
         'Ca sau xác nhận đã nhận bàn giao',
       ]),
+    ],
+  },
+  {
+    // Trang của riêng người đang đăng nhập — cũng mở được từ menu ảnh đại diện góc phải
+    key: 'me',
+    label: 'Cá nhân',
+    icon: UserRound,
+    items: [
+      selfItem('me', 'attendance', 'Chấm công của tôi', Clock),
+      selfItem('me', 'tasks', 'Việc của tôi', ListChecks),
+      selfItem('me', 'availability', 'Lịch rảnh / bận', CalendarCheck),
+      selfItem('me', 'profile', 'Thông tin cá nhân', UserRound),
+      selfItem('me', 'security', 'Mật khẩu & bảo mật', KeyRound),
     ],
   },
   {

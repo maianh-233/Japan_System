@@ -7,7 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/cn';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { Button, EmptyState } from '@/components/common';
-import type { AppNotification } from '@/types/auth';
+import { useNotificationStore } from '@/features/notifications/notificationStore';
+import type { AppNotification, Portal } from '@/types/auth';
 
 dayjs.extend(relativeTime);
 
@@ -19,15 +20,17 @@ const dotTone: Record<AppNotification['tone'], string> = {
 };
 
 /** Chuông thông báo: badge số chưa đọc + danh sách, đánh dấu đã đọc. */
-export function NotificationBell({ initial }: { initial: AppNotification[] }) {
-  const [items, setItems] = useState(initial);
+export function NotificationBell({ portal }: { portal: Portal }) {
+  const items = useNotificationStore((s) => s.items[portal]);
+  const markRead = useNotificationStore((s) => s.markRead);
+  const markAllRead = useNotificationStore((s) => s.markAllRead);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { isMobile } = useBreakpoint();
   const unread = items.filter((n) => !n.read).length;
 
   const openItem = (n: AppNotification) => {
-    setItems((list) => list.map((x) => (x.id === n.id ? { ...x, read: true } : x)));
+    markRead(portal, n.id);
     if (n.link) {
       setOpen(false);
       navigate(n.link);
@@ -43,7 +46,7 @@ export function NotificationBell({ initial }: { initial: AppNotification[] }) {
           size="sm"
           variant="ghost"
           disabled={unread === 0}
-          onClick={() => setItems((l) => l.map((x) => ({ ...x, read: true })))}
+          onClick={() => markAllRead(portal)}
         >
           Đánh dấu đã đọc
         </Button>

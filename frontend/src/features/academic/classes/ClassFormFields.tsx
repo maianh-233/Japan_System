@@ -11,7 +11,8 @@ import { courseTotalFee, TEACHER_TYPES, totalHours as courseHours } from '../cou
 import { useCourseStore } from '../courses/courseStore';
 import { TIERS } from '../curriculum/constants';
 import { useCurriculumStore } from '../curriculum/curriculumStore';
-import { CODE_PREFIX, ROOMS, TEACHERS, WEEKDAYS } from './constants';
+import { ASSISTANTS, CODE_PREFIX, TEACHERS, WEEKDAYS } from './constants';
+import { useRoomOptions } from '../rooms/roomStore';
 import { useClassStore } from './classStore';
 import { generateSessions } from './sessionGenerator';
 import type { ClassInfo, Weekday } from './types';
@@ -23,6 +24,7 @@ export interface ClassFormValues {
   codeSuffix: string;
   name: string;
   teacherIds: string[];
+  assistantIds?: string[];
   room?: string;
   meetingUrl?: string;
   plannedStartDate: Dayjs;
@@ -116,6 +118,7 @@ export function ClassFormFields({ mode, locked = false, closed = false, editingI
 
   const courseId = Form.useWatch('courseId', form);
   const branchId = Form.useWatch('branchId', form);
+  const roomOptions = useRoomOptions(branchId, form.getFieldValue('room'));
   const course = courses.find((c) => c.id === courseId);
   const prefix = course ? CODE_PREFIX[course.teacherType] : '';
   const lock = (k: keyof ClassFormValues) => (closed ? k !== 'note' : locked && LOCKED_AFTER_START.includes(k));
@@ -217,6 +220,14 @@ export function ClassFormFields({ mode, locked = false, closed = false, editingI
       >
         <Select disabled={lock('teacherIds')} mode="multiple" placeholder="Chọn giáo viên" options={teacherOptions} maxCount={course?.teacherType === 'mixed' ? 2 : 1} />
       </Form.Item>
+      <Form.Item name="assistantIds" label="Trợ giảng" extra="Không bắt buộc — hỗ trợ GV, có thể đứng lớp khi GV gặp sự cố.">
+        <Select
+          mode="multiple"
+          placeholder="Không có trợ giảng"
+          options={ASSISTANTS.filter((a) => !branchId || a.branchIds.includes(branchId)).map((a) => ({ value: a.id, label: a.name }))}
+          maxCount={2}
+        />
+      </Form.Item>
 
       {course?.mode === 'online' ? (
         <Form.Item name="meetingUrl" label="Link học online" rules={[{ type: 'url', message: 'Link không hợp lệ' }]}>
@@ -224,7 +235,7 @@ export function ClassFormFields({ mode, locked = false, closed = false, editingI
         </Form.Item>
       ) : (
         <Form.Item name="room" label="Phòng học">
-          <Select disabled={lock('room')} placeholder="Chọn phòng" options={(ROOMS[branchId] ?? []).map((r) => ({ value: r, label: r }))} />
+          <Select disabled={lock('room')} placeholder="Chọn phòng" options={roomOptions} />
         </Form.Item>
       )}
       <Form.Item name="plannedStartDate" label={label('Ngày khai giảng dự kiến', 'plannedStartDate')} rules={[{ required: true, message: 'Chọn ngày' }]}>
@@ -328,6 +339,7 @@ export function classToForm(c: ClassInfo): ClassFormValues {
     codeSuffix: c.code.slice(prefix.length),
     name: c.name,
     teacherIds: c.teacherIds,
+    assistantIds: c.assistantIds,
     room: c.room,
     meetingUrl: c.meetingUrl,
     plannedStartDate: dayjs(c.plannedStartDate),
@@ -364,6 +376,7 @@ export function formToClass(v: ClassFormValues, prefix: string, courseLabel: str
     name: v.name.trim(),
     courseLabel,
     teacherIds: v.teacherIds,
+    assistantIds: v.assistantIds?.length ? v.assistantIds : undefined,
     room: online ? undefined : v.room,
     online,
     meetingUrl: online ? v.meetingUrl : undefined,

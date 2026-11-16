@@ -1,97 +1,105 @@
 import { useMemo, useState } from 'react';
-import { Form } from 'antd';
 import dayjs from 'dayjs';
-import { Ban } from 'lucide-react';
-import { DateInput, ModalForm, PageHeader, Select, TextArea, Timetable, useNotify } from '@/components/common';
-import { buildWeekSessions, type MockSession } from '@/mocks/data/schedule';
-
-interface RequestForm {
-  reasonType: string;
-  reason: string;
-  makeupDate?: dayjs.Dayjs;
-}
+import { ClipboardList } from 'lucide-react';
+import { Button, PageHeader, Timetable, useNotify } from '@/components/common';
+import { useClassStore } from '@/features/academic/classes/classStore';
+import { notStarted, sessionTeachers } from '@/features/academic/classes/sessionUtils';
+import { CancelRequestModal } from '@/features/portal/components/CancelRequestModal';
+import { ChildSwitcher } from '@/features/portal/components/ChildSwitcher';
+import { LeaveRequestModal } from '@/features/portal/components/LeaveRequestModal';
+import { TeachSessionDrawer } from '@/features/portal/components/TeachSessionDrawer';
+import { usePortalStore } from '@/features/portal/portalStore';
+import { activeOf, sessionEvent, useStudentId, useStudentLearning, useTeacherId } from '@/features/portal/usePortal';
 
 /**
- * Thời khóa biểu cá nhân dùng chung:
- *  - Giáo viên: bấm buổi → gửi ĐƠN HỦY BUỔI (chỉ trung tâm được hủy cả lớp)
- *  - Học viên: bấm buổi → gửi ĐƠN XIN NGHỈ
+ * Thời khóa biểu cá nhân dùng chung (dữ liệu THẬT từ lịch lớp):
+ *  - Giáo viên: buổi mình dạy (kể cả dạy thay). Buổi sắp tới → xin hủy buổi; buổi hôm nay / đã qua → mở buổi (điểm danh, nhật ký)
+ *  - Học viên / Phụ huynh: buổi của các lớp đang học + buổi học bù đã đăng ký. Buổi sắp tới → xin nghỉ
  */
-export function SessionTimetablePage({ role }: { role: 'teacher' | 'student' }) {
+export function SessionTimetablePage({ role }: { role: 'teacher' | 'student' | 'parent' }) {
   const notify = useNotify();
+  const me = useTeacherId();
+  const studentId = useStudentId();
+  const sessions = useClassStore((s) => s.sessions);
+  const classes = useClassStore((s) => s.classes);
+  const cancelReqs = usePortalStore((s) => s.cancelRequests);
+  const leaveReqs = usePortalStore((s) => s.leaveRequests);
+  const learning = useStudentLearning(studentId);
   const [week, setWeek] = useState(() => dayjs());
-  const [selected, setSelected] = useState<MockSession | null>(null);
-  const [cancelled, setCancelled] = useState<Set<string | number>>(new Set());
-
-  const events = useMemo(
-    () =>
-      buildWeekSessions(week).map((s) =>
-        cancelled.has(s.id) ? { ...s, subtitle: role === 'teacher' ? 'Đã gửi đơn hủy — chờ duyệt' : 'Đã xin nghỉ — chờ duyệt', tone: 'warning' as const } : s,
-      ),
-    [week, cancelled, role],
-  );
-
+  const [cancelFor, setCancelFor] = useState<string | null>(null);
+  const [leaveFor, setLeaveFor] = useState<string | null>(null);
+  const [teachId, setTeachId] = useState<string | null>(null);
   const isTeacher = role === 'teacher';
-  const past = selected ? dayjs(selected.start).isBefore(dayjs()) : false;
+
+  const events = useMemo(() => {
+    const fromDate = week.subtract((week.day() + 6) % 7, 'day').startOf('day');
+    const from = fromDate.format('YYYY-MM-DD');
+    const to = fromDate.add(6, 'day').format('YYYY-MM-DD');
+    const inRange = sessions.filter((s) => s.date >= from && s.date <= to);
+    if (isTeacher) {
+      return inRange
+        .map((s) => ({ s, cls: classes.find((c) => c.id === s.classId) }))
+        .filter(({ s, cls }) => cls && sessionTeachers(s, cls).includes(me))
+        .map(({ s, cls }) => {
+          const req = cancelReqs.find((r) => r.sessionId === s.id && r.status === 'pending');
+          const sub = !cls!.teacherIds.includes(me);
+          const ev = sessionEvent(s, cls!, { subtitle: req ? 'Đã xin hủy — chờ duyệt' : sub ? `Dạy thay · buổi ${s.no}` : undefined });
+          return req ? { ...ev, tone: 'warning' as const } : sub ? { ...ev, tone: 'success' as const } : ev;
+        });
+    }
+    const classIds = activeOf(learning).map((x) => x.cls.id);
+    const mine = leaveReqs.filter((r) => r.studentId === studentId);
+    // Buổi học bù đã đăng ký: đơn đã duyệt (hoặc đang chờ duyệt) — đơn bị từ chối thì không
+    const makeupReq = (id: string) => mine.find((r) => r.makeupSessionId === id && r.status !== 'rejected');
+    const makeups = new Set(mine.filter((r) => r.status !== 'rejected').map((r) => r.makeupSessionId).filter(Boolean) as string[]);
+    return inRange
+      .filter((s) => classIds.includes(s.classId) || makeups.has(s.id))
+      .map((s) => {
+        const cls = classes.find((c) => c.id === s.classId)!;
+        const leave = mine.find((r) => r.sessionId === s.id && r.status !== 'rejected');
+        const ev = sessionEvent(s, cls, makeups.has(s.id) ? { subtitle: `Học bù${makeupReq(s.id)?.status === 'pending' ? ' (chờ duyệt)' : ''} · ${cls.courseLabel}` } : leave ? { subtitle: leave.status === 'approved' ? 'Đã được nghỉ' : 'Đã xin nghỉ — chờ duyệt' } : undefined);
+        return makeups.has(s.id) ? { ...ev, tone: 'warning' as const } : leave ? { ...ev, tone: 'neutral' as const } : ev;
+      });
+  }, [week, sessions, classes, isTeacher, me, cancelReqs, leaveReqs, learning, studentId]);
+
+  const onClick = (id: string) => {
+    const s = sessions.find((x) => x.id === id);
+    if (!s) return;
+    if (s.status === 'cancelled') return notify.info({ title: 'Buổi đã hủy', description: s.note ?? 'Giáo vụ sẽ thông báo lịch học bù.' });
+    if (isTeacher) {
+      if (!notStarted(s) || s.date === dayjs().format('YYYY-MM-DD')) return setTeachId(s.id);
+      if (cancelReqs.some((r) => r.sessionId === s.id && r.status === 'pending')) return notify.info({ title: 'Đơn hủy đang chờ duyệt', description: 'Xem ở mục Đơn hủy buổi.' });
+      return setCancelFor(s.id);
+    }
+    if (!notStarted(s)) return notify.info({ title: `Buổi ${s.no}`, description: 'Buổi đã diễn ra — xem điểm danh ở mục Chuyên cần / Tiến độ.' });
+    if (leaveReqs.some((r) => r.sessionId === s.id && r.studentId === studentId && r.status !== 'rejected')) return notify.info({ title: 'Đã gửi đơn xin nghỉ buổi này' });
+    setLeaveFor(s.id);
+  };
+
+  const teachCls = classes.find((c) => c.id === sessions.find((s) => s.id === teachId)?.classId);
 
   return (
     <>
       <PageHeader
-        title="Thời khóa biểu"
-        subtitle={isTeacher ? 'Bấm vào một buổi để gửi đơn xin hủy buổi.' : 'Bấm vào một buổi để xin nghỉ buổi đó.'}
+        title={role === 'parent' ? 'Lịch học của con' : 'Thời khóa biểu'}
+        subtitle={isTeacher ? 'Buổi sắp tới: bấm để xin hủy buổi. Buổi hôm nay / đã qua: bấm để điểm danh, ghi nhật ký.' : 'Bấm vào buổi sắp tới để xin nghỉ (và đăng ký học bù nếu muốn).'}
+        actions={
+          <Button icon={ClipboardList} variant="outline" collapseOnMobile onClick={() => (isTeacher ? setCancelFor('') : setLeaveFor(''))}>
+            {isTeacher ? 'Xin hủy buổi' : 'Xin nghỉ'}
+          </Button>
+        }
       />
+      {role === 'parent' && <ChildSwitcher />}
       <div className="rounded-[var(--radius-card)] border border-line bg-surface p-3 sm:p-4">
-        <Timetable
-          events={events}
-          week={week}
-          onWeekChange={setWeek}
-          onEventClick={(e) => {
-            const s = events.find((x) => x.id === e.id) ?? null;
-            if (s && cancelled.has(s.id)) {
-              notify.info({ title: 'Đơn đang chờ duyệt', description: `${s.className} · ${dayjs(s.start).format('HH:mm DD/MM')}` });
-              return;
-            }
-            setSelected(s);
-          }}
-        />
+        <Timetable events={events} week={week} onWeekChange={setWeek} onEventClick={(e) => onClick(String(e.id))} />
       </div>
 
-      <ModalForm<RequestForm>
-        open={Boolean(selected)}
-        onClose={() => setSelected(null)}
-        title={isTeacher ? 'Gửi đơn hủy buổi dạy' : 'Gửi đơn xin nghỉ học'}
-        description={selected ? `${selected.className} · ${dayjs(selected.start).format('dddd HH:mm, DD/MM/YYYY')} · ${selected.location}` : undefined}
-        submitAction="send"
-        submitText="Gửi đơn"
-        successMessage={isTeacher ? 'Đã gửi đơn hủy buổi — giáo vụ sẽ xử lý' : 'Đã gửi đơn xin nghỉ'}
-        onSubmit={async () => {
-          if (past) throw new Error('Không thể gửi đơn cho buổi đã diễn ra.');
-          await new Promise((r) => setTimeout(r, 700));
-          if (selected) setCancelled((s) => new Set(s).add(selected.id));
-        }}
-      >
-        {past && (
-          <p className="mb-4 flex items-center gap-2 rounded-lg bg-danger-50 px-3 py-2 text-[13px] text-danger-700">
-            <Ban size={16} aria-hidden /> Buổi này đã diễn ra, không thể gửi đơn.
-          </p>
-        )}
-        <Form.Item name="reasonType" label="Lý do" rules={[{ required: true, message: 'Chọn lý do' }]}>
-          <Select
-            placeholder="Chọn lý do"
-            options={(isTeacher
-              ? ['Ốm / sức khỏe', 'Việc gia đình đột xuất', 'Sự cố thiết bị / mạng (lớp online)', 'Khác']
-              : ['Ốm / sức khỏe', 'Việc gia đình', 'Trùng lịch học / làm', 'Khác']
-            ).map((v) => ({ value: v, label: v }))}
-          />
-        </Form.Item>
-        <Form.Item name="reason" label="Chi tiết" rules={[{ required: true, message: 'Nhập chi tiết' }, { min: 10, message: 'Tối thiểu 10 ký tự' }]}>
-          <TextArea maxLength={300} placeholder="Mô tả ngắn gọn lý do..." />
-        </Form.Item>
-        {isTeacher && (
-          <Form.Item name="makeupDate" label="Đề xuất ngày dạy bù" extra="Giáo vụ sẽ xếp phòng và báo lại.">
-            <DateInput showTime disabledDate={(d) => d.isBefore(dayjs(), 'day')} />
-          </Form.Item>
-        )}
-      </ModalForm>
+      {isTeacher ? (
+        <CancelRequestModal open={cancelFor !== null} sessionId={cancelFor || undefined} onClose={() => setCancelFor(null)} />
+      ) : (
+        <LeaveRequestModal open={leaveFor !== null} sessionId={leaveFor || undefined} studentId={studentId} by={role === 'parent' ? 'parent' : 'student'} onClose={() => setLeaveFor(null)} />
+      )}
+      {teachId && teachCls && <TeachSessionDrawer key={teachId} cls={teachCls} sessionId={teachId} onClose={() => setTeachId(null)} />}
     </>
   );
 }

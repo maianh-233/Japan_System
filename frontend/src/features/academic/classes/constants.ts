@@ -51,15 +51,16 @@ export const TEACHERS: { id: string; name: string; type: 'vn' | 'jp'; branchIds:
   { id: 't-sato', name: 'Sato Yuki', type: 'jp', branchIds: ['q1', 'cg'] },
   { id: 't-tanaka', name: 'Tanaka Ken', type: 'jp', branchIds: ['cg', 'hc'] },
 ];
-export const teacherName = (id: string) => TEACHERS.find((t) => t.id === id)?.name ?? id;
-export const teacherNames = (ids: string[]) => ids.map(teacherName).join(', ');
+/** Trợ giảng (dữ liệu giả — sau lấy từ Nhân sự) — hỗ trợ GV trong lớp, có thể dạy tiếp khi GV gặp sự cố */
+export const ASSISTANTS: { id: string; name: string; branchIds: string[] }[] = [
+  { id: 'ta-linh', name: 'Đỗ Thùy Linh', branchIds: ['cg'] },
+  { id: 'ta-quan', name: 'Hà Minh Quân', branchIds: ['hc'] },
+  { id: 'ta-mai', name: 'Lâm Ngọc Mai', branchIds: ['q1', 'cg'] },
+];
 
-/** Phòng học theo chi nhánh (dữ liệu giả — sau lấy từ Đào tạo → Phòng học) */
-export const ROOMS: Record<string, string[]> = {
-  cg: ['P.201', 'P.205', 'P.301', 'P.302'],
-  q1: ['P.101', 'P.102', 'P.203'],
-  hc: ['P.A1', 'P.A2', 'Xưởng thực hành'],
-};
+/** Tên GV hoặc trợ giảng */
+export const teacherName = (id: string) => TEACHERS.find((t) => t.id === id)?.name ?? ASSISTANTS.find((t) => t.id === id)?.name ?? id;
+export const teacherNames = (ids: string[]) => ids.map(teacherName).join(', ');
 
 /** Ngày nghỉ lễ — bỏ qua khi tự sinh buổi học (Tết âm lịch cần cập nhật hằng năm) */
 export const HOLIDAYS: { date: string; name: string }[] = [

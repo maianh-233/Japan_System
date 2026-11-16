@@ -66,7 +66,10 @@ const enroll = (studentId: string, classId: string, status: EnrollmentStatus, no
   const start = c.actualStartDate ?? c.plannedStartDate;
   const ended =
     status === 'completed' ? (c.actualEndDate ?? c.plannedEndDate) : status === 'dropped' || status === 'transferred' ? dayjs(start).add(40, 'day').format('YYYY-MM-DD') : undefined;
-  return { id: `E-${++eSeq}`, studentId, classId, status, enrolledAt: dayjs(start).subtract(7 + (eSeq % 9), 'day').toISOString(), endedAt: ended, note };
+  const at = dayjs(start).subtract(7 + ((eSeq + 1) % 9), 'day');
+  // Lớp sắp mở: ghi danh trong vài ngày gần đây (không để ngày tương lai)
+  const enrolledAt = at.isAfter(dayjs().subtract(1, 'day')) ? dayjs().subtract(1 + ((eSeq + 1) % 6), 'day').hour(10) : at;
+  return { id: `E-${++eSeq}`, studentId, classId, status, enrolledAt: enrolledAt.toISOString(), endedAt: ended, note };
 };
 
 export const MOCK_ENROLLMENTS: Enrollment[] = [
@@ -103,6 +106,22 @@ export const MOCK_ENROLLMENTS: Enrollment[] = [
     }
   }),
 ];
+
+// Chứng nhận đã cấp cho một phần học viên hoàn thành (dữ liệu giả)
+MOCK_ENROLLMENTS.filter((e) => e.status === 'completed')
+  .filter((_, i) => i % 3 !== 2)
+  .forEach((e, i) => {
+    const c = MOCK_CLASSES.find((x) => x.id === e.classId)!;
+    const st = MOCK_STUDENTS.find((x) => x.id === e.studentId);
+    e.certificate = {
+      code: `CN-${dayjs(e.endedAt).year()}-${c.code.replace(/^GV[VN]*_/, '').replace(/[^A-Z0-9]/gi, '')}-${String(i + 1).padStart(4, '0')}`,
+      issuedAt: dayjs(e.endedAt).add(5 + (i % 6), 'day').toISOString(),
+      sentTo: st?.email ?? `${st?.code.toLowerCase()}@gmail.com`,
+      sentBy: 'Phạm Thị Hồng (Giáo vụ)',
+      sendCount: i % 4 === 1 ? 2 : 1,
+      exception: i === 3 ? 'Vắng 3 buổi do nằm viện — Giám đốc duyệt cấp' : undefined,
+    };
+  });
 
 // ---------------- Học phí ----------------
 const pay = (id: string, amount: number, daysAgo: number, method: Payment['method'] = 'transfer'): Payment => ({
@@ -157,11 +176,12 @@ export const MOCK_INVOICES: Invoice[] = MOCK_ENROLLMENTS.map((e, idx) => {
 // ---------------- Người thân (bổ sung link cho học viên sinh tự động) ----------------
 /** Lead đã chốt trong dữ liệu CRM (status "won") đóng vai phụ huynh của một số học viên */
 export const EXTRA_LINKS: LeadStudentLink[] = [
-  { leadId: 'L-0011', studentId: 'ST-6', relationship: 'child', createdAt: ago(60) },
-  { leadId: 'L-0018', studentId: 'ST-9', relationship: 'child', createdAt: ago(90) },
-  { leadId: 'L-0025', studentId: 'ST-9', relationship: 'sibling', createdAt: ago(80) },
-  { leadId: 'L-0032', studentId: 'ST-13', relationship: 'spouse', createdAt: ago(40) },
-  { leadId: 'L-0039', studentId: 'ST-18', relationship: 'child', createdAt: ago(30) },
+  { leadId: 'L-0011', studentId: 'ST-6', relationship: 'child', createdAt: ago(60), primary: true, billing: true, notify: true },
+  { leadId: 'L-0018', studentId: 'ST-9', relationship: 'child', createdAt: ago(90), primary: true, billing: true, notify: true },
+  { leadId: 'L-0025', studentId: 'ST-9', relationship: 'sibling', createdAt: ago(80), notify: true },
+  { leadId: 'L-0032', studentId: 'ST-13', relationship: 'spouse', createdAt: ago(40), notify: true },
+  { leadId: 'L-0039', studentId: 'ST-18', relationship: 'child', createdAt: ago(30), primary: true, billing: true, notify: true },
+  // Chưa đặt người liên hệ chính → trang Phụ huynh hiện cảnh báo
   { leadId: 'L-0046', studentId: 'ST-21', relationship: 'other', createdAt: ago(50) },
 ];
 

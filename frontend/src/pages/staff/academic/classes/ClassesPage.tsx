@@ -1,3 +1,4 @@
+import { isTaught } from '@/features/academic/classes/sessionUtils';
 import { useMemo, useState } from 'react';
 import { Form, Tooltip } from 'antd';
 import dayjs from 'dayjs';
@@ -23,7 +24,7 @@ import { useStudentStore } from '@/features/student/studentStore';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/cn';
 import { fmtDate } from '@/lib/date';
-import { MOCK_BRANCHES } from '@/mocks/data/branches';
+import { getBranches } from '@/features/system/useBranches';
 import { ALL_BRANCHES } from '@/types/auth';
 
 interface Row extends ClassInfo {
@@ -56,7 +57,7 @@ export default function ClassesPage() {
         return {
           ...c,
           enrolled: enrollments.filter((e) => e.classId === c.id && (e.status === 'studying' || e.status === 'reserved')).length,
-          sessionsDone: mine.filter((s) => s.status === 'completed' || s.status === 'makeup').length,
+          sessionsDone: mine.filter(isTaught).length,
           sessionsTotal: totalSessionsOf(c),
         };
       }),
@@ -101,7 +102,7 @@ export default function ClassesPage() {
         <div className="leading-5">
           <p className="truncate text-ink">{r.courseLabel}</p>
           <p className="truncate text-xs text-ink-muted">
-            {MOCK_BRANCHES.find((b) => b.id === r.branchId)?.name}
+            {getBranches(false).find((b) => b.id === r.branchId)?.name}
             {r.online ? ' · Online' : r.room ? ` · ${r.room}` : ''}
           </p>
         </div>

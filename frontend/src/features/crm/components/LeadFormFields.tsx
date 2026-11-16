@@ -3,8 +3,9 @@ import dayjs from 'dayjs';
 import { ExternalLink, Mail, Phone, User } from 'lucide-react';
 import { DateInput, Select, TextArea, TextInput } from '@/components/common';
 import { useAuth } from '@/hooks/useAuth';
-import { COURSE_OPTIONS, LEAD_SOURCE_OPTIONS, LEAD_STATUS_OPTIONS, SALES } from '../constants';
+import { COURSE_OPTIONS, LEAD_SOURCE_OPTIONS, LEAD_STATUS_OPTIONS, useSales } from '../constants';
 import { useCrmStore, type LeadInput } from '../crmStore';
+import { useAdmissionStore } from '../admission/admissionStore';
 import type { Lead } from '../types';
 
 interface Props {
@@ -21,6 +22,8 @@ interface Props {
 export function LeadFormFields({ excludeId, onOpenLead }: Props) {
   const { branches } = useAuth();
   const findDuplicate = useCrmStore((s) => s.findDuplicate);
+  const campaigns = useAdmissionStore((s) => s.campaigns);
+  const sales = useSales();
 
   return (
     <>
@@ -82,16 +85,27 @@ export function LeadFormFields({ excludeId, onOpenLead }: Props) {
 
       <Form.Item noStyle shouldUpdate={(a, b) => a.branchId !== b.branchId}>
         {({ getFieldValue }) => (
-          <Form.Item name="assigneeId" label="Sale phụ trách">
+          <Form.Item name="assigneeId" label="Sale phụ trách" tooltip="Để trống → hệ thống tự chia theo quy tắc ở Tuyển sinh › Chia lead & SLA">
             <Select
-              placeholder="Chọn Sale"
-              options={SALES.filter((s) => !getFieldValue('branchId') || s.branchId === getFieldValue('branchId')).map((s) => ({
-                value: s.id,
-                label: s.name,
-              }))}
+              placeholder="Để trống = tự chia"
+              options={sales
+                .filter((s) => !getFieldValue('branchId') || s.branchId === getFieldValue('branchId'))
+                .map((s) => ({ value: s.id, label: `${s.fullName} · ${s.position}` }))}
             />
           </Form.Item>
         )}
+      </Form.Item>
+      <Form.Item noStyle shouldUpdate={(a, b) => a.source !== b.source || a.branchId !== b.branchId}>
+        {({ getFieldValue }) => {
+          const src = getFieldValue('source');
+          const br = getFieldValue('branchId');
+          const opts = campaigns.filter((c) => c.channel === src && c.status !== 'planned' && (!br || c.branchIds.includes(br)));
+          return (
+            <Form.Item name="campaignId" label="Chiến dịch" tooltip="Lead từ quảng cáo / sự kiện — để tính chi phí / lead">
+              <Select placeholder={opts.length ? 'Chọn chiến dịch' : 'Không có chiến dịch cho nguồn này'} disabled={!opts.length} options={opts.map((c) => ({ value: c.id, label: c.name }))} />
+            </Form.Item>
+          );
+        }}
       </Form.Item>
       <Form.Item name="interest" label="Khóa học quan tâm">
         <Select placeholder="Chọn khóa" options={COURSE_OPTIONS} />

@@ -6,7 +6,6 @@ import { cn } from '@/lib/cn';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/common';
 import { findNavItem, type NavItem, type NavModule } from '@/config/navigation';
-import type { AppNotification } from '@/types/auth';
 import { Logo, SYSTEM_NAME } from './Logo';
 import { NotificationBell } from './NotificationBell';
 import { useLogout, UserMenu } from './UserMenu';
@@ -28,7 +27,6 @@ export interface AppShellProps {
   headerExtra?: ReactNode;
   /** Thêm vào đầu drawer mobile (vd: chọn chi nhánh) */
   drawerExtra?: ReactNode;
-  notifications: AppNotification[];
 }
 
 const COLLAPSE_KEY = 'sidebar-collapsed';
@@ -56,9 +54,8 @@ export function AppShell({
   logoSubtitle,
   headerExtra,
   drawerExtra,
-  notifications,
 }: AppShellProps) {
-  const { can } = useAuth();
+  const { can, user } = useAuth();
   const { pathname } = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(readCollapsed);
@@ -130,7 +127,7 @@ export function AppShell({
           </NavLink>
           <div className="flex-1" />
           {headerExtra && <div className="hidden md:block">{headerExtra}</div>}
-          <NotificationBell initial={notifications} />
+          {user && <NotificationBell portal={user.portal} />}
           <div className="mx-1 hidden h-8 w-px bg-line sm:block" aria-hidden />
           <UserMenu />
         </div>

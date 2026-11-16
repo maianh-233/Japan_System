@@ -1,3 +1,4 @@
+import { isTaught } from '@/features/academic/classes/sessionUtils';
 import { useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 import { AlertTriangle, BookOpen, CheckCircle2, ChevronRight, Circle, CircleDot, NotebookPen, TrendingDown, TrendingUp } from 'lucide-react';
@@ -25,7 +26,7 @@ export function ClassProgressTab({ cls }: { cls: ClassInfo }) {
 
   const today = dayjs().format('YYYY-MM-DD');
   const total = totalSessionsOf(cls);
-  const done = sessions.filter((s) => s.status === 'completed' || s.status === 'makeup');
+  const done = sessions.filter(isTaught);
   const cancelled = sessions.filter((s) => s.status === 'cancelled');
   const makeups = sessions.filter((s) => s.status === 'makeup');
   const unconfirmed = sessions.filter((s) => s.status === 'scheduled' && s.date < today);

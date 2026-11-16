@@ -26,6 +26,26 @@ export interface Enrollment {
   enrolledAt: string;
   endedAt?: string;
   note?: string;
+  /** Bảo lưu đến ngày (dự kiến quay lại học) */
+  reservedUntil?: string;
+  /** Chuyển lớp: sang ghi danh nào / từ ghi danh nào */
+  transferredTo?: string;
+  transferredFrom?: string;
+  /** Chứng nhận hoàn thành khóa đã cấp */
+  certificate?: Certificate;
+}
+
+export interface Certificate {
+  /** Mã tra cứu, vd CN-2026-N3K12-0007 */
+  code: string;
+  issuedAt: string;
+  /** Email đã gửi (lần gần nhất) */
+  sentTo: string;
+  sentBy: string;
+  /** Số lần gửi (gửi lại khi học viên báo chưa nhận) */
+  sendCount: number;
+  /** Cấp ngoại lệ dù chưa đủ điều kiện */
+  exception?: string;
 }
 
 export type PaymentMethod = 'cash' | 'transfer' | 'vietqr' | 'card';

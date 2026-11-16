@@ -16,7 +16,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/cn';
 import { fmtDate } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
-import { MOCK_BRANCHES } from '@/mocks/data/branches';
+import { getBranches } from '@/features/system/useBranches';
 import { ALL_BRANCHES } from '@/types/auth';
 
 /** Một dòng bảng = hồ sơ + dữ liệu suy ra (lớp, trạng thái học, học phí, tài khoản) */
@@ -132,7 +132,7 @@ export default function StudentsPage() {
       sorter: (a, b) => dayjs(a.dob ?? 0).valueOf() - dayjs(b.dob ?? 0).valueOf(),
       render: (_, r) => (r.dob ? <span className="tabular">{fmtDate(r.dob)}</span> : '—'),
     },
-    { key: 'branch', title: 'Chi nhánh', width: 110, render: (_, r) => MOCK_BRANCHES.find((b) => b.id === r.branchId)?.name },
+    { key: 'branch', title: 'Chi nhánh', width: 110, render: (_, r) => getBranches(false).find((b) => b.id === r.branchId)?.name },
     {
       key: 'classes',
       title: 'Lớp đang học',

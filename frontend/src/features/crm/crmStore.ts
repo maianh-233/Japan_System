@@ -3,6 +3,9 @@ import { create } from 'zustand';
 import { MOCK_CONSULTATIONS, MOCK_LEADS, MOCK_LINKS, MOCK_STUDENTS } from '@/mocks/data/crm';
 import { normalizeText } from '@/lib/text';
 import { useStudentStore } from '@/features/student/studentStore';
+import { useWorkStore } from '@/features/work/workStore';
+import { useAdmissionStore } from './admission/admissionStore';
+import { routeLead } from './admission/routing';
 import type { Consultation, Lead, LeadStudentLink, Relationship, Student } from './types';
 
 /**
@@ -38,6 +41,8 @@ interface CrmState {
   createStudentFromLead: (leadId: string, input: NewStudentInput, staffName: string) => Student;
   linkStudent: (leadId: string, studentId: string, relationship: Relationship, staffName: string) => void;
   unlinkStudent: (leadId: string, studentId: string) => void;
+  /** Đổi quan hệ / vai trò của người liên hệ với học viên. Đặt `primary` → bỏ cờ chính của người khác cùng học viên */
+  updateLink: (leadId: string, studentId: string, patch: Partial<Pick<LeadStudentLink, 'relationship' | 'primary' | 'billing' | 'notify'>>) => void;
 
   updateStudent: (id: string, patch: Partial<Student>) => void;
   /** Gọi từ UI SAU KHI đã kiểm tra học viên không còn học lớp nào */
@@ -56,9 +61,20 @@ export const useCrmStore = create<CrmState>((set, get) => ({
 
   addLead: (input, createdBy) => {
     const n = get().leads.length + 1 + seq++;
+    // Chưa chọn Sale → chạy quy tắc chia lead (Tuyển sinh › Chia lead & SLA)
+    let assigneeId = input.assigneeId;
+    const id = `L-${n}`;
+    if (!assigneeId) {
+      const adm = useAdmissionStore.getState();
+      const r = routeLead(input, adm.rules, get().leads, useWorkStore.getState().shifts);
+      assigneeId = r.saleId;
+      if (r.rule && r.cursor !== undefined) adm.updateRule(r.rule.id, { cursor: r.cursor });
+      adm.addLog({ leadId: id, saleId: r.saleId, ruleId: r.rule?.id, reason: r.reason });
+    }
     const lead: Lead = {
       ...input,
-      id: `L-${n}`,
+      assigneeId,
+      id,
       code: `LD${String(n).padStart(4, '0')}`,
       createdAt: now(),
       createdBy,
@@ -147,6 +163,15 @@ export const useCrmStore = create<CrmState>((set, get) => ({
 
   unlinkStudent: (leadId, studentId) =>
     set((s) => ({ links: s.links.filter((k) => !(k.leadId === leadId && k.studentId === studentId)) })),
+
+  updateLink: (leadId, studentId, patch) =>
+    set((s) => ({
+      links: s.links.map((k) => {
+        if (k.studentId !== studentId) return k;
+        if (k.leadId === leadId) return { ...k, ...patch };
+        return patch.primary ? { ...k, primary: false } : k;
+      }),
+    })),
 
   updateStudent: (id, patch) => set((s) => ({ students: s.students.map((x) => (x.id === id ? { ...x, ...patch } : x)) })),
 

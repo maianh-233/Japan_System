@@ -13,7 +13,7 @@ import illustration from '@/assets/images/login-illustration.svg';
 import { ForgotPasswordDialog } from './ForgotPasswordDialog';
 
 interface LoginForm {
-  email: string;
+  identifier: string;
   password: string;
   remember: boolean;
 }
@@ -38,7 +38,7 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     try {
-      const u = await login(v.email, v.password);
+      const u = await login(v.identifier, v.password);
       signIn(u, v.remember);
       // quay lại trang định vào trước khi bị chuyển sang đăng nhập (nếu cùng cổng)
       const from = (location.state as { from?: string } | null)?.from;
@@ -100,14 +100,11 @@ export default function LoginPage() {
               onValuesChange={() => error && setError(null)}
             >
               <Form.Item
-                name="email"
-                label="Email"
-                rules={[
-                  { required: true, message: 'Nhập email' },
-                  { type: 'email', message: 'Email không hợp lệ' },
-                ]}
+                name="identifier"
+                label="Email hoặc tên đăng nhập"
+                rules={[{ required: true, message: 'Nhập email hoặc tên đăng nhập' }]}
               >
-                <TextInput type="email" icon={Mail} placeholder="email@jpcenter.vn" autoComplete="username" size="large" autoFocus />
+                <TextInput type="text" icon={Mail} placeholder="email@jpcenter.vn hoặc tên đăng nhập" autoComplete="username" size="large" autoFocus />
               </Form.Item>
               <Form.Item name="password" label="Mật khẩu" rules={[{ required: true, message: 'Nhập mật khẩu' }]} className="!mb-3">
                 <TextInput type="password" icon={Lock} placeholder="Mật khẩu" autoComplete="current-password" size="large" />
@@ -120,7 +117,8 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    setForgotEmail(form.getFieldValue('email'));
+                    const identifier = form.getFieldValue('identifier');
+                    setForgotEmail(identifier?.includes('@') ? identifier : undefined);
                     setForgotOpen(true);
                   }}
                   className="rounded text-[13px] font-medium text-primary-700 hover:underline focus-visible:ring-[3px] focus-visible:ring-primary-500/30 focus-visible:outline-none"
@@ -152,7 +150,7 @@ export default function LoginPage() {
                       <button
                         type="button"
                         onClick={() => {
-                          form.setFieldsValue({ email: a.email, password: DEMO_PASSWORD });
+                          form.setFieldsValue({ identifier: a.email, password: DEMO_PASSWORD });
                           setError(null);
                         }}
                         className="flex w-full flex-col rounded-md px-2 py-1.5 text-left hover:bg-primary-50"
@@ -177,7 +175,7 @@ export default function LoginPage() {
         onClose={() => setForgotOpen(false)}
         onDone={(email) => {
           setForgotOpen(false);
-          form.setFieldsValue({ email, password: '' });
+          form.setFieldsValue({ identifier: email, password: '' });
         }}
       />
     </main>

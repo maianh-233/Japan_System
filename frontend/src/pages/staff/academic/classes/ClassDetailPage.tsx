@@ -1,12 +1,16 @@
+import { isTaught } from '@/features/academic/classes/sessionUtils';
 import { useState } from 'react';
 import { Checkbox, Form, Tabs } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
-import { BarChart3, BookOpenCheck, CalendarDays, CirclePause, CirclePlay, Flag, Info, NotebookPen, Rocket, Users, XCircle } from 'lucide-react';
+import { BarChart3, BookOpenCheck, CalendarCheck, CalendarDays, Megaphone, Star, CirclePause, CirclePlay, Flag, Info, NotebookPen, Rocket, Users, XCircle } from 'lucide-react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Button, DateInput, EmptyState, ModalForm, PageHeader, StatusTag, useConfirm, useNotify } from '@/components/common';
 import { useClassStore } from '@/features/academic/classes/classStore';
 import { CLASS_STATUS, effectiveStart, scheduleLabel, teacherNames, totalSessionsOf } from '@/features/academic/classes/constants';
+import { ClassAnnouncementsTab } from '@/features/academic/classes/detail/ClassAnnouncementsTab';
 import { ClassAssignmentsTab } from '@/features/academic/classes/detail/ClassAssignmentsTab';
+import { ClassAttendanceTab } from '@/features/academic/classes/detail/ClassAttendanceTab';
+import { ClassTeacherReviewsTab } from '@/features/academic/classes/detail/ClassTeacherReviewsTab';
 import { ClassExamsTab } from '@/features/academic/classes/detail/ClassExamsTab';
 import { ClassOverviewTab } from '@/features/academic/classes/detail/ClassOverviewTab';
 import { ClassProgressTab } from '@/features/academic/classes/detail/ClassProgressTab';
@@ -18,10 +22,10 @@ import { useCurriculumStore } from '@/features/academic/curriculum/curriculumSto
 import { summarizeInvoice, useStudentStore } from '@/features/student/studentStore';
 import { useAuth } from '@/hooks/useAuth';
 import { fmtDate } from '@/lib/date';
-import { MOCK_BRANCHES } from '@/mocks/data/branches';
+import { getBranches } from '@/features/system/useBranches';
 
-type TabKey = 'overview' | 'students' | 'sessions' | 'progress' | 'assignments' | 'exams';
-const TAB_KEYS: TabKey[] = ['overview', 'students', 'sessions', 'progress', 'assignments', 'exams'];
+type TabKey = 'overview' | 'students' | 'sessions' | 'attendance' | 'progress' | 'assignments' | 'exams' | 'reviews' | 'announcements';
+const TAB_KEYS: TabKey[] = ['overview', 'students', 'sessions', 'attendance', 'progress', 'assignments', 'exams', 'reviews', 'announcements'];
 
 /** Trang quản lý 1 lớp: /admin/academic/classes/:id?tab=... */
 export default function ClassDetailPage() {
@@ -45,7 +49,7 @@ export default function ClassDetailPage() {
     );
 
   const mine = sessions.filter((s) => s.classId === cls.id);
-  const done = mine.filter((s) => s.status === 'completed' || s.status === 'makeup').length;
+  const done = mine.filter(isTaught).length;
   const enrolled = enrollments.filter((e) => e.classId === cls.id && (e.status === 'studying' || e.status === 'reserved')).length;
   const st = CLASS_STATUS[cls.status];
   const label = (Icon: typeof Info, text: string) => (
@@ -66,7 +70,7 @@ export default function ClassDetailPage() {
             </StatusTag>
           </span>
         }
-        subtitle={`${cls.name} · ${MOCK_BRANCHES.find((b) => b.id === cls.branchId)?.name}${cls.online ? ' · Online' : cls.room ? ` · ${cls.room}` : ''}`}
+        subtitle={`${cls.name} · ${getBranches(false).find((b) => b.id === cls.branchId)?.name}${cls.online ? ' · Online' : cls.room ? ` · ${cls.room}` : ''}`}
         actions={
           <>
             <Button action="back" variant="outline" collapseOnMobile onClick={() => navigate('/admin/academic/classes')}>
@@ -107,9 +111,12 @@ export default function ClassDetailPage() {
             { key: 'overview', label: label(Info, 'Thông tin lớp'), children: <ClassOverviewTab cls={cls} /> },
             { key: 'students', label: label(Users, `Học viên & học phí (${enrolled})`), children: <ClassStudentsTab cls={cls} /> },
             { key: 'sessions', label: label(CalendarDays, `Buổi học (${mine.length})`), children: <ClassSessionsTab cls={cls} /> },
+            { key: 'attendance', label: label(CalendarCheck, 'Chuyên cần'), children: <ClassAttendanceTab cls={cls} /> },
             { key: 'progress', label: label(BarChart3, 'Tiến độ'), children: <ClassProgressTab cls={cls} /> },
             { key: 'assignments', label: label(NotebookPen, 'Bài tập'), children: <ClassAssignmentsTab cls={cls} /> },
             { key: 'exams', label: label(BookOpenCheck, 'Bài thi'), children: <ClassExamsTab cls={cls} /> },
+            { key: 'reviews', label: label(Star, 'Đánh giá GV'), children: <ClassTeacherReviewsTab cls={cls} /> },
+            { key: 'announcements', label: label(Megaphone, 'Thông báo'), children: <ClassAnnouncementsTab cls={cls} /> },
           ]}
         />
       </div>

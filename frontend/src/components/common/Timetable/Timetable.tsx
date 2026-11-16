@@ -22,6 +22,8 @@ export interface TimetableEvent {
   cancelled?: boolean;
   /** Nội dung thêm (vd: <StatusTag />) — hiện ở dạng danh sách mobile */
   extra?: ReactNode;
+  /** Biểu tượng nhỏ ở góc ô (vd: đã xác nhận, sự cố) — hiện ở lưới tuần */
+  badge?: ReactNode;
 }
 
 export interface TimetableProps {
@@ -156,8 +158,11 @@ export function Timetable({
       )}
       title={`${fmtTime(ev.s)}–${fmtTime(ev.e)} · ${ev.title}${ev.location ? ` · ${ev.location}` : ''}`}
     >
-      <span className={cn('tabular text-[11px] leading-4 opacity-90', !compact && 'text-xs')}>
-        {fmtTime(ev.s)}–{fmtTime(ev.e)}
+      <span className={cn('tabular flex items-center justify-between gap-1 text-[11px] leading-4 opacity-90', !compact && 'text-xs')}>
+        <span className="truncate">
+          {fmtTime(ev.s)}–{fmtTime(ev.e)}
+        </span>
+        {ev.badge && <span className="flex shrink-0 items-center gap-0.5">{ev.badge}</span>}
       </span>
       <span className={cn('truncate leading-4 font-semibold', compact ? 'text-xs' : 'text-sm leading-5', ev.cancelled && 'line-through')}>
         {ev.title}

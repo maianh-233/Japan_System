@@ -17,7 +17,10 @@ import { cn } from '@/lib/cn';
 import { fmtDate, fmtDateTime, fromNow } from '@/lib/date';
 import { useAuth } from '@/hooks/useAuth';
 import { ALL_BRANCHES } from '@/types/auth';
-import { courseLabel, LEAD_SOURCE_OPTIONS, LEAD_SOURCES, LEAD_STATUS_OPTIONS, saleName, SALES, SLA_MINUTES } from '@/features/crm/constants';
+import { courseLabel, LEAD_SOURCE_OPTIONS, LEAD_SOURCES, LEAD_STATUS_OPTIONS, saleName, useSales } from '@/features/crm/constants';
+import { useMe } from '@/features/me/useMe';
+import { useAdmissionStore } from '@/features/crm/admission/admissionStore';
+import { slaOf } from '@/features/crm/admission/routing';
 import { isFollowUpOverdue, isSlaOverdue, useCrmStore } from '@/features/crm/crmStore';
 import { formToLead, LeadFormFields, type LeadFormValues } from '@/features/crm/components/LeadFormFields';
 import { LeadDetailDrawer, type LeadTab } from '@/features/crm/components/LeadDetailDrawer';
@@ -33,6 +36,13 @@ export default function LeadsPage() {
   const addLead = useCrmStore((s) => s.addLead);
   const updateLead = useCrmStore((s) => s.updateLead);
   const { toggleHidden, confirmDialog } = useHideLead();
+  const rules = useAdmissionStore((s) => s.rules);
+  const me = useMe();
+  const sales = useSales(branchId);
+  const allSales = useSales();
+  const campaigns = useAdmissionStore((s) => s.campaigns);
+  /** SLA của lead theo quy tắc chia lead khớp (không có → mặc định) */
+  const sla = (l: Lead) => slaOf(rules, l);
 
   const [status, setStatus] = useState<LeadStatus | 'all'>('all');
   const [source, setSource] = useState<string>();
@@ -72,7 +82,7 @@ export default function LeadsPage() {
     return c;
   }, [base]);
   const data = status === 'all' ? base : base.filter((l) => l.status === status);
-  const slaCount = base.filter((l) => isSlaOverdue(l, SLA_MINUTES)).length;
+  const slaCount = base.filter((l) => isSlaOverdue(l, sla(l))).length;
 
   const columns: DataColumn<Lead>[] = [
     {
@@ -97,9 +107,12 @@ export default function LeadsPage() {
         const s = LEAD_SOURCES[r.source];
         const Icon = s.icon;
         return (
-          <span className="inline-flex items-center gap-1.5">
-            <Icon size={14} className="text-ink-muted" aria-hidden />
-            {s.label}
+          <span className="inline-flex flex-col leading-5">
+            <span className="inline-flex items-center gap-1.5">
+              <Icon size={14} className="text-ink-muted" aria-hidden />
+              {s.label}
+            </span>
+            {r.campaignId && <span className="truncate text-[11px] text-ink-muted">{campaigns.find((c) => c.id === r.campaignId)?.code}</span>}
           </span>
         );
       },
@@ -112,8 +125,8 @@ export default function LeadsPage() {
       render: (_, r) => (
         <span className="inline-flex flex-wrap items-center gap-1">
           <StatusTag group="lead" status={r.status} size="sm" />
-          {isSlaOverdue(r, SLA_MINUTES) && (
-            <Tooltip title={`Lead mới chưa được liên hệ sau ${SLA_MINUTES} phút (tạo ${fromNow(r.createdAt)})`}>
+          {isSlaOverdue(r, sla(r)) && (
+            <Tooltip title={`Lead mới chưa được liên hệ sau ${sla(r)} phút (tạo ${fromNow(r.createdAt)})`}>
               <span>
                 <StatusTag tone="danger" icon={AlarmClock} size="sm">
                   Quá SLA
@@ -221,7 +234,7 @@ export default function LeadsPage() {
         })}
         {slaCount > 0 && (
           <span className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-danger-50 px-3.5 text-sm font-medium text-danger-700">
-            <AlarmClock size={16} aria-hidden /> {slaCount} lead quá SLA {SLA_MINUTES} phút
+            <AlarmClock size={16} aria-hidden /> {slaCount} lead quá SLA
           </span>
         )}
       </div>
@@ -244,7 +257,7 @@ export default function LeadsPage() {
                 placeholder="Sale phụ trách"
                 value={assignee}
                 onChange={setAssignee}
-                options={SALES.filter((s) => branchId === ALL_BRANCHES || s.branchId === branchId).map((s) => ({ value: s.id, label: s.name }))}
+                options={sales.map((s) => ({ value: s.id, label: s.fullName }))}
                 className="lg:!w-44"
               />
               <Checkbox checked={showHidden} onChange={(e) => setShowHidden(e.target.checked)} className="whitespace-nowrap">
@@ -267,7 +280,7 @@ export default function LeadsPage() {
               size="small"
               placeholder="Giao cho Sale..."
               className="!w-44"
-              options={SALES.map((s) => ({ value: s.id, label: s.name }))}
+              options={(branchId === ALL_BRANCHES ? allSales : sales).map((s) => ({ value: s.id, label: s.fullName }))}
               onChange={(v) => {
                 if (!v) return;
                 keys.forEach((k) => updateLead(String(k), { assigneeId: v as string }));
@@ -312,12 +325,20 @@ export default function LeadsPage() {
         submitAction="create"
         submitText="Thêm lead"
         successMessage="Đã thêm lead mới"
-        initialValues={{ status: 'new', branchId: defaultBranch, assigneeId: user?.id === 'u-sale' ? 'u-sale' : undefined }}
+        initialValues={{ status: 'new', branchId: defaultBranch, assigneeId: me?.department === 'sales' ? me.id : undefined }}
         onSubmit={async (v) => {
           await new Promise((r) => setTimeout(r, 700)); // giả lập gọi API
           const lead = addLead(formToLead(v), user?.fullName ?? 'Nhân viên');
           setStatus('all');
-          setTimeout(() => notify.info({ title: `Lead ${lead.code} đã được tạo`, description: 'Bấm vào lead để thêm lịch sử tư vấn.' }), 300);
+          // Không chọn Sale → hệ thống tự chia theo quy tắc
+          const log = !v.assigneeId ? useAdmissionStore.getState().logs.find((l) => l.leadId === lead.id) : undefined;
+          setTimeout(
+            () =>
+              log
+                ? notify.info({ title: log.saleId ? `Lead ${lead.code} tự chia cho ${saleName(log.saleId)}` : `Lead ${lead.code} chưa có Sale`, description: log.reason })
+                : notify.info({ title: `Lead ${lead.code} đã được tạo`, description: 'Bấm vào lead để thêm lịch sử tư vấn.' }),
+            300,
+          );
         }}
       >
         <LeadFormFields

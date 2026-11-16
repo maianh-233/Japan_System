@@ -76,7 +76,7 @@ export function ClassOverviewTab({ cls }: { cls: ClassInfo }) {
           const patch: Partial<ClassInfo> = closed
             ? { note: data.note }
             : locked
-              ? { name: data.name, teacherIds: data.teacherIds, room: data.room, meetingUrl: data.meetingUrl, maxStudents: data.maxStudents, note: data.note }
+              ? { name: data.name, teacherIds: data.teacherIds, assistantIds: data.assistantIds, room: data.room, meetingUrl: data.meetingUrl, maxStudents: data.maxStudents, note: data.note }
               : data;
           updateClass(cls.id, patch);
           setSaving(false);

@@ -11,12 +11,13 @@ Mục **(mới)** = thêm từ danh sách gợi ý. Mỗi mục có danh sách "
 | 1 | **Tổng quan** | Bảng điều khiển · Báo cáo | Số liệu theo chi nhánh đang chọn |
 | 2 | **Tuyển sinh (CRM)** | Lead · Chia lead & SLA (mới) · Test xếp lớp (mới) · Chiến dịch | Lead = người quan tâm, **chưa học**. Bấm vào lead → thông tin + **lịch sử tư vấn** |
 | 3 | **Học viên** | Hồ sơ học viên · Phụ huynh / Người giám hộ · Cảnh báo bỏ học (mới) · Thi JLPT (mới) · Chứng nhận (mới) · Du học / XKLĐ (mới) | Học viên = **đã đăng ký lớp** |
-| 4 | **Đào tạo** | Khóa học · Lộ trình (Curriculum) · Ngân hàng câu hỏi · Lớp học · Buổi học (Session) · Phòng học | Trùng lịch, dạy thay, học bù nằm trong Lớp học / Buổi học |
+| 4 | **Đào tạo** | Khóa học · Lộ trình (Curriculum) · Ngân hàng câu hỏi · Lớp học · Buổi học (Session) · **Đơn chờ xử lý** (mới) · Phòng học | Trùng lịch, dạy thay, học bù nằm trong Lớp học / Buổi học. **Đơn chờ xử lý** gộp: đơn hủy buổi (GV) + đơn xin nghỉ (HV/PH) + đơn từ nhân viên, kèm lịch sử. Duyệt đơn hủy buổi → tự đánh dấu buổi và mở bước chọn 1 trong 2 cách dạy thay: **mời GV dạy thay** (giữ lịch, ai nhận trước thì dạy) hoặc **hủy buổi & xếp học bù** |
 | 5 | **Thư viện** | Thư viện tài liệu | Không gắn lộ trình; có watermark, thống kê lượt đọc |
 | 6 | **Tài chính** | Học phí & bảng giá · Hóa đơn & thu tiền · Đối soát VietQR (mới) · Công nợ · Lương giáo viên · Lương nhân viên · Hoa hồng & KPI Sale (mới) | Lương GV tự tính từ Session |
 | 7 | **Nhân sự** | Tuyển dụng · Onboarding (mới) · Nhân viên · Giáo viên · Chấm công · Đơn từ & phê duyệt | |
 | 8 | **Công việc** | Task · Xếp ca làm việc · Bàn giao ca | Task dạng Kanban |
-| 9 | **Hệ thống** | Chi nhánh · Vai trò & quyền · Phân quyền người dùng · Tích hợp (mới) · Nhật ký | Tích hợp: Zalo OA, VietQR, Zoom, nguồn lead |
+| 9 | **Cá nhân** | Chấm công của tôi · Việc của tôi · Lịch rảnh / bận · Thông tin cá nhân · Mật khẩu & bảo mật | Nhân viên làm theo ca xác nhận theo ngày / ca; chưa xác nhận không đồng nghĩa với bận |
+| 10 | **Hệ thống** | Chi nhánh · Vai trò & quyền · Phân quyền người dùng · Tích hợp (mới) · Nhật ký | Tích hợp: Zalo OA, VietQR, Zoom, nguồn lead |
 
 **Cổng mới — Phụ huynh (`/parent`)**: Tổng quan · Lịch học của con · Chuyên cần · Kết quả học tập · Học phí.
 Thêm ở cổng giáo viên: **Lời mời dạy thay**. Cổng học viên: **Flashcard**, **Chứng nhận & JLPT**.

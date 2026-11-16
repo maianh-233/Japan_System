@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type MouseEvent } from 'react';
 import { Checkbox, Form } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
-import { CalendarPlus, CheckCheck, FileQuestion, Repeat, Wand2, XCircle } from 'lucide-react';
+import { BookOpen, CalendarClock, CalendarPlus, ClipboardCheck, Eye, FileQuestion, Repeat, UserRound, Wand2, XCircle } from 'lucide-react';
 import { Button, DataTable, DateInput, ModalForm, Select, StatusTag, TimeInput, useConfirm, useNotify, type DataColumn } from '@/components/common';
 import { useStudentStore } from '@/features/student/studentStore';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,8 +10,11 @@ import { fmtDate } from '@/lib/date';
 import { EXAM_KINDS } from '../../curriculum/constants';
 import { useCurriculumStore } from '../../curriculum/curriculumStore';
 import { useClassStore } from '../classStore';
-import { effectiveStart, SESSION_STATUS, totalSessionsOf, WEEKDAYS, weekdayOf } from '../constants';
+import { effectiveStart, SESSION_STATUS, teacherName, totalSessionsOf, WEEKDAYS, weekdayOf } from '../constants';
 import { generateSessions } from '../sessionGenerator';
+import { canTakeAttendance, isTaught, notStarted, originOf } from '../sessionUtils';
+import { SessionDetailDrawer, type SessionTab } from './SessionDetailDrawer';
+import { SessionScheduleModal, type ScheduleMode } from './SessionScheduleModal';
 import type { ClassInfo, ClassSession, SessionStatus, Weekday } from '../types';
 
 interface GenValues {
@@ -27,33 +30,41 @@ const atTime = (t: string) => {
   return dayjs().hour(h).minute(m).second(0);
 };
 
-/** Tab Buổi học: danh sách buổi + tự sinh lịch + đánh dấu đã dạy / hủy / học bù */
+/** Tab Buổi học: danh sách buổi + tự sinh lịch + chi tiết / điểm danh / đổi lịch / hủy / tạo buổi học bù & học thêm */
 export function ClassSessionsTab({ cls }: { cls: ClassInfo }) {
-  const { can } = useAuth();
+  const { can, user } = useAuth();
   const notify = useNotify();
   const { confirm, confirmDialog } = useConfirm();
   const all = useClassStore((s) => s.sessions);
   const replaceUpcoming = useClassStore((s) => s.replaceUpcomingSessions);
   const updateSession = useClassStore((s) => s.updateSession);
-  const addSession = useClassStore((s) => s.addSession);
   const updateClass = useClassStore((s) => s.updateClass);
   const curriculum = useCurriculumStore((s) => s.curricula.find((c) => c.id === cls.curriculumId));
   const activeStudents = useStudentStore((s) => s.enrollments.filter((e) => e.classId === cls.id && e.status === 'studying').length);
-  const [filter, setFilter] = useState<SessionStatus | 'upcoming'>();
+  const [filter, setFilter] = useState<SessionStatus | 'upcoming' | 'extra'>();
   const [genOpen, setGenOpen] = useState(false);
-  const [makeupFor, setMakeupFor] = useState<ClassSession | null>(null);
+  const [schedule, setSchedule] = useState<ScheduleMode | null>(null);
+  const [detail, setDetail] = useState<{ id: string; tab: SessionTab } | null>(null);
 
   const editable = can('academic.classes') && cls.status !== 'finished' && cls.status !== 'cancelled';
   const sessions = useMemo(() => all.filter((s) => s.classId === cls.id).sort((a, b) => a.date.localeCompare(b.date) || a.no - b.no), [all, cls.id]);
   const total = totalSessionsOf(cls);
-  const doneSlots = sessions.filter((s) => s.status === 'completed' || s.status === 'makeup').length;
+  const doneSlots = sessions.filter(isTaught).length;
+  const extraCount = sessions.filter((s) => s.origin === 'extra').length;
   const today = dayjs().format('YYYY-MM-DD');
   const data = filter
-    ? sessions.filter((s) => (filter === 'upcoming' ? s.status === 'scheduled' : s.status === filter))
+    ? sessions.filter((s) =>
+        filter === 'upcoming' ? s.status === 'scheduled' || (s.status === 'makeup' && !s.attendance) : filter === 'extra' ? s.origin === 'extra' : s.status === filter,
+      )
     : sessions;
 
   const lessonNo = (id?: string) => (curriculum ? curriculum.lessons.findIndex((l) => l.id === id) + 1 : 0);
-  const contentOf = (s: ClassSession) => {
+  /** Buổi bị hủy đã có buổi bù (chưa bị hủy) */
+  const hasMakeup = (s: ClassSession) => sessions.some((x) => x.makeupForId === s.id && x.status !== 'cancelled');
+  /** Buổi theo lịch bị hủy, chưa có buổi bù */
+  const needsMakeup = (s: ClassSession) => s.status === 'cancelled' && originOf(s) === 'regular' && !hasMakeup(s);
+
+  const lessonOf = (s: ClassSession) => {
     if (s.kind === 'exam') {
       const exam = curriculum?.exams.find((e) => e.id === s.examId);
       const meta = exam ? EXAM_KINDS[exam.kind] : undefined;
@@ -73,31 +84,65 @@ export function ClassSessionsTab({ cls }: { cls: ClassInfo }) {
         <span className="text-ink-muted">Bài {lessonNo(s.lessonId)}:</span> {lesson.title}
       </span>
     ) : (
-      <span className="text-[13px] text-ink-muted">Chưa gán bài</span>
+      <span className="text-[13px] text-ink-muted">{s.origin === 'extra' ? 'Ôn tập / luyện đề' : 'Chưa gán bài'}</span>
     );
   };
-
-  const markDone = (s: ClassSession) => {
-    updateSession(s.id, { status: s.status === 'makeup' ? 'makeup' : 'completed', attendance: { present: activeStudents, total: activeStudents } });
-    notify.toast.success(`Đã xác nhận buổi ${s.no} — điểm danh chi tiết làm ở Cổng giáo viên`);
-  };
+  const contentOf = (s: ClassSession) => (
+    <span className="flex flex-col items-start gap-0.5">
+      {lessonOf(s)}
+      {(s.teacherIds || s.room) && (
+        <span className="flex items-center gap-1 text-xs text-warning-700">
+          <UserRound size={12} aria-hidden />
+          {[s.teacherIds && `Dạy thay: ${s.teacherIds.map(teacherName).join(', ')}`, s.room && `Phòng ${s.room}`].filter(Boolean).join(' · ')}
+        </span>
+      )}
+    </span>
+  );
 
   const cancel = async (s: ClassSession) => {
     const res = await confirm({
-      title: `Hủy buổi ${s.no} (${fmtDate(s.date)})?`,
-      description: 'Buổi bị hủy không tính vào tiến độ và lương giáo viên. Có thể xếp học bù sau.',
+      title: `Hủy ${s.no ? `buổi ${s.no}` : 'buổi học thêm'} (${fmtDate(s.date)} · ${s.startTime})?`,
+      consequences: [
+        'Không tính vào tiến độ và lương giáo viên',
+        activeStudents ? `${activeStudents} học viên nhận thông báo nghỉ học (Cổng học viên + Zalo)` : 'Lớp chưa có học viên',
+        s.origin === 'extra'
+          ? 'Buổi học thêm — không cần xếp bù'
+          : originOf(s) === 'makeup'
+            ? `Buổi ${s.no} gốc quay lại trạng thái "Chờ xếp bù"`
+            : 'Có thể xếp học bù ngay sau bước này',
+      ],
       tone: 'warning',
       confirmAction: 'reject',
       confirmText: 'Hủy buổi',
       requireReason: { label: 'Lý do hủy', placeholder: 'VD: GV ốm, mất điện, nghỉ lễ đột xuất...' },
     });
     if (!res) return;
-    updateSession(s.id, { status: 'cancelled', note: res.reason });
-    notify.info({ title: `Đã hủy buổi ${s.no}`, description: 'Bấm "Xếp học bù" ở dòng buổi đó để thêm buổi bù.' });
+    if (!notStarted(s)) {
+      notify.toast.error('Buổi học đã bắt đầu — không thể hủy');
+      return;
+    }
+    updateSession(s.id, { status: 'cancelled', note: res.reason, cancelledBy: { name: user?.fullName ?? 'Giáo vụ', at: new Date().toISOString() } });
+    notify.info({
+      title: `Đã hủy ${s.no ? `buổi ${s.no}` : 'buổi học thêm'}`,
+      description: s.origin === 'extra' ? undefined : 'Bấm nút "Xếp học bù" ở dòng buổi gốc, hoặc "Tạo buổi học".',
+    });
   };
 
   const columns: DataColumn<ClassSession>[] = [
-    { key: 'no', title: 'Buổi', width: 70, align: 'center', render: (_, s) => <span className="tabular font-medium">{s.no}</span> },
+    {
+      key: 'no',
+      title: 'Buổi',
+      width: 70,
+      align: 'center',
+      render: (_, s) =>
+        s.origin === 'extra' ? (
+          <span className="inline-flex" title="Buổi học thêm (ngoài số buổi khóa)">
+            <BookOpen size={16} className="text-primary-600" aria-label="Học thêm" />
+          </span>
+        ) : (
+          <span className="tabular font-medium">{s.no}</span>
+        ),
+    },
     {
       key: 'date',
       title: 'Ngày',
@@ -119,11 +164,19 @@ export function ClassSessionsTab({ cls }: { cls: ClassInfo }) {
       mobile: 'aside',
       render: (_, s) => {
         const m = SESSION_STATUS[s.status];
-        const overdue = s.status === 'scheduled' && s.date < today;
+        const overdue = (s.status === 'scheduled' || s.status === 'makeup') && !s.attendance && s.date < today;
         return (
           <span className="flex flex-col items-start gap-0.5">
-            <StatusTag group="session" status={s.status === 'scheduled' ? 'scheduled' : s.status} size="sm" />
-            {overdue && <span className="text-xs text-warning-700">Chưa xác nhận</span>}
+            {s.origin === 'extra' && s.status !== 'cancelled' ? (
+              <StatusTag tone="primary" icon={BookOpen} size="sm">
+                {s.attendance ? 'Đã học thêm' : 'Học thêm'}
+              </StatusTag>
+            ) : (
+              <StatusTag group="session" status={s.status} size="sm" />
+            )}
+            {overdue && <span className="text-xs text-warning-700">Chưa điểm danh</span>}
+            {s.rescheduledFrom && <span className="text-xs text-ink-muted">Dời từ {fmtDate(s.rescheduledFrom.date)}</span>}
+            {needsMakeup(s) && <span className="text-xs text-warning-700">Chờ xếp bù</span>}
             <span className="sr-only">{m.label}</span>
           </span>
         );
@@ -150,7 +203,7 @@ export function ClassSessionsTab({ cls }: { cls: ClassInfo }) {
       render: (_, s) => (
         <span className="line-clamp-2 text-[13px] text-ink-secondary" title={s.teacherLog ? `${s.teacherLog.content}${s.teacherLog.issues ? `
 ⚠ ${s.teacherLog.issues}` : ''}` : s.note}>
-          {s.note ?? s.teacherLog?.content ?? ((s.status === 'completed' || s.status === 'makeup') && s.attendance ? <span className="text-warning-700">Chưa ghi nhật ký</span> : '')}
+          {s.teacherLog?.content ?? s.note ?? ((s.status === 'completed' || s.status === 'makeup') && s.attendance ? <span className="text-warning-700">Chưa ghi nhật ký</span> : '')}
         </span>
       ),
     },
@@ -195,7 +248,11 @@ export function ClassSessionsTab({ cls }: { cls: ClassInfo }) {
               value={filter}
               onChange={setFilter}
               showSearch={false}
-              options={[{ value: 'upcoming', label: 'Sắp diễn ra' }, ...(['completed', 'cancelled', 'makeup'] as SessionStatus[]).map((k) => ({ value: k, label: SESSION_STATUS[k].label }))]}
+              options={[
+                { value: 'upcoming', label: 'Sắp diễn ra' },
+                ...(['completed', 'cancelled', 'makeup'] as SessionStatus[]).map((k) => ({ value: k, label: SESSION_STATUS[k].label })),
+                { value: 'extra', label: 'Học thêm' },
+              ]}
               className="lg:!w-40"
             />
           ),
@@ -204,7 +261,13 @@ export function ClassSessionsTab({ cls }: { cls: ClassInfo }) {
             <>
               <span className="tabular hidden text-[13px] text-ink-muted lg:inline">
                 Đã dạy {doneSlots}/{total}
+                {extraCount > 0 && ` · +${extraCount} học thêm`}
               </span>
+              {editable && sessions.length > 0 && (
+                <Button icon={CalendarPlus} collapseOnMobile onClick={() => setSchedule({ kind: 'create' })}>
+                  Tạo buổi học
+                </Button>
+              )}
               {editable && sessions.length > 0 && (
                 <Button icon={Wand2} variant="outline" collapseOnMobile onClick={() => setGenOpen(true)}>
                   Tạo lại lịch
@@ -213,24 +276,50 @@ export function ClassSessionsTab({ cls }: { cls: ClassInfo }) {
             </>
           ),
         }}
-        rowActions={
-          editable
-            ? (s) => (
-                <>
-                  {(s.status === 'scheduled' || (s.status === 'makeup' && !s.attendance)) && (
-                    <Button icon={CheckCheck} iconOnly size="sm" tone="success" variant="soft" tooltip="Xác nhận đã dạy" aria-label="Xác nhận đã dạy" disabled={s.date > today} onClick={() => markDone(s)} />
-                  )}
-                  {s.status === 'scheduled' && <Button icon={XCircle} iconOnly size="sm" tone="danger" variant="soft" tooltip="Hủy buổi" aria-label="Hủy buổi" onClick={() => cancel(s)} />}
-                  {s.status === 'cancelled' && !sessions.some((x) => x.note === `Học bù cho buổi ${s.no}`) && (
-                    <Button icon={Repeat} size="sm" tone="warning" variant="soft" onClick={() => setMakeupFor(s)}>
-                      Xếp học bù
-                    </Button>
-                  )}
-                </>
-              )
-            : undefined
-        }
-        actionsWidth={130}
+        onRowClick={(s) => setDetail({ id: s.id, tab: 'info' })}
+        rowActions={(s) => {
+          const upcoming = (s.status === 'scheduled' || (s.status === 'makeup' && !s.attendance)) && notStarted(s);
+          const stop = (fn: () => void) => (e: MouseEvent) => {
+            e.stopPropagation();
+            fn();
+          };
+          return (
+            <>
+              <Button icon={Eye} iconOnly size="sm" variant="ghost" tooltip="Xem chi tiết" aria-label="Xem chi tiết" onClick={stop(() => setDetail({ id: s.id, tab: 'info' }))} />
+              {editable && canTakeAttendance(s) && (
+                <Button
+                  icon={ClipboardCheck}
+                  iconOnly
+                  size="sm"
+                  tone={s.attendance ? 'neutral' : 'success'}
+                  variant="soft"
+                  tooltip={s.attendance ? 'Sửa điểm danh' : 'Điểm danh'}
+                  aria-label="Điểm danh"
+                  onClick={stop(() => setDetail({ id: s.id, tab: 'students' }))}
+                />
+              )}
+              {editable && upcoming && (
+                <Button icon={CalendarClock} iconOnly size="sm" variant="soft" tooltip="Đổi lịch / dạy thay" aria-label="Đổi lịch" onClick={stop(() => setSchedule({ kind: 'edit', session: s }))} />
+              )}
+              {editable && upcoming && (
+                <Button icon={XCircle} iconOnly size="sm" tone="danger" variant="soft" tooltip="Hủy buổi" aria-label="Hủy buổi" onClick={stop(() => cancel(s))} />
+              )}
+              {editable && needsMakeup(s) && (
+                <Button
+                  icon={Repeat}
+                  iconOnly
+                  size="sm"
+                  tone="warning"
+                  variant="soft"
+                  tooltip="Xếp học bù"
+                  aria-label="Xếp học bù"
+                  onClick={stop(() => setSchedule({ kind: 'create', origin: 'makeup', makeupForId: s.id }))}
+                />
+              )}
+            </>
+          );
+        }}
+        actionsWidth={editable ? 150 : 60}
         empty={{ title: 'Chưa có buổi học', description: 'Bấm "Tạo lịch tự động" để sinh buổi học theo lịch của lớp.' }}
       />
 
@@ -316,46 +405,21 @@ export function ClassSessionsTab({ cls }: { cls: ClassInfo }) {
         </Form.Item>
       </ModalForm>
 
-      {/* ===== Học bù ===== */}
-      <ModalForm<{ date: Dayjs; startTime: Dayjs; endTime: Dayjs }>
-        key={makeupFor?.id ?? 'makeup'}
-        open={Boolean(makeupFor)}
-        onClose={() => setMakeupFor(null)}
-        title={`Xếp học bù cho buổi ${makeupFor?.no}`}
-        description={makeupFor ? `Buổi ${fmtDate(makeupFor.date)} bị hủy${makeupFor.note ? `: ${makeupFor.note}` : ''}` : undefined}
-        submitAction="create"
-        submitText="Thêm buổi học bù"
-        successMessage="Đã xếp học bù"
-        initialValues={makeupFor ? { date: dayjs().add(2, 'day'), startTime: atTime(cls.startTime), endTime: atTime(cls.endTime) } : undefined}
-        onSubmit={(v) => {
-          if (!makeupFor) return;
-          addSession({
-            ...makeupFor,
-            id: `${cls.id}-MU-${Date.now()}`,
-            date: v.date.format('YYYY-MM-DD'),
-            startTime: v.startTime.format('HH:mm'),
-            endTime: v.endTime.format('HH:mm'),
-            status: 'makeup',
-            note: `Học bù cho buổi ${makeupFor.no}`,
-            attendance: undefined,
-          });
-        }}
-      >
-        <Form.Item name="date" label="Ngày học bù" rules={[{ required: true, message: 'Chọn ngày' }]}>
-          <DateInput />
-        </Form.Item>
-        <div className="grid grid-cols-2 gap-x-3">
-          <Form.Item name="startTime" label="Từ" rules={[{ required: true }]}>
-            <TimeInput minuteStep={15} />
-          </Form.Item>
-          <Form.Item name="endTime" label="Đến" rules={[{ required: true }]}>
-            <TimeInput minuteStep={15} />
-          </Form.Item>
-        </div>
-        <p className="flex items-center gap-1.5 text-xs text-ink-muted">
-          <CalendarPlus size={14} aria-hidden /> Hệ thống sẽ kiểm tra trùng lịch phòng & giáo viên khi có module Xếp lịch.
-        </p>
-      </ModalForm>
+      {/* ===== Tạo buổi học bù / học thêm · Đổi lịch ===== */}
+      <SessionScheduleModal cls={cls} mode={schedule} onClose={() => setSchedule(null)} />
+
+      {/* ===== Chi tiết buổi ===== */}
+      <SessionDetailDrawer
+        cls={cls}
+        sessionId={detail?.id ?? null}
+        initialTab={detail?.tab}
+        editable={editable}
+        onClose={() => setDetail(null)}
+        onOpen={(id) => setDetail({ id, tab: 'info' })}
+        onReschedule={(s) => setSchedule({ kind: 'edit', session: s })}
+        onCancel={cancel}
+        onMakeup={(s) => setSchedule({ kind: 'create', origin: 'makeup', makeupForId: s.id })}
+      />
       {confirmDialog}
     </div>
   );

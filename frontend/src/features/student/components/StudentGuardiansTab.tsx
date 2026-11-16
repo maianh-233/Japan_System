@@ -10,7 +10,7 @@ import { AccountCard } from './AccountCard';
 /**
  * Tab Người thân: các người liên hệ (lead) gắn với học viên — phụ huynh, anh chị, vợ/chồng...
  * Kèm tài khoản Cổng phụ huynh của từng người để tiện liên lạc / hỗ trợ đăng nhập.
- * Thêm / gỡ liên kết làm ở Tuyển sinh → Lead → tab Học viên.
+ * Thêm / gỡ liên kết, đặt người liên hệ chính: Học viên → Phụ huynh / Người giám hộ (hoặc Tuyển sinh → Lead).
  */
 export function StudentGuardiansTab({ studentId }: { studentId: string }) {
   const notify = useNotify();
@@ -53,7 +53,7 @@ export function StudentGuardiansTab({ studentId }: { studentId: string }) {
             size="compact"
             icon={Users}
             title="Chưa có người thân liên kết"
-            description="Liên kết phụ huynh / người giám hộ ở Tuyển sinh → Lead → tab Học viên."
+            description="Thêm phụ huynh / người giám hộ ở Học viên → Phụ huynh / Người giám hộ."
           />
         </div>
       ) : (

@@ -23,6 +23,9 @@ export interface SessionUser {
   scope: 'global' | 'branch';
   /** Chi nhánh được gán (scope = branch) */
   branchIds: string[];
+  /** Tài khoản cổng HV/PH liên kết tới tài khoản và hồ sơ trong kho dùng chung */
+  portalAccountId?: string;
+  portalOwnerId?: string;
   /**
    * Mã quyền: "*" = toàn quyền; "crm.*" = cả module; "crm.leads" = một mục.
    * Tạm thời dạng đơn giản — sẽ thay bằng module → group → permission khi có backend.

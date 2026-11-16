@@ -11,10 +11,35 @@ import {
   UserRoundPlus,
   Users,
   CalendarHeart,
+  Archive,
+  CalendarClock,
+  CheckCircle2,
+  CirclePause,
+  CirclePlay,
+  FilePen,
+  Flag,
+  PenLine,
+  Send,
+  TimerOff,
   type LucideIcon,
 } from 'lucide-react';
+import { useMemo } from 'react';
 import type { Tone } from '@/components/common';
-import type { ConsultChannel, ConsultResult, LeadSource, LeadStatus, Relationship } from './types';
+import { useHrStore } from '@/features/hr/hrStore';
+import type { Employee } from '@/features/hr/types';
+import { ALL_BRANCHES } from '@/types/auth';
+import type {
+  AttemptStatus,
+  CampaignStatus,
+  ConsultChannel,
+  ConsultResult,
+  LeadSource,
+  LeadStatus,
+  PlacementAttempt,
+  PlacementTestStatus,
+  Relationship,
+  RouteMethod,
+} from './types';
 
 type Opt<K extends string> = { value: K; label: string };
 
@@ -50,14 +75,21 @@ export const COURSE_OPTIONS = [
 ];
 export const courseLabel = (v?: string) => COURSE_OPTIONS.find((c) => c.value === v)?.label;
 
-/** Sale (dữ liệu giả) */
-export const SALES = [
-  { id: 'u-sale', name: 'Trần Minh Khoa', branchId: 'q1' },
-  { id: 's-02', name: 'Phạm Thị Hồng', branchId: 'cg' },
-  { id: 's-03', name: 'Đinh Quốc Bảo', branchId: 'cg' },
-  { id: 's-04', name: 'Lý Thanh Vy', branchId: 'hc' },
-];
-export const saleName = (id?: string) => SALES.find((s) => s.id === id)?.name;
+/**
+ * SALE = nhân viên phòng Sale (department 'sales') còn làm việc — lấy từ Nhân sự, là NGUỒN DUY NHẤT
+ * cho: chia lead, Sale phụ trách lead, báo cáo theo Sale, hoa hồng, xếp ca. `Lead.assigneeId` = Employee.id.
+ */
+export const salesOf = (employees: Employee[], branchId?: string) =>
+  employees.filter((e) => e.department === 'sales' && e.status !== 'quit' && (!branchId || branchId === ALL_BRANCHES || e.branchId === branchId));
+
+/** Danh sách Sale (tự cập nhật khi Nhân sự thêm / cho nghỉ nhân viên) */
+export function useSales(branchId?: string) {
+  const employees = useHrStore((s) => s.employees);
+  return useMemo(() => salesOf(employees, branchId), [employees, branchId]);
+}
+
+/** Tên người phụ trách lead (tra mọi nhân viên — kể cả người đã chuyển phòng / nghỉ, để lead cũ vẫn hiện tên) */
+export const saleName = (id?: string) => (id ? useHrStore.getState().employees.find((e) => e.id === id)?.fullName : undefined);
 
 export const CONSULT_CHANNELS: Record<ConsultChannel, { label: string; icon: LucideIcon }> = {
   call: { label: 'Gọi điện', icon: PhoneCall },
@@ -84,5 +116,43 @@ export const RELATIONSHIPS: Record<Relationship, string> = {
   other: 'Khác',
 };
 
-/** Lead mới chưa được liên hệ sau X phút → cảnh báo SLA */
+/** SLA MẶC ĐỊNH: lead mới chưa được liên hệ sau X phút → cảnh báo. Quy tắc chia lead có thể đặt SLA riêng. */
 export const SLA_MINUTES = 15;
+
+// ---------------- Chia lead ----------------
+
+export const ROUTE_METHODS: Record<RouteMethod, { label: string; hint: string }> = {
+  round_robin: { label: 'Xoay vòng', hint: 'Lần lượt từng Sale trong nhóm' },
+  least_load: { label: 'Theo tải', hint: 'Sale đang giữ ít lead mở nhất' },
+  fixed: { label: 'Ưu tiên cố định', hint: 'Sale đầu danh sách còn trong ca' },
+};
+
+/** Người / vai trò có thể nhận cảnh báo quá SLA */
+export const ESCALATE_OPTIONS = ['Sale phụ trách', 'Trưởng nhóm Sale', 'Quản lý chi nhánh', 'Giám đốc tuyển sinh'].map((v) => ({ value: v, label: v }));
+
+// ---------------- Test xếp lớp ----------------
+
+export const PLACEMENT_STATUS: Record<PlacementTestStatus, { label: string; tone: Tone; icon: LucideIcon }> = {
+  draft: { label: 'Nháp', tone: 'neutral', icon: FilePen },
+  active: { label: 'Đang dùng', tone: 'success', icon: CheckCircle2 },
+  archived: { label: 'Ngừng dùng', tone: 'warning', icon: Archive },
+};
+
+export const ATTEMPT_STATUS: Record<AttemptStatus, { label: string; tone: Tone; icon: LucideIcon }> = {
+  sent: { label: 'Đã gửi link', tone: 'info', icon: Send },
+  in_progress: { label: 'Đang làm', tone: 'warning', icon: PenLine },
+  done: { label: 'Đã nộp', tone: 'success', icon: CheckCircle2 },
+  expired: { label: 'Hết hạn', tone: 'neutral', icon: TimerOff },
+};
+
+export const SEND_CHANNELS: Record<PlacementAttempt['channel'], string> = { zalo: 'Zalo', sms: 'SMS', email: 'Email' };
+
+// ---------------- Chiến dịch ----------------
+
+export const CAMPAIGN_STATUS: Record<CampaignStatus, { label: string; tone: Tone; icon: LucideIcon }> = {
+  planned: { label: 'Sắp chạy', tone: 'info', icon: CalendarClock },
+  running: { label: 'Đang chạy', tone: 'success', icon: CirclePlay },
+  paused: { label: 'Tạm dừng', tone: 'warning', icon: CirclePause },
+  ended: { label: 'Đã kết thúc', tone: 'neutral', icon: Flag },
+};
+export const CAMPAIGN_STATUS_OPTIONS = (Object.keys(CAMPAIGN_STATUS) as CampaignStatus[]).map((k) => ({ value: k, label: CAMPAIGN_STATUS[k].label }));

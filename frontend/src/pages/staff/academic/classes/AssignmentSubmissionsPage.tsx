@@ -42,8 +42,11 @@ const STATE_TABS: { value: SubState | 'all'; label: string }[] = [
   { value: 'missing', label: 'Chưa nộp' },
 ];
 
-/** /admin/academic/classes/:id/assignments/:assignmentId — bài nộp của từng học viên */
-export default function AssignmentSubmissionsPage() {
+/**
+ * /admin/academic/classes/:id/assignments/:assignmentId — bài nộp của từng học viên
+ * Cổng giáo viên dùng lại: /teacher/assignments/:id/:assignmentId (portal="teacher" → GV chấm được, quay về trang Bài tập)
+ */
+export default function AssignmentSubmissionsPage({ portal = 'staff' }: { portal?: 'staff' | 'teacher' }) {
   const { id, assignmentId } = useParams();
   const navigate = useNavigate();
   const notify = useNotify();
@@ -57,7 +60,8 @@ export default function AssignmentSubmissionsPage() {
   const curriculum = useCurriculumStore((s) => s.curricula.find((c) => c.id === cls?.curriculumId));
   const [tab, setTab] = useState<SubState | 'all'>('all');
   const [grading, setGrading] = useState<Row | null>(null);
-  const editable = can('academic.classes');
+  const editable = portal === 'teacher' || can('academic.classes');
+  const classUrl = (cid: string) => (portal === 'teacher' ? '/teacher/assignments' : `/admin/academic/classes/${cid}?tab=assignments`);
 
   const rows: Row[] = useMemo(() => {
     if (!cls || !assignment) return [];
@@ -84,7 +88,7 @@ export default function AssignmentSubmissionsPage() {
     return (
       <EmptyState
         title="Không tìm thấy bài tập"
-        action={<Button action="back" onClick={() => navigate(id ? `/admin/academic/classes/${id}?tab=assignments` : '/admin/academic/classes')}>Quay lại</Button>}
+        action={<Button action="back" onClick={() => navigate(id ? classUrl(id) : '/admin/academic/classes')}>Quay lại</Button>}
       />
     );
 
@@ -96,7 +100,7 @@ export default function AssignmentSubmissionsPage() {
   const lateCount = rows.filter((r) => r.late).length;
   const data = tab === 'all' ? rows : rows.filter((r) => r.state === tab);
   const lessonIdx = curriculum?.lessons.findIndex((l) => l.id === assignment.lessonId) ?? -1;
-  const backToClass = () => navigate(`/admin/academic/classes/${cls.id}?tab=assignments`);
+  const backToClass = () => navigate(classUrl(cls.id));
 
   const columns: DataColumn<Row>[] = [
     { key: 'fullName', title: 'Học viên', width: 210, mobile: 'title', sorter: (a, b) => a.fullName.localeCompare(b.fullName, 'vi'), render: (_, r) => <UserCell name={r.fullName} subtitle={r.code} size="sm" /> },
@@ -215,13 +219,17 @@ export default function AssignmentSubmissionsPage() {
   return (
     <>
       <PageHeader
-        breadcrumb={[{ title: 'Đào tạo' }, { title: 'Lớp học', href: '/admin/academic/classes' }, { title: cls.code, href: `/admin/academic/classes/${cls.id}?tab=assignments` }, { title: 'Bài nộp' }]}
+        breadcrumb={
+          portal === 'teacher'
+            ? [{ title: 'Bài tập', href: '/teacher/assignments' }, { title: cls.code }, { title: 'Bài nộp' }]
+            : [{ title: 'Đào tạo' }, { title: 'Lớp học', href: '/admin/academic/classes' }, { title: cls.code, href: `/admin/academic/classes/${cls.id}?tab=assignments` }, { title: 'Bài nộp' }]
+        }
         title={assignment.title}
         subtitle={`${cls.code}${lessonIdx >= 0 ? ` · Bài ${lessonIdx + 1}: ${curriculum!.lessons[lessonIdx].title}` : ''} · Giao ${fmtDate(assignment.assignedAt)} · Hạn ${fmtDate(assignment.dueDate)}${closed ? ' (đã hết hạn)' : ''}`}
         actions={
           <>
             <Button action="back" variant="outline" collapseOnMobile onClick={backToClass}>
-              Về lớp
+              {portal === 'teacher' ? 'Về Bài tập' : 'Về lớp'}
             </Button>
             {editable && counts.missing > 0 && (
               <Button icon={BellRing} variant="soft" collapseOnMobile onClick={() => notify.success({ title: `Đã nhắc ${counts.missing} học viên chưa nộp`, description: 'Gửi qua Cổng học viên + Zalo phụ huynh (giả lập)' })}>

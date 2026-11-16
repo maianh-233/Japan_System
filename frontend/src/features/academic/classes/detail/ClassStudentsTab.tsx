@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
-import { Form, Radio } from 'antd';
+import { Dropdown, Form, Radio } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
-import { HandCoins, Undo2, UserPlus, UserX } from 'lucide-react';
+import { ArrowRightLeft, Award, Ellipsis, FileUser, HandCoins, Mail, PauseCircle, PhoneCall, PlayCircle, Undo2, UserPlus, UserX } from 'lucide-react';
 import { Button, DataTable, DateInput, ModalForm, NumberInput, Select, StatusTag, TextInput, UserCell, useConfirm, useNotify, type DataColumn } from '@/components/common';
 import { useCrmStore } from '@/features/crm/crmStore';
 import { ENROLLMENT_STATUS, PAYMENT_METHODS } from '@/features/student/constants';
@@ -12,6 +12,9 @@ import { cn } from '@/lib/cn';
 import { fmtDate } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
 import type { ClassInfo } from '../types';
+import { useClassStudentStats } from '../studentInsights';
+import { AttentionPanel, CareLogModal, CertificateModal, certificateChecks, ReserveModal, TransferModal } from './StudentActions';
+import { StudentLearningDrawer } from './StudentLearningDrawer';
 
 interface Row {
   id: string;
@@ -21,9 +24,10 @@ interface Row {
   fullName: string;
   code: string;
   phone: string;
+  email?: string;
 }
 
-type Dialog = { kind: 'pay' | 'refund'; row: Row } | { kind: 'add' } | null;
+type Dialog = { kind: 'pay' | 'refund' | 'reserve' | 'transfer'; row: Row } | { kind: 'add' } | null;
 
 const METHOD_OPTIONS = (Object.keys(PAYMENT_METHODS) as PaymentMethod[]).map((k) => ({ value: k, label: PAYMENT_METHODS[k] }));
 
@@ -39,7 +43,13 @@ export function ClassStudentsTab({ cls }: { cls: ClassInfo }) {
   const addPayment = useStudentStore((s) => s.addPayment);
   const addRefund = useStudentStore((s) => s.addRefund);
   const dropEnrollment = useStudentStore((s) => s.dropEnrollment);
+  const resumeEnrollment = useStudentStore((s) => s.resumeEnrollment);
+  const sendCertificate = useStudentStore((s) => s.sendCertificate);
+  const { map: stats } = useClassStudentStats(cls);
   const [dialog, setDialog] = useState<Dialog>(null);
+  const [profileId, setProfileId] = useState<string | null>(null);
+  const [certId, setCertId] = useState<string | null>(null);
+  const [careId, setCareId] = useState<string | null>(null);
   const editable = can('academic.classes') || can('finance.invoices');
   const closed = cls.status === 'finished' || cls.status === 'cancelled';
 
@@ -50,7 +60,7 @@ export function ClassStudentsTab({ cls }: { cls: ClassInfo }) {
         .map((e) => {
           const st = students.find((s) => s.id === e.studentId);
           const invoice = invoices.find((i) => i.enrollmentId === e.id);
-          return { id: e.id, enrollment: e, invoice, sum: invoice && summarizeInvoice(invoice), fullName: st?.fullName ?? e.studentId, code: st?.code ?? '', phone: st?.phone ?? '' };
+          return { id: e.id, enrollment: e, invoice, sum: invoice && summarizeInvoice(invoice), fullName: st?.fullName ?? e.studentId, code: st?.code ?? '', phone: st?.phone ?? '', email: st?.email };
         })
         // Đang học / bảo lưu lên đầu
         .sort((a, b) => Number(['dropped', 'transferred'].includes(a.enrollment.status)) - Number(['dropped', 'transferred'].includes(b.enrollment.status))),
@@ -89,6 +99,38 @@ export function ClassStudentsTab({ cls }: { cls: ClassInfo }) {
     if (r.sum && r.sum.paid > 0) setTimeout(() => setDialog({ kind: 'refund', row: r }), 300);
   };
 
+  const resume = async (r: Row) => {
+    const ok = await confirm({
+      title: `${r.fullName} học lại lớp ${cls.code}?`,
+      description: r.enrollment.reservedUntil ? `Đang bảo lưu đến ${fmtDate(r.enrollment.reservedUntil)}.` : undefined,
+      tone: 'success',
+      confirmText: 'Học lại',
+    });
+    if (!ok) return;
+    resumeEnrollment(r.enrollment.id);
+    notify.toast.success(`${r.fullName} đã quay lại học`);
+  };
+
+  /** Học viên đủ điều kiện, chưa nhận chứng nhận, có email */
+  const certReady = rows.filter((r) => {
+    const st = stats.get(r.enrollment.studentId);
+    return !r.enrollment.certificate && r.email && (r.enrollment.status === 'completed' || r.enrollment.status === 'studying') && certificateChecks(cls, st).every((c) => c.ok);
+  });
+  const sendAllCertificates = async () => {
+    const ok = await confirm({
+      title: `Gửi chứng nhận hoàn thành cho ${certReady.length} học viên?`,
+      consequences: [
+        'Mỗi học viên nhận 1 email kèm file PDF chứng nhận + mã tra cứu',
+        'Học viên chưa đủ điều kiện hoặc chưa có email không được gửi — xử lý riêng từng người',
+      ],
+      tone: 'primary',
+      confirmText: 'Gửi email',
+    });
+    if (!ok) return;
+    certReady.forEach((r) => sendCertificate(r.enrollment.id, { email: r.email!, by: user?.fullName ?? 'Giáo vụ' }));
+    notify.success({ title: `Đã gửi ${certReady.length} chứng nhận`, description: cls.code });
+  };
+
   const columns: DataColumn<Row>[] = [
     {
       key: 'fullName',
@@ -98,7 +140,7 @@ export function ClassStudentsTab({ cls }: { cls: ClassInfo }) {
       sorter: (a, b) => a.fullName.localeCompare(b.fullName, 'vi'),
       render: (_, r) => (
         <div className={cn(r.enrollment.status === 'dropped' && 'opacity-60')}>
-          <UserCell name={r.fullName} subtitle={r.code} size="sm" />
+          <UserCell name={r.fullName} subtitle={r.code} size="sm" onClick={() => setProfileId(r.enrollment.studentId)} />
         </div>
       ),
     },
@@ -112,10 +154,20 @@ export function ClassStudentsTab({ cls }: { cls: ClassInfo }) {
         const s = ENROLLMENT_STATUS[r.enrollment.status];
         const waiting = cls.status === 'enrolling' && r.enrollment.status === 'studying';
         return (
-          <span title={r.enrollment.note}>
+          <span title={r.enrollment.note} className="flex flex-col items-start gap-0.5">
             <StatusTag tone={waiting ? 'info' : s.tone} icon={s.icon} size="sm">
               {waiting ? 'Chờ khai giảng' : s.label}
             </StatusTag>
+            {r.enrollment.status === 'reserved' && r.enrollment.reservedUntil && (
+              <span className={cn('text-xs', r.enrollment.reservedUntil < dayjs().format('YYYY-MM-DD') ? 'text-danger-600' : 'text-ink-muted')}>
+                đến {fmtDate(r.enrollment.reservedUntil)}
+              </span>
+            )}
+            {r.enrollment.certificate && (
+              <span className="flex items-center gap-1 text-xs text-success-700" title={`${r.enrollment.certificate.code} → ${r.enrollment.certificate.sentTo}`}>
+                <Award size={12} aria-hidden /> Đã gửi chứng nhận
+              </span>
+            )}
           </span>
         );
       },
@@ -162,6 +214,7 @@ export function ClassStudentsTab({ cls }: { cls: ClassInfo }) {
 
   return (
     <div className="flex flex-col gap-4">
+      <AttentionPanel cls={cls} onProfile={setProfileId} onContact={setCareId} />
       <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
         {[
           ['Phải thu', formatCurrency(totals.due) || '0 ₫', 'text-ink'],
@@ -185,28 +238,62 @@ export function ClassStudentsTab({ cls }: { cls: ClassInfo }) {
         searchKeys={['fullName', 'code', 'phone']}
         search={{
           placeholder: 'Tìm học viên trong lớp...',
-          actions:
-            editable && !closed ? (
-              <Button icon={UserPlus} collapseOnMobile disabled={activeCount >= cls.maxStudents} onClick={() => setDialog({ kind: 'add' })}>
-                Thêm học viên
-              </Button>
-            ) : undefined,
+          actions: editable ? (
+            <>
+              {cls.status === 'finished' && (
+                <Button icon={Mail} variant="outline" collapseOnMobile disabled={!certReady.length} tooltip={certReady.length ? undefined : 'Không còn học viên đủ điều kiện chưa nhận'} onClick={sendAllCertificates}>
+                  Gửi chứng nhận ({certReady.length})
+                </Button>
+              )}
+              {!closed && (
+                <Button icon={UserPlus} collapseOnMobile disabled={activeCount >= cls.maxStudents} onClick={() => setDialog({ kind: 'add' })}>
+                  Thêm học viên
+                </Button>
+              )}
+            </>
+          ) : undefined,
         }}
-        rowActions={
-          editable
-            ? (r) => {
-                const active = r.enrollment.status === 'studying' || r.enrollment.status === 'reserved';
-                return (
-                  <>
+        rowActions={(r) => {
+          const active = r.enrollment.status === 'studying' || r.enrollment.status === 'reserved';
+          const canCert = r.enrollment.status === 'completed' || (cls.status === 'finished' && r.enrollment.status === 'studying');
+          const more = [
+            { key: 'refund', icon: <Undo2 size={15} />, label: 'Hoàn tiền', disabled: !r.sum?.refundable, onClick: () => setDialog({ kind: 'refund', row: r }) },
+            { key: 'care', icon: <PhoneCall size={15} />, label: 'Ghi nhận liên hệ', disabled: closed, onClick: () => setCareId(r.enrollment.studentId) },
+            { type: 'divider' as const },
+            r.enrollment.status === 'reserved'
+              ? { key: 'resume', icon: <PlayCircle size={15} />, label: 'Học lại (hết bảo lưu)', disabled: closed, onClick: () => resume(r) }
+              : { key: 'reserve', icon: <PauseCircle size={15} />, label: 'Bảo lưu', disabled: closed || r.enrollment.status !== 'studying', onClick: () => setDialog({ kind: 'reserve', row: r }) },
+            { key: 'transfer', icon: <ArrowRightLeft size={15} />, label: 'Chuyển lớp', disabled: !active, onClick: () => setDialog({ kind: 'transfer', row: r }) },
+            { key: 'drop', icon: <UserX size={15} />, label: 'Cho nghỉ học', danger: true, disabled: !active, onClick: () => drop(r) },
+          ];
+          return (
+            <>
+              <Button icon={FileUser} iconOnly size="sm" variant="ghost" tooltip="Hồ sơ học tập" aria-label="Hồ sơ học tập" onClick={() => setProfileId(r.enrollment.studentId)} />
+              {editable && (
+                <>
+                  {canCert ? (
+                    <Button
+                      icon={Mail}
+                      iconOnly
+                      size="sm"
+                      tone="primary"
+                      variant="soft"
+                      tooltip={r.enrollment.certificate ? 'Gửi lại chứng nhận qua email' : 'Gửi chứng nhận hoàn thành qua email'}
+                      aria-label="Gửi chứng nhận"
+                      onClick={() => setCertId(r.enrollment.studentId)}
+                    />
+                  ) : (
                     <Button icon={HandCoins} iconOnly size="sm" tone="success" variant="soft" tooltip="Thu học phí" aria-label="Thu học phí" disabled={!r.sum?.remaining} onClick={() => setDialog({ kind: 'pay', row: r })} />
-                    <Button icon={Undo2} iconOnly size="sm" tone="warning" variant="soft" tooltip="Hoàn tiền" aria-label="Hoàn tiền" disabled={!r.sum?.refundable} onClick={() => setDialog({ kind: 'refund', row: r })} />
-                    <Button icon={UserX} iconOnly size="sm" tone="danger" variant="soft" tooltip="Cho nghỉ học (hủy lớp cho học viên)" aria-label="Cho nghỉ học" disabled={!active} onClick={() => drop(r)} />
-                  </>
-                );
-              }
-            : undefined
-        }
-        actionsWidth={150}
+                  )}
+                  <Dropdown trigger={['click']} menu={{ items: more }}>
+                    <Button icon={Ellipsis} iconOnly size="sm" variant="ghost" tooltip="Thao tác khác" aria-label="Thao tác khác" />
+                  </Dropdown>
+                </>
+              )}
+            </>
+          );
+        }}
+        actionsWidth={editable ? 130 : 60}
         empty={{ title: 'Lớp chưa có học viên', description: 'Thêm học viên đã có hồ sơ, hoặc tạo hồ sơ từ Lead ở Tuyển sinh.' }}
       />
 
@@ -292,6 +379,11 @@ export function ClassStudentsTab({ cls }: { cls: ClassInfo }) {
         excludeIds={rows.filter((r) => r.enrollment.status !== 'dropped').map((r) => r.enrollment.studentId)}
         onAdd={(studentId, discount, due) => enroll(studentId, cls.id, { discount, dueDate: due })}
       />
+      <ReserveModal enrollment={dialog?.kind === 'reserve' ? dialog.row.enrollment : null} name={dialog?.kind === 'reserve' ? dialog.row.fullName : undefined} onClose={() => setDialog(null)} />
+      <TransferModal cls={cls} enrollment={dialog?.kind === 'transfer' ? dialog.row.enrollment : null} name={dialog?.kind === 'transfer' ? dialog.row.fullName : undefined} onClose={() => setDialog(null)} />
+      <CertificateModal cls={cls} studentId={certId} onClose={() => setCertId(null)} />
+      <CareLogModal cls={cls} studentId={careId} name={rows.find((r) => r.enrollment.studentId === careId)?.fullName} onClose={() => setCareId(null)} />
+      <StudentLearningDrawer cls={cls} studentId={profileId} onClose={() => setProfileId(null)} />
       {confirmDialog}
     </div>
   );

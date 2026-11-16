@@ -32,6 +32,8 @@ export interface ClassInfo {
   branchId: string;
   /** 1 GV (hoặc 2 với lớp Việt + Nhật) — id trong TEACHERS */
   teacherIds: string[];
+  /** Trợ giảng (không bắt buộc) — id trong ASSISTANTS */
+  assistantIds?: string[];
   room?: string;
   online?: boolean;
   meetingUrl?: string;
@@ -61,6 +63,71 @@ export interface ClassInfo {
 
 export type SessionStatus = 'scheduled' | 'completed' | 'cancelled' | 'makeup';
 
+/**
+ * Nguồn gốc buổi học:
+ *  - regular: sinh từ lịch của lớp (mặc định khi không có)
+ *  - makeup:  học bù cho 1 buổi bị hủy (thay thế buổi đó, tính vào số buổi khóa)
+ *  - extra:   học thêm để kịp tiến độ — NGOÀI số buổi của khóa, không bị xóa khi "Tạo lại lịch"
+ */
+export type SessionOrigin = 'regular' | 'makeup' | 'extra';
+
+/** Điểm danh học viên: có mặt · đi muộn (vẫn tính có mặt) · vắng có phép · vắng không phép */
+export type AttendanceStatus = 'present' | 'late' | 'excused' | 'absent';
+
+/** Cách ghi nhận: HV tự quét QR · GV điểm danh trên Cổng GV · nhân viên trung tâm điểm danh hộ */
+export type AttendanceMethod = 'qr' | 'teacher' | 'staff';
+
+export interface AttendanceRecord {
+  studentId: string;
+  status: AttendanceStatus;
+  note?: string;
+  /** Giờ vào lớp (HH:mm) — giờ quét QR hoặc giờ được điểm danh */
+  checkInAt?: string;
+  method?: AttendanceMethod;
+  /** Về sớm giữa buổi (đau bụng, việc gấp...) — HH:mm */
+  leftAt?: string;
+  leaveReason?: string;
+  /** Vắng theo ĐƠN XIN NGHỈ đã duyệt (Cổng HV / PH) */
+  leaveRequestId?: string;
+  /** Buổi vắng này đã được HỌC BÙ ở lớp khác → tính như có mặt khi xét chuyên cần */
+  madeUp?: { sessionId: string; classCode: string; status: 'present' | 'late' };
+  /** HV lớp KHÁC đến học bù buổi này (không thuộc sĩ số lớp) */
+  makeupFor?: { sessionId: string; classId: string; leaveRequestId: string };
+}
+
+/** Nhân viên trung tâm hỗ trợ trong buổi (GV / HV không tự thao tác được trên hệ thống) */
+export type SupportKind = 'attendance' | 'early_leave' | 'teacher_checkin' | 'incident' | 'room' | 'other';
+
+export interface SupportEntry {
+  id: string;
+  kind: SupportKind;
+  note: string;
+  by: string;
+  at: string;
+}
+
+/** Vai trò người đứng lớp trong buổi */
+export type StaffRole = 'teacher' | 'substitute' | 'assistant';
+
+/** Chấm công giáo viên / trợ giảng cho 1 buổi (check-in / check-out) */
+export interface TeacherAttendance {
+  /** id trong TEACHERS hoặc ASSISTANTS */
+  teacherId: string;
+  /** Không có = suy theo lớp (GV lớp / trợ giảng) */
+  role?: StaffRole;
+  /** self = GV tự chấm trên Cổng giáo viên · staff = Giáo vụ chấm hộ / sửa */
+  source?: 'self' | 'staff';
+  /** Thời điểm chấm (lần cuối) */
+  checkedAt?: string;
+  status: 'present' | 'late' | 'absent';
+  /** HH:mm */
+  checkIn?: string;
+  checkOut?: string;
+  /** GV vắng → người dạy thay (id trong TEACHERS) */
+  substituteId?: string;
+  note?: string;
+}
+
 export interface ClassSession {
   id: string;
   classId: string;
@@ -77,10 +144,56 @@ export interface ClassSession {
   status: SessionStatus;
   /** Lý do hủy / ghi chú */
   note?: string;
-  /** Điểm danh: có mặt / sĩ số */
+  /** Điểm danh: có mặt / sĩ số (tổng hợp từ records) */
   attendance?: { present: number; total: number };
+  /** Điểm danh chi tiết từng học viên */
+  records?: AttendanceRecord[];
+  /** Người điểm danh + thời điểm */
+  attendanceBy?: { name: string; at: string };
+  /** Chấm công giáo viên + trợ giảng */
+  teacherAttendance?: TeacherAttendance[];
+  /** Ghi đè trợ giảng của lớp cho riêng buổi này */
+  assistantIds?: string[];
+  /** Nhân viên xác nhận buổi đã diễn ra → căn cứ tính lương GV, trừ buổi trong gói học phí */
+  confirmation?: { by: string; at: string; note?: string };
+  /** Sự cố của giáo viên giữa buổi (ốm, việc gấp...) */
+  incident?: SessionIncident;
+  /** Nhật ký hỗ trợ của nhân viên trong buổi */
+  supportLog?: SupportEntry[];
   /** Nhật ký buổi học — giáo viên ghi sau buổi dạy (Cổng giáo viên) */
   teacherLog?: SessionLog;
+
+  /** Không có = regular */
+  origin?: SessionOrigin;
+  /** Buổi học bù: id buổi bị hủy được bù */
+  makeupForId?: string;
+  /** Ghi đè GV / phòng của lớp cho riêng buổi này (dạy thay, đổi phòng) */
+  teacherIds?: string[];
+  room?: string;
+  /** Đã dời lịch: ngày + giờ gốc */
+  rescheduledFrom?: { date: string; startTime: string; endTime: string; reason?: string };
+  /** Hủy bởi ai, lúc nào */
+  cancelledBy?: { name: string; at: string };
+}
+
+export type IncidentReason = 'faint' | 'sick' | 'family' | 'accident' | 'tech' | 'other';
+/** Cách xử lý: tạm dừng lớp (chờ xử lý) · GV khác vào dạy tiếp · trợ giảng dạy tiếp · kết thúc sớm (xếp bù phần còn lại) */
+export type IncidentAction = 'pause' | 'substitute' | 'assistant' | 'end_early';
+
+export interface SessionIncident {
+  /** Giờ xảy ra, HH:mm */
+  at: string;
+  reason: IncidentReason;
+  detail?: string;
+  action: IncidentAction;
+  /** Người dạy tiếp phần còn lại (GV dạy thay hoặc trợ giảng) */
+  takeoverId?: string;
+  /** Đã báo học viên / phụ huynh */
+  notified?: boolean;
+  /** Tạm dừng → kết quả: lớp học tiếp (lúc nào, ai dạy) hoặc cho nghỉ luôn */
+  outcome?: { kind: 'resumed' | 'ended'; at: string; teacherId?: string; by: string };
+  reportedBy: string;
+  reportedAt: string;
 }
 
 export interface SessionLog {
@@ -155,6 +268,64 @@ export interface Submission {
   comment?: string;
   gradedAt?: string;
   gradedBy?: string;
+}
+
+// ---------------- Thông báo cho lớp ----------------
+
+export type AnnouncementAudience = 'student' | 'parent' | 'teacher';
+export type AnnouncementChannel = 'portal' | 'zalo' | 'email';
+
+export interface ClassAnnouncement {
+  id: string;
+  classId: string;
+  title: string;
+  content: string;
+  audience: AnnouncementAudience[];
+  channels: AnnouncementChannel[];
+  /** Chỉ gửi học viên còn nợ học phí (mẫu nhắc học phí) */
+  debtorsOnly?: boolean;
+  /** Số người nhận lúc gửi */
+  recipients: number;
+  /** Số người đã xem (Cổng / Zalo) */
+  readCount?: number;
+  sentBy: string;
+  sentAt: string;
+  /** Hẹn giờ gửi — chưa tới giờ thì là "Chờ gửi" */
+  scheduledAt?: string;
+}
+
+// ---------------- Đánh giá giáo viên ----------------
+
+export type ReviewPeriod = 'mid' | 'final';
+export type ReviewCriterion = 'method' | 'clarity' | 'enthusiasm' | 'punctuality';
+
+/** Học viên đánh giá giáo viên (khảo sát giữa kỳ / cuối kỳ trên Cổng học viên) */
+export interface TeacherReview {
+  id: string;
+  classId: string;
+  teacherId: string;
+  studentId: string;
+  period: ReviewPeriod;
+  /** 1–5 sao */
+  overall: number;
+  ratings: Record<ReviewCriterion, number>;
+  comment?: string;
+  /** Ẩn danh → không hiện tên học viên với giáo viên */
+  anonymous: boolean;
+  createdAt: string;
+}
+
+// ---------------- Chăm sóc học viên ----------------
+
+/** Ghi nhận đã liên hệ học viên / phụ huynh (từ danh sách "Học viên cần chú ý") */
+export interface CareLog {
+  id: string;
+  classId: string;
+  studentId: string;
+  channel: 'call' | 'zalo' | 'meet';
+  note: string;
+  by: string;
+  at: string;
 }
 
 /** Kết quả 1 học viên trong 1 kỳ thi (mốc thi của lộ trình) của lớp */
