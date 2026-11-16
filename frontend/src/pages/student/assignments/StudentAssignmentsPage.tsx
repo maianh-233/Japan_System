@@ -3,6 +3,7 @@ import { Form, Tabs } from 'antd';
 import dayjs from 'dayjs';
 import { CheckCircle2, Clock, FileUp, ListChecks, MessageSquareText, NotebookPen, Play, TriangleAlert } from 'lucide-react';
 import { Button, EmptyState, FileUpload, ModalForm, PageHeader, StatusTag, TextArea, useNotify, type UploadItem } from '@/components/common';
+import { AttachmentList } from '@/features/academic/classes/AttachmentList';
 import { useClassStore } from '@/features/academic/classes/classStore';
 import type { Assignment, Submission, SubmissionFile } from '@/features/academic/classes/types';
 import { useCurriculumStore } from '@/features/academic/curriculum/curriculumStore';
@@ -109,6 +110,12 @@ export default function StudentAssignmentsPage() {
           )}
         </div>
         {i.a.description && <p className="mt-2 text-[13px] text-ink-secondary">{i.a.description}</p>}
+        {i.a.attachments?.length ? (
+          <div className="mt-2">
+            <p className="mb-1 text-xs font-medium text-ink-muted">Đề bài của giáo viên — bấm để mở / tải về</p>
+            <AttachmentList files={i.a.attachments} />
+          </div>
+        ) : null}
         {i.sub && (
           <p className="mt-2 text-xs text-ink-muted">
             Nộp {fmtDateTime(i.sub.submittedAt)}

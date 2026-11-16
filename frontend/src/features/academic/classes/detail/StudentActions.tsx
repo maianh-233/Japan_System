@@ -155,6 +155,123 @@ export function TransferModal({ cls, enrollment, name, onClose }: { cls: ClassIn
   );
 }
 
+/**
+ * Chuyển lớp HÀNG LOẠT (vd: gộp lớp, tách lớp, đổi ca cả nhóm).
+ * Mỗi học viên được tính riêng như chuyển lớp đơn: khấu trừ = đã đóng − giá trị đã học; học phí lớp mới theo số buổi còn lại.
+ * Muốn chỉnh tay khoản khấu trừ cho từng người → dùng "Chuyển lớp" từng dòng.
+ */
+export function BulkTransferModal({ cls, items, onClose, onDone }: { cls: ClassInfo; items: { enrollment: Enrollment; name: string }[] | null; onClose: () => void; onDone: () => void }) {
+  const notify = useNotify();
+  const [form] = Form.useForm<{ targetId: string; dueDate: Dayjs; reason: string }>();
+  const classes = useClassStore((s) => s.classes);
+  const sessions = useClassStore((s) => s.sessions);
+  const enrollments = useStudentStore((s) => s.enrollments);
+  const invoices = useStudentStore((s) => s.invoices);
+  const transfer = useStudentStore((s) => s.transferEnrollment);
+  const targetId = Form.useWatch('targetId', form);
+
+  const total = totalSessionsOf(cls) || 1;
+  const taught = sessions.filter((s) => s.classId === cls.id && isTaught(s)).length;
+  const used = round10k((cls.fee / total) * taught);
+  const list = items ?? [];
+
+  const targets = useMemo(
+    () =>
+      classes
+        .filter((c) => c.id !== cls.id && (c.status === 'enrolling' || c.status === 'ongoing') && c.branchId === cls.branchId)
+        .map((c) => {
+          const seats = c.maxStudents - enrollments.filter((e) => e.classId === c.id && (e.status === 'studying' || e.status === 'reserved')).length;
+          const doneT = sessions.filter((s) => s.classId === c.id && isTaught(s)).length;
+          const totalT = totalSessionsOf(c) || 1;
+          return { c, seats, doneT, totalT, fee: c.status === 'enrolling' ? c.fee : round10k((c.fee * (totalT - doneT)) / totalT) };
+        })
+        .sort((a, b) => Number(b.c.courseId === cls.courseId) - Number(a.c.courseId === cls.courseId)),
+    [classes, cls, enrollments, sessions],
+  );
+  const target = targets.find((t) => t.c.id === targetId);
+
+  const plan = list.map(({ enrollment, name }) => {
+    const inv = invoices.find((i) => i.enrollmentId === enrollment.id);
+    const paid = inv ? summarizeInvoice(inv).paid : 0;
+    const credit = Math.max(0, paid - used);
+    return { enrollment, name, credit, extra: target ? target.fee - credit : 0 };
+  });
+
+  return (
+    <ModalForm
+      key={list.map((x) => x.enrollment.id).join(',') || 'bulk-transfer'}
+      form={form}
+      open={Boolean(items?.length)}
+      onClose={onClose}
+      width={720}
+      title={`Chuyển ${list.length} học viên sang lớp khác`}
+      description={`Từ lớp ${cls.code} · đã học ${taught}/${total} buổi`}
+      submitAction="save"
+      submitText={`Chuyển ${list.length} học viên`}
+      successMessage={`Đã chuyển ${list.length} học viên`}
+      initialValues={{ dueDate: dayjs().add(7, 'day') }}
+      onSubmit={(v) => {
+        const t = targets.find((x) => x.c.id === v.targetId);
+        if (!t) return;
+        if (t.seats < list.length) throw new Error(`Lớp ${t.c.code} chỉ còn ${t.seats} chỗ`);
+        plan.forEach((p) => transfer(p.enrollment.id, t.c.id, { amount: t.fee, credit: p.credit, dueDate: v.dueDate.format('YYYY-MM-DD'), reason: v.reason.trim() }));
+        notify.info({ title: `Đã chuyển ${list.length} học viên sang ${t.c.code}`, description: 'Mỗi học viên có hóa đơn mới tại lớp đích (đã trừ khoản khấu trừ).' });
+        onDone();
+      }}
+    >
+      <Form.Item
+        name="targetId"
+        label="Lớp chuyển đến"
+        rules={[
+          { required: true, message: 'Chọn lớp' },
+          { validator: (_, id?: string) => { const t = targets.find((x) => x.c.id === id); return !t || t.seats >= list.length ? Promise.resolve() : Promise.reject(new Error(`Chỉ còn ${t.seats} chỗ — bỏ bớt học viên hoặc chọn lớp khác`)); } },
+        ]}
+      >
+        <Select
+          placeholder="Chọn lớp đang mở cùng chi nhánh"
+          options={targets.map((x) => ({
+            value: x.c.id,
+            disabled: x.seats <= 0,
+            label: `${x.c.code} — ${x.c.name}${x.c.courseId === cls.courseId ? ' · cùng khóa' : ''} · ${x.c.status === 'enrolling' ? `khai giảng ${fmtDate(effectiveStart(x.c))}` : `đã học ${x.doneT}/${x.totalT}`} · ${x.seats > 0 ? `còn ${x.seats} chỗ` : 'hết chỗ'}`,
+          }))}
+        />
+      </Form.Item>
+
+      <div className="mb-4 max-h-60 overflow-auto rounded-lg border border-line">
+        <table className="w-full text-[13px]">
+          <thead className="sticky top-0 bg-page text-left text-xs text-ink-muted">
+            <tr>
+              <th className="px-3 py-2 font-medium">Học viên</th>
+              <th className="px-3 py-2 text-right font-medium">Khấu trừ</th>
+              <th className="px-3 py-2 text-right font-medium">{target ? `Phải đóng thêm (HP ${formatCurrency(target.fee)})` : 'Phải đóng thêm'}</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-line">
+            {plan.map((p) => (
+              <tr key={p.enrollment.id}>
+                <td className="px-3 py-1.5">{p.name}</td>
+                <td className="tabular px-3 py-1.5 text-right text-success-700">{formatCurrency(p.credit) || '0 ₫'}</td>
+                <td className={cn('tabular px-3 py-1.5 text-right', p.extra > 0 ? 'text-warning-700' : 'text-ink-muted')}>
+                  {!target ? '—' : p.extra > 0 ? formatCurrency(p.extra) : p.extra < 0 ? `dư ${formatCurrency(-p.extra)}` : '0 ₫'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="grid grid-cols-1 gap-x-3 sm:grid-cols-2">
+        <Form.Item name="dueDate" label="Hạn đóng (nếu phải đóng thêm)" rules={[{ required: true, message: 'Chọn ngày' }]}>
+          <DateInput />
+        </Form.Item>
+        <Form.Item name="reason" label="Lý do chuyển" rules={[{ required: true, whitespace: true, message: 'Nhập lý do' }]}>
+          <TextInput placeholder="VD: Gộp lớp do sĩ số thấp" />
+        </Form.Item>
+      </div>
+    </ModalForm>
+  );
+}
+
 // ======================= Chứng nhận hoàn thành =======================
 
 /** Điều kiện cấp chứng nhận */

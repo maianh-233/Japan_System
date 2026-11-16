@@ -7,7 +7,7 @@ import { useStudentStore } from '@/features/student/studentStore';
 import { fmtDate } from '@/lib/date';
 import { useCurriculumStore } from '../../curriculum/curriculumStore';
 import { useClassStore } from '../classStore';
-import { TEACHERS } from '../constants';
+import { useTeachers } from '../constants';
 import { useRoomOptions } from '../../rooms/roomStore';
 import { findConflicts, originOf, SESSION_ORIGIN, sessionRoom, sessionTeachers } from '../sessionUtils';
 import type { ClassInfo, ClassSession } from '../types';
@@ -49,7 +49,8 @@ export function SessionScheduleModal({ cls, mode, onClose }: { cls: ClassInfo; m
   const cancelledOpen = sessions.filter((s) => s.status === 'cancelled' && originOf(s) === 'regular' && !sessions.some((x) => x.makeupForId === s.id && x.status !== 'cancelled'));
   const editing = mode?.kind === 'edit' ? mode.session : undefined;
 
-  const teacherOptions = TEACHERS.filter((t) => t.branchIds.includes(cls.branchId) || cls.teacherIds.includes(t.id)).map((t) => ({
+  const teachers = useTeachers(true);
+  const teacherOptions = teachers.filter((t) => (t.available && t.branchIds.includes(cls.branchId)) || cls.teacherIds.includes(t.id)).map((t) => ({
     value: t.id,
     label: `${t.name}${t.type === 'jp' ? ' (GV Nhật)' : ''}${cls.teacherIds.includes(t.id) ? ' · GV lớp' : ''}`,
   }));

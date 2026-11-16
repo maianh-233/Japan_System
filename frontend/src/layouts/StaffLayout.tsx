@@ -2,7 +2,10 @@ import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AppShell } from '@/components/layout/AppShell';
 import { BranchSwitcher } from '@/components/layout/BranchSwitcher';
+import { GlobalSearch } from '@/components/layout/GlobalSearch';
 import { STAFF_MODULES } from '@/config/navigation';
+import { useSlaWatcher } from '@/features/crm/admission/slaWatch';
+import { useAppointmentReminders } from '@/features/crm/appointments/appointmentWatch';
 import { useMyReports } from '@/features/me/useMe';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -11,6 +14,10 @@ export default function StaffLayout() {
   const { can } = useAuth();
   const { pathname } = useLocation();
   const hasReports = useMyReports().length > 0;
+  // Giả lập job phía server: cảnh báo / tự chuyển lead quá SLA
+  useSlaWatcher();
+  // Giả lập job: nhắc lịch hẹn tư vấn / test trước 1 giờ
+  useAppointmentReminders();
 
   // Chỉ giữ module/mục người dùng có quyền
   const modules = useMemo(
@@ -32,6 +39,7 @@ export default function StaffLayout() {
       activeModuleKey={active?.key}
       sidebarItems={active?.items ?? []}
       sidebarTitle={active?.label}
+      headerSearch={<GlobalSearch />}
       headerExtra={<BranchSwitcher />}
       drawerExtra={<BranchSwitcher className="w-full max-w-none" />}
     />

@@ -30,9 +30,9 @@ export interface ClassInfo {
   /** Nhãn khóa (giữ để hiển thị nhanh) */
   courseLabel: string;
   branchId: string;
-  /** 1 GV (hoặc 2 với lớp Việt + Nhật) — id trong TEACHERS */
+  /** 1 GV (hoặc 2 với lớp Việt + Nhật) — id nhân viên (GV) trong Nhân sự */
   teacherIds: string[];
-  /** Trợ giảng (không bắt buộc) — id trong ASSISTANTS */
+  /** Trợ giảng (không bắt buộc) — id nhân viên (trợ giảng) trong Nhân sự */
   assistantIds?: string[];
   room?: string;
   online?: boolean;
@@ -56,6 +56,8 @@ export interface ClassInfo {
   fee: number;
 
   status: ClassStatus;
+  /** Lớp kế tiếp (lên lớp): mở để đón học viên từ lớp này */
+  previousClassId?: string;
   cancelReason?: string;
   note?: string;
   createdAt: string;
@@ -111,7 +113,7 @@ export type StaffRole = 'teacher' | 'substitute' | 'assistant';
 
 /** Chấm công giáo viên / trợ giảng cho 1 buổi (check-in / check-out) */
 export interface TeacherAttendance {
-  /** id trong TEACHERS hoặc ASSISTANTS */
+  /** id nhân viên (GV / trợ giảng) trong Nhân sự */
   teacherId: string;
   /** Không có = suy theo lớp (GV lớp / trợ giảng) */
   role?: StaffRole;
@@ -123,7 +125,7 @@ export interface TeacherAttendance {
   /** HH:mm */
   checkIn?: string;
   checkOut?: string;
-  /** GV vắng → người dạy thay (id trong TEACHERS) */
+  /** GV vắng → người dạy thay (id nhân viên (GV) trong Nhân sự) */
   substituteId?: string;
   note?: string;
 }
@@ -203,9 +205,18 @@ export interface SessionLog {
   homework?: string;
   /** Vấn đề cần trung tâm xử lý (HV vắng nhiều, thiết bị hỏng...) */
   issues?: string;
+  /** Mức hoàn thành nội dung bài của buổi (báo cáo khi GV bấm "Kết thúc buổi học") */
+  coverage?: LessonCoverage;
+  /** Các phần (chapter) của bài đã dạy xong */
+  coveredChapterIds?: string[];
+  /** Lúc GV bấm "Kết thúc buổi học" lần đầu — báo cáo vẫn sửa được sau đó */
+  endedAt?: string;
   author: string;
   at: string;
 }
+
+/** Tiến độ buổi: dạy xong bài · dạy được một phần (phần còn lại dời buổi sau) · chưa dạy được */
+export type LessonCoverage = 'full' | 'partial' | 'none';
 
 /**
  * 2 loại bài tập:
@@ -243,6 +254,8 @@ export interface Assignment {
   /** Thang điểm (mặc định 10) */
   maxScore: number;
   quiz?: QuizConfig;
+  /** Bài "upload": đề bài / tài liệu GV tự gửi (không lấy từ trung tâm) */
+  attachments?: SubmissionFile[];
 }
 
 export interface SubmissionFile {
@@ -284,6 +297,8 @@ export interface ClassAnnouncement {
   channels: AnnouncementChannel[];
   /** Chỉ gửi học viên còn nợ học phí (mẫu nhắc học phí) */
   debtorsOnly?: boolean;
+  /** Chỉ gửi các học viên này (+ phụ huynh) — gửi từ thao tác hàng loạt; bỏ trống = cả lớp */
+  studentIds?: string[];
   /** Số người nhận lúc gửi */
   recipients: number;
   /** Số người đã xem (Cổng / Zalo) */
@@ -326,6 +341,37 @@ export interface CareLog {
   note: string;
   by: string;
   at: string;
+}
+
+// ---------------- Nhận xét cuối khóa ----------------
+
+export type EvalSkill = 'vocab' | 'grammar' | 'reading' | 'listening' | 'speaking';
+/** Đề xuất của GV cho bước học tiếp theo */
+export type EvalRecommendation = 'next_level' | 'advanced' | 'jlpt' | 'repeat' | 'other';
+
+/**
+ * Nhận xét CUỐI KHÓA của giáo viên về 1 học viên (Cổng GV › Lớp của tôi › Học viên).
+ * Khác nhận xét bài tập / bài thi: đây là đánh giá tổng thể cả khóa — căn cứ để Sale tư vấn
+ * học viên đăng ký khóa tiếp theo. Mỗi học viên / lớp có 1 bản, GV sửa được.
+ */
+export interface StudentEvaluation {
+  id: string;
+  classId: string;
+  studentId: string;
+  /** id nhân viên (GV) viết */
+  teacherId: string;
+  author: string;
+  /** 1–5 sao từng kỹ năng */
+  skills: Record<EvalSkill, number>;
+  /** Thái độ, chuyên cần học tập: 1–5 */
+  attitude: number;
+  strengths?: string;
+  weaknesses?: string;
+  recommendation: EvalRecommendation;
+  /** Ghi chú cho trung tâm / Sale khi tư vấn (lớp phù hợp, lịch học, lưu ý...) */
+  advice?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 /** Kết quả 1 học viên trong 1 kỳ thi (mốc thi của lộ trình) của lớp */

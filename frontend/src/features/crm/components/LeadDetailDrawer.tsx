@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Drawer, Form, Tabs } from 'antd';
-import { EyeOff, GraduationCap, Info, MessagesSquare } from 'lucide-react';
+import { CalendarPlus, EyeOff, GraduationCap, Info, MessageCircle, MessagesSquare } from 'lucide-react';
 import { Button, StatusTag, useNotify } from '@/components/common';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { fmtDateTime, fromNow } from '@/lib/date';
 import { useCrmStore } from '../crmStore';
 import { useHideLead } from '../useHideLead';
 import type { Lead } from '../types';
+import { BookAppointmentModal } from '../appointments/BookAppointmentModal';
+import { SendMessageModal } from '../messages/SendMessageModal';
 import { ConsultationTab } from './ConsultationTab';
+import { EnrollLeadModal } from './EnrollLeadModal';
 import { formToLead, LeadFormFields, leadToForm, type LeadFormValues } from './LeadFormFields';
 import { LinkedStudentsTab } from './LinkedStudentsTab';
 
@@ -29,6 +32,9 @@ export function LeadDetailDrawer({ leadId, initialTab = 'info', onClose, onOpenL
   const studentCount = useCrmStore((s) => s.links.filter((k) => k.leadId === leadId).length);
   const [tab, setTab] = useState<LeadTab>(initialTab);
   const { toggleHidden, confirmDialog } = useHideLead();
+  const [enrolling, setEnrolling] = useState(false);
+  const [messaging, setMessaging] = useState(false);
+  const [booking, setBooking] = useState(false);
 
   useEffect(() => {
     if (leadId) setTab(initialTab);
@@ -61,16 +67,33 @@ export function LeadDetailDrawer({ leadId, initialTab = 'info', onClose, onOpenL
       }
       extra={
         lead && (
-          <Button
-            icon={EyeOff}
-            tone="neutral"
-            variant="outline"
-            size="sm"
-            collapseOnMobile
-            onClick={() => toggleHidden(lead)}
-          >
-            {lead.hidden ? 'Bỏ ẩn' : 'Ẩn lead'}
-          </Button>
+          <div className="flex gap-2">
+            {!lead.hidden && (
+              <Button icon={MessageCircle} size="sm" variant="outline" collapseOnMobile onClick={() => setMessaging(true)}>
+                Nhắn tin
+              </Button>
+            )}
+            {!lead.hidden && lead.status !== 'won' && lead.status !== 'lost' && (
+              <Button icon={CalendarPlus} size="sm" variant="outline" collapseOnMobile onClick={() => setBooking(true)}>
+                Đặt lịch hẹn
+              </Button>
+            )}
+            {!lead.hidden && (
+              <Button icon={GraduationCap} size="sm" collapseOnMobile onClick={() => setEnrolling(true)}>
+                Chốt & ghi danh
+              </Button>
+            )}
+            <Button
+              icon={EyeOff}
+              tone="neutral"
+              variant="outline"
+              size="sm"
+              collapseOnMobile
+              onClick={() => toggleHidden(lead)}
+            >
+              {lead.hidden ? 'Bỏ ẩn' : 'Ẩn lead'}
+            </Button>
+          </div>
         )
       }
     >
@@ -110,6 +133,9 @@ export function LeadDetailDrawer({ leadId, initialTab = 'info', onClose, onOpenL
         />
       )}
       {confirmDialog}
+      {lead && enrolling && <EnrollLeadModal lead={lead} open onClose={() => setEnrolling(false)} />}
+      <SendMessageModal target={lead && messaging ? { kind: 'lead', leadId: lead.id } : null} scenario={lead?.status === 'new' ? 'welcome' : lead?.status === 'test_scheduled' ? 'test_reminder' : undefined} onClose={() => setMessaging(false)} />
+      {lead && <BookAppointmentModal open={booking} leadId={lead.id} defaultKind={lead.status === 'consulting' ? 'test' : 'consult'} onClose={() => setBooking(false)} />}
     </Drawer>
   );
 }

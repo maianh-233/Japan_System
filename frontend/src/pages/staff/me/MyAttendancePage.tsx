@@ -3,7 +3,7 @@ import { Form, Steps, Switch, Tabs, Tooltip } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import { CalendarOff, ChevronLeft, ChevronRight, Clock, LogIn, LogOut, Send, TimerOff, TriangleAlert, Undo2 } from 'lucide-react';
 import { Button, DateInput, EmptyState, ModalForm, NumberInput, PageHeader, Select, StatCard, StatusTag, TextArea, TextInput, useConfirm, useNotify } from '@/components/common';
-import { LATE_GRACE_MIN, REQUEST_STATUS, REQUEST_TYPES } from '@/features/hr/constants';
+import { lateGraceMin, REQUEST_STATUS, REQUEST_TYPES } from '@/features/hr/constants';
 import { useHrStore } from '@/features/hr/hrStore';
 import { buildSteps, DAY_STATE, dayState, nameOf, workDays, type DayState } from '@/features/hr/hrUtils';
 import type { RequestType } from '@/features/hr/types';
@@ -88,7 +88,7 @@ export default function MyAttendancePage() {
     const t = dayjs().format('HH:mm');
     if (kind === 'in') {
       const late = todayState.exp ? dayjs(`2000-01-01T${t}`).diff(dayjs(`2000-01-01T${todayState.exp.from}`), 'minute') : 0;
-      notify.toast[late > LATE_GRACE_MIN ? 'warning' : 'success'](late > LATE_GRACE_MIN ? `Check-in ${t} — muộn ${late} phút` : `Check-in ${t}`);
+      notify.toast[late > lateGraceMin() ? 'warning' : 'success'](late > lateGraceMin() ? `Check-in ${t} — muộn ${late} phút` : `Check-in ${t}`);
     } else notify.toast.success(`Check-out ${t}`);
   };
 
@@ -100,7 +100,7 @@ export default function MyAttendancePage() {
     <>
       <PageHeader
         title="Chấm công của tôi"
-        subtitle={`${me.fullName} · ${me.position} · ${me.shiftBased ? 'làm theo ca (theo lịch Xếp ca)' : 'giờ hành chính'}. Đi muộn / về sớm quá ${LATE_GRACE_MIN} phút bị đánh dấu.`}
+        subtitle={`${me.fullName} · ${me.position} · ${me.shiftBased ? 'làm theo ca (theo lịch Xếp ca)' : 'giờ hành chính'}. Đi muộn / về sớm quá ${lateGraceMin()} phút bị đánh dấu.`}
         breadcrumb={[{ title: 'Cá nhân' }, { title: 'Chấm công của tôi' }]}
         actions={
           <Button action="send" collapseOnMobile onClick={() => setCreating({ type: 'leave', paidLeave: true })}>
@@ -173,7 +173,7 @@ export default function MyAttendancePage() {
                           ? c.exp
                             ? `Ca ${c.exp.from}–${c.exp.to}`
                             : 'Không có ca'
-                          : `${DAY_STATE[c.state].label}${c.exp ? ` · ca ${c.exp.from}–${c.exp.to}` : ''}${c.rec?.checkIn ? ` · vào ${c.rec.checkIn}` : ''}${c.rec?.checkOut ? ` · ra ${c.rec.checkOut}` : ''}${c.lateMin > LATE_GRACE_MIN ? ` · muộn ${c.lateMin}′` : ''}${c.rec?.edited ? ` · sửa bởi ${c.rec.edited.by}: ${c.rec.edited.reason}` : ''}`
+                          : `${DAY_STATE[c.state].label}${c.exp ? ` · ca ${c.exp.from}–${c.exp.to}` : ''}${c.rec?.checkIn ? ` · vào ${c.rec.checkIn}` : ''}${c.rec?.checkOut ? ` · ra ${c.rec.checkOut}` : ''}${c.lateMin > lateGraceMin() ? ` · muộn ${c.lateMin}′` : ''}${c.rec?.edited ? ` · sửa bởi ${c.rec.edited.by}: ${c.rec.edited.reason}` : ''}`
                       }
                     >
                       <div className={cn('flex min-h-16 flex-col items-start rounded-lg border border-line p-1.5 text-left', CELL[c.state], c.date === today && 'ring-2 ring-primary-500')}>
@@ -197,7 +197,7 @@ export default function MyAttendancePage() {
                         <li key={c.date} className="flex flex-wrap items-center justify-between gap-2 py-2">
                           <span>
                             {dayjs(c.date).format('dd DD/MM')} · <span className="font-medium">{DAY_STATE[c.state].label}</span>
-                            {c.lateMin > LATE_GRACE_MIN && ` ${c.lateMin} phút`}
+                            {c.lateMin > lateGraceMin() && ` ${c.lateMin} phút`}
                           </span>
                           <Button
                             icon={Send}

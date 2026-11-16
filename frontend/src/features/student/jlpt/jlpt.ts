@@ -62,9 +62,22 @@ export interface JlptReg {
   admitNo?: string;
   /** Điểm từng phần theo cấu trúc đề của cấp độ */
   scores?: number[];
+  /**
+   * CHỨNG CHỈ GỐC (do hội đồng thi JLPT cấp — khác "chứng nhận hoàn thành khóa" của trung tâm).
+   * Đỗ → chứng chỉ gửi về trung tâm (khoảng 1–2 tháng sau khi có điểm) → trung tâm phát cho học viên.
+   */
+  certificate?: { no: string; receivedAt: string; receivedBy: string; handedAt?: string; handedBy?: string; handedTo?: string };
   note?: string;
   createdAt: string;
 }
+
+/** Tình trạng chứng chỉ gốc của 1 lượt thi đã đỗ */
+export const certStage = (r: Pick<JlptReg, 'certificate'>) => (r.certificate?.handedAt ? 'handed' : r.certificate ? 'received' : 'waiting');
+export const CERT_STAGE = {
+  waiting: { label: 'Chờ chứng chỉ gốc về', tone: 'warning' as Tone },
+  received: { label: 'Chứng chỉ đã về — chờ nhận', tone: 'info' as Tone },
+  handed: { label: 'Đã nhận chứng chỉ', tone: 'success' as Tone },
+};
 
 // ---------------- Quy chế chấm điểm ----------------
 

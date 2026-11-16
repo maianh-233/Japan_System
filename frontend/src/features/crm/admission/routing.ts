@@ -3,7 +3,8 @@ import { WORK_SHIFTS } from '@/features/hr/constants';
 import type { ShiftAssignment } from '@/features/work/types';
 import { useHrStore } from '@/features/hr/hrStore';
 import type { Employee } from '@/features/hr/types';
-import { saleName, salesOf, SLA_MINUTES } from '../constants';
+import { getSettings } from '@/features/system/settings';
+import { saleName, salesOf } from '../constants';
 import type { Lead, LeadRule } from '../types';
 
 /**
@@ -26,7 +27,7 @@ export function ruleMatches(rule: LeadRule, lead: LeadLike): boolean {
 export const matchRule = (rules: LeadRule[], lead: LeadLike) => rules.find((r) => r.active && ruleMatches(r, lead));
 
 /** SLA áp cho lead: theo quy tắc khớp, không có → mặc định */
-export const slaOf = (rules: LeadRule[], lead: LeadLike) => matchRule(rules, lead)?.slaMinutes ?? SLA_MINUTES;
+export const slaOf = (rules: LeadRule[], lead: LeadLike) => matchRule(rules, lead)?.slaMinutes ?? getSettings().crm.defaultSlaMinutes;
 
 /** Số lead đang mở (mới / đang tư vấn / hẹn test) của từng Sale */
 export function openLoad(leads: Lead[]): Map<string, number> {
@@ -37,11 +38,15 @@ export function openLoad(leads: Lead[]): Map<string, number> {
   return m;
 }
 
-/** Sale có đang trong ca tại thời điểm `at`? Làm theo ca → theo lịch Xếp ca; không → giờ hành chính T2–T7 08:00–17:30 */
+/** Sale có đang trong ca tại thời điểm `at`? Làm theo ca → theo lịch Xếp ca; không → giờ hành chính (Cài đặt chung) */
 export function isOnShift(saleId: string, shifts: ShiftAssignment[], at = dayjs(), employees: Employee[] = useHrStore.getState().employees): boolean {
   const e = employees.find((x) => x.id === saleId);
   const hm = at.format('HH:mm');
-  if (!e?.shiftBased) return at.day() !== 0 && hm >= '08:00' && hm < '17:30';
+  if (!e?.shiftBased) {
+    const o = getSettings().office;
+    const end = at.day() === 6 ? o.satTo : o.to;
+    return at.day() !== 0 && Boolean(end) && hm >= o.from && hm < end!;
+  }
   const date = at.format('YYYY-MM-DD');
   return shifts.some((s) => s.employeeId === saleId && s.date === date && hm >= WORK_SHIFTS[s.shift].from && hm < WORK_SHIFTS[s.shift].to);
 }

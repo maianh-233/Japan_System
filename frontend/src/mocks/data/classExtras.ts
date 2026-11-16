@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import type { CareLog, ClassAnnouncement, ReviewCriterion, TeacherReview } from '@/features/academic/classes/types';
+import type { CareLog, ClassAnnouncement, ReviewCriterion, StudentEvaluation, TeacherReview } from '@/features/academic/classes/types';
 import { MOCK_CLASSES } from './classes';
 import { MOCK_SESSIONS } from './attendance';
 import { MOCK_ENROLLMENTS } from './students';
@@ -112,3 +112,40 @@ export const MOCK_CARE_LOGS: CareLog[] = MOCK_CLASSES.filter((c) => c.status ===
     const st = MOCK_ENROLLMENTS.find((e) => e.classId === c.id && e.status === 'studying');
     return st ? [{ id: `CL-${c.id}`, classId: c.id, studentId: st.studentId, channel: 'call' as const, note: 'Đã gọi phụ huynh — học viên ốm 1 tuần, tuần sau đi học lại.', by: 'Giáo vụ', at: ago(3, 15) }] : [];
   });
+
+/** Nhận xét cuối khóa mẫu: vài học viên đã học xong ở các lớp đã kết thúc (GV viết khi lớp kết thúc) */
+const EVAL_SAMPLES: Pick<StudentEvaluation, 'skills' | 'attitude' | 'strengths' | 'weaknesses' | 'recommendation' | 'advice'>[] = [
+  {
+    skills: { vocab: 4, grammar: 5, reading: 4, listening: 3, speaking: 3 },
+    attitude: 5,
+    strengths: 'Nắm ngữ pháp chắc, làm bài tập đầy đủ, hỏi bài chủ động.',
+    weaknesses: 'Nghe hiểu tốc độ thường còn chậm, ngại nói trước lớp.',
+    recommendation: 'next_level',
+    advice: 'Đủ sức lên khóa tiếp theo. Nên xếp lớp có GV Nhật để tăng phản xạ nghe – nói.',
+  },
+  {
+    skills: { vocab: 3, grammar: 2, reading: 3, listening: 2, speaking: 3 },
+    attitude: 3,
+    strengths: 'Phát âm tốt, giao tiếp mạnh dạn.',
+    weaknesses: 'Vắng nhiều giữa khóa, hổng ngữ pháp các bài cuối; điểm thi cuối kỳ dưới trung bình.',
+    recommendation: 'repeat',
+    advice: 'Tư vấn học lại khóa hoặc lớp ôn tập ngắn trước khi lên trình độ mới.',
+  },
+];
+
+export const MOCK_EVALUATIONS: StudentEvaluation[] = MOCK_CLASSES.filter((c) => c.status === 'finished')
+  .slice(0, 2)
+  .flatMap((c) =>
+    MOCK_ENROLLMENTS.filter((e) => e.classId === c.id && e.status === 'completed')
+      .slice(0, 2)
+      .map((e, i) => ({
+        id: `EV-${c.id}-${e.studentId}`,
+        classId: c.id,
+        studentId: e.studentId,
+        teacherId: c.teacherIds[0],
+        author: 'Giáo viên lớp',
+        ...EVAL_SAMPLES[i % EVAL_SAMPLES.length],
+        createdAt: ago(10 + i),
+        updatedAt: ago(10 + i),
+      })),
+  );

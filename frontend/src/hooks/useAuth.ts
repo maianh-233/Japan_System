@@ -4,6 +4,7 @@ import { hasPermission } from '@/lib/permission';
 import { ALL_BRANCHES, type Branch } from '@/types/auth';
 import { menuPermissions } from '@/features/system/access';
 import { useHrStore } from '@/features/hr/hrStore';
+import { meOf } from '@/features/hr/hrUtils';
 import { useSystemStore } from '@/features/system/systemStore';
 import { useBranches } from '@/features/system/useBranches';
 
@@ -13,7 +14,7 @@ export function useAuth() {
   const branchId = useAuthStore((s) => s.branchId);
   const setBranch = useAuthStore((s) => s.setBranch);
   const signOut = useAuthStore((s) => s.signOut);
-  const employeeId = useHrStore((s) => s.employees.find((e) => e.fullName === storedUser?.fullName)?.id);
+  const employeeId = useHrStore((s) => meOf(s.employees, storedUser)?.id);
   const access = useSystemStore((s) => s.access.find((a) => a.userId === storedUser?.id || a.userId === employeeId));
   const roles = useSystemStore((s) => s.roles);
   const allBranches = useBranches();

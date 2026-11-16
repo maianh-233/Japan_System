@@ -1,9 +1,11 @@
 import { Form } from 'antd';
-import { BadgeCheck, Download, Lock, LockOpen, Wallet } from 'lucide-react';
+import dayjs from 'dayjs';
+import { AlarmClock, BadgeCheck, Download, Lock, LockOpen, Wallet } from 'lucide-react';
 import { Button, ModalForm, NumberInput, Select, StatusTag, TextInput, useConfirm, useNotify } from '@/components/common';
 import { useAuth } from '@/hooks/useAuth';
 import { fmtDateTime } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
+import { useSettings } from '@/features/system/settings';
 import { getBranches } from '@/features/system/useBranches';
 import { ALL_BRANCHES } from '@/types/auth';
 import { useFinanceStore } from './financeStore';
@@ -47,6 +49,11 @@ export function PayrollBar({
   const st = usePayrollLock(kind, month);
   const editable = can(kind === 'teacher' ? 'finance.teacher-payroll' : 'finance.staff-payroll');
   const sum = st.ids.reduce((n, b) => n + (totals[b] ?? 0), 0);
+  // Hạn khóa: ngày `lockDay` của tháng SAU tháng lương (Cài đặt chung)
+  const lockDay = useSettings((x) => x.payroll.lockDay);
+  const nextMonth = dayjs(`${month}-01`).add(1, 'month');
+  const deadline = nextMonth.date(Math.min(lockDay, nextMonth.daysInMonth()));
+  const overdue = !st.locked && dayjs().isAfter(deadline.endOf('day'));
 
   const lock = async () => {
     const ok = await confirm({
@@ -71,6 +78,12 @@ export function PayrollBar({
         <StatusTag tone="warning" icon={LockOpen}>{st.partial ? 'Chốt một phần chi nhánh' : 'Đang tạm tính'}</StatusTag>
       )}
       {st.locks[0] && <span className="text-xs text-ink-muted">Chốt bởi {st.locks[0].lockedBy} · {fmtDateTime(st.locks[0].lockedAt)}</span>}
+      {!st.locked &&
+        (overdue ? (
+          <StatusTag tone="danger" icon={AlarmClock}>Quá hạn khóa {deadline.format('DD/MM')}</StatusTag>
+        ) : (
+          <span className="text-xs text-ink-muted">Hạn khóa: {deadline.format('DD/MM/YYYY')}</span>
+        ))}
       <div className="ml-auto flex flex-wrap gap-2">
         <Button icon={Download} variant="ghost" tone="neutral" size="sm" onClick={() => notify.toast.info('Đã xuất file Excel bảng lương (mô phỏng)')}>
           Xuất Excel

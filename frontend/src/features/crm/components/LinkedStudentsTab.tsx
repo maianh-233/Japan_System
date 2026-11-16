@@ -1,11 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useClassStore } from '@/features/academic/classes/classStore';
-import { scheduleLabel } from '@/features/academic/classes/constants';
-import { Form, Radio } from 'antd';
-import dayjs from 'dayjs';
-import { GraduationCap, Info, Link2, Phone, Unlink, User, UserPlus } from 'lucide-react';
+import { Form } from 'antd';
+import { GraduationCap, Info, Link2, Unlink, UserPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Button, DateInput, EmptyState, ModalForm, Select, StatusTag, TextInput, UserCell, useConfirm, useNotify } from '@/components/common';
+import { Button, EmptyState, ModalForm, Select, StatusTag, UserCell, useConfirm, useNotify } from '@/components/common';
 import { fmtDate } from '@/lib/date';
 import { useAuth } from '@/hooks/useAuth';
 import { STUDY_STATUS } from '@/features/student/constants';
@@ -13,15 +11,7 @@ import { studyStatusOf, useStudentStore } from '@/features/student/studentStore'
 import { RELATIONSHIPS } from '../constants';
 import { useCrmStore } from '../crmStore';
 import type { Lead, Relationship } from '../types';
-
-interface CreateValues {
-  who: 'self' | 'other';
-  fullName: string;
-  dob?: dayjs.Dayjs;
-  phone?: string;
-  relationship: Relationship;
-  classId?: string;
-}
+import { EnrollLeadModal } from './EnrollLeadModal';
 
 interface LinkValues {
   studentId: string;
@@ -40,14 +30,10 @@ export function LinkedStudentsTab({ lead }: { lead: Lead }) {
   const students = useCrmStore((s) => s.students);
   const leads = useCrmStore((s) => s.leads);
   const links = useCrmStore((s) => s.links);
-  const createStudentFromLead = useCrmStore((s) => s.createStudentFromLead);
   const linkStudent = useCrmStore((s) => s.linkStudent);
   const unlinkStudent = useCrmStore((s) => s.unlinkStudent);
   const classes = useClassStore((s) => s.classes);
   const enrollments = useStudentStore((s) => s.enrollments);
-  const classOptions = classes
-    .filter((c) => c.branchId === lead.branchId && (c.status === 'ongoing' || c.status === 'enrolling'))
-    .map((c) => ({ value: c.id, label: `${c.code} · ${scheduleLabel(c)}${c.status === 'enrolling' ? ' (chờ khai giảng)' : ''}` }));
   /** Lớp đang học (hoặc bảo lưu) của học viên */
   const currentClasses = (studentId: string) =>
     enrollments
@@ -55,7 +41,7 @@ export function LinkedStudentsTab({ lead }: { lead: Lead }) {
       .map((e) => classes.find((c) => c.id === e.classId)?.code)
       .filter(Boolean)
       .join(', ');
-  const [creating, setCreating] = useState(false);
+  const [enrolling, setEnrolling] = useState<{ studentId?: string } | null>(null);
   const [linking, setLinking] = useState(false);
 
   const linked = useMemo(
@@ -66,7 +52,6 @@ export function LinkedStudentsTab({ lead }: { lead: Lead }) {
         .filter((x) => x.student),
     [links, students, lead.id],
   );
-  const hasSelf = linked.some((x) => x.link.relationship === 'self');
   /** Người liên hệ khác của cùng học viên (vd: bố và mẹ cùng là lead) */
   const otherLeadsOf = (studentId: string) =>
     links
@@ -105,8 +90,8 @@ export function LinkedStudentsTab({ lead }: { lead: Lead }) {
           <Button icon={Link2} variant="outline" onClick={() => setLinking(true)} disabled={linkable.length === 0}>
             Liên kết học viên có sẵn
           </Button>
-          <Button icon={UserPlus} onClick={() => setCreating(true)}>
-            Tạo hồ sơ học viên
+          <Button icon={UserPlus} onClick={() => setEnrolling({})}>
+            Tạo hồ sơ & ghi danh
           </Button>
         </div>
       </div>
@@ -155,6 +140,9 @@ export function LinkedStudentsTab({ lead }: { lead: Lead }) {
                   <Button icon={Unlink} size="sm" tone="neutral" variant="ghost" onClick={() => unlink(student.id, student.fullName)}>
                     Gỡ liên kết
                   </Button>
+                  <Button icon={GraduationCap} size="sm" variant="outline" onClick={() => setEnrolling({ studentId: student.id })}>
+                    Ghi danh lớp
+                  </Button>
                   <Button
                     action="view"
                     size="sm"
@@ -172,72 +160,8 @@ export function LinkedStudentsTab({ lead }: { lead: Lead }) {
         </ul>
       )}
 
-      {/* ===== Tạo hồ sơ học viên từ lead ===== */}
-      <ModalForm<CreateValues>
-        open={creating}
-        onClose={() => setCreating(false)}
-        title="Tạo hồ sơ học viên"
-        description={`Từ lead ${lead.code} — ${lead.fullName}`}
-        submitAction="create"
-        submitText="Tạo hồ sơ"
-        successMessage="Đã tạo hồ sơ học viên"
-        initialValues={{ relationship: 'child' }}
-        onSubmit={async (v) => {
-          await new Promise((r) => setTimeout(r, 600));
-          const self = v.who === 'self';
-          createStudentFromLead(
-            lead.id,
-            {
-              fullName: self ? lead.fullName : v.fullName,
-              phone: self ? lead.phone : v.phone,
-              dob: v.dob?.format('YYYY-MM-DD'),
-              relationship: self ? 'self' : v.relationship,
-              classId: v.classId,
-            },
-            user?.fullName ?? 'Nhân viên',
-          );
-        }}
-      >
-        <Form.Item name="who" label="Người học là ai?" rules={[{ required: true, message: 'Chọn người học' }]} className="md:col-span-2">
-          <Radio.Group className="flex flex-col gap-2">
-            <Radio value="self" disabled={hasSelf}>
-              Chính người liên hệ ({lead.fullName}){hasSelf ? ' — đã có hồ sơ' : ''}
-            </Radio>
-            <Radio value="other">Người khác (con, em, người thân...) — người liên hệ là phụ huynh / người giám hộ</Radio>
-          </Radio.Group>
-        </Form.Item>
-        <Form.Item noStyle shouldUpdate={(a, b) => a.who !== b.who}>
-          {({ getFieldValue }) =>
-            getFieldValue('who') === 'other' ? (
-              <>
-                <Form.Item name="fullName" label="Họ tên học viên" rules={[{ required: true, message: 'Nhập họ tên học viên' }]}>
-                  <TextInput icon={User} placeholder="Nguyễn Văn C" />
-                </Form.Item>
-                <Form.Item name="relationship" label="Quan hệ với người liên hệ" rules={[{ required: true }]}>
-                  <Select
-                    allowClear={false}
-                    showSearch={false}
-                    options={(Object.keys(RELATIONSHIPS) as Relationship[]).filter((k) => k !== 'self').map((k) => ({ value: k, label: RELATIONSHIPS[k] }))}
-                  />
-                </Form.Item>
-                <Form.Item name="dob" label="Ngày sinh">
-                  <DateInput disabledDate={(d) => d.isAfter(dayjs())} />
-                </Form.Item>
-                <Form.Item name="phone" label="SĐT học viên (nếu có)" rules={[{ pattern: /^0\d{9}$/, message: 'Gồm 10 số, bắt đầu bằng 0' }]}>
-                  <TextInput type="tel" icon={Phone} />
-                </Form.Item>
-              </>
-            ) : getFieldValue('who') === 'self' ? (
-              <p className="mb-4 rounded-lg bg-page px-3 py-2 text-[13px] text-ink-secondary md:col-span-2">
-                Dùng thông tin của lead: <strong>{lead.fullName}</strong> · {lead.phone}
-              </p>
-            ) : null
-          }
-        </Form.Item>
-        <Form.Item name="classId" label="Xếp lớp" extra="Bỏ trống nếu chưa xếp lớp — sẽ sinh hóa đơn học phí khi xếp" className="md:col-span-2">
-          <Select placeholder="Chưa xếp lớp" options={classOptions} />
-        </Form.Item>
-      </ModalForm>
+      {/* ===== Chốt & ghi danh (tạo hồ sơ + xếp lớp + hóa đơn) ===== */}
+      {enrolling && <EnrollLeadModal lead={lead} open presetStudentId={enrolling.studentId} onClose={() => setEnrolling(null)} />}
 
       {/* ===== Liên kết học viên có sẵn (vd: anh/chị đang học, bố mẹ cùng liên hệ) ===== */}
       <ModalForm<LinkValues>

@@ -1,13 +1,15 @@
 import { useMemo, useState } from 'react';
 import { Form } from 'antd';
 import dayjs from 'dayjs';
-import { CalendarClock, MessageSquarePlus, Sparkles } from 'lucide-react';
+import { Bot, CalendarClock, MessageCircle, MessageSquarePlus, Sparkles } from 'lucide-react';
 import { Button, DateInput, EmptyState, Select, StatusTag, TextArea, useNotify } from '@/components/common';
 import { cn } from '@/lib/cn';
 import { fmtDateTime, fromNow } from '@/lib/date';
 import { useAuth } from '@/hooks/useAuth';
 import { CONSULT_CHANNELS, CONSULT_RESULTS, LEAD_STATUS_OPTIONS } from '../constants';
 import { useCrmStore } from '../crmStore';
+import { APPOINTMENT_KIND, APPOINTMENT_STATUS, useAppointmentStore } from '../appointments/appointments';
+import { CHANNEL_LABEL, useMessageStore } from '../messages/messages';
 import type { ConsultChannel, ConsultResult, Lead, LeadStatus } from '../types';
 
 interface FormValues {
@@ -28,6 +30,10 @@ export function ConsultationTab({ lead }: { lead: Lead }) {
   const [form] = Form.useForm<FormValues>();
   const [adding, setAdding] = useState(false);
   const [saving, setSaving] = useState(false);
+  const allAppointments = useAppointmentStore((s) => s.appointments);
+  const allMessages = useMessageStore((s) => s.logs);
+  const appts = useMemo(() => allAppointments.filter((a) => a.leadId === lead.id).sort((a, b) => b.start.localeCompare(a.start)), [allAppointments, lead.id]);
+  const msgs = useMemo(() => allMessages.filter((m) => m.leadId === lead.id), [allMessages, lead.id]);
 
   const items = useMemo(
     () => all.filter((c) => c.leadId === lead.id).sort((a, b) => dayjs(b.createdAt).valueOf() - dayjs(a.createdAt).valueOf()),
@@ -103,6 +109,38 @@ export function ConsultationTab({ lead }: { lead: Lead }) {
             Thêm lịch sử tư vấn
           </Button>
         </div>
+      )}
+
+      {appts.length > 0 && (
+        <div className="rounded-[var(--radius-card)] border border-line">
+          <p className="border-b border-line px-3 py-2 text-[13px] font-semibold text-ink">Lịch hẹn tại trung tâm ({appts.length})</p>
+          <ul className="divide-y divide-line text-[13px]">
+            {appts.map((a) => (
+              <li key={a.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2">
+                <CalendarClock size={14} className="text-ink-muted" aria-hidden />
+                <span className="tabular font-medium text-ink">{dayjs(a.start).format('HH:mm DD/MM/YYYY')}</span>
+                <span className="text-ink-secondary">{APPOINTMENT_KIND[a.kind].short}</span>
+                <span className="ml-auto text-xs text-ink-muted">{APPOINTMENT_STATUS[a.status].label}{a.outcome ? ` · ${a.outcome}` : ''}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {msgs.length > 0 && (
+        <details className="rounded-[var(--radius-card)] border border-line">
+          <summary className="cursor-pointer px-3 py-2 text-[13px] font-semibold text-ink">Tin nhắn đã gửi ({msgs.length})</summary>
+          <ul className="divide-y divide-line border-t border-line text-[13px]">
+            {msgs.map((m) => (
+              <li key={m.id} className="px-3 py-2">
+                <p className="flex items-center gap-1.5 text-xs text-ink-muted">
+                  {m.auto ? <Bot size={12} aria-hidden /> : <MessageCircle size={12} aria-hidden />}
+                  {CHANNEL_LABEL[m.channel]} · {fmtDateTime(m.sentAt)} · {m.auto ? 'Tự động' : m.sentBy}
+                </p>
+                <p className="mt-1 whitespace-pre-line text-ink-secondary">{m.body}</p>
+              </li>
+            ))}
+          </ul>
+        </details>
       )}
 
       {items.length === 0 ? (

@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import { Drawer } from 'antd';
 import dayjs from 'dayjs';
-import { Award, BookOpenCheck, CalendarCheck, CircleAlert, NotebookPen, PhoneCall, TriangleAlert, UserX } from 'lucide-react';
-import { EmptyState, StatusTag, UserCell } from '@/components/common';
+import { Award, BookOpenCheck, CalendarCheck, CircleAlert, MessageSquareQuote, NotebookPen, PhoneCall, TriangleAlert, UserX } from 'lucide-react';
+import { Button, EmptyState, StatusTag, UserCell } from '@/components/common';
 import { useCrmStore } from '@/features/crm/crmStore';
 import { ENROLLMENT_STATUS } from '@/features/student/constants';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
@@ -10,6 +10,8 @@ import { cn } from '@/lib/cn';
 import { fmtDate } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
 import { useCurriculumStore } from '../../curriculum/curriculumStore';
+import { useClassStore } from '../classStore';
+import { EvaluationCard } from '../evaluation/EvaluationCard';
 import { ALERT_RULES, useClassStudentStats, type StudentStats } from '../studentInsights';
 import type { AttendanceStatus, ClassInfo } from '../types';
 
@@ -44,8 +46,21 @@ function Section({ icon: Icon, title, children, extra }: { icon: typeof Award; t
   );
 }
 
-/** Hồ sơ học tập của 1 học viên trong lớp: chuyên cần · bài tập · bài thi · nhận xét · lịch sử chăm sóc */
-export function StudentLearningDrawer({ cls, studentId, onClose }: { cls: ClassInfo; studentId: string | null; onClose: () => void }) {
+interface DrawerProps {
+  cls: ClassInfo;
+  studentId: string | null;
+  onClose: () => void;
+  /**
+   * staff (mặc định): đủ thông tin, gồm lịch sử chăm sóc + học phí
+   * teacher: ẨN lịch sử chăm sóc & học phí (việc của trung tâm); được viết nhận xét cuối khóa
+   */
+  viewer?: 'staff' | 'teacher';
+  /** Cổng GV: mở form nhận xét cuối khóa */
+  onEvaluate?: (studentId: string) => void;
+}
+
+/** Hồ sơ học tập của 1 học viên trong lớp: chuyên cần · bài tập · bài thi · nhận xét · nhận xét cuối khóa · (lịch sử chăm sóc) */
+export function StudentLearningDrawer({ cls, studentId, onClose, viewer = 'staff', onEvaluate }: DrawerProps) {
   const { isMobile } = useBreakpoint();
   const { map } = useClassStudentStats(cls);
   const student = useCrmStore((s) => s.students.find((x) => x.id === studentId));
@@ -70,12 +85,16 @@ export function StudentLearningDrawer({ cls, studentId, onClose }: { cls: ClassI
         )
       }
     >
-      {!st ? <EmptyState size="compact" title="Không có dữ liệu học tập" /> : <Body cls={cls} st={st} />}
+      {!st ? <EmptyState size="compact" title="Không có dữ liệu học tập" /> : <Body cls={cls} st={st} viewer={viewer} onEvaluate={onEvaluate} />}
     </Drawer>
   );
 }
 
-function Body({ cls, st }: { cls: ClassInfo; st: StudentStats }) {
+function Body({ cls, st, viewer, onEvaluate }: { cls: ClassInfo; st: StudentStats; viewer: 'staff' | 'teacher'; onEvaluate?: (studentId: string) => void }) {
+  const isStaff = viewer === 'staff';
+  const evaluation = useClassStore((s) => s.evaluations.find((e) => e.classId === cls.id && e.studentId === st.enrollment.studentId));
+  // GV không xem cảnh báo học phí
+  const flags = isStaff ? st.flags : st.flags.filter((f) => f.key !== 'tuition');
   const curriculum = useCurriculumStore((s) => s.curricula.find((c) => c.id === cls.curriculumId));
   const { attendance: a, assignments: as, exams: ex } = st;
   const lessonTitle = (id?: string) => {
@@ -91,10 +110,10 @@ function Body({ cls, st }: { cls: ClassInfo; st: StudentStats }) {
   return (
     <div className="flex flex-col gap-6">
       {st.enrollment.note && <p className="rounded-lg bg-page px-3 py-2 text-[13px] text-ink-secondary">{st.enrollment.note}</p>}
-      {st.flags.length > 0 && (
+      {flags.length > 0 && (
         <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-warning-100 bg-warning-50 px-3 py-2">
           <TriangleAlert size={15} className="text-warning-700" aria-hidden />
-          {st.flags.map((f) => (
+          {flags.map((f) => (
             <StatusTag key={f.label} tone={f.tone} icon={f.tone === 'danger' ? TriangleAlert : CircleAlert} size="sm">
               {f.label}
             </StatusTag>
@@ -216,6 +235,31 @@ function Body({ cls, st }: { cls: ClassInfo; st: StudentStats }) {
         )}
       </Section>
 
+      <Section
+        icon={MessageSquareQuote}
+        title="Nhận xét cuối khóa"
+        extra={
+          onEvaluate ? (
+            evaluation ? (
+              <Button size="sm" action="edit" onClick={() => onEvaluate(st.enrollment.studentId)} />
+            ) : (
+              <Button size="sm" icon={MessageSquareQuote} onClick={() => onEvaluate(st.enrollment.studentId)}>
+                Viết nhận xét
+              </Button>
+            )
+          ) : undefined
+        }
+      >
+        {evaluation ? (
+          <EvaluationCard ev={evaluation} />
+        ) : (
+          <p className="text-[13px] text-ink-muted">
+            {isStaff ? 'Giáo viên chưa viết nhận xét cuối khóa cho học viên này.' : 'Chưa có — đánh giá tổng thể cả khóa, Sale dùng để tư vấn học viên học tiếp. Học viên không thấy nhận xét này.'}
+          </p>
+        )}
+      </Section>
+
+      {isStaff && (
       <Section icon={PhoneCall} title="Lịch sử chăm sóc">
         {st.careLogs.length ? (
           <ul className="flex flex-col gap-2">
@@ -232,8 +276,9 @@ function Body({ cls, st }: { cls: ClassInfo; st: StudentStats }) {
           <p className="text-[13px] text-ink-muted">Chưa có lần liên hệ nào.</p>
         )}
       </Section>
+      )}
 
-      {st.tuition && (
+      {isStaff && st.tuition && (
         <p className="text-xs text-ink-muted">
           Học phí: đã đóng {formatCurrency(st.tuition.paid) || '0 ₫'}
           {st.tuition.remaining ? ` · còn nợ ${formatCurrency(st.tuition.remaining)}` : ' · đã hoàn tất'}

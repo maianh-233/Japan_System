@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Form, Tooltip } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import { Lock, Video } from 'lucide-react';
@@ -11,7 +11,7 @@ import { courseTotalFee, TEACHER_TYPES, totalHours as courseHours } from '../cou
 import { useCourseStore } from '../courses/courseStore';
 import { TIERS } from '../curriculum/constants';
 import { useCurriculumStore } from '../curriculum/curriculumStore';
-import { ASSISTANTS, CODE_PREFIX, TEACHERS, WEEKDAYS } from './constants';
+import { CODE_PREFIX, WEEKDAYS, useAssistants, useTeachers } from './constants';
 import { useRoomOptions } from '../rooms/roomStore';
 import { useClassStore } from './classStore';
 import { generateSessions } from './sessionGenerator';
@@ -105,11 +105,14 @@ interface Props {
   /** Lớp đã kết thúc / hủy → chỉ sửa ghi chú */
   closed?: boolean;
   editingId?: string;
+  /** Form đã điền sẵn (vd mở lớp kế tiếp từ tab Lên lớp) → không ghi đè GV / học phí theo khóa ở lần đầu */
+  prefilled?: boolean;
 }
 
 /** Ô nhập thông tin lớp. Khi tạo: chọn khóa → tự điền tiền tố mã, học phí, tổng giờ, lộ trình mặc định. */
-export function ClassFormFields({ mode, locked = false, closed = false, editingId }: Props) {
+export function ClassFormFields({ mode, locked = false, closed = false, editingId, prefilled = false }: Props) {
   const form = Form.useFormInstance<ClassFormValues>();
+  const skipFirstFill = useRef(prefilled ? form.getFieldValue('courseId') : undefined);
   const { branches } = useAuth();
   const courses = useCourseStore((s) => s.courses);
   const curricula = useCurriculumStore((s) => s.curricula);
@@ -132,6 +135,10 @@ export function ClassFormFields({ mode, locked = false, closed = false, editingI
   // Chọn khóa (khi tạo) → điền mặc định theo khóa
   useEffect(() => {
     if (mode !== 'create' || !course) return;
+    if (skipFirstFill.current && course.id === skipFirstFill.current) {
+      skipFirstFill.current = undefined;
+      return;
+    }
     const def = links.find((l) => l.courseId === course.id && l.isDefault)?.curriculumId;
     form.setFieldsValue({
       fee: courseTotalFee(course),
@@ -156,8 +163,10 @@ export function ClassFormFields({ mode, locked = false, closed = false, editingI
     [links, curricula, courseId],
   );
 
+  const teachers = useTeachers();
+  const assistants = useAssistants();
   // Giáo viên đúng loại của khóa (Việt / Nhật / cả hai) + đúng chi nhánh
-  const teacherOptions = TEACHERS.filter(
+  const teacherOptions = teachers.filter(
     (t) => (!course || course.teacherType === 'mixed' || t.type === course.teacherType) && (!branchId || t.branchIds.includes(branchId)),
   ).map((t) => ({ value: t.id, label: `${t.name} · GV ${t.type === 'vn' ? 'Việt' : 'Nhật'}` }));
 
@@ -212,7 +221,7 @@ export function ClassFormFields({ mode, locked = false, closed = false, editingI
           {
             validator: (_, ids: string[] = []) => {
               if (course?.teacherType !== 'mixed') return Promise.resolve();
-              const types = new Set(ids.map((id) => TEACHERS.find((t) => t.id === id)?.type));
+              const types = new Set(ids.map((id) => teachers.find((t) => t.id === id)?.type));
               return types.has('vn') && types.has('jp') ? Promise.resolve() : Promise.reject(new Error('Lớp Việt + Nhật cần 1 GV Việt và 1 GV Nhật'));
             },
           },
@@ -224,7 +233,7 @@ export function ClassFormFields({ mode, locked = false, closed = false, editingI
         <Select
           mode="multiple"
           placeholder="Không có trợ giảng"
-          options={ASSISTANTS.filter((a) => !branchId || a.branchIds.includes(branchId)).map((a) => ({ value: a.id, label: a.name }))}
+          options={assistants.filter((a) => !branchId || a.branchIds.includes(branchId)).map((a) => ({ value: a.id, label: a.name }))}
           maxCount={2}
         />
       </Form.Item>

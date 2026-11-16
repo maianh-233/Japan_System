@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Form } from 'antd';
 import dayjs from 'dayjs';
-import { BellRing, Bot, CheckCircle2, Clock, Eye, FileAudio, FileImage, FileText, FileType2, Hourglass, Link2, PenLine, XCircle, type LucideIcon } from 'lucide-react';
+import { BellRing, Bot, Paperclip, Trash2, CheckCircle2, Clock, Eye, FileAudio, FileImage, FileText, FileType2, Hourglass, Link2, PenLine, XCircle, type LucideIcon } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Button, DataTable, EmptyState, ModalForm, NumberInput, PageHeader, StatusTag, TextArea, UserCell, useNotify, type DataColumn } from '@/components/common';
+import { Button, DataTable, EmptyState, FileUpload, ModalForm, NumberInput, PageHeader, StatusTag, TextArea, TextInput, UserCell, useNotify, type DataColumn, type UploadItem } from '@/components/common';
+import { AttachmentList, toAttachments } from '@/features/academic/classes/AttachmentList';
 import { useClassStore } from '@/features/academic/classes/classStore';
 import { ASSIGNMENT_TYPES, QUIZ_DIFFICULTY, QUIZ_SKILLS } from '@/features/academic/classes/constants';
 import type { Submission, SubmissionFile } from '@/features/academic/classes/types';
@@ -60,6 +61,8 @@ export default function AssignmentSubmissionsPage({ portal = 'staff' }: { portal
   const curriculum = useCurriculumStore((s) => s.curricula.find((c) => c.id === cls?.curriculumId));
   const [tab, setTab] = useState<SubState | 'all'>('all');
   const [grading, setGrading] = useState<Row | null>(null);
+  const [editingFiles, setEditingFiles] = useState(false);
+  const updateAssignment = useClassStore((s) => s.updateAssignment);
   const editable = portal === 'teacher' || can('academic.classes');
   const classUrl = (cid: string) => (portal === 'teacher' ? '/teacher/assignments' : `/admin/academic/classes/${cid}?tab=assignments`);
 
@@ -254,6 +257,23 @@ export default function AssignmentSubmissionsPage({ portal = 'staff' }: { portal
         )}
       </div>
 
+      {/* Bài nộp tay: đề bài GV gửi */}
+      {assignment.type === 'upload' && (
+        <div className="mb-4 flex flex-col gap-2 rounded-lg border border-line bg-surface px-3 py-2.5 sm:flex-row sm:items-center">
+          <span className="inline-flex shrink-0 items-center gap-1.5 text-[13px] font-medium text-ink">
+            <Paperclip size={15} aria-hidden /> Đề bài
+          </span>
+          <div className="min-w-0 flex-1">
+            {assignment.attachments?.length ? <AttachmentList files={assignment.attachments} /> : <span className="text-[13px] text-ink-muted">Chưa đính kèm đề — học viên chỉ thấy phần yêu cầu.</span>}
+          </div>
+          {editable && (
+            <Button size="sm" variant="soft" icon={Paperclip} onClick={() => setEditingFiles(true)}>
+              {assignment.attachments?.length ? 'Sửa đề' : 'Gửi đề'}
+            </Button>
+          )}
+        </div>
+      )}
+
       <div className="mb-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
         {[
           ['Đã nộp', `${rows.length - counts.missing}/${rows.length}`],
@@ -330,6 +350,52 @@ export default function AssignmentSubmissionsPage({ portal = 'staff' }: { portal
         actionsWidth={120}
         empty={{ title: 'Không có học viên', description: 'Lớp chưa có học viên đang học.' }}
       />
+
+      <ModalForm<{ keep: number[]; files?: UploadItem[]; link?: string }>
+        key={`files-${editingFiles}`}
+        open={editingFiles}
+        onClose={() => setEditingFiles(false)}
+        title="Đề bài kèm theo"
+        description="Học viên thấy ngay trên Cổng học viên, mục Bài tập."
+        submitAction="save"
+        successMessage="Đã cập nhật đề bài"
+        initialValues={{ keep: (assignment.attachments ?? []).map((_, i) => i) }}
+        onSubmit={(v) => {
+          const kept = (assignment.attachments ?? []).filter((_, i) => v.keep.includes(i));
+          const next = [...kept, ...toAttachments(v.files, v.link ? [v.link] : [])];
+          updateAssignment(assignment.id, { attachments: next.length ? next : undefined });
+        }}
+      >
+        <Form.Item noStyle shouldUpdate>
+          {({ getFieldValue, setFieldValue }) => {
+            const keep: number[] = getFieldValue('keep') ?? [];
+            const current = assignment.attachments ?? [];
+            return current.length ? (
+              <div className="mb-3">
+                <p className="mb-1.5 text-[13px] font-medium text-ink">Tệp hiện có</p>
+                <ul className="flex flex-col gap-1">
+                  {current.map((f, i) =>
+                    keep.includes(i) ? (
+                      <li key={i} className="flex items-center gap-2 rounded-lg border border-line px-2.5 py-1.5 text-[13px]">
+                        <span className="min-w-0 flex-1 truncate">{f.name}</span>
+                        <Button size="sm" variant="ghost" tone="danger" icon={Trash2} iconOnly aria-label={`Bỏ ${f.name}`} onClick={() => setFieldValue('keep', keep.filter((k) => k !== i))} />
+                      </li>
+                    ) : null,
+                  )}
+                  {!keep.length && <li className="text-[13px] text-ink-muted">Đã bỏ hết tệp cũ.</li>}
+                </ul>
+              </div>
+            ) : null;
+          }}
+        </Form.Item>
+        <Form.Item name="keep" hidden noStyle />
+        <Form.Item name="files" label="Thêm file đề" valuePropName="value">
+          <FileUpload maxFiles={5} maxSizeMB={50} kind={['document', 'spreadsheet', 'image', 'audio']} />
+        </Form.Item>
+        <Form.Item name="link" label="Hoặc link đề (Google Drive, Docs...)" rules={[{ type: 'url', message: 'Link không hợp lệ' }]}>
+          <TextInput placeholder="https://" />
+        </Form.Item>
+      </ModalForm>
 
       <ModalForm<{ score: number; comment?: string }>
         key={grading?.id ?? 'grade'}

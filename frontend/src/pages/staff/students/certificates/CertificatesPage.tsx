@@ -147,9 +147,9 @@ export default function CertificatesPage() {
   return (
     <>
       <PageHeader
-        title="Chứng nhận"
-        subtitle={`Cấp chứng nhận hoàn thành khóa (PDF + mã QR xác thực) · ${currentBranch ? `Chi nhánh ${currentBranch.name}` : 'Toàn hệ thống'}`}
-        breadcrumb={[{ title: 'Học viên' }, { title: 'Chứng nhận' }]}
+        title="Chứng nhận hoàn thành khóa"
+        subtitle={`Chứng nhận của TRUNG TÂM cấp cho học viên pass lớp (PDF + mã QR xác thực) — khác chứng chỉ JLPT do hội đồng thi cấp · ${currentBranch ? `Chi nhánh ${currentBranch.name}` : 'Toàn hệ thống'}`}
+        breadcrumb={[{ title: 'Học viên' }, { title: 'Chứng nhận hoàn thành khóa' }]}
       />
 
       <div className="mb-4 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_1fr_1fr_1.4fr]">

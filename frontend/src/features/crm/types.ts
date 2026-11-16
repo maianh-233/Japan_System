@@ -44,6 +44,10 @@ export interface Lead {
   notifyChannels?: NotifyChannel[];
   /** Chiến dịch marketing mang lead về */
   campaignId?: string;
+  /** Đã gửi cảnh báo quá SLA (mỗi lead báo 1 lần) */
+  slaEscalatedAt?: string;
+  /** Đã tự chuyển Sale do quá 2×SLA (mỗi lead chuyển tự động 1 lần) */
+  slaReassignedAt?: string;
 }
 
 /** Kênh gửi thông báo cho phụ huynh: điểm danh, nhắc học phí, kết quả học tập */

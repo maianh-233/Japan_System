@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import type { Tone } from '@/components/common';
 import type { CandidateStage, ContractType, Department, EmployeeKind, EmployeeStatus, RequestStatus, RequestType, ShiftKey } from './types';
+import { getSettings } from '@/features/system/settings';
 
 type Meta = { label: string; tone: Tone; icon: LucideIcon };
 
@@ -62,9 +63,21 @@ export const WORK_SHIFTS: Record<ShiftKey, { label: string; short: string; from:
 export const SHIFT_KEYS: ShiftKey[] = ['morning', 'afternoon', 'evening'];
 
 /** Giờ hành chính */
-export const OFFICE_HOURS = { from: '08:00', to: '17:30', satTo: '12:00' };
+/** Giờ hành chính — đọc từ Cài đặt chung (Hệ thống › Cài đặt chung) */
+export const OFFICE_HOURS = {
+  get from() {
+    return getSettings().office.from;
+  },
+  get to() {
+    return getSettings().office.to;
+  },
+  get satTo() {
+    return getSettings().office.satTo;
+  },
+};
 /** Đến sau giờ bắt đầu quá N phút = đi muộn; về trước giờ kết thúc quá N phút = về sớm */
-export const LATE_GRACE_MIN = 5;
+/** Đi muộn / về sớm quá N phút mới tính vi phạm — Cài đặt chung */
+export const lateGraceMin = () => getSettings().office.lateGraceMin;
 
 export const REQUEST_TYPES: Record<RequestType, { label: string; icon: LucideIcon; hint: string }> = {
   leave: { label: 'Nghỉ phép', icon: CalendarOff, hint: 'Trừ vào phép năm (có lương) hoặc nghỉ không lương' },

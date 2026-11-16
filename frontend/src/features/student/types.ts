@@ -71,6 +71,8 @@ export interface Invoice {
   refunds: Refund[];
   /** Hủy phần học phí còn lại (học viên nghỉ / lớp hủy) → không còn công nợ */
   cancelled?: boolean;
+  /** Hủy hóa đơn (lập sai, trùng) — qua duyệt 2 người; còn trong Thùng rác thì khôi phục được */
+  voided?: { reason: string; requestedBy: string; approvedBy: string; at: string };
 }
 
 export interface Refund {
@@ -80,6 +82,8 @@ export interface Refund {
   refundedAt: string;
   reason: string;
   by: string;
+  /** Người duyệt (hoàn tiền phải qua người thứ 2) */
+  approvedBy?: string;
 }
 
 export type TuitionStatus = 'paid' | 'partial' | 'unpaid' | 'overdue' | 'refunded' | 'cancelled';

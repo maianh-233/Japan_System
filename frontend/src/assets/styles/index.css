@@ -104,3 +104,22 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/*
+ * Ẩn thanh cuộn TOÀN HỆ THỐNG (dọc + ngang) — vẫn cuộn bình thường bằng
+ * con lăn chuột, touchpad, vuốt cảm ứng, phím mũi tên / PageUp / PageDown.
+ * Cuộn ngang bằng chuột thường: giữ Shift + lăn chuột.
+ */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Edge cũ */
+}
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Edge, Safari */
+  width: 0;
+  height: 0;
+}
+/* Thanh cuộn "dính" của bảng Ant Design */
+.ant-table-sticky-scroll {
+  display: none !important;
+}

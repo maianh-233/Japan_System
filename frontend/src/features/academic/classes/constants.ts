@@ -1,8 +1,11 @@
 import dayjs from 'dayjs';
+import { useMemo } from 'react';
 import { Ban, CalendarClock, CheckCircle2, ListChecks, PauseCircle, PlayCircle, Upload, type LucideIcon } from 'lucide-react';
 import type { Tone } from '@/components/common';
+import { useHrStore } from '@/features/hr/hrStore';
+import type { Employee } from '@/features/hr/types';
 import type { TeacherType } from '../courses/types';
-import type { AssignmentType, ClassInfo, ClassStatus, QuizDifficulty, QuizSkill, SessionStatus, Weekday } from './types';
+import type { AssignmentType, ClassInfo, ClassStatus, EvalRecommendation, EvalSkill, LessonCoverage, QuizDifficulty, QuizSkill, SessionStatus, Weekday } from './types';
 
 type Meta = { label: string; tone: Tone; icon: LucideIcon };
 
@@ -14,6 +17,31 @@ export const CLASS_STATUS: Record<ClassStatus, Meta & { hint: string }> = {
   cancelled: { label: 'Bị hủy', tone: 'danger', icon: Ban, hint: 'Lớp bị hủy' },
 };
 export const CLASS_STATUS_OPTIONS = (Object.keys(CLASS_STATUS) as ClassStatus[]).map((k) => ({ value: k, label: CLASS_STATUS[k].label }));
+
+/** Tiến độ buổi học — GV báo cáo khi bấm "Kết thúc buổi học" */
+export const LESSON_COVERAGE: Record<LessonCoverage, { label: string; tone: Tone; hint: string }> = {
+  full: { label: 'Dạy xong bài', tone: 'success', hint: 'Đã dạy hết nội dung theo lộ trình' },
+  partial: { label: 'Dạy được một phần', tone: 'warning', hint: 'Phần còn lại dời sang buổi sau' },
+  none: { label: 'Chưa dạy được', tone: 'danger', hint: 'Buổi chủ yếu ôn tập / có sự cố — giáo vụ cân nhắc xếp bù' },
+};
+
+/** Nhận xét cuối khóa — kỹ năng chấm sao */
+export const EVAL_SKILLS: Record<EvalSkill, string> = {
+  vocab: 'Từ vựng – Kanji',
+  grammar: 'Ngữ pháp',
+  reading: 'Đọc hiểu',
+  listening: 'Nghe hiểu',
+  speaking: 'Hội thoại',
+};
+
+/** Đề xuất bước tiếp theo — Sale dựa vào để tư vấn */
+export const EVAL_RECOMMENDATION: Record<EvalRecommendation, { label: string; tone: Tone; hint: string }> = {
+  next_level: { label: 'Lên khóa tiếp theo', tone: 'success', hint: 'Đủ nền tảng học trình độ kế tiếp' },
+  advanced: { label: 'Lên lớp nâng cao', tone: 'primary', hint: 'Học tốt — phù hợp lộ trình bậc Nâng cao' },
+  jlpt: { label: 'Luyện thi JLPT', tone: 'info', hint: 'Sẵn sàng ôn thi chứng chỉ trình độ vừa học' },
+  repeat: { label: 'Nên học lại / ôn tập', tone: 'warning', hint: 'Còn hổng kiến thức — học lại khóa hoặc lớp ôn ngắn' },
+  other: { label: 'Khác (xem ghi chú)', tone: 'neutral', hint: 'Đề xuất riêng, ghi rõ ở phần ghi chú' },
+};
 
 /** Lớp còn "mở" (chưa kết thúc / chưa hủy) */
 export const isOpenClass = (c: Pick<ClassInfo, 'status'>) => c.status === 'enrolling' || c.status === 'ongoing' || c.status === 'paused';
@@ -41,25 +69,50 @@ export const WEEKDAYS: { value: Weekday; short: string; label: string }[] = [
 /** dayjs: 0 = CN → Weekday 7 */
 export const weekdayOf = (d: dayjs.Dayjs): Weekday => (((d.day() + 6) % 7) + 1) as Weekday;
 
-/** Giáo viên (dữ liệu giả — sau lấy từ Nhân sự → Giáo viên) */
-export const TEACHERS: { id: string; name: string; type: 'vn' | 'jp'; branchIds: string[] }[] = [
-  { id: 't-ha', name: 'Nguyễn Thu Hà', type: 'vn', branchIds: ['cg', 'q1'] },
-  { id: 't-anh', name: 'Trần Mai Anh', type: 'vn', branchIds: ['cg'] },
-  { id: 't-long', name: 'Phạm Đức Long', type: 'vn', branchIds: ['cg', 'hc'] },
-  { id: 't-thu', name: 'Lê Minh Thư', type: 'vn', branchIds: ['q1'] },
-  { id: 't-hanh', name: 'Võ Thị Hạnh', type: 'vn', branchIds: ['hc'] },
-  { id: 't-sato', name: 'Sato Yuki', type: 'jp', branchIds: ['q1', 'cg'] },
-  { id: 't-tanaka', name: 'Tanaka Ken', type: 'jp', branchIds: ['cg', 'hc'] },
-];
-/** Trợ giảng (dữ liệu giả — sau lấy từ Nhân sự) — hỗ trợ GV trong lớp, có thể dạy tiếp khi GV gặp sự cố */
-export const ASSISTANTS: { id: string; name: string; branchIds: string[] }[] = [
-  { id: 'ta-linh', name: 'Đỗ Thùy Linh', branchIds: ['cg'] },
-  { id: 'ta-quan', name: 'Hà Minh Quân', branchIds: ['hc'] },
-  { id: 'ta-mai', name: 'Lâm Ngọc Mai', branchIds: ['q1', 'cg'] },
-];
+/**
+ * Giáo viên / trợ giảng — LẤY TỪ NHÂN SỰ (hrStore), không giữ danh sách riêng.
+ * branchIds = chi nhánh chính + chi nhánh dạy thêm. Người đã nghỉ việc / đang nghỉ dài hạn không được xếp mới
+ * (chỉ còn xuất hiện trong bộ lọc khi gọi với `includeInactive`).
+ */
+export interface TeachingStaff {
+  id: string;
+  name: string;
+  type: 'vn' | 'jp';
+  branchIds: string[];
+  /** Đang làm (chính thức / thử việc) — xếp lớp, dạy thay được */
+  available: boolean;
+}
 
-/** Tên GV hoặc trợ giảng */
-export const teacherName = (id: string) => TEACHERS.find((t) => t.id === id)?.name ?? ASSISTANTS.find((t) => t.id === id)?.name ?? id;
+const toStaff = (e: Employee): TeachingStaff => ({
+  id: e.id,
+  name: e.fullName,
+  type: e.teacher?.type ?? 'vn',
+  branchIds: [e.branchId, ...(e.teacher?.extraBranchIds ?? []).filter((b) => b !== e.branchId)],
+  available: e.status === 'active' || e.status === 'probation',
+});
+
+export const teachersOf = (employees: Employee[], includeInactive = false) =>
+  employees.filter((e) => e.kind === 'teacher').map(toStaff).filter((t) => includeInactive || t.available);
+export const assistantsOf = (employees: Employee[], includeInactive = false) =>
+  employees.filter((e) => e.kind === 'assistant').map(toStaff).filter((t) => includeInactive || t.available);
+
+/** Dùng ngoài component (hàm thuần, xử lý dữ liệu) */
+export const getTeachers = (includeInactive = false) => teachersOf(useHrStore.getState().employees, includeInactive);
+export const getAssistants = (includeInactive = false) => assistantsOf(useHrStore.getState().employees, includeInactive);
+export const isAssistant = (id: string) => useHrStore.getState().employees.some((e) => e.id === id && e.kind === 'assistant');
+
+/** Dùng trong component — tự cập nhật khi Nhân sự thêm / sửa / cho nghỉ */
+export function useTeachers(includeInactive = false): TeachingStaff[] {
+  const employees = useHrStore((s) => s.employees);
+  return useMemo(() => teachersOf(employees, includeInactive), [employees, includeInactive]);
+}
+export function useAssistants(includeInactive = false): TeachingStaff[] {
+  const employees = useHrStore((s) => s.employees);
+  return useMemo(() => assistantsOf(employees, includeInactive), [employees, includeInactive]);
+}
+
+/** Tên GV hoặc trợ giảng (cả người đã nghỉ — để hiện đúng lịch sử) */
+export const teacherName = (id: string) => useHrStore.getState().employees.find((e) => e.id === id)?.fullName ?? id;
 export const teacherNames = (ids: string[]) => ids.map(teacherName).join(', ');
 
 /** Ngày nghỉ lễ — bỏ qua khi tự sinh buổi học (Tết âm lịch cần cập nhật hằng năm) */

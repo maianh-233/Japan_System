@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Checkbox, Form, Switch, Tooltip } from 'antd';
 import dayjs from 'dayjs';
-import { AlarmClock, ArrowDown, ArrowUp, BellRing, FlaskConical, Repeat2, Shuffle, Timer, UserRoundCheck, Users, Wand2 } from 'lucide-react';
+import { AlarmClock, ArrowDown, ArrowUp, BellRing, Check, CircleQuestionMark, FlaskConical, Lightbulb, Repeat2, Shuffle, Timer, UserRoundCheck, Users, Wand2 } from 'lucide-react';
 import {
   Button,
   DataTable,
@@ -50,6 +50,93 @@ function Cond({ label, values }: { label: string; values: string[] }) {
   );
 }
 
+/** Diễn giải quy tắc thành 1 câu dễ hiểu */
+function describeRule(r: LeadRule): string {
+  const src = r.sources.length ? `từ ${r.sources.map((s) => LEAD_SOURCES[s].label).join(' / ')}` : 'từ mọi nguồn';
+  const br = r.branchIds.length ? `ở ${r.branchIds.map(branchName).join(' / ')}` : 'ở mọi chi nhánh';
+  const it = r.interests.length ? `, quan tâm ${r.interests.map((v) => courseLabel(v) ?? v).join(' / ')}` : '';
+  const names = r.saleIds.map((id) => saleName(id) ?? id);
+  const who =
+    r.method === 'round_robin'
+      ? `chia lần lượt: ${names.join(' → ')}`
+      : r.method === 'least_load'
+        ? `giao cho người đang giữ ít lead nhất trong ${names.length} Sale`
+        : `ưu tiên ${names[0] ?? '—'}, rồi tới người kế tiếp`;
+  return `Lead ${src} ${br}${it} → ${who}${r.onlyOnShift ? ' (chỉ người đang trong ca)' : ''}. Sale phải gọi trong ${r.slaMinutes} phút.`;
+}
+
+const GUIDE_KEY = 'lead-rules-guide-hidden';
+const readGuideHidden = () => {
+  try {
+    return localStorage.getItem(GUIDE_KEY) === '1';
+  } catch {
+    return false;
+  }
+};
+const writeGuideHidden = (hidden: boolean) => {
+  try {
+    localStorage.setItem(GUIDE_KEY, hidden ? '1' : '0');
+  } catch {
+    /* trình duyệt chặn lưu — bỏ qua */
+  }
+};
+
+const GUIDE_STEPS = [
+  {
+    title: 'Lead mới chưa có Sale',
+    body: 'Khi thêm lead ở trang Lead mà để trống ô "Sale phụ trách" (hoặc lead tự về từ Facebook, form web...).',
+  },
+  {
+    title: 'Dò quy tắc từ trên xuống',
+    body: 'Gặp quy tắc ĐẦU TIÊN khớp nguồn + chi nhánh + khóa quan tâm thì dừng. Ô điều kiện bỏ trống = khớp tất cả.',
+  },
+  {
+    title: 'Chọn 1 Sale và bấm giờ',
+    body: 'Chọn Sale trong nhóm theo cách chia (lần lượt / ít việc nhất / ưu tiên). Bắt đầu đếm thời hạn gọi (SLA) — trễ sẽ hiện ở khung "Đang quá SLA".',
+  },
+];
+
+/** Khung hướng dẫn cách trang hoạt động */
+function HowItWorks({ onHide }: { onHide: () => void }) {
+  return (
+    <section className="mb-4 rounded-xl border border-primary-200 bg-primary-50/60 p-4">
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <p className="flex items-center gap-1.5 text-sm font-semibold text-ink">
+          <CircleQuestionMark size={16} className="text-primary-600" aria-hidden /> Trang này hoạt động thế nào?
+        </p>
+        <Button icon={Check} size="sm" variant="ghost" tone="neutral" onClick={onHide}>
+          Đã hiểu, ẩn đi
+        </Button>
+      </div>
+      <ol className="grid gap-3 md:grid-cols-3">
+        {GUIDE_STEPS.map((s, i) => (
+          <li key={s.title} className="flex gap-2.5 rounded-lg bg-surface p-3">
+            <span className="tabular grid size-6 shrink-0 place-items-center rounded-full bg-primary-600 text-xs font-bold text-white">{i + 1}</span>
+            <span className="text-[13px] leading-5">
+              <span className="block font-semibold text-ink">{s.title}</span>
+              <span className="text-ink-secondary">{s.body}</span>
+            </span>
+          </li>
+        ))}
+      </ol>
+      <div className="mt-3 rounded-lg bg-surface p-3 text-[13px] leading-5 text-ink-secondary">
+        <p className="mb-1 font-semibold text-ink">Ví dụ</p>
+        <p>
+          Quy tắc ① "Facebook ở Cầu Giấy → chia lần lượt Bảo → Tùng → Như", quy tắc ② "Mọi nguồn → Trưởng nhóm".
+          <br />
+          Lead Facebook ở Cầu Giấy → khớp ① → lần này tới lượt Bảo, lead sau tới Tùng. Lead TikTok → không khớp ① → rơi xuống ② → giao Trưởng nhóm.
+        </p>
+      </div>
+      <p className="mt-3 flex items-start gap-1.5 text-[13px] text-ink-secondary">
+        <Lightbulb size={14} className="mt-0.5 shrink-0 text-warning-600" aria-hidden />
+        <span>
+          Đặt quy tắc <b>cụ thể ở trên</b>, quy tắc <b>chung (bỏ trống điều kiện) ở cuối</b> làm lưới an toàn. Dùng khung <b>"Thử chia một lead"</b> bên phải để kiểm tra trước khi áp dụng.
+        </span>
+      </p>
+    </section>
+  );
+}
+
 /** Quy tắc chia lead tự động + SLA liên hệ lần đầu + cảnh báo quá hạn. DỮ LIỆU GIẢ. */
 export default function LeadRulesPage() {
   const { branchId, can } = useAuth();
@@ -62,6 +149,11 @@ export default function LeadRulesPage() {
   const editable = can('crm.lead-rules');
 
   const [editing, setEditing] = useState<LeadRule | 'new' | null>(null);
+  const [guideHidden, setGuideHidden] = useState(readGuideHidden);
+  const toggleGuide = (hidden: boolean) => {
+    setGuideHidden(hidden);
+    writeGuideHidden(hidden);
+  };
   const [sim, setSim] = useState<{ source: LeadSource; branchId: string; interest?: string }>({ source: 'facebook', branchId: branchId === ALL_BRANCHES ? 'cg' : branchId });
 
   const inBranch = (b: string) => branchId === ALL_BRANCHES || b === branchId;
@@ -127,13 +219,22 @@ export default function LeadRulesPage() {
         subtitle="Lead mới chưa có Sale sẽ đi qua các quy tắc từ trên xuống — quy tắc ĐẦU TIÊN khớp sẽ chọn Sale và đặt thời hạn liên hệ."
         breadcrumb={[{ title: 'Tuyển sinh' }, { title: 'Chia lead & SLA' }]}
         actions={
-          editable ? (
-            <Button action="create" collapseOnMobile onClick={() => setEditing('new')}>
-              Thêm quy tắc
-            </Button>
-          ) : undefined
+          <>
+            {guideHidden && (
+              <Button icon={CircleQuestionMark} variant="outline" collapseOnMobile onClick={() => toggleGuide(false)}>
+                Hướng dẫn
+              </Button>
+            )}
+            {editable && (
+              <Button action="create" collapseOnMobile onClick={() => setEditing('new')}>
+                Thêm quy tắc
+              </Button>
+            )}
+          </>
         }
       />
+
+      {!guideHidden && <HowItWorks onHide={() => toggleGuide(true)} />}
 
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard label="Quy tắc đang bật" value={`${rules.filter((r) => r.active).length}/${rules.length}`} icon={Shuffle} tone="primary" />
@@ -161,6 +262,7 @@ export default function LeadRulesPage() {
                       </StatusTag>
                     )}
                   </div>
+                  <p className="mt-1.5 text-[13px] leading-5 text-ink-secondary">{describeRule(r)}</p>
                   <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1.5 text-[13px]">
                     <Cond label="Nguồn" values={r.sources.map((s) => LEAD_SOURCES[s].label)} />
                     <Cond label="Chi nhánh" values={r.branchIds.map(branchName)} />
@@ -245,6 +347,11 @@ export default function LeadRulesPage() {
                       <p className="text-xs text-ink-muted">
                         {saleName(lead.assigneeId) ?? 'Chưa giao'} · SLA {sla}′ · trễ <b className="text-danger-700">{late >= 60 ? `${Math.floor(late / 60)} giờ` : `${late} phút`}</b>
                       </p>
+                      {(lead.slaEscalatedAt || lead.slaReassignedAt) && (
+                        <p className="mt-0.5 text-[11px] text-ink-muted">
+                          {[lead.slaEscalatedAt && `Đã báo ${fromNow(lead.slaEscalatedAt)}`, lead.slaReassignedAt && `đã tự chuyển Sale ${fromNow(lead.slaReassignedAt)}`].filter(Boolean).join(' · ')}
+                        </p>
+                      )}
                     </div>
                   </div>
                   {editable && (
@@ -289,7 +396,7 @@ export default function LeadRulesPage() {
         open={Boolean(editing)}
         onClose={() => setEditing(null)}
         title={editing === 'new' ? 'Thêm quy tắc chia lead' : 'Sửa quy tắc chia lead'}
-        description="Bỏ trống điều kiện = áp cho mọi giá trị. Quy tắc mới thêm nằm cuối danh sách ưu tiên."
+        description="Bước 1: chọn lead NÀO được áp (nguồn, chi nhánh, khóa — bỏ trống = tất cả). Bước 2: chọn AI nhận và chia thế nào. Bước 3: đặt thời hạn gọi. Quy tắc mới nằm cuối danh sách — dùng nút ↑ để đưa lên nếu cần ưu tiên."
         columns={2}
         width={720}
         submitAction="save"
@@ -317,7 +424,7 @@ export default function LeadRulesPage() {
         <Form.Item name="interests" label="Khóa quan tâm">
           <Select mode="multiple" placeholder="Mọi khóa" options={COURSE_OPTIONS} />
         </Form.Item>
-        <Form.Item name="method" label="Cách chia" rules={[{ required: true }]}>
+        <Form.Item name="method" label="Cách chia" rules={[{ required: true }]} extra="Không chắc thì chọn Xoay vòng — chia đều cho mọi người.">
           <Select options={METHOD_OPTIONS} allowClear={false} showSearch={false} />
         </Form.Item>
         <Form.Item name="saleIds" label="Nhóm Sale nhận lead" tooltip="Thứ tự chọn = thứ tự xoay vòng / ưu tiên" rules={[{ required: true, message: 'Chọn ít nhất 1 Sale' }]} className="md:col-span-2">

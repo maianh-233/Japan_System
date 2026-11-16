@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import { create } from 'zustand';
 import { MOCK_ASSIGN_LOGS, MOCK_ATTEMPTS, MOCK_CAMPAIGNS, MOCK_LEAD_RULES, MOCK_PLACEMENT_TESTS } from '@/mocks/data/admissions';
 import type { AssignmentLog, Campaign, LeadRule, PlacementAttempt, PlacementTest } from '../types';
+import { moveToTrash, registerRestorer } from '@/features/system/trash';
 
 /**
  * Store TUYỂN SINH giả lập: quy tắc chia lead, bài test xếp lớp, lượt làm bài, chiến dịch.
@@ -48,7 +49,11 @@ export const useAdmissionStore = create<AdmissionState>((set) => ({
 
   addRule: (input) => set((s) => ({ rules: [...s.rules, { ...input, id: `R-${++seq}`, cursor: -1 }] })),
   updateRule: (id, patch) => set((s) => ({ rules: s.rules.map((r) => (r.id === id ? { ...r, ...patch } : r)) })),
-  removeRule: (id) => set((s) => ({ rules: s.rules.filter((r) => r.id !== id) })),
+  removeRule: (id) => {
+    const r = useAdmissionStore.getState().rules.find((x) => x.id === id);
+    if (r) moveToTrash({ kind: 'lead_rule', label: r.name, payload: r });
+    set((s) => ({ rules: s.rules.filter((x) => x.id !== id) }));
+  },
   moveRule: (id, dir) =>
     set((s) => {
       const i = s.rules.findIndex((r) => r.id === id);
@@ -81,3 +86,5 @@ export const useAdmissionStore = create<AdmissionState>((set) => ({
   },
   updateCampaign: (id, patch) => set((s) => ({ campaigns: s.campaigns.map((c) => (c.id === id ? { ...c, ...patch } : c)) })),
 }));
+
+registerRestorer<LeadRule>('lead_rule', (r) => useAdmissionStore.setState((s) => ({ rules: [...s.rules, r] })));

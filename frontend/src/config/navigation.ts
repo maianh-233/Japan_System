@@ -1,4 +1,5 @@
 import {
+  ArrowUpRight,
   ArrowLeftRight,
   Award,
   BadgePercent,
@@ -40,6 +41,11 @@ import {
   Settings,
   ShieldCheck,
   Shuffle,
+  SlidersHorizontal,
+  Trash2,
+  ShieldAlert,
+  Filter,
+  MessageSquareText,
   Tags,
   Target,
   TrendingUp,
@@ -152,6 +158,24 @@ export const STAFF_MODULES: NavModule[] = [
         'Gửi link làm bài online cho lead',
         'Tự chấm, gợi ý trình độ & khóa học phù hợp',
       ], true),
+      staffItem('crm', 'appointments', 'Lịch hẹn', CalendarClock, [
+        'Đặt lịch lead đến tư vấn / làm test tại trung tâm',
+        'Kiểm tra trùng phòng (cả buổi học) và trùng người tiếp',
+        'Tự nhắc lead và người tiếp trước 1 giờ',
+      ], true),
+      staffItem('crm', 'promotions', 'Tư vấn lên lớp', ArrowUpRight, [
+        'Học viên lớp vừa kết thúc được giữ chỗ / đề xuất lên lớp kỳ sau',
+        'Tư vấn người quyết định: học viên lớn tự quyết, học viên nhỏ → phụ huynh (gom các con)',
+        'Chốt ghi danh + hóa đơn, ghi lý do không học tiếp, tỉ lệ lên lớp',
+      ], true),
+      staffItem('crm', 'funnel', 'Phễu chuyển đổi', Filter, [
+        'Lead → Đã gọi → Test → Chốt theo Sale / chiến dịch / nguồn',
+        'Thời gian trung bình mỗi bước, lead đang kẹt ở bước nào',
+      ], true),
+      staffItem('crm', 'message-templates', 'Mẫu tin nhắn', MessageSquareText, [
+        'Mẫu Zalo / SMS: chào lead mới, nhắc lịch test, nhắc học phí, báo nghỉ học',
+        'Tự điền tên, lớp, số tiền — gửi từ hồ sơ lead / học viên',
+      ], true),
       staffItem('crm', 'campaigns', 'Chiến dịch', Megaphone, [
         'Chiến dịch marketing: kênh, ngân sách, thời gian',
         'Số lead, tỷ lệ chốt, chi phí / lead của từng chiến dịch',
@@ -175,12 +199,14 @@ export const STAFF_MODULES: NavModule[] = [
         'Mức độ rủi ro: thấp / trung bình / cao',
         'Giao Giáo vụ gọi chăm sóc, ghi lại kết quả',
       ], true),
-      staffItem('students', 'jlpt', 'Thi JLPT', FileBadge, [
+      staffItem('students', 'jlpt', 'Chứng chỉ JLPT', FileBadge, [
         'Theo dõi kỳ thi tháng 7 & 12: ai đăng ký, cấp độ, địa điểm thi',
         'Nhắc hạn nộp hồ sơ, lệ phí',
         'Nhập kết quả, thống kê tỷ lệ đỗ theo lớp / giáo viên',
+        'Nhận chứng chỉ gốc từ hội đồng thi → phát cho học viên',
       ], true),
-      staffItem('students', 'certificates', 'Chứng nhận', Award, [
+      staffItem('students', 'certificates', 'Chứng nhận hoàn thành', Award, [
+        'Chứng nhận của TRUNG TÂM cho học viên pass lớp (khác chứng chỉ JLPT)',
         'Cấp chứng nhận hoàn thành khóa (PDF theo mẫu)',
         'Mã QR xác thực chứng nhận',
       ], true),
@@ -373,6 +399,16 @@ export const STAFF_MODULES: NavModule[] = [
       staffItem('system', 'audit', 'Nhật ký hệ thống', History, [
         'Ai làm gì, lúc nào: cấp quyền, xóa dữ liệu, xuất file',
       ]),
+      staffItem('system', 'approvals', 'Duyệt thao tác', ShieldAlert, [
+        'Hoàn tiền, hủy hóa đơn, cấp quyền tài chính cần người thứ hai duyệt',
+        'Người tạo không tự duyệt được · ghi nhật ký mọi bước',
+      ], true),
+      staffItem('system', 'trash', 'Thùng rác', Trash2, [
+        'Dữ liệu bị xóa / ẩn khôi phục được trong 30 ngày',
+      ], true),
+      staffItem('system', 'settings', 'Cài đặt chung', SlidersHorizontal, [
+        'SLA mặc định, giờ hành chính, mẫu mã hóa đơn, ngày khóa bảng lương, ngưỡng cảnh báo bỏ học',
+      ], true),
     ],
   },
 ];
@@ -410,7 +446,8 @@ export const STUDENT_MENU: NavItem[] = [
   portalItem('student', 'tuition', 'Học phí', Wallet, ['Hóa đơn, lịch sử thanh toán, thanh toán VietQR']),
   portalItem('student', 'requests', 'Đơn xin nghỉ', ClipboardList, ['Đơn đã gửi, đăng ký học bù']),
   portalItem('student', 'progress', 'Tiến độ học tập', TrendingUp, ['Tiến độ theo lộ trình, điểm, chuyên cần']),
-  portalItem('student', 'certificates', 'Chứng nhận & JLPT', Award, ['Chứng nhận hoàn thành khóa', 'Đăng ký & kết quả thi JLPT'], true),
+  portalItem('student', 'certificates', 'Chứng nhận khóa học', Award, ['Chứng nhận hoàn thành khóa do trung tâm cấp'], true),
+  portalItem('student', 'jlpt', 'Chứng chỉ JLPT', FileBadge, ['Đăng ký thi JLPT qua trung tâm, kết quả, nhận chứng chỉ gốc'], true),
 ];
 
 /** CỔNG PHỤ HUYNH (mới) */
@@ -418,6 +455,7 @@ export const PARENT_MENU: NavItem[] = [
   portalItem('parent', 'dashboard', 'Tổng quan', LayoutDashboard),
   portalItem('parent', 'timetable', 'Lịch học của con', CalendarDays, ['Thời khóa biểu, buổi hủy / học bù']),
   portalItem('parent', 'attendance', 'Chuyên cần', CalendarCheck, ['Điểm danh từng buổi, số buổi vắng', 'Xin nghỉ thay con']),
+  portalItem('parent', 'weekly', 'Báo cáo tuần', ClipboardList, ['Chuyên cần, nhận xét GV, bài tập, điểm từng tuần', 'Tự gửi qua Zalo cuối tuần'], true),
   portalItem('parent', 'results', 'Kết quả học tập', TrendingUp, ['Điểm kiểm tra, nhận xét giáo viên']),
   portalItem('parent', 'tuition', 'Học phí', Wallet, ['Hóa đơn, thanh toán VietQR, lịch sử']),
 ];

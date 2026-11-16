@@ -10,12 +10,19 @@ import StudentsPage from '@/pages/staff/students/students/StudentsPage';
 import LeadsPage from '@/pages/staff/crm/leads/LeadsPage';
 import LeadRulesPage from '@/pages/staff/crm/lead-rules/LeadRulesPage';
 import PlacementTestsPage from '@/pages/staff/crm/placement-tests/PlacementTestsPage';
+import AppointmentsPage from '@/pages/staff/crm/appointments/AppointmentsPage';
+import FunnelPage from '@/pages/staff/crm/funnel/FunnelPage';
+import PromotionsPage from '@/pages/staff/crm/promotions/PromotionsPage';
+import MessageTemplatesPage from '@/pages/staff/crm/message-templates/MessageTemplatesPage';
 import CampaignsPage from '@/pages/staff/crm/campaigns/CampaignsPage';
 import BranchesPage from '@/pages/staff/system/branches/BranchesPage';
 import RolesPage from '@/pages/staff/system/roles/RolesPage';
 import UserPermissionsPage from '@/pages/staff/system/user-permissions/UserPermissionsPage';
 import IntegrationsPage from '@/pages/staff/system/integrations/IntegrationsPage';
 import AuditLogsPage from '@/pages/staff/system/audit-logs/AuditLogsPage';
+import ApprovalsPage from '@/pages/staff/system/approvals/ApprovalsPage';
+import TrashPage from '@/pages/staff/system/trash/TrashPage';
+import SettingsPage from '@/pages/staff/system/settings/SettingsPage';
 import CoursesPage from '@/pages/staff/academic/courses/CoursesPage';
 import CurriculumPage from '@/pages/staff/academic/curriculum/CurriculumPage';
 import ClassesPage from '@/pages/staff/academic/classes/ClassesPage';
@@ -63,6 +70,7 @@ import TeacherDocumentsPage from '@/pages/teacher/documents/TeacherDocumentsPage
 import TeacherRequestsPage from '@/pages/teacher/requests/TeacherRequestsPage';
 import SubstitutesPage from '@/pages/teacher/substitutes/SubstitutesPage';
 import TeacherTimesheetPage from '@/pages/teacher/timesheet/TeacherTimesheetPage';
+import TeachingSessionPage from '@/pages/teacher/teaching/TeachingSessionPage';
 import StudentAssignmentsPage from '@/pages/student/assignments/StudentAssignmentsPage';
 import StudentExamsPage from '@/pages/student/exams/StudentExamsPage';
 import FlashcardsPage from '@/pages/student/flashcards/FlashcardsPage';
@@ -71,7 +79,9 @@ import StudentTuitionPage from '@/pages/student/tuition/StudentTuitionPage';
 import StudentRequestsPage from '@/pages/student/requests/StudentRequestsPage';
 import StudentProgressPage from '@/pages/student/progress/StudentProgressPage';
 import StudentCertificatesPage from '@/pages/student/certificates/StudentCertificatesPage';
+import StudentJlptPage from '@/pages/student/jlpt/StudentJlptPage';
 import ParentAttendancePage from '@/pages/parent/attendance/ParentAttendancePage';
+import ParentWeeklyReportPage from '@/pages/parent/weekly/ParentWeeklyReportPage';
 import ParentResultsPage from '@/pages/parent/results/ParentResultsPage';
 import ParentTuitionPage from '@/pages/parent/tuition/ParentTuitionPage';
 import StudentDashboard from '@/pages/student/dashboard/StudentDashboard';
@@ -106,6 +116,10 @@ export const router = createBrowserRouter([
       { path: 'crm/leads', element: <LeadsPage /> },
       { path: 'crm/lead-rules', element: <LeadRulesPage /> },
       { path: 'crm/placement-tests', element: <PlacementTestsPage /> },
+      { path: 'crm/appointments', element: <AppointmentsPage /> },
+      { path: 'crm/promotions', element: <PromotionsPage /> },
+      { path: 'crm/funnel', element: <FunnelPage /> },
+      { path: 'crm/message-templates', element: <MessageTemplatesPage /> },
       { path: 'crm/campaigns', element: <CampaignsPage /> },
       { path: 'students/profiles', element: <StudentsPage /> },
       { path: 'academic/courses', element: <CoursesPage /> },
@@ -151,6 +165,9 @@ export const router = createBrowserRouter([
       { path: 'system/user-permissions', element: <UserPermissionsPage /> },
       { path: 'system/integrations', element: <IntegrationsPage /> },
       { path: 'system/audit', element: <AuditLogsPage /> },
+      { path: 'system/approvals', element: <ApprovalsPage /> },
+      { path: 'system/trash', element: <TrashPage /> },
+      { path: 'system/settings', element: <SettingsPage /> },
       // /admin/crm → mục đầu tiên của module
       ...STAFF_MODULES.map((m) => ({ path: m.key, element: <Navigate to={m.items[0].path} replace /> })),
       { path: ':module/:page', element: <ComingSoon /> },
@@ -167,6 +184,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="dashboard" replace /> },
       { path: 'dashboard', element: <TeacherDashboard /> },
       { path: 'timetable', element: <SessionTimetablePage role="teacher" /> },
+      { path: 'teaching/:sessionId', element: <TeachingSessionPage /> },
       { path: 'classes', element: <MyClassesPage /> },
       { path: 'classes/:id', element: <TeacherClassPage /> },
       { path: 'assignments', element: <TeacherAssignmentsPage /> },
@@ -199,6 +217,7 @@ export const router = createBrowserRouter([
       { path: 'requests', element: <StudentRequestsPage /> },
       { path: 'progress', element: <StudentProgressPage /> },
       { path: 'certificates', element: <StudentCertificatesPage /> },
+      { path: 'jlpt', element: <StudentJlptPage /> },
       { path: 'profile', element: <ProfilePage /> },
       { path: 'security', element: <SecurityPage /> },
       { path: ':page', element: <ComingSoon /> },
@@ -216,6 +235,7 @@ export const router = createBrowserRouter([
       { path: 'dashboard', element: <ParentDashboard /> },
       { path: 'timetable', element: <SessionTimetablePage role="parent" /> },
       { path: 'attendance', element: <ParentAttendancePage /> },
+      { path: 'weekly', element: <ParentWeeklyReportPage /> },
       { path: 'results', element: <ParentResultsPage /> },
       { path: 'tuition', element: <ParentTuitionPage /> },
       { path: 'profile', element: <ProfilePage /> },

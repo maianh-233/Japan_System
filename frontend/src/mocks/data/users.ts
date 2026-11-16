@@ -8,12 +8,15 @@ export const DEMO_OTP = '123456';
 export interface MockAccount extends SessionUser {
   password: string;
   locked?: boolean;
+  /** Hồ sơ nhân viên (Nhân sự) — chỉ tài khoản nhân viên / giáo viên */
+  employeeId?: string;
 }
 
 /** Dữ liệu giả — tài khoản đăng nhập (mỗi vai trò 1 tài khoản) */
 export const MOCK_ACCOUNTS: MockAccount[] = [
   {
     id: 'u-sa',
+    employeeId: 'e-huy',
     email: 'superadmin@jpcenter.vn',
     password: DEMO_PASSWORD,
     fullName: 'Đỗ Quang Huy',
@@ -25,6 +28,7 @@ export const MOCK_ACCOUNTS: MockAccount[] = [
   },
   {
     id: 'u-ad',
+    employeeId: 'e-trang',
     email: 'admin@jpcenter.vn',
     password: DEMO_PASSWORD,
     fullName: 'Phạm Thu Trang',
@@ -32,10 +36,11 @@ export const MOCK_ACCOUNTS: MockAccount[] = [
     roleName: 'Admin',
     scope: 'global',
     branchIds: [],
-    permissions: ['dashboard.*', 'crm.*', 'students.*', 'academic.*', 'library.*', 'finance.*', 'hr.*', 'work.*', 'system.branches', 'system.audit'],
+    permissions: ['dashboard.*', 'crm.*', 'students.*', 'academic.*', 'library.*', 'finance.*', 'hr.*', 'work.*', 'system.branches', 'system.audit', 'system.approvals', 'system.trash', 'system.settings'],
   },
   {
     id: 'u-bm',
+    employeeId: 'e-nam',
     email: 'quanly.caugiay@jpcenter.vn',
     password: DEMO_PASSWORD,
     fullName: 'Lê Hoàng Nam',
@@ -43,10 +48,11 @@ export const MOCK_ACCOUNTS: MockAccount[] = [
     roleName: 'Quản lý chi nhánh',
     scope: 'branch',
     branchIds: ['cg'],
-    permissions: ['dashboard.*', 'crm.*', 'students.*', 'academic.*', 'library.*', 'finance.*', 'hr.*', 'work.*'],
+    permissions: ['dashboard.*', 'crm.*', 'students.*', 'academic.*', 'library.*', 'finance.*', 'hr.*', 'work.*', 'system.approvals'],
   },
   {
     id: 'u-gv',
+    employeeId: 'e-mai',
     email: 'giaovu@jpcenter.vn',
     password: DEMO_PASSWORD,
     fullName: 'Vũ Ngọc Mai',
@@ -58,6 +64,7 @@ export const MOCK_ACCOUNTS: MockAccount[] = [
   },
   {
     id: 'u-sale',
+    employeeId: 'e-khoa',
     email: 'sale@jpcenter.vn',
     password: DEMO_PASSWORD,
     fullName: 'Trần Minh Khoa',
@@ -65,10 +72,11 @@ export const MOCK_ACCOUNTS: MockAccount[] = [
     roleName: 'Sale',
     scope: 'branch',
     branchIds: ['q1'],
-    permissions: ['dashboard.overview', 'crm.leads', 'crm.placement-tests', 'crm.campaigns', 'students.profiles', 'hr.requests', 'work.tasks', 'work.shifts', 'work.handover'],
+    permissions: ['dashboard.overview', 'crm.leads', 'crm.placement-tests', 'crm.appointments', 'crm.promotions', 'crm.funnel', 'crm.message-templates', 'crm.campaigns', 'students.profiles', 'hr.requests', 'work.tasks', 'work.shifts', 'work.handover'],
   },
   {
     id: 'u-mkt',
+    employeeId: 'e-baoanh',
     email: 'marketing@jpcenter.vn',
     password: DEMO_PASSWORD,
     fullName: 'Ngô Bảo Anh',
@@ -80,6 +88,7 @@ export const MOCK_ACCOUNTS: MockAccount[] = [
   },
   {
     id: 'u-kt',
+    employeeId: 'e-lan',
     email: 'ketoan@jpcenter.vn',
     password: DEMO_PASSWORD,
     fullName: 'Hoàng Thị Lan',
@@ -87,10 +96,11 @@ export const MOCK_ACCOUNTS: MockAccount[] = [
     roleName: 'Kế toán',
     scope: 'global',
     branchIds: [],
-    permissions: ['dashboard.*', 'students.profiles', 'finance.*', 'hr.requests', 'hr.timesheets', 'work.tasks'],
+    permissions: ['dashboard.*', 'students.profiles', 'finance.*', 'system.approvals', 'hr.requests', 'hr.timesheets', 'work.tasks'],
   },
   {
     id: 'u-teacher',
+    employeeId: 't-ha',
     email: 'giaovien@jpcenter.vn',
     password: DEMO_PASSWORD,
     fullName: 'Nguyễn Thu Hà',

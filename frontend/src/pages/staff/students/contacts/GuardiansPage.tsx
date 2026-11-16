@@ -11,6 +11,7 @@ import { ADULT_AGE, ageOf, buildGuardianRows, guardianGaps, NOTIFY_CHANNELS, typ
 import { GUARDIAN_ROLE } from '@/features/student/constants';
 import { useStudentStore } from '@/features/student/studentStore';
 import { useAuth } from '@/hooks/useAuth';
+import { useOpenParam } from '@/hooks/useOpenParam';
 import { cn } from '@/lib/cn';
 import { formatCurrency } from '@/lib/format';
 import { getBranches } from '@/features/system/useBranches';
@@ -64,6 +65,7 @@ export default function GuardiansPage() {
   const [study, setStudy] = useState<string>();
   const [dialog, setDialog] = useState<Dialog>(null);
   const [openId, setOpenId] = useState<string | null>(null);
+  useOpenParam(setOpenId);
   const [openTab, setOpenTab] = useState<GuardianTab>('children');
   const [showGaps, setShowGaps] = useState(false);
 

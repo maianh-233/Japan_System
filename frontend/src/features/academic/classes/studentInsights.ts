@@ -6,20 +6,32 @@ import type { Curriculum } from '../curriculum/types';
 import { useCurriculumStore } from '../curriculum/curriculumStore';
 import { useClassStore } from './classStore';
 import type { Assignment, AttendanceStatus, CareLog, ClassInfo, ClassSession, ExamResult, Submission } from './types';
+import { getSettings } from '@/features/system/settings';
 
 /** Ngưỡng cảnh báo — chỉnh ở 1 chỗ */
+/** Ngưỡng cảnh báo bỏ học — đọc từ Cài đặt chung (Hệ thống › Cài đặt chung) */
 export const ALERT_RULES = {
   /** Vắng không phép từ N buổi */
-  absent: 3,
+  get absent() {
+    return getSettings().atRisk.absent;
+  },
   /** Vắng liên tiếp từ N buổi */
-  streak: 2,
+  get streak() {
+    return getSettings().atRisk.streak;
+  },
   /** Chuyên cần dưới N% (khi đã học ≥ 4 buổi) */
-  attendanceRate: 80,
+  get attendanceRate() {
+    return getSettings().atRisk.attendanceRate;
+  },
   /** Tỉ lệ nộp bài dưới N% */
-  submitRate: 50,
+  get submitRate() {
+    return getSettings().atRisk.submitRate;
+  },
   /** Điểm (bài tập / thi) dưới N% */
-  scorePct: 60,
-} as const;
+  get scorePct() {
+    return getSettings().atRisk.scorePct;
+  },
+};
 
 export interface AlertFlag {
   key: 'absent' | 'streak' | 'rate' | 'submit' | 'score' | 'exam' | 'tuition';

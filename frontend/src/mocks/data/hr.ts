@@ -1,5 +1,8 @@
 import dayjs from 'dayjs';
-import { OFFICE_HOURS, WORK_SHIFTS } from '@/features/hr/constants';
+import { WORK_SHIFTS } from '@/features/hr/constants';
+
+/** Giờ hành chính mặc định để SINH dữ liệu giả (không đọc Cài đặt chung — tránh vòng import lúc khởi động) */
+const OFFICE_HOURS = { from: '08:00', to: '17:30', satTo: '12:00' };
 import type { Candidate, HrRequest, Job, Onboarding, TimeRecord } from '@/features/hr/types';
 import { MOCK_EMPLOYEES } from './employees';
 import { MOCK_SHIFTS } from './work';

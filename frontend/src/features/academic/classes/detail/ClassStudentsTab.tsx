@@ -1,9 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type Key } from 'react';
 import { Dropdown, Form, Radio } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
-import { ArrowRightLeft, Award, Ellipsis, FileUser, HandCoins, Mail, PauseCircle, PhoneCall, PlayCircle, Undo2, UserPlus, UserX } from 'lucide-react';
+import { ArrowRightLeft, Award, BellRing, Ellipsis, Megaphone, FileUser, HandCoins, Mail, PauseCircle, PhoneCall, PlayCircle, Undo2, UserPlus, UserX } from 'lucide-react';
 import { Button, DataTable, DateInput, ModalForm, NumberInput, Select, StatusTag, TextInput, UserCell, useConfirm, useNotify, type DataColumn } from '@/components/common';
 import { useCrmStore } from '@/features/crm/crmStore';
+import { RemindModal } from '@/features/finance/InvoiceDrawer';
+import { pendingRefundOf, refundNeedsApproval, refundTitle, useApprovalStore } from '@/features/system/approvals';
 import { ENROLLMENT_STATUS, PAYMENT_METHODS } from '@/features/student/constants';
 import { summarizeInvoice, useStudentStore, type InvoiceSummary } from '@/features/student/studentStore';
 import type { Enrollment, Invoice, PaymentMethod } from '@/features/student/types';
@@ -13,7 +15,8 @@ import { fmtDate } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
 import type { ClassInfo } from '../types';
 import { useClassStudentStats } from '../studentInsights';
-import { AttentionPanel, CareLogModal, CertificateModal, certificateChecks, ReserveModal, TransferModal } from './StudentActions';
+import { ComposeAnnouncementModal } from './ClassAnnouncementsTab';
+import { AttentionPanel, BulkTransferModal, CareLogModal, CertificateModal, certificateChecks, ReserveModal, TransferModal } from './StudentActions';
 import { StudentLearningDrawer } from './StudentLearningDrawer';
 
 interface Row {
@@ -50,6 +53,12 @@ export function ClassStudentsTab({ cls }: { cls: ClassInfo }) {
   const [profileId, setProfileId] = useState<string | null>(null);
   const [certId, setCertId] = useState<string | null>(null);
   const [careId, setCareId] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Key[]>([]);
+  const [bulk, setBulk] = useState<'remind' | 'notify' | 'transfer' | null>(null);
+  const approvals = useApprovalStore((s) => s.requests);
+  const requestApproval = useApprovalStore((s) => s.request);
+  /** Còn hoàn được = theo hóa đơn − khoản đang chờ duyệt */
+  const refundableOf = (r: Row) => Math.max(0, (r.sum?.refundable ?? 0) - (r.invoice ? pendingRefundOf(approvals, r.invoice.id) : 0));
   const editable = can('academic.classes') || can('finance.invoices');
   const closed = cls.status === 'finished' || cls.status === 'cancelled';
 
@@ -79,6 +88,16 @@ export function ClassStudentsTab({ cls }: { cls: ClassInfo }) {
     { due: 0, paid: 0, remaining: 0, refunded: 0 },
   );
   const activeCount = rows.filter((r) => r.enrollment.status === 'studying' || r.enrollment.status === 'reserved').length;
+
+  // ===== Thao tác hàng loạt (chỉ áp dụng cho học viên còn trong lớp) =====
+  const isActive = (r: Row) => r.enrollment.status === 'studying' || r.enrollment.status === 'reserved';
+  const picked = rows.filter((r) => selected.includes(r.id));
+  const pickedActive = picked.filter(isActive);
+  const pickedDebt = picked.filter((r) => r.invoice && !r.invoice.cancelled && (r.sum?.remaining ?? 0) > 0);
+  const clearSelection = () => {
+    setSelected([]);
+    setBulk(null);
+  };
 
   const drop = async (r: Row) => {
     const res = await confirm({
@@ -253,11 +272,30 @@ export function ClassStudentsTab({ cls }: { cls: ClassInfo }) {
             </>
           ) : undefined,
         }}
+        selectedKeys={editable ? selected : undefined}
+        onSelectionChange={editable ? (keys) => setSelected(keys) : undefined}
+        bulkActions={() => (
+          <>
+            <Button icon={BellRing} size="sm" variant="soft" disabled={!pickedDebt.length} tooltip={pickedDebt.length ? undefined : 'Không ai trong số đã chọn còn nợ học phí'} onClick={() => setBulk('remind')}>
+              Nhắc học phí ({pickedDebt.length})
+            </Button>
+            {can('academic.classes') && cls.status !== 'cancelled' && (
+              <Button icon={Megaphone} size="sm" variant="soft" disabled={!pickedActive.length} onClick={() => setBulk('notify')}>
+                Gửi thông báo ({pickedActive.length})
+              </Button>
+            )}
+            {can('academic.classes') && (
+              <Button icon={ArrowRightLeft} size="sm" variant="soft" disabled={!pickedActive.length} tooltip={pickedActive.length ? undefined : 'Chỉ chuyển được học viên đang học / bảo lưu'} onClick={() => setBulk('transfer')}>
+                Chuyển lớp ({pickedActive.length})
+              </Button>
+            )}
+          </>
+        )}
         rowActions={(r) => {
           const active = r.enrollment.status === 'studying' || r.enrollment.status === 'reserved';
           const canCert = r.enrollment.status === 'completed' || (cls.status === 'finished' && r.enrollment.status === 'studying');
           const more = [
-            { key: 'refund', icon: <Undo2 size={15} />, label: 'Hoàn tiền', disabled: !r.sum?.refundable, onClick: () => setDialog({ kind: 'refund', row: r }) },
+            { key: 'refund', icon: <Undo2 size={15} />, label: 'Hoàn tiền', disabled: !refundableOf(r), onClick: () => setDialog({ kind: 'refund', row: r }) },
             { key: 'care', icon: <PhoneCall size={15} />, label: 'Ghi nhận liên hệ', disabled: closed, onClick: () => setCareId(r.enrollment.studentId) },
             { type: 'divider' as const },
             r.enrollment.status === 'reserved'
@@ -339,26 +377,33 @@ export function ClassStudentsTab({ cls }: { cls: ClassInfo }) {
         open={dialog?.kind === 'refund'}
         onClose={() => setDialog(null)}
         title="Hoàn tiền học phí"
-        description={dialog?.kind === 'refund' ? `${dialog.row.fullName} · đã đóng ${formatCurrency(dialog.row.sum?.paid)} · hoàn tối đa ${formatCurrency(dialog.row.sum?.refundable)}` : undefined}
-        submitAction="save"
-        submitText="Xác nhận hoàn tiền"
-        successMessage="Đã ghi nhận hoàn tiền"
+        description={dialog?.kind === 'refund' ? `${dialog.row.fullName} · đã đóng ${formatCurrency(dialog.row.sum?.paid)} · hoàn tối đa ${formatCurrency(refundableOf(dialog.row))}` : undefined}
+        submitAction="send"
+        submitText="Gửi hoàn tiền"
+        successMessage="Đã ghi nhận"
         initialValues={{ method: 'transfer' }}
         onSubmit={async (v) => {
           if (dialog?.kind !== 'refund' || !dialog.row.invoice) return;
           await new Promise((r) => setTimeout(r, 400));
-          addRefund(dialog.row.invoice.id, { amount: v.amount, method: v.method, reason: v.reason.trim(), refundedAt: new Date().toISOString(), by: user?.fullName ?? 'Nhân viên' });
+          const reason = v.reason.trim();
+          if (refundNeedsApproval(v.amount)) {
+            requestApproval(
+              { kind: 'refund', title: refundTitle(v.amount, dialog.row.invoice.code, dialog.row.fullName), detail: reason, branchId: cls.branchId, payload: { kind: 'refund', invoiceId: dialog.row.invoice.id, invoiceCode: dialog.row.invoice.code, amount: v.amount, method: v.method, reason } },
+              { id: user?.id ?? '', name: user?.fullName ?? 'Nhân viên' },
+            );
+            notify.info({ title: 'Đã gửi yêu cầu hoàn tiền', description: 'Tiền chỉ được ghi hoàn sau khi người thứ hai duyệt (Hệ thống › Duyệt thao tác).' });
+          } else addRefund(dialog.row.invoice.id, { amount: v.amount, method: v.method, reason, refundedAt: new Date().toISOString(), by: user?.fullName ?? 'Nhân viên' });
         }}
       >
         <p className="mb-4 rounded-lg bg-page px-3 py-2 text-[13px] text-ink-secondary">
-          Gợi ý: hoàn theo số buổi chưa học. Phiếu hoàn tiền được chuyển sang Tài chính để Kế toán chi.
+          Gợi ý: hoàn theo số buổi chưa học. Hoàn tiền cần một người khác duyệt (Hệ thống › Duyệt thao tác) rồi Kế toán mới chi.
         </p>
         <Form.Item
           name="amount"
           label="Số tiền hoàn"
           rules={[
             { required: true, message: 'Nhập số tiền' },
-            { validator: (_, v: number) => (dialog?.kind === 'refund' && v > (dialog.row.sum?.refundable ?? 0) ? Promise.reject(new Error('Vượt quá số đã đóng')) : v > 0 ? Promise.resolve() : Promise.reject(new Error('Phải lớn hơn 0'))) },
+            { validator: (_, v: number) => (dialog?.kind === 'refund' && v > refundableOf(dialog.row) ? Promise.reject(new Error('Vượt quá số còn hoàn được')) : v > 0 ? Promise.resolve() : Promise.reject(new Error('Phải lớn hơn 0'))) },
           ]}
         >
           <NumberInput currency min={0} step={100_000} />
@@ -381,6 +426,20 @@ export function ClassStudentsTab({ cls }: { cls: ClassInfo }) {
       />
       <ReserveModal enrollment={dialog?.kind === 'reserve' ? dialog.row.enrollment : null} name={dialog?.kind === 'reserve' ? dialog.row.fullName : undefined} onClose={() => setDialog(null)} />
       <TransferModal cls={cls} enrollment={dialog?.kind === 'transfer' ? dialog.row.enrollment : null} name={dialog?.kind === 'transfer' ? dialog.row.fullName : undefined} onClose={() => setDialog(null)} />
+      <RemindModal
+        open={bulk === 'remind'}
+        invoiceIds={pickedDebt.map((r) => r.invoice!.id)}
+        onClose={() => setBulk(null)}
+        description={`${cls.code} · tổng còn nợ ${formatCurrency(pickedDebt.reduce((t, r) => t + (r.sum?.remaining ?? 0), 0))}`}
+        onDone={clearSelection}
+      />
+      <ComposeAnnouncementModal cls={cls} open={bulk === 'notify'} onClose={() => setBulk(null)} studentIds={pickedActive.map((r) => r.enrollment.studentId)} />
+      <BulkTransferModal
+        cls={cls}
+        items={bulk === 'transfer' ? pickedActive.map((r) => ({ enrollment: r.enrollment, name: r.fullName })) : null}
+        onClose={() => setBulk(null)}
+        onDone={clearSelection}
+      />
       <CertificateModal cls={cls} studentId={certId} onClose={() => setCertId(null)} />
       <CareLogModal cls={cls} studentId={careId} name={rows.find((r) => r.enrollment.studentId === careId)?.fullName} onClose={() => setCareId(null)} />
       <StudentLearningDrawer cls={cls} studentId={profileId} onClose={() => setProfileId(null)} />

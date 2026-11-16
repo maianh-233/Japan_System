@@ -5,7 +5,7 @@ import { Info } from 'lucide-react';
 import { ModalForm, Select, TextArea, TimeInput, useNotify } from '@/components/common';
 import { useAuth } from '@/hooks/useAuth';
 import { useClassStore } from '../classes/classStore';
-import { ASSISTANTS, teacherName } from '../classes/constants';
+import { teacherName } from '../classes/constants';
 import type { ClassInfo, ClassSession, IncidentAction, IncidentReason, TeacherAttendance } from '../classes/types';
 import { busyStaff, INCIDENT_ACTIONS, INCIDENT_REASONS, staffOf, takeoverOptions } from './sessionOps';
 
@@ -182,7 +182,7 @@ export function IncidentModal({ cls, session, onClose }: { cls: ClassInfo; sessi
       )}
       {action === 'assistant' && (
         <Form.Item name="assistantId" label="Trợ giảng dạy tiếp" rules={[{ required: true, message: 'Chọn trợ giảng' }]}>
-          <Select options={assistants.map((id) => ({ value: id, label: ASSISTANTS.find((a) => a.id === id)?.name ?? id }))} showSearch={false} allowClear={false} />
+          <Select options={assistants.map((id) => ({ value: id, label: teacherName(id) }))} showSearch={false} allowClear={false} />
         </Form.Item>
       )}
       {action === 'pause' && (

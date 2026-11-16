@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import type { Tone } from '@/components/common';
 import type { SessionUser } from '@/types/auth';
 import type { ShiftAssignment } from '@/features/work/types';
-import { LATE_GRACE_MIN, OFFICE_HOURS, WORK_SHIFTS } from './constants';
+import { lateGraceMin, OFFICE_HOURS, WORK_SHIFTS } from './constants';
 import type { ApprovalStep, Employee, HrRequest, RequestType, TimeRecord } from './types';
 
 export const toMin = (t: string) => {
@@ -11,7 +11,12 @@ export const toMin = (t: string) => {
 };
 
 /** Nhân viên ứng với tài khoản đang đăng nhập (khớp theo họ tên — dữ liệu giả) */
-export const meOf = (employees: Employee[], user: SessionUser | null) => employees.find((e) => e.fullName === user?.fullName);
+/**
+ * Hồ sơ nhân viên của người đăng nhập: khớp theo id (đăng nhập gán user.id = mã nhân viên).
+ * Khớp theo họ tên chỉ là phương án dự phòng cho phiên cũ đã lưu (id dạng "u-...").
+ */
+export const meOf = (employees: Employee[], user: SessionUser | null) =>
+  user ? (employees.find((e) => e.id === user.id) ?? employees.find((e) => e.fullName === user.fullName)) : undefined;
 
 export const nameOf = (employees: Employee[], id?: string) => employees.find((e) => e.id === id)?.fullName ?? id ?? '—';
 
@@ -23,8 +28,8 @@ export function expectedOf(e: Employee, date: string, shifts: ShiftAssignment[])
     return { from: mine.map((s) => s.from).sort()[0], to: mine.map((s) => s.to).sort().reverse()[0], label: mine.map((s) => s.short).join('+') };
   }
   const wd = dayjs(date).day();
-  if (wd === 0) return undefined;
-  return { from: OFFICE_HOURS.from, to: wd === 6 ? OFFICE_HOURS.satTo : OFFICE_HOURS.to, label: 'HC' };
+  if (wd === 0 || (wd === 6 && !OFFICE_HOURS.satTo)) return undefined;
+  return { from: OFFICE_HOURS.from, to: wd === 6 ? OFFICE_HOURS.satTo! : OFFICE_HOURS.to, label: 'HC' };
 }
 
 export type DayState = 'ok' | 'late' | 'early' | 'late_early' | 'no_out' | 'absent' | 'leave' | 'off' | 'future' | 'working';
@@ -60,8 +65,8 @@ export function dayState(e: Employee, date: string, rec: TimeRecord | undefined,
   else if (!rec?.checkIn) state = date === today && dayjs().format('HH:mm') < exp.to ? 'future' : 'absent';
   else if (!rec.checkOut) state = date === today ? 'working' : 'no_out';
   else {
-    const late = lateMin > LATE_GRACE_MIN && !excused;
-    const early = earlyMin > LATE_GRACE_MIN && !excused;
+    const late = lateMin > lateGraceMin() && !excused;
+    const early = earlyMin > lateGraceMin() && !excused;
     state = late && early ? 'late_early' : late ? 'late' : early ? 'early' : 'ok';
   }
   const worked = rec?.checkIn && rec.checkOut ? Math.max(0, toMin(rec.checkOut) - toMin(rec.checkIn)) : 0;
@@ -81,10 +86,15 @@ export const workDays = (a: dayjs.Dayjs, b: dayjs.Dayjs) => {
 /** Các cấp duyệt theo loại đơn (dùng chung: Đơn từ & phê duyệt, Chấm công của tôi) */
 export function buildSteps(e: Employee, employees: Employee[], type: RequestType, days = 0, amount = 0): ApprovalStep[] {
   const steps: ApprovalStep[] = [{ role: 'Quản lý trực tiếp', approver: nameOf(employees, e.managerId) }];
-  if (type === 'leave' && days > 3) steps.push({ role: 'Phó giám đốc (nghỉ > 3 ngày)', approver: 'Phạm Thu Trang' });
-  if (type === 'advance') steps.push({ role: 'Kế toán trưởng', approver: 'Hoàng Thị Lan' });
-  if (type === 'proposal' && amount > 5_000_000) steps.push({ role: 'Kế toán trưởng (> 5 triệu)', approver: 'Hoàng Thị Lan' }, { role: 'Giám đốc', approver: 'Đỗ Quang Huy' });
+  if (type === 'leave' && days > 3) steps.push({ role: 'Phó giám đốc (nghỉ > 3 ngày)', approver: holderOf(employees, /^Phó giám đốc/i) });
+  if (type === 'advance') steps.push({ role: 'Kế toán trưởng', approver: holderOf(employees, /^Kế toán trưởng/i) });
+  if (type === 'proposal' && amount > 5_000_000) steps.push({ role: 'Kế toán trưởng (> 5 triệu)', approver: holderOf(employees, /^Kế toán trưởng/i) }, { role: 'Giám đốc', approver: holderOf(employees, /^Giám đốc/i) });
   return steps;
+}
+
+/** Người đang giữ chức vụ (theo hồ sơ Nhân sự, bỏ người đã nghỉ việc) — khi có backend: tra theo vị trí / role duyệt */
+function holderOf(employees: Employee[], position: RegExp): string {
+  return employees.find((x) => x.status !== 'quit' && position.test(x.position))?.fullName ?? 'Chưa có người giữ chức vụ';
 }
 
 /**

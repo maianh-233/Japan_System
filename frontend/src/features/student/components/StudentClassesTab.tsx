@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { useClassStore } from '@/features/academic/classes/classStore';
-import { scheduleLabel, teacherNames } from '@/features/academic/classes/constants';
-import { ChevronDown, Clock, MonitorPlay, School, UserRound } from 'lucide-react';
+import { EVAL_RECOMMENDATION, scheduleLabel, teacherNames } from '@/features/academic/classes/constants';
+import { EvaluationCard } from '@/features/academic/classes/evaluation/EvaluationCard';
+import { ChevronDown, Clock, MessageSquareQuote, MonitorPlay, School, UserRound } from 'lucide-react';
 import { EmptyState, StatusTag } from '@/components/common';
 import { cn } from '@/lib/cn';
 import { fmtDate, fmtDateTime } from '@/lib/date';
@@ -16,6 +17,7 @@ export function StudentClassesTab({ studentId }: { studentId: string }) {
   const classes = useClassStore((s) => s.classes);
   const allEnrollments = useStudentStore((s) => s.enrollments);
   const allInvoices = useStudentStore((s) => s.invoices);
+  const evaluations = useClassStore((s) => s.evaluations);
 
   const rows = useMemo(() => {
     const list = allEnrollments
@@ -31,6 +33,9 @@ export function StudentClassesTab({ studentId }: { studentId: string }) {
   }, [allEnrollments, allInvoices, classes, studentId]);
 
   const tuition = summarizeTuition(rows.map((r) => r.invoice).filter((i): i is Invoice => Boolean(i)));
+  // Nhận xét cuối khóa mới nhất — gợi ý cho Sale khi tư vấn khóa tiếp theo
+  const latestEval = evaluations.filter((e) => e.studentId === studentId).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
+  const latestEvalCls = latestEval && classes.find((c) => c.id === latestEval.classId);
 
   if (!rows.length) {
     return (
@@ -53,9 +58,24 @@ export function StudentClassesTab({ studentId }: { studentId: string }) {
         <Stat label="Còn nợ" value={tuition.remaining ? formatCurrency(tuition.remaining) : 'Không nợ'} tone={tuition.remaining ? 'danger' : 'success'} />
       </div>
 
+      {latestEval && (
+        <div className="flex items-start gap-2.5 rounded-[var(--radius-card)] border border-primary-200 bg-primary-50 px-3.5 py-3 text-[13px] text-primary-900">
+          <MessageSquareQuote size={18} className="mt-0.5 shrink-0 text-primary-600" aria-hidden />
+          <div>
+            <p className="font-semibold">
+              Gợi ý tư vấn: {EVAL_RECOMMENDATION[latestEval.recommendation].label}
+            </p>
+            <p className="text-primary-800">
+              Theo nhận xét cuối khóa lớp {latestEvalCls?.code ?? latestEval.classId} ({latestEval.author}, {fmtDate(latestEval.updatedAt)}){latestEval.advice ? ` — ${latestEval.advice}` : '.'}
+            </p>
+          </div>
+        </div>
+      )}
+
       <ul className="flex flex-col gap-3">
         {rows.map(({ enrollment: e, cls, invoice }) => {
           const st = ENROLLMENT_STATUS[e.status];
+          const ev = evaluations.find((x) => x.classId === cls.id && x.studentId === studentId);
           return (
             <li key={e.id} className="flex flex-col gap-3 rounded-[var(--radius-card)] border border-line bg-surface p-4">
               <div className="flex flex-wrap items-start justify-between gap-2">
@@ -104,6 +124,14 @@ export function StudentClassesTab({ studentId }: { studentId: string }) {
               </dl>
               {e.note && <p className="rounded-md bg-page px-2.5 py-1.5 text-[13px] text-ink-secondary">{e.note}</p>}
 
+              {ev ? (
+                <EvalBlock>
+                  <EvaluationCard ev={ev} className="border-0 p-0" />
+                </EvalBlock>
+              ) : (
+                (e.status === 'completed' || cls.status === 'finished') && <p className="text-[13px] text-ink-muted">Giáo viên chưa viết nhận xét cuối khóa.</p>
+              )}
+
               {invoice ? <InvoiceBlock invoice={invoice} /> : <p className="text-[13px] text-ink-muted">Chưa có hóa đơn học phí</p>}
             </li>
           );
@@ -118,6 +146,21 @@ function Stat({ label, value, tone }: { label: string; value: string; tone?: 'su
     <div className="rounded-lg bg-page px-3 py-2.5">
       <p className="text-xs text-ink-muted">{label}</p>
       <p className={cn('tabular text-base font-semibold', tone === 'danger' ? 'text-danger-600' : tone === 'success' ? 'text-success-700' : 'text-ink')}>{value}</p>
+    </div>
+  );
+}
+
+/** Nhận xét cuối khóa của GV (thu gọn) */
+function EvalBlock({ children }: { children: ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="rounded-lg border border-line">
+      <button type="button" onClick={() => setOpen((v) => !v)} aria-expanded={open} className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-[13px] hover:bg-page">
+        <MessageSquareQuote size={15} className="text-primary-600" aria-hidden />
+        <span className="flex-1 font-medium text-ink">Nhận xét cuối khóa của giáo viên</span>
+        <ChevronDown size={16} className={cn('shrink-0 text-ink-muted transition-transform', open && 'rotate-180')} aria-hidden />
+      </button>
+      {open && <div className="border-t border-line px-3 py-3">{children}</div>}
     </div>
   );
 }

@@ -30,6 +30,7 @@ export interface EmployeeFormValues {
   // Giáo viên
   teacherType?: 'vn' | 'jp';
   levels?: QLevel[];
+  extraBranchIds?: string[];
   certificates?: string[];
   rateOffline?: number;
   rateOnline?: number;
@@ -58,6 +59,7 @@ export function employeeToForm(e: Employee): EmployeeFormValues {
     note: e.note,
     teacherType: e.teacher?.type,
     levels: e.teacher?.levels,
+    extraBranchIds: e.teacher?.extraBranchIds,
     certificates: e.teacher?.certificates,
     rateOffline: e.teacher?.rate.offline,
     rateOnline: e.teacher?.rate.online,
@@ -67,6 +69,7 @@ export function employeeToForm(e: Employee): EmployeeFormValues {
 
 /** Giá trị form → dữ liệu (giữ lịch rảnh / số HĐ cũ khi sửa) */
 export function formToEmployee(v: EmployeeFormValues, kind: EmployeeKind, prev?: Employee): Omit<Employee, 'id' | 'code'> {
+  const extraBranchIds = (v.extraBranchIds ?? []).filter((b) => b !== v.branchId);
   return {
     fullName: v.fullName.trim(),
     gender: v.gender,
@@ -94,6 +97,7 @@ export function formToEmployee(v: EmployeeFormValues, kind: EmployeeKind, prev?:
             certificates: v.certificates ?? [],
             rate: { offline: v.rateOffline ?? 0, online: v.rateOnline ?? 0 },
             availability: prev?.teacher?.availability ?? { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] },
+            extraBranchIds: extraBranchIds.length ? extraBranchIds : undefined,
             bio: v.bio?.trim() || undefined,
           },
   };
@@ -104,6 +108,7 @@ export function EmployeeFormFields({ kind, editingId }: { kind: EmployeeKind; ed
   const employees = useHrStore((s) => s.employees);
   const form = Form.useFormInstance<EmployeeFormValues>();
   const ctype = Form.useWatch('contractType', form);
+  const mainBranch = Form.useWatch('branchId', form);
   const managers = employees.filter((e) => e.kind === 'staff' && e.department === 'board' && e.id !== editingId).map((e) => ({ value: e.id, label: `${e.fullName} · ${e.position}` }));
 
   return (
@@ -157,6 +162,9 @@ export function EmployeeFormFields({ kind, editingId }: { kind: EmployeeKind; ed
           </Form.Item>
           <Form.Item name="levels" label="Cấp độ được dạy" rules={[{ required: true, type: 'array', min: 1, message: 'Chọn cấp độ' }]}>
             <Checkbox.Group options={Q_LEVELS.map((l) => ({ value: l, label: l }))} />
+          </Form.Item>
+          <Form.Item name="extraBranchIds" label="Chi nhánh dạy thêm" extra="Ngoài chi nhánh chính — được xếp lớp / mời dạy thay ở các chi nhánh này.">
+            <Select mode="multiple" placeholder="Chỉ dạy ở chi nhánh chính" options={getBranches().filter((b) => b.id !== mainBranch).map((b) => ({ value: b.id, label: b.name }))} />
           </Form.Item>
           <Form.Item name="certificates" label="Bằng cấp / chứng chỉ" className="md:col-span-2">
             <Select mode="tags" placeholder="VD: JLPT N1 (2020), Chứng chỉ sư phạm" />

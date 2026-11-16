@@ -114,9 +114,9 @@ export async function login(identifier: string, password: string): Promise<Sessi
         return completeLogin(portalUser(linked));
       }
     }
-    const employee = useHrStore.getState().employees.find((x) => x.fullName === demo.fullName);
+    const employee = useHrStore.getState().employees.find((x) => x.id === demo.employeeId);
     if (employee && (demo.portal === 'staff' || demo.portal === 'teacher')) return completeLogin(staffUser(demo, employee.id));
-    const { password: _pw, locked: _locked, ...user } = demo;
+    const { password: _pw, locked: _locked, employeeId: _eid, ...user } = demo;
     return completeLogin(user);
   }
 
@@ -129,8 +129,7 @@ export async function login(identifier: string, password: string): Promise<Sessi
   const access = useSystemStore.getState().access.find((a) => normalize(a.email) === loginId);
   if (access) {
     if (password !== DEMO_PASSWORD) throw new ApiError('Email hoặc mật khẩu không đúng.', 'INVALID_CREDENTIALS');
-    const employee = useHrStore.getState().employees.find((x) => x.id === access.userId);
-    const account = MOCK_ACCOUNTS.find((x) => x.fullName === employee?.fullName);
+    const account = MOCK_ACCOUNTS.find((x) => x.employeeId === access.userId);
     return completeLogin(staffUser(account, access.userId));
   }
 

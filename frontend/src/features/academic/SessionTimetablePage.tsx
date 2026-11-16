@@ -1,13 +1,14 @@
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { ClipboardList } from 'lucide-react';
+import { ClipboardList, ScanLine } from 'lucide-react';
 import { Button, PageHeader, Timetable, useNotify } from '@/components/common';
 import { useClassStore } from '@/features/academic/classes/classStore';
 import { notStarted, sessionTeachers } from '@/features/academic/classes/sessionUtils';
 import { CancelRequestModal } from '@/features/portal/components/CancelRequestModal';
 import { ChildSwitcher } from '@/features/portal/components/ChildSwitcher';
 import { LeaveRequestModal } from '@/features/portal/components/LeaveRequestModal';
-import { TeachSessionDrawer } from '@/features/portal/components/TeachSessionDrawer';
+import { ScanAttendanceModal } from '@/features/portal/components/ScanAttendanceModal';
 import { usePortalStore } from '@/features/portal/portalStore';
 import { activeOf, sessionEvent, useStudentId, useStudentLearning, useTeacherId } from '@/features/portal/usePortal';
 
@@ -18,6 +19,7 @@ import { activeOf, sessionEvent, useStudentId, useStudentLearning, useTeacherId 
  */
 export function SessionTimetablePage({ role }: { role: 'teacher' | 'student' | 'parent' }) {
   const notify = useNotify();
+  const navigate = useNavigate();
   const me = useTeacherId();
   const studentId = useStudentId();
   const sessions = useClassStore((s) => s.sessions);
@@ -28,7 +30,7 @@ export function SessionTimetablePage({ role }: { role: 'teacher' | 'student' | '
   const [week, setWeek] = useState(() => dayjs());
   const [cancelFor, setCancelFor] = useState<string | null>(null);
   const [leaveFor, setLeaveFor] = useState<string | null>(null);
-  const [teachId, setTeachId] = useState<string | null>(null);
+  const [scanning, setScanning] = useState(false);
   const isTeacher = role === 'teacher';
 
   const events = useMemo(() => {
@@ -66,30 +68,33 @@ export function SessionTimetablePage({ role }: { role: 'teacher' | 'student' | '
     const s = sessions.find((x) => x.id === id);
     if (!s) return;
     if (s.status === 'cancelled') return notify.info({ title: 'Buổi đã hủy', description: s.note ?? 'Giáo vụ sẽ thông báo lịch học bù.' });
-    if (isTeacher) {
-      if (!notStarted(s) || s.date === dayjs().format('YYYY-MM-DD')) return setTeachId(s.id);
-      if (cancelReqs.some((r) => r.sessionId === s.id && r.status === 'pending')) return notify.info({ title: 'Đơn hủy đang chờ duyệt', description: 'Xem ở mục Đơn hủy buổi.' });
-      return setCancelFor(s.id);
-    }
+    // GV: mọi buổi (đã qua / hôm nay / sắp tới) đều mở trang Dạy học
+    if (isTeacher) return navigate(`/teacher/teaching/${s.id}`);
     if (!notStarted(s)) return notify.info({ title: `Buổi ${s.no}`, description: 'Buổi đã diễn ra — xem điểm danh ở mục Chuyên cần / Tiến độ.' });
     if (leaveReqs.some((r) => r.sessionId === s.id && r.studentId === studentId && r.status !== 'rejected')) return notify.info({ title: 'Đã gửi đơn xin nghỉ buổi này' });
     setLeaveFor(s.id);
   };
 
-  const teachCls = classes.find((c) => c.id === sessions.find((s) => s.id === teachId)?.classId);
-
   return (
     <>
       <PageHeader
         title={role === 'parent' ? 'Lịch học của con' : 'Thời khóa biểu'}
-        subtitle={isTeacher ? 'Buổi sắp tới: bấm để xin hủy buổi. Buổi hôm nay / đã qua: bấm để điểm danh, ghi nhật ký.' : 'Bấm vào buổi sắp tới để xin nghỉ (và đăng ký học bù nếu muốn).'}
+        subtitle={isTeacher ? 'Bấm vào buổi học để mở trang Dạy học: nội dung bài, tài liệu trình chiếu, chấm công, QR điểm danh, báo cáo tiến độ.' :'Bấm vào buổi sắp tới để xin nghỉ (và đăng ký học bù nếu muốn).'}
         actions={
-          <Button icon={ClipboardList} variant="outline" collapseOnMobile onClick={() => (isTeacher ? setCancelFor('') : setLeaveFor(''))}>
-            {isTeacher ? 'Xin hủy buổi' : 'Xin nghỉ'}
-          </Button>
+          <>
+            {role === 'student' && (
+              <Button icon={ScanLine} onClick={() => setScanning(true)}>
+                Quét QR điểm danh
+              </Button>
+            )}
+            <Button icon={ClipboardList} variant="outline" collapseOnMobile onClick={() => (isTeacher ? setCancelFor('') : setLeaveFor(''))}>
+              {isTeacher ? 'Xin hủy buổi' : 'Xin nghỉ'}
+            </Button>
+          </>
         }
       />
       {role === 'parent' && <ChildSwitcher />}
+      {role === 'student' && <ScanAttendanceModal open={scanning} onClose={() => setScanning(false)} studentId={studentId} />}
       <div className="rounded-[var(--radius-card)] border border-line bg-surface p-3 sm:p-4">
         <Timetable events={events} week={week} onWeekChange={setWeek} onEventClick={(e) => onClick(String(e.id))} />
       </div>
@@ -99,7 +104,6 @@ export function SessionTimetablePage({ role }: { role: 'teacher' | 'student' | '
       ) : (
         <LeaveRequestModal open={leaveFor !== null} sessionId={leaveFor || undefined} studentId={studentId} by={role === 'parent' ? 'parent' : 'student'} onClose={() => setLeaveFor(null)} />
       )}
-      {teachId && teachCls && <TeachSessionDrawer key={teachId} cls={teachCls} sessionId={teachId} onClose={() => setTeachId(null)} />}
     </>
   );
 }

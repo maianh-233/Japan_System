@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Checkbox, Form } from 'antd';
 import dayjs from 'dayjs';
-import { NotebookPen } from 'lucide-react';
+import { Link2, NotebookPen, Paperclip } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Button, DataTable, DateInput, ModalForm, NumberInput, PageHeader, Select, StatCard, StatusTag, TextArea, TextInput, useNotify, type DataColumn } from '@/components/common';
+import { Button, DataTable, DateInput, FileUpload, ModalForm, NumberInput, PageHeader, Select, StatCard, StatusTag, TextArea, TextInput, useNotify, type DataColumn, type UploadItem } from '@/components/common';
+import { toAttachments } from '@/features/academic/classes/AttachmentList';
 import { useClassStore } from '@/features/academic/classes/classStore';
 import { ASSIGNMENT_TYPES, QUIZ_DIFFICULTY_OPTIONS, QUIZ_SKILL_OPTIONS } from '@/features/academic/classes/constants';
 import type { Assignment, AssignmentType, QuizDifficulty, QuizSkill } from '@/features/academic/classes/types';
@@ -35,6 +36,9 @@ interface FormValues {
   timeLimitMinutes?: number;
   attempts?: number;
   shuffle?: boolean;
+  /** Bài nộp tay: đề bài GV tự gửi */
+  attachFiles?: UploadItem[];
+  attachLink?: string;
 }
 
 /** Cổng GV › Bài tập: giao bài cho lớp mình dạy, theo dõi nộp bài, vào chấm */
@@ -85,6 +89,7 @@ export default function TeacherAssignmentsPage() {
           <span className="block text-xs text-ink-muted">
             {r.classCode} · {ASSIGNMENT_TYPES[r.type].label}
             {r.quiz && ` · ${r.quiz.questionCount} câu`}
+            {r.type === 'upload' && (r.attachments?.length ? ` · ${r.attachments.length} file đề` : ' · chưa gửi đề')}
           </span>
         </span>
       ),
@@ -206,7 +211,8 @@ export default function TeacherAssignmentsPage() {
             v.type === 'quiz'
               ? { lessonIds: v.lessonId ? [v.lessonId] : [], skills: v.skills ?? [], difficulty: v.difficulty ?? 'mixed', questionCount: v.questionCount ?? 10, timeLimitMinutes: v.timeLimitMinutes, attempts: v.attempts ?? 1, shuffle: Boolean(v.shuffle) }
               : undefined;
-          addAssignment({ classId: v.classId, type: v.type, title: v.title, description: v.description, lessonId: v.lessonId, dueDate: v.dueDate.format('YYYY-MM-DD'), maxScore: v.maxScore, quiz });
+          const attachments = v.type === 'upload' ? toAttachments(v.attachFiles, v.attachLink ? [v.attachLink] : []) : undefined;
+          addAssignment({ classId: v.classId, type: v.type, title: v.title, description: v.description, lessonId: v.lessonId, dueDate: v.dueDate.format('YYYY-MM-DD'), maxScore: v.maxScore, quiz, attachments: attachments?.length ? attachments : undefined });
           setClassId(v.classId);
           notify.toast.success('Đã giao bài');
         }}
@@ -261,9 +267,23 @@ export default function TeacherAssignmentsPage() {
                 </Form.Item>
               </>
             ) : (
-              <Form.Item name="maxScore" label="Thang điểm">
-                <NumberInput min={1} max={100} />
-              </Form.Item>
+              <>
+                <Form.Item name="maxScore" label="Thang điểm">
+                  <NumberInput min={1} max={100} />
+                </Form.Item>
+                <div className="md:col-span-2">
+                  <p className="mb-2 flex items-center gap-1.5 text-[13px] font-medium text-ink">
+                    <Paperclip size={15} aria-hidden /> Đề bài của bạn
+                    <span className="font-normal text-ink-muted">— file đề, phiếu bài tập, audio... học viên tải về để làm</span>
+                  </p>
+                  <Form.Item name="attachFiles" valuePropName="value" className="!mb-3">
+                    <FileUpload maxFiles={5} maxSizeMB={50} kind={['document', 'spreadsheet', 'image', 'audio']} />
+                  </Form.Item>
+                  <Form.Item name="attachLink" label="Hoặc link đề (Google Drive, Docs...)" rules={[{ type: 'url', message: 'Link không hợp lệ' }]}>
+                    <TextInput icon={Link2} placeholder="https://" />
+                  </Form.Item>
+                </div>
+              </>
             )
           }
         </Form.Item>

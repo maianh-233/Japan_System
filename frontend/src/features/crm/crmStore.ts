@@ -95,7 +95,7 @@ export const useCrmStore = create<CrmState>((set, get) => ({
   },
 
   addConsultation: (input) => {
-    const c: Consultation = { ...input, id: `C-${Date.now()}`, createdAt: now() };
+    const c: Consultation = { ...input, id: `C-${Date.now()}${seq++}`, createdAt: now() };
     set((s) => ({
       consultations: [c, ...s.consultations],
       leads: s.leads.map((l) =>
@@ -109,7 +109,7 @@ export const useCrmStore = create<CrmState>((set, get) => ({
   createStudentFromLead: (leadId, input, staffName) => {
     const lead = get().leads.find((l) => l.id === leadId)!;
     const student: Student = {
-      id: `ST-${Date.now()}`,
+      id: `ST-${Date.now()}${seq}`,
       code: `HV${1000 + get().students.length + seq++}`,
       fullName: input.fullName,
       dob: input.dob,
@@ -125,7 +125,7 @@ export const useCrmStore = create<CrmState>((set, get) => ({
       leads: s.leads.map((l) => (l.id === leadId ? { ...l, status: 'won' } : l)),
       consultations: [
         {
-          id: `C-${Date.now()}`,
+          id: `C-${Date.now()}${seq++}`,
           leadId,
           channel: 'meeting',
           result: 'enrolled',
@@ -147,7 +147,7 @@ export const useCrmStore = create<CrmState>((set, get) => ({
       links: [...s.links, { leadId, studentId, relationship, createdAt: now() }],
       consultations: [
         {
-          id: `C-${Date.now()}`,
+          id: `C-${Date.now()}${seq++}`,
           leadId,
           channel: 'meeting',
           result: 'enrolled',

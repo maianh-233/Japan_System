@@ -36,6 +36,8 @@ export interface TeacherProfile {
   rate: { offline: number; online: number };
   /** Lịch rảnh: thứ (1=T2..7=CN) → ca */
   availability: Record<number, ShiftKey[]>;
+  /** Chi nhánh dạy thêm ngoài chi nhánh chính (`Employee.branchId`) — dùng khi xếp lớp / dạy thay */
+  extraBranchIds?: string[];
   bio?: string;
 }
 

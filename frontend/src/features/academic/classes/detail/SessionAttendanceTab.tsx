@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Modal, Popover, Radio } from 'antd';
+import { useMemo, useState } from 'react';
+import { Modal, Popover, QRCode, Radio } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import { CheckCheck, DoorOpen, Headset, QrCode, ScanLine, Smartphone, UserRound, X } from 'lucide-react';
 import { Button, EmptyState, Select, StatusTag, TextInput, TimeInput, UserCell, useNotify } from '@/components/common';
@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/cn';
 import { fmtDate } from '@/lib/date';
 import { hashString } from '@/lib/text';
+import { qrCodeOf, qrPayload } from '../attendanceQr';
 import { useClassStore } from '../classStore';
 import { canTakeAttendance, defaultRecords, rosterFor, summarize } from '../sessionUtils';
 import type { AttendanceMethod, AttendanceRecord, AttendanceStatus, ClassInfo, ClassSession, SupportEntry } from '../types';
@@ -23,8 +24,6 @@ const ATT_OPTIONS: { value: AttendanceStatus; label: string }[] = [
 
 /** Quét QR sau giờ bắt đầu quá số phút này → tự tính "Đi muộn" */
 export const LATE_AFTER_MIN = 10;
-/** Mã QR tự đổi sau mỗi chu kỳ (chống chụp màn hình gửi bạn) */
-const QR_TTL = 30;
 
 export const METHOD: Record<AttendanceMethod, { label: string; short: string; icon: typeof QrCode; cls: string }> = {
   qr: { label: 'Học viên tự quét QR', short: 'QR', icon: QrCode, cls: 'text-success-700' },
@@ -40,7 +39,7 @@ const toMin = (t: string) => {
 };
 const atTime = (t?: string) => (t ? dayjs().hour(toMin(t) / 60 | 0).minute(toMin(t) % 60).second(0) : undefined);
 /** Giờ "bây giờ" nếu đang trong buổi, ngoài ra lấy giờ bắt đầu */
-const nowOr = (s: ClassSession) => {
+export const nowOr = (s: ClassSession) => {
   const n = dayjs();
   return n.format('YYYY-MM-DD') === s.date && n.format('HH:mm') >= s.startTime && n.format('HH:mm') <= s.endTime ? n.format('HH:mm') : s.startTime;
 };
@@ -407,8 +406,11 @@ function EarlyLeave({ s, onSave }: { s: ClassSession; onSave: (t: string, reason
   );
 }
 
-/** Mã QR điểm danh — tự đổi mỗi 30 giây. (Mô phỏng: nút "HV quét" thay cho điện thoại học viên) */
-function QrModal({
+/**
+ * Mã QR điểm danh — CỐ ĐỊNH cho mỗi buổi (không cần đổi: nhân viên trung tâm còn xác nhận lại buổi học).
+ * (Mô phỏng: nút "HV quét" thay cho điện thoại học viên)
+ */
+export function QrModal({
   s,
   cls,
   scanned,
@@ -427,28 +429,17 @@ function QrModal({
   onScan: (studentId: string) => void;
   onClose: () => void;
 }) {
-  const [tick, setTick] = useState(0);
-  const [left, setLeft] = useState(QR_TTL);
-  useEffect(() => {
-    const t = setInterval(() => {
-      setLeft((l) => {
-        if (l <= 1) {
-          setTick((x) => x + 1);
-          return QR_TTL;
-        }
-        return l - 1;
-      });
-    }, 1000);
-    return () => clearInterval(t);
-  }, []);
-
-  const code = `${s.id}-${tick}`;
   return (
     <Modal open onCancel={onClose} footer={null} width={460} title={`Mã QR điểm danh · ${cls.code}`} destroyOnHidden>
       <div className="flex flex-col items-center gap-3">
-        <FakeQr seed={code} />
-        <p className="text-[13px] text-ink-muted">
-          Mã đổi sau <strong className="tabular text-ink">{left}s</strong> · Buổi {s.no} · {s.startTime}–{s.endTime}
+        <QRCode value={qrPayload(s)} size={256} bordered={false} className="!bg-white" errorLevel="M" />
+        <p className="text-center text-[13px] text-ink-muted">
+          Học viên mở Cổng học viên → <b className="text-ink">Quét QR điểm danh</b>
+          <br />
+          Không quét được? Nhập mã: <span className="tabular rounded-md bg-page px-2 py-0.5 font-mono text-base font-bold tracking-[0.2em] text-ink">{qrCodeOf(s.id)}</span>
+        </p>
+        <p className="text-xs text-ink-muted">
+          Buổi {s.no || '(học thêm)'} · {s.startTime}–{s.endTime} · mã cố định cho buổi này
         </p>
         <p className="tabular text-sm">
           Đã quét <strong>{scanned}</strong>/{total} học viên
@@ -474,7 +465,7 @@ function QrModal({
   );
 }
 
-/** Hình QR giả (lưới ô vuông theo hash) — khi có backend thay bằng thư viện QR thật */
+/** Hình QR giả (lưới ô vuông theo hash) — chỉ để trang trí, KHÔNG quét được. Điểm danh dùng QRCode thật (attendanceQr) */
 export function FakeQr({ seed, className }: { seed: string; className?: string }) {
   const n = 25;
   const cells: [number, number][] = [];

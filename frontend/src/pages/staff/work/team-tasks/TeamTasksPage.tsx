@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Form, Tabs } from 'antd';
 import dayjs from 'dayjs';
-import { AlarmClock, CheckCircle2, ListChecks, RotateCcw, Users } from 'lucide-react';
+import { AlarmClock, CheckCircle2, ChevronDown, ChevronUp, ListChecks, RotateCcw, Users } from 'lucide-react';
 import { Avatar, Button, DateInput, EmptyState, ModalForm, PageHeader, Select, StatCard, TextArea, TextInput, useNotify } from '@/components/common';
 import { DEPARTMENTS } from '@/features/hr/constants';
 import { useHrStore } from '@/features/hr/hrStore';
@@ -13,6 +13,9 @@ import { TaskDrawer } from '@/features/work/TaskDrawer';
 import type { TaskPriority, TaskRepeat } from '@/features/work/types';
 import { useWorkStore } from '@/features/work/workStore';
 import { cn } from '@/lib/cn';
+
+/** Số người hiện sẵn (≈ 2 hàng trên màn hình rộng); còn lại bấm “Xem tất cả” */
+const PEOPLE_PREVIEW = 8;
 
 interface Values {
   assigneeIds: string[];
@@ -40,6 +43,7 @@ export default function TeamTasksPage() {
   const [onlyMine, setOnlyMine] = useState(true);
   const [creating, setCreating] = useState<string[] | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
 
   const ids = useMemo(() => new Set(reports.map((r) => r.e.id)), [reports]);
   const teamTasks = useMemo(
@@ -63,6 +67,9 @@ export default function TeamTasksPage() {
     const x = teamTasks.filter((t) => t.assigneeId === id && t.status !== 'done');
     return { open: x.length, overdue: x.filter((t) => dueInfo(t)?.overdue).length };
   };
+  // Trực tiếp trước, rồi người đang có nhiều việc mở; người đang được lọc luôn hiện dù đang thu gọn
+  const people = [...reports].sort((a, b) => a.depth - b.depth || loadOf(b.e.id).open - loadOf(a.e.id).open || a.e.fullName.localeCompare(b.e.fullName, 'vi'));
+  const shownPeople = showAll ? people : [...people.slice(0, PEOPLE_PREVIEW), ...people.slice(PEOPLE_PREVIEW).filter((p) => p.e.id === who)];
   const card = (t: (typeof list)[number]) => (
     <TaskItem
       key={t.id}
@@ -112,9 +119,24 @@ export default function TeamTasksPage() {
         <StatCard label="Xong 7 ngày qua" value={teamTasks.filter((t) => t.completedAt && dayjs(t.completedAt).isAfter(dayjs().subtract(7, 'day'))).length} icon={CheckCircle2} tone="success" />
       </div>
 
-      {/* Nhân viên dưới quyền — bấm để lọc */}
-      <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
-        {reports.map(({ e, depth }) => {
+      {/* Nhân viên dưới quyền — lưới tự xuống hàng (không cuộn ngang), bấm để lọc */}
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <p className="text-[13px] font-medium text-ink-secondary">
+          Nhân viên dưới quyền ({reports.length})
+          {who && (
+            <button type="button" className="ml-2 font-normal text-primary-700 hover:underline" onClick={() => setWho(undefined)}>
+              Bỏ lọc
+            </button>
+          )}
+        </p>
+        {people.length > PEOPLE_PREVIEW && (
+          <Button icon={showAll ? ChevronUp : ChevronDown} size="sm" variant="ghost" onClick={() => setShowAll(!showAll)}>
+            {showAll ? 'Thu gọn' : `Xem tất cả (${people.length})`}
+          </Button>
+        )}
+      </div>
+      <div className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+        {shownPeople.map(({ e, depth }) => {
           const l = loadOf(e.id);
           const active = who === e.id;
           return (
@@ -122,7 +144,7 @@ export default function TeamTasksPage() {
               key={e.id}
               type="button"
               onClick={() => setWho(active ? undefined : e.id)}
-              className={cn('flex min-w-[190px] shrink-0 items-center gap-2.5 rounded-xl border p-2.5 text-left transition-colors', active ? 'border-primary-600 bg-primary-50' : 'border-line bg-surface hover:border-primary-300')}
+              className={cn('flex min-w-0 items-center gap-2.5 rounded-xl border p-2.5 text-left transition-colors', active ? 'border-primary-600 bg-primary-50' : 'border-line bg-surface hover:border-primary-300')}
             >
               <Avatar name={e.fullName} size="sm" />
               <span className="min-w-0 flex-1">

@@ -23,8 +23,10 @@ export interface AppShellProps {
   sidebarTitle?: string;
   /** Dòng phụ dưới logo (tên chi nhánh — cổng GV/HV) */
   logoSubtitle?: string;
-  /** Vùng bên phải header trước chuông (vd: chọn chi nhánh) */
+  /** Vùng bên phải header trước chuông (vd: chọn chi nhánh) — ẩn trên điện thoại */
   headerExtra?: ReactNode;
+  /** Ô / nút tìm kiếm toàn hệ thống — hiện ở mọi kích thước màn hình */
+  headerSearch?: ReactNode;
   /** Thêm vào đầu drawer mobile (vd: chọn chi nhánh) */
   drawerExtra?: ReactNode;
 }
@@ -53,6 +55,7 @@ export function AppShell({
   sidebarTitle,
   logoSubtitle,
   headerExtra,
+  headerSearch,
   drawerExtra,
 }: AppShellProps) {
   const { can, user } = useAuth();
@@ -126,6 +129,7 @@ export function AppShell({
             <Logo subtitle={logoSubtitle} />
           </NavLink>
           <div className="flex-1" />
+          {headerSearch}
           {headerExtra && <div className="hidden md:block">{headerExtra}</div>}
           {user && <NotificationBell portal={user.portal} />}
           <div className="mx-1 hidden h-8 w-px bg-line sm:block" aria-hidden />

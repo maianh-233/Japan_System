@@ -2,7 +2,7 @@ import { isTaught } from '@/features/academic/classes/sessionUtils';
 import { useState } from 'react';
 import { Checkbox, Form, Tabs } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
-import { BarChart3, BookOpenCheck, CalendarCheck, CalendarDays, Megaphone, Star, CirclePause, CirclePlay, Flag, Info, NotebookPen, Rocket, Users, XCircle } from 'lucide-react';
+import { ArrowUpRight, BarChart3, BookOpenCheck, CalendarCheck, CalendarDays, Megaphone, Star, CirclePause, CirclePlay, Flag, Info, NotebookPen, Rocket, Users, XCircle } from 'lucide-react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Button, DateInput, EmptyState, ModalForm, PageHeader, StatusTag, useConfirm, useNotify } from '@/components/common';
 import { useClassStore } from '@/features/academic/classes/classStore';
@@ -16,6 +16,9 @@ import { ClassOverviewTab } from '@/features/academic/classes/detail/ClassOvervi
 import { ClassProgressTab } from '@/features/academic/classes/detail/ClassProgressTab';
 import { ClassSessionsTab } from '@/features/academic/classes/detail/ClassSessionsTab';
 import { ClassStudentsTab } from '@/features/academic/classes/detail/ClassStudentsTab';
+import { ClassPromotionTab } from '@/features/academic/promotion/ClassPromotionTab';
+import { usePromotionStore } from '@/features/academic/promotion/promotionStore';
+import { seatActive } from '@/features/academic/promotion/promotionUtils';
 import { generateSessions } from '@/features/academic/classes/sessionGenerator';
 import type { ClassInfo } from '@/features/academic/classes/types';
 import { useCurriculumStore } from '@/features/academic/curriculum/curriculumStore';
@@ -24,8 +27,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { fmtDate } from '@/lib/date';
 import { getBranches } from '@/features/system/useBranches';
 
-type TabKey = 'overview' | 'students' | 'sessions' | 'attendance' | 'progress' | 'assignments' | 'exams' | 'reviews' | 'announcements';
-const TAB_KEYS: TabKey[] = ['overview', 'students', 'sessions', 'attendance', 'progress', 'assignments', 'exams', 'reviews', 'announcements'];
+type TabKey = 'overview' | 'students' | 'sessions' | 'attendance' | 'progress' | 'assignments' | 'exams' | 'reviews' | 'announcements' | 'promotion';
+const TAB_KEYS: TabKey[] = ['overview', 'students', 'sessions', 'attendance', 'progress', 'assignments', 'exams', 'reviews', 'announcements', 'promotion'];
 
 /** Trang quản lý 1 lớp: /admin/academic/classes/:id?tab=... */
 export default function ClassDetailPage() {
@@ -35,6 +38,7 @@ export default function ClassDetailPage() {
   const cls = useClassStore((s) => s.classes.find((c) => c.id === id));
   const sessions = useClassStore((s) => s.sessions);
   const enrollments = useStudentStore((s) => s.enrollments);
+  const promotions = usePromotionStore((s) => s.candidates);
   const tabParam = params.get('tab') as TabKey | null;
   const tab: TabKey = tabParam && TAB_KEYS.includes(tabParam) ? tabParam : 'overview';
   const setTab = (k: string) => setParams({ tab: k }, { replace: true });
@@ -52,6 +56,7 @@ export default function ClassDetailPage() {
   const done = mine.filter(isTaught).length;
   const enrolled = enrollments.filter((e) => e.classId === cls.id && (e.status === 'studying' || e.status === 'reserved')).length;
   const st = CLASS_STATUS[cls.status];
+  const heldIn = promotions.filter((c) => c.toClassId === cls.id && seatActive(c)).length;
   const label = (Icon: typeof Info, text: string) => (
     <span className="inline-flex items-center gap-1.5">
       <Icon size={16} aria-hidden /> {text}
@@ -88,7 +93,7 @@ export default function ClassDetailPage() {
           ['Lịch học', scheduleLabel(cls)],
           ['Khai giảng', `${fmtDate(effectiveStart(cls))}${cls.actualStartDate ? '' : ' (dự kiến)'}`],
           ['Kết thúc', `${fmtDate(cls.actualEndDate ?? cls.plannedEndDate)}${cls.actualEndDate ? '' : ' (dự kiến)'}`],
-          ['Sĩ số', `${enrolled}/${cls.maxStudents} (tối thiểu ${cls.minStudents})`],
+          ['Sĩ số', `${enrolled}${heldIn ? ` + ${heldIn} giữ chỗ` : ''}/${cls.maxStudents} (tối thiểu ${cls.minStudents})`],
           ['Tiến độ', `${done}/${totalSessionsOf(cls)} buổi · ${cls.totalHours} giờ`],
         ].map(([k, v]) => (
           <div key={k} className="rounded-[var(--radius-card)] border border-line bg-surface px-3 py-2.5">
@@ -117,6 +122,7 @@ export default function ClassDetailPage() {
             { key: 'exams', label: label(BookOpenCheck, 'Bài thi'), children: <ClassExamsTab cls={cls} /> },
             { key: 'reviews', label: label(Star, 'Đánh giá GV'), children: <ClassTeacherReviewsTab cls={cls} /> },
             { key: 'announcements', label: label(Megaphone, 'Thông báo'), children: <ClassAnnouncementsTab cls={cls} /> },
+            ...(cls.status !== 'cancelled' ? [{ key: 'promotion', label: label(ArrowUpRight, cls.status === 'enrolling' ? `Học viên lên lớp${heldIn ? ` (${heldIn})` : ''}` : 'Lên lớp'), children: <ClassPromotionTab cls={cls} /> }] : []),
           ]}
         />
       </div>
@@ -140,6 +146,9 @@ function StatusActions({ cls }: { cls: ClassInfo }) {
   const setEnrollmentStatus = useStudentStore((s) => s.setEnrollmentStatus);
   const curricula = useCurriculumStore((s) => s.curricula);
   const [dialog, setDialog] = useState<'start' | 'finish' | null>(null);
+  const promotions = usePromotionStore((s) => s.candidates);
+  const promoList = promotions.filter((c) => c.fromClassId === cls.id && c.status !== 'confirmed' && c.status !== 'declined');
+  const handOver = usePromotionStore((s) => s.handOver);
 
   if (!can('academic.classes')) return null;
   const active = enrollments.filter((e) => e.classId === cls.id && (e.status === 'studying' || e.status === 'reserved'));
@@ -272,7 +281,15 @@ function StatusActions({ cls }: { cls: ClassInfo }) {
         open={dialog === 'finish'}
         onClose={() => setDialog(null)}
         title={`Kết thúc lớp ${cls.code}`}
-        description={`${upcoming.length} buổi chưa dạy sẽ bị hủy · ${active.filter((e) => e.status === 'studying').length} học viên đang học chuyển sang "Hoàn thành"`}
+        description={
+          <>
+            {upcoming.length} buổi chưa dạy sẽ bị hủy · {active.filter((e) => e.status === 'studying').length} học viên đang học chuyển sang "Hoàn thành".
+            <br />
+            {promoList.length
+              ? `Lên lớp: ${promoList.length} học viên trong danh sách (${promoList.filter(seatActive).length} đang giữ chỗ) → giao cho Sale tư vấn.`
+              : 'Chưa có danh sách lên lớp — nên giữ chỗ cho học viên ở tab "Lên lớp" trước khi kết thúc.'}
+          </>
+        }
         submitAction="approve"
         submitText="Kết thúc lớp"
         successMessage="Đã kết thúc lớp"
@@ -281,6 +298,8 @@ function StatusActions({ cls }: { cls: ClassInfo }) {
           upcoming.forEach((s) => updateSession(s.id, { status: 'cancelled', note: 'Lớp kết thúc sớm' }));
           active.filter((e) => e.status === 'studying').forEach((e) => setEnrollmentStatus(e.id, 'completed'));
           updateClass(cls.id, { status: 'finished', actualEndDate: v.actualEndDate.format('YYYY-MM-DD') });
+          // Giao danh sách lên lớp cho Sale
+          handOver(cls.id);
         }}
       >
         <Form.Item name="actualEndDate" label="Ngày kết thúc thực tế" rules={[{ required: true, message: 'Chọn ngày' }]}>

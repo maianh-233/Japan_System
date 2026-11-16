@@ -16,6 +16,7 @@ import {
 import { cn } from '@/lib/cn';
 import { fmtDate, fmtDateTime, fromNow } from '@/lib/date';
 import { useAuth } from '@/hooks/useAuth';
+import { useOpenParam } from '@/hooks/useOpenParam';
 import { ALL_BRANCHES } from '@/types/auth';
 import { courseLabel, LEAD_SOURCE_OPTIONS, LEAD_SOURCES, LEAD_STATUS_OPTIONS, saleName, useSales } from '@/features/crm/constants';
 import { useMe } from '@/features/me/useMe';
@@ -25,6 +26,7 @@ import { isFollowUpOverdue, isSlaOverdue, useCrmStore } from '@/features/crm/crm
 import { formToLead, LeadFormFields, type LeadFormValues } from '@/features/crm/components/LeadFormFields';
 import { LeadDetailDrawer, type LeadTab } from '@/features/crm/components/LeadDetailDrawer';
 import { useHideLead } from '@/features/crm/useHideLead';
+import { LeadImportDialog } from '@/features/crm/LeadImportDialog';
 import type { Lead, LeadStatus } from '@/features/crm/types';
 
 /** Trang Lead — DỮ LIỆU GIẢ (store trong bộ nhớ, tải lại trang sẽ về dữ liệu mẫu). */
@@ -50,6 +52,7 @@ export default function LeadsPage() {
   const [showHidden, setShowHidden] = useState(false);
   const [selected, setSelected] = useState<Key[]>([]);
   const [creating, setCreating] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
   const [openTab, setOpenTab] = useState<LeadTab>('info');
 
@@ -57,6 +60,11 @@ export default function LeadsPage() {
     setOpenTab(tab);
     setOpenId(id);
   };
+  // Mở thẳng lead từ nơi khác (tìm kiếm Ctrl+K, thông báo): ?open=L-12
+  useOpenParam((id) => {
+    if (useCrmStore.getState().leads.find((l) => l.id === id)?.hidden) setShowHidden(true);
+    open(id);
+  });
 
   const studentCount = useMemo(() => {
     const m = new Map<string, number>();
@@ -203,6 +211,11 @@ export default function LeadsPage() {
           <>
             <Button action="export" variant="outline" collapseOnMobile onClick={() => notify.toast.info('Xuất Excel (giả lập)')} />
             {can('crm.leads') && (
+              <Button action="import" collapseOnMobile onClick={() => setImporting(true)}>
+                Nhập Excel
+              </Button>
+            )}
+            {can('crm.leads') && (
               <Button action="create" collapseOnMobile onClick={() => setCreating(true)}>
                 Thêm lead
               </Button>
@@ -316,6 +329,7 @@ export default function LeadsPage() {
       />
 
       {/* ===== Thêm lead thủ công ===== */}
+      <LeadImportDialog open={importing} onClose={() => setImporting(false)} onImported={() => setStatus('all')} />
       <ModalForm<LeadFormValues>
         open={creating}
         onClose={() => setCreating(false)}

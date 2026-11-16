@@ -2,8 +2,15 @@ import dayjs from 'dayjs';
 import { create } from 'zustand';
 import { useClassStore } from '@/features/academic/classes/classStore';
 import { recordActivity } from '@/features/system/activity';
+import { moveToTrash, registerRestorer } from '@/features/system/trash';
+import { nextInvoiceCode } from '@/features/system/settings';
+import { useSystemStore } from '@/features/system/systemStore';
 import { MOCK_ACCOUNTS, MOCK_ENROLLMENTS, MOCK_INVOICES } from '@/mocks/data/students';
 import { ACTIVE_ENROLLMENT } from './constants';
+
+/** Mã tạm duy nhất — tránh trùng khi thao tác hàng loạt trong cùng 1 mili-giây */
+let seq = 0;
+const uid = () => `${Date.now()}${++seq}`;
 import type { AccountStatus, Enrollment, EnrollmentStatus, Invoice, Payment, PortalAccount, Refund, StudyStatus, TuitionStatus } from './types';
 
 /**
@@ -18,7 +25,7 @@ interface StudentState {
   accounts: PortalAccount[];
 
   /** Ghi danh học viên vào lớp + sinh hóa đơn học phí (giá theo lớp) */
-  enroll: (studentId: string, classId: string, opts?: { discount?: number; dueDate?: string }) => void;
+  enroll: (studentId: string, classId: string, opts?: { discount?: number; dueDate?: string }) => { enrollment: Enrollment; invoice: Invoice } | undefined;
   setEnrollmentStatus: (enrollmentId: string, status: EnrollmentStatus, note?: string) => void;
   /** Học viên nghỉ: ghi danh → "Đã nghỉ", hủy phần học phí còn lại */
   dropEnrollment: (enrollmentId: string, reason: string) => void;
@@ -36,6 +43,8 @@ interface StudentState {
 
   addPayment: (invoiceId: string, payment: Omit<Payment, 'id'>) => void;
   addRefund: (invoiceId: string, refund: Omit<Refund, 'id'>) => void;
+  /** Hủy hóa đơn (đã được duyệt) → vào Thùng rác, khôi phục được trong hạn */
+  voidInvoice: (invoiceId: string, info: NonNullable<Invoice['voided']>) => void;
 
   /** Cấp tài khoản cổng (học viên / phụ huynh) */
   issueAccount: (input: Omit<PortalAccount, 'id' | 'createdAt' | 'status'>) => PortalAccount;
@@ -44,6 +53,12 @@ interface StudentState {
 
 const now = () => new Date().toISOString();
 
+/** Mã hóa đơn mới theo mẫu ở Cài đặt chung + tiền tố hóa đơn của chi nhánh (Hệ thống › Chi nhánh) */
+const invoiceCodeFor = (branchId: string, invoices: Invoice[]) => {
+  const b = useSystemStore.getState().branches.find((x) => x.id === branchId);
+  return nextInvoiceCode(b?.invoicePrefix ?? b?.code ?? branchId.toUpperCase(), invoices.map((i) => i.code));
+};
+
 export const useStudentStore = create<StudentState>((set, get) => ({
   enrollments: MOCK_ENROLLMENTS,
   invoices: MOCK_INVOICES,
@@ -51,11 +66,11 @@ export const useStudentStore = create<StudentState>((set, get) => ({
 
   enroll: (studentId, classId, opts) => {
     const c = useClassStore.getState().classes.find((x) => x.id === classId);
-    if (!c) return;
-    const e: Enrollment = { id: `E-${Date.now()}`, studentId, classId, status: 'studying', enrolledAt: now() };
+    if (!c) return undefined;
+    const e: Enrollment = { id: `E-${uid()}`, studentId, classId, status: 'studying', enrolledAt: now() };
     const inv: Invoice = {
-      id: `INV-${Date.now()}`,
-      code: `HD${2400 + get().invoices.length}`,
+      id: `INV-${uid()}`,
+      code: invoiceCodeFor(c.branchId, get().invoices),
       enrollmentId: e.id,
       amount: c.fee,
       discount: opts?.discount ?? 0,
@@ -65,6 +80,7 @@ export const useStudentStore = create<StudentState>((set, get) => ({
       refunds: [],
     };
     set((s) => ({ enrollments: [...s.enrollments, e], invoices: [...s.invoices, inv] }));
+    return { enrollment: e, invoice: inv };
   },
 
   setEnrollmentStatus: (enrollmentId, status, note) =>
@@ -119,7 +135,7 @@ export const useStudentStore = create<StudentState>((set, get) => ({
     const target = useClassStore.getState().classes.find((c) => c.id === targetClassId);
     if (!old || !target) return;
     const from = useClassStore.getState().classes.find((c) => c.id === old.classId);
-    const id = `E-${Date.now()}`;
+    const id = `E-${uid()}`;
     const next: Enrollment = {
       id,
       studentId: old.studentId,
@@ -130,8 +146,8 @@ export const useStudentStore = create<StudentState>((set, get) => ({
       note: `Chuyển từ lớp ${from?.code ?? old.classId} — ${opts.reason}`,
     };
     const inv: Invoice = {
-      id: `INV-${Date.now()}`,
-      code: `HD${2400 + get().invoices.length}`,
+      id: `INV-${uid()}`,
+      code: invoiceCodeFor(target.branchId, get().invoices),
       enrollmentId: id,
       amount: opts.amount,
       discount: Math.min(opts.amount, opts.credit),
@@ -156,7 +172,7 @@ export const useStudentStore = create<StudentState>((set, get) => ({
     if (!invoice) return;
     const enrollment = get().enrollments.find((item) => item.id === invoice.enrollmentId);
     const cls = enrollment && useClassStore.getState().classes.find((item) => item.id === enrollment.classId);
-    set((s) => ({ invoices: s.invoices.map((i) => (i.id === invoiceId ? { ...i, payments: [...i.payments, { ...payment, id: `P-${Date.now()}` }] } : i)) }));
+    set((s) => ({ invoices: s.invoices.map((i) => (i.id === invoiceId ? { ...i, payments: [...i.payments, { ...payment, id: `P-${uid()}` }] } : i)) }));
     recordActivity({
       category: 'finance',
       severity: 'info',
@@ -174,10 +190,19 @@ export const useStudentStore = create<StudentState>((set, get) => ({
   },
 
   addRefund: (invoiceId, refund) =>
-    set((s) => ({ invoices: s.invoices.map((i) => (i.id === invoiceId ? { ...i, refunds: [...i.refunds, { ...refund, id: `R-${Date.now()}` }] } : i)) })),
+    set((s) => ({ invoices: s.invoices.map((i) => (i.id === invoiceId ? { ...i, refunds: [...i.refunds, { ...refund, id: `R-${uid()}` }] } : i)) })),
+
+  voidInvoice: (invoiceId, info) => {
+    const inv = get().invoices.find((i) => i.id === invoiceId);
+    if (!inv) return;
+    const enr = get().enrollments.find((e) => e.id === inv.enrollmentId);
+    const cls = enr && useClassStore.getState().classes.find((c) => c.id === enr.classId);
+    moveToTrash({ kind: 'invoice', label: inv.code, detail: `${cls?.code ?? ''} · ${info.reason}`, branchId: cls?.branchId, payload: { id: inv.id, cancelled: inv.cancelled }, deletedBy: info.approvedBy });
+    set((s) => ({ invoices: s.invoices.map((i) => (i.id === invoiceId ? { ...i, cancelled: true, voided: info } : i)) }));
+  },
 
   issueAccount: (input) => {
-    const acc: PortalAccount = { ...input, id: `ACC-${Date.now()}`, status: 'active', createdAt: now() };
+    const acc: PortalAccount = { ...input, id: `ACC-${uid()}`, status: 'active', createdAt: now() };
     set((s) => ({ accounts: [...s.accounts, acc] }));
     recordActivity({
       category: 'permission',
@@ -288,3 +313,8 @@ export function groupByStudent(enrollments: Enrollment[], invoices: Invoice[]) {
   });
   return { enr, inv };
 }
+
+/** Khôi phục hóa đơn đã hủy (từ Thùng rác) → trở lại trạng thái trước khi hủy */
+registerRestorer<{ id: string; cancelled?: boolean }>('invoice', ({ id, cancelled }) =>
+  useStudentStore.setState((s) => ({ invoices: s.invoices.map((i) => (i.id === id ? { ...i, cancelled, voided: undefined } : i)) })),
+);

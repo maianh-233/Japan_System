@@ -13,6 +13,7 @@ export { DateRangeInput, type DateRange, type DateRangeInputProps } from './Date
 export { TimeInput, TimeRangeInput, TIME_FORMAT, type TimeInputProps, type TimeRange, type TimeRangeInputProps } from './TimeInput/TimeInput';
 export { ImagePicker, type ImagePickerProps, type ImageShape } from './ImagePicker/ImagePicker';
 export { FileUpload, FILE_KIND_EXTENSIONS, type FileKind, type FileUploadProps, type UploadItem } from './FileUpload/FileUpload';
+export { ImportDialog, type ImportColumn, type ImportDialogProps, type ImportRow, type RowCheck } from './ImportDialog/ImportDialog';
 
 // ===== Danh sách & dữ liệu =====
 export { DataTable, type DataColumn, type DataTableProps, type MobileRole, type ServerPagination, type SortState } from './DataTable/DataTable';

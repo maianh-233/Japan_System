@@ -1,9 +1,10 @@
 import { create } from 'zustand';
 import { MOCK_SESSIONS } from '@/mocks/data/attendance';
 import { MOCK_ASSIGNMENTS, MOCK_CLASSES } from '@/mocks/data/classes';
-import { MOCK_ANNOUNCEMENTS, MOCK_CARE_LOGS, MOCK_TEACHER_REVIEWS } from '@/mocks/data/classExtras';
+import { MOCK_ANNOUNCEMENTS, MOCK_CARE_LOGS, MOCK_EVALUATIONS, MOCK_TEACHER_REVIEWS } from '@/mocks/data/classExtras';
 import { MOCK_EXAM_RESULTS, MOCK_SUBMISSIONS } from '@/mocks/data/submissions';
-import type { Assignment, CareLog, ClassAnnouncement, ClassInfo, ClassSession, ExamResult, Submission, TeacherReview } from './types';
+import type { Assignment, CareLog, ClassAnnouncement, ClassInfo, ClassSession, ExamResult, StudentEvaluation, Submission, TeacherReview } from './types';
+import { moveToTrash, registerRestorer } from '@/features/system/trash';
 
 /**
  * Store LỚP HỌC GIẢ LẬP (trong bộ nhớ): lớp, buổi học, bài tập.
@@ -41,6 +42,12 @@ interface ClassState {
 
   addAnnouncement: (a: Omit<ClassAnnouncement, 'id'>) => void;
   addCareLog: (c: Omit<CareLog, 'id' | 'at'>) => void;
+
+  updateAssignment: (id: string, patch: Partial<Assignment>) => void;
+
+  evaluations: StudentEvaluation[];
+  /** Tạo mới hoặc sửa nhận xét cuối khóa (mỗi học viên / lớp 1 bản) */
+  saveEvaluation: (e: Omit<StudentEvaluation, 'id' | 'createdAt' | 'updatedAt'>) => void;
 }
 
 const now = () => new Date().toISOString();
@@ -75,8 +82,15 @@ export const useClassStore = create<ClassState>((set, get) => ({
 
   addAssignment: (a) =>
     set((s) => ({ assignments: [{ maxScore: 10, ...a, id: `A-${Date.now()}`, assignedAt: now() }, ...s.assignments] })),
-  removeAssignment: (id) =>
-    set((s) => ({ assignments: s.assignments.filter((a) => a.id !== id), submissions: s.submissions.filter((x) => x.assignmentId !== id) })),
+  removeAssignment: (id) => {
+    const a = get().assignments.find((x) => x.id === id);
+    if (a) {
+      const cls = get().classes.find((c) => c.id === a.classId);
+      const subs = get().submissions.filter((x) => x.assignmentId === id);
+      moveToTrash({ kind: 'assignment', label: a.title, detail: `${cls?.code ?? a.classId} · ${subs.length} bài nộp`, branchId: cls?.branchId, payload: { assignment: a, submissions: subs } });
+    }
+    set((s) => ({ assignments: s.assignments.filter((x) => x.id !== id), submissions: s.submissions.filter((x) => x.assignmentId !== id) }));
+  },
 
   submitAssignment: (sub) =>
     set((s) => {
@@ -93,4 +107,18 @@ export const useClassStore = create<ClassState>((set, get) => ({
 
   addAnnouncement: (a) => set((s) => ({ announcements: [{ ...a, id: `AN-${Date.now()}` }, ...s.announcements] })),
   addCareLog: (c) => set((s) => ({ careLogs: [{ ...c, id: `CL-${Date.now()}`, at: now() }, ...s.careLogs] })),
+
+  updateAssignment: (id, patch) => set((s) => ({ assignments: s.assignments.map((x) => (x.id === id ? { ...x, ...patch } : x)) })),
+
+  evaluations: MOCK_EVALUATIONS,
+  saveEvaluation: (e) =>
+    set((s) => {
+      const old = s.evaluations.find((x) => x.classId === e.classId && x.studentId === e.studentId);
+      if (old) return { evaluations: s.evaluations.map((x) => (x.id === old.id ? { ...x, ...e, updatedAt: now() } : x)) };
+      return { evaluations: [{ ...e, id: `EV-${Date.now()}`, createdAt: now(), updatedAt: now() }, ...s.evaluations] };
+    }),
 }));
+
+registerRestorer<{ assignment: Assignment; submissions: Submission[] }>('assignment', ({ assignment, submissions }) =>
+  useClassStore.setState((s) => ({ assignments: [assignment, ...s.assignments], submissions: [...s.submissions, ...submissions] })),
+);

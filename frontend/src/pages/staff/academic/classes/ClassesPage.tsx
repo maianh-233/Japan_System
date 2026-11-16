@@ -14,9 +14,9 @@ import {
   hoursPerSession,
   scheduleLabel,
   startDelayDays,
-  TEACHERS,
   teacherNames,
   totalSessionsOf,
+  useTeachers,
 } from '@/features/academic/classes/constants';
 import type { ClassInfo, ClassStatus } from '@/features/academic/classes/types';
 import { useCourseStore } from '@/features/academic/courses/courseStore';
@@ -48,6 +48,8 @@ export default function ClassesPage() {
   const [status, setStatus] = useState<ClassStatus | 'all'>('all');
   const [courseId, setCourseId] = useState<string>();
   const [teacherId, setTeacherId] = useState<string>();
+  // Bộ lọc gồm cả GV đã nghỉ — để tra lớp cũ
+  const teachers = useTeachers(true);
   const [creating, setCreating] = useState(false);
 
   const rows: Row[] = useMemo(
@@ -283,7 +285,7 @@ export default function ClassesPage() {
                 placeholder="Giáo viên"
                 value={teacherId}
                 onChange={setTeacherId}
-                options={TEACHERS.filter((t) => branchId === ALL_BRANCHES || t.branchIds.includes(branchId)).map((t) => ({ value: t.id, label: t.name }))}
+                options={teachers.filter((t) => branchId === ALL_BRANCHES || t.branchIds.includes(branchId)).map((t) => ({ value: t.id, label: t.name }))}
                 className="lg:!w-44"
               />
             </>

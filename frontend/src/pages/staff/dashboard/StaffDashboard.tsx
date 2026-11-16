@@ -8,6 +8,7 @@ import { sessionRoom, sessionTeachers } from '@/features/academic/classes/sessio
 import { useAdmissionStore } from '@/features/crm/admission/admissionStore';
 import { slaOf } from '@/features/crm/admission/routing';
 import { isSlaOverdue, useCrmStore } from '@/features/crm/crmStore';
+import { TodayWork } from '@/features/dashboard/TodayWork';
 import { REQUEST_TYPES } from '@/features/hr/constants';
 import { useInbox, sortPending } from '@/features/inbox/useInbox';
 import { shortCode } from '@/features/portal/usePortal';
@@ -73,6 +74,10 @@ export default function StaffDashboard() {
         <StatCard label="Lead mới tháng này" value={leadThis} icon={Target} tone="info" trend={leadPrev ? Math.round(((leadThis - leadPrev) / leadPrev) * 100) : undefined} trendLabel="so với tháng trước" onClick={() => navigate('/admin/crm/leads')} />
         <StatCard label="Thực thu tháng này" value={formatCurrency(report.money.thisMonth)} icon={Wallet} tone="success" trend={growth} trendLabel="so với tháng trước" onClick={() => navigate('/admin/finance/invoices')} />
         <StatCard label="Công nợ quá hạn" value={shortMoney(report.money.overdue)} icon={TriangleAlert} tone="warning" hint={`Tổng còn phải thu ${shortMoney(report.money.debt)}`} onClick={() => navigate('/admin/finance/debts')} />
+      </div>
+
+      <div className="mt-6">
+        <TodayWork />
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_400px]">

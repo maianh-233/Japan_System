@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { CircleCheck, CircleDashed, Eye, PhoneCall, type LucideIcon } from 'lucide-react';
 import type { Tone } from '@/components/common';
 import type { StudentStats } from '@/features/academic/classes/studentInsights';
+import { getSettings } from '@/features/system/settings';
 
 /**
  * Cảnh báo bỏ học = học viên ĐANG HỌC có dấu hiệu nghỉ: vắng nhiều / vắng liền, chuyên cần thấp, không nộp bài,
@@ -33,8 +34,9 @@ export const CARE_STAFF = ['Phạm Thị Hồng (Giáo vụ)', 'Lý Thanh Vy (Gi
 
 export function riskLevel(st: StudentStats): RiskLevel | undefined {
   if (!st.flags.length) return undefined;
-  if (st.risk >= 5 || st.attendance.streak >= 3) return 'high';
-  if (st.risk >= 3) return 'medium';
+  const { highFrom, mediumFrom } = getSettings().atRisk;
+  if (st.risk >= highFrom || st.attendance.streak >= 3) return 'high';
+  if (st.risk >= mediumFrom) return 'medium';
   return 'low';
 }
 

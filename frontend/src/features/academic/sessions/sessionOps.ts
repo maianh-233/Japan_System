@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { CheckCircle2, CircleDashed, Clock, HeartPulse, House, PlugZap, Radio, TriangleAlert, UserRoundCog, XCircle, type LucideIcon } from 'lucide-react';
 import type { Tone } from '@/components/common';
-import { ASSISTANTS, TEACHERS } from '../classes/constants';
+import { getTeachers, isAssistant } from '../classes/constants';
 import { sessionTeachers } from '../classes/sessionUtils';
 import type { ClassInfo, ClassSession, IncidentAction, IncidentReason, StaffRole } from '../classes/types';
 
@@ -40,7 +40,7 @@ export function staffOf(s: ClassSession, cls: ClassInfo): { id: string; role: St
   const add = (id: string, role: StaffRole) => !out.some((x) => x.id === id) && out.push({ id, role });
   sessionTeachers(s, cls).forEach((id) => add(id, cls.teacherIds.includes(id) ? 'teacher' : 'substitute'));
   (s.assistantIds ?? cls.assistantIds ?? []).forEach((id) => add(id, 'assistant'));
-  (s.teacherAttendance ?? []).forEach((t) => add(t.teacherId, t.role ?? (ASSISTANTS.some((a) => a.id === t.teacherId) ? 'assistant' : 'substitute')));
+  (s.teacherAttendance ?? []).forEach((t) => add(t.teacherId, t.role ?? (isAssistant(t.teacherId) ? 'assistant' : 'substitute')));
   return out;
 }
 
@@ -99,7 +99,7 @@ export function busyStaff(date: string, from: string, to: string, sessions: Clas
 
 /** Danh sách người có thể vào thay (GV của chi nhánh), kèm đánh dấu đang bận */
 export function takeoverOptions(cls: ClassInfo, busy: Map<string, string>, exclude: string[]) {
-  return TEACHERS.filter((t) => t.branchIds.includes(cls.branchId) && !exclude.includes(t.id)).map((t) => ({
+  return getTeachers().filter((t) => t.branchIds.includes(cls.branchId) && !exclude.includes(t.id)).map((t) => ({
     value: t.id,
     label: `${t.name}${t.type === 'jp' ? ' (GV Nhật)' : ''}${busy.has(t.id) ? ` — đang dạy ${busy.get(t.id)}` : ' — đang rảnh'}`,
     disabled: busy.has(t.id),

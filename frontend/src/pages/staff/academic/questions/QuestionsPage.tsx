@@ -6,6 +6,7 @@ import { useCurriculumStore } from '@/features/academic/curriculum/curriculumSto
 import { correctRate, Q_DIFFICULTY, Q_DIFFICULTY_OPTIONS, Q_FORMATS, Q_LEVELS, Q_SKILL_OPTIONS, Q_SKILLS, Q_STATUS, Q_STATUS_OPTIONS, rateTone } from '@/features/academic/questions/constants';
 import { plainText } from '@/features/academic/questions/Furigana';
 import { QuestionDetailDrawer } from '@/features/academic/questions/QuestionDetailDrawer';
+import { QuestionImportDialog } from '@/features/academic/questions/QuestionImportDialog';
 import { QuestionFormFields, type QuestionFormValues } from '@/features/academic/questions/QuestionFormFields';
 import { useQuestionStore, type QuestionInput } from '@/features/academic/questions/questionStore';
 import type { QLevel, Question } from '@/features/academic/questions/types';
@@ -44,6 +45,7 @@ export default function QuestionsPage() {
   const [selected, setSelected] = useState<Key[]>([]);
   const [dialog, setDialog] = useState<Dialog>(null);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [importing, setImporting] = useState(false);
 
   const rows: Row[] = useMemo(() => questions.map((q) => ({ ...q, plain: plainText(`${q.stem} ${q.options.join(' ')} ${q.passage ?? ''}`), rate: correctRate(q.stats) })), [questions]);
 
@@ -222,9 +224,11 @@ export default function QuestionsPage() {
         breadcrumb={[{ title: 'Đào tạo' }, { title: 'Ngân hàng câu hỏi' }]}
         actions={
           <>
-            <Button icon={FileSpreadsheet} variant="outline" collapseOnMobile onClick={() => notify.info({ title: 'Nhập từ Excel (giả lập)', description: 'Tải file mẫu → điền câu hỏi → tải lên. Câu nhập vào ở trạng thái "Chờ duyệt".' })}>
-              Nhập Excel
-            </Button>
+            {editable && (
+              <Button icon={FileSpreadsheet} variant="outline" collapseOnMobile onClick={() => setImporting(true)}>
+                Nhập Excel
+              </Button>
+            )}
             {editable && (
               <Button action="create" collapseOnMobile onClick={() => setDialog({ kind: 'create' })}>
                 Thêm câu hỏi
@@ -370,6 +374,7 @@ export default function QuestionsPage() {
 
       <QuestionDetailDrawer questionId={openId} editable={editable} onClose={() => setOpenId(null)} onEdit={(id) => setDialog({ kind: 'edit', id })} onOpen={setOpenId} />
       {confirmDialog}
+      <QuestionImportDialog open={importing} onClose={() => setImporting(false)} />
     </>
   );
 }

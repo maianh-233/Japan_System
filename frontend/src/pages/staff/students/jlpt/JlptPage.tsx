@@ -1,14 +1,14 @@
 import { useMemo, useState, type Key } from 'react';
 import { Form, Tooltip } from 'antd';
-import dayjs from 'dayjs';
-import { Bell, CalendarDays, Check, ClipboardPen, FileWarning, Percent, Ticket, Trophy, UserPlus, Users, Wallet, X } from 'lucide-react';
-import { Button, DataTable, ModalForm, NumberInput, PageHeader, Select, StatCard, StatusTag, UserCell, useNotify, type DataColumn } from '@/components/common';
+import dayjs, { type Dayjs } from 'dayjs';
+import { Award, Bell, CalendarDays, Check, ClipboardPen, FileWarning, Percent, Ticket, Trophy, UserPlus, Users, Wallet, X, PackageCheck, HandHelping } from 'lucide-react';
+import { Button, DataTable, DateInput, ModalForm, NumberInput, PageHeader, Select, StatCard, StatusTag, TextInput, UserCell, useNotify, type DataColumn } from '@/components/common';
 import { useClassStore } from '@/features/academic/classes/classStore';
 import { teacherName } from '@/features/academic/classes/constants';
 import type { QLevel } from '@/features/academic/questions/types';
 import { Q_LEVELS } from '@/features/academic/questions/constants';
 import { useCrmStore } from '@/features/crm/crmStore';
-import { DOCS, JLPT_FEE, JLPT_SESSIONS, JLPT_STATUS, JLPT_VENUES, judge, PASS_TOTAL, SECTIONS, sessionPhase, useJlptStore, type JlptReg, type JlptStatus } from '@/features/student/jlpt/jlpt';
+import { CERT_STAGE, certStage, DOCS, JLPT_FEE, JLPT_SESSIONS, JLPT_STATUS, JLPT_VENUES, judge, PASS_TOTAL, SECTIONS, sessionPhase, useJlptStore, type JlptReg, type JlptStatus } from '@/features/student/jlpt/jlpt';
 import { useStudentStore } from '@/features/student/studentStore';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/cn';
@@ -29,7 +29,7 @@ interface Row extends JlptReg {
 
 /** Thi JLPT — DỮ LIỆU GIẢ. */
 export default function JlptPage() {
-  const { branchId, currentBranch } = useAuth();
+  const { branchId, currentBranch, user } = useAuth();
   const notify = useNotify();
   const regs = useJlptStore((s) => s.regs);
   const add = useJlptStore((s) => s.add);
@@ -46,6 +46,7 @@ export default function JlptPage() {
   const [selected, setSelected] = useState<Key[]>([]);
   const [registering, setRegistering] = useState(false);
   const [scoring, setScoring] = useState<Row | null>(null);
+  const [certFor, setCertFor] = useState<Row | null>(null);
 
   const session = JLPT_SESSIONS.find((s) => s.id === sessionId)!;
   const phase = sessionPhase(session);
@@ -191,6 +192,43 @@ export default function JlptPage() {
                 '—'
               ),
           },
+          {
+            key: 'cert',
+            title: 'Chứng chỉ gốc',
+            width: 210,
+            render: (_, r) => {
+              if (!r.result?.passed) return <span className="text-ink-muted">—</span>;
+              const stage = certStage(r);
+              return (
+                <span className="flex flex-col items-start gap-1 leading-5">
+                  <StatusTag tone={CERT_STAGE[stage].tone} icon={Award} size="sm">
+                    {stage === 'waiting' ? 'Chờ về' : stage === 'received' ? 'Đã về — chờ phát' : 'Đã phát'}
+                  </StatusTag>
+                  {r.certificate && <span className="font-mono text-xs text-ink-muted">{r.certificate.no}</span>}
+                  {stage === 'waiting' && (
+                    <Button size="sm" variant="ghost" icon={PackageCheck} onClick={(e) => { e.stopPropagation(); setCertFor(r); }}>
+                      Nhận về
+                    </Button>
+                  )}
+                  {stage === 'received' && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      tone="success"
+                      icon={HandHelping}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        update(r.id, { certificate: { ...r.certificate!, handedAt: new Date().toISOString(), handedBy: user?.fullName ?? 'Giáo vụ', handedTo: r.name } });
+                        notify.toast.success(`Đã phát chứng chỉ cho ${r.name}`);
+                      }}
+                    >
+                      Phát cho HV
+                    </Button>
+                  )}
+                </span>
+              );
+            },
+          },
         ] as DataColumn<Row>[])),
     {
       key: 'status',
@@ -219,9 +257,9 @@ export default function JlptPage() {
   return (
     <>
       <PageHeader
-        title="Thi JLPT"
-        subtitle={`Đăng ký, hồ sơ, lệ phí, phiếu dự thi và kết quả kỳ thi tháng 7 & 12 · ${currentBranch ? `Chi nhánh ${currentBranch.name}` : 'Toàn hệ thống'}`}
-        breadcrumb={[{ title: 'Học viên' }, { title: 'Thi JLPT' }]}
+        title="Chứng chỉ JLPT"
+        subtitle={`Học viên thi JLPT qua trung tâm: đăng ký, hồ sơ, lệ phí, phiếu dự thi, kết quả, nhận & phát chứng chỉ gốc (do hội đồng thi cấp — khác chứng nhận hoàn thành khóa) · ${currentBranch ? `Chi nhánh ${currentBranch.name}` : 'Toàn hệ thống'}`}
+        breadcrumb={[{ title: 'Học viên' }, { title: 'Chứng chỉ JLPT' }]}
         actions={
           phase === 'upcoming' && (
             <Button icon={UserPlus} onClick={() => setRegistering(true)} collapseOnMobile>
@@ -446,6 +484,24 @@ export default function JlptPage() {
 
       {/* Nhập điểm */}
       {scoring && <ScoreModal row={scoring} onClose={() => setScoring(null)} onSave={(scores, absent) => update(scoring.id, absent ? { status: 'absent', scores: undefined } : { status: 'done', scores })} />}
+      <ModalForm<{ no: string; receivedAt: Dayjs }>
+        key={`cert-${certFor?.id}`}
+        open={Boolean(certFor)}
+        onClose={() => setCertFor(null)}
+        title={`Nhận chứng chỉ gốc · ${certFor?.name ?? ''} (JLPT ${certFor?.level ?? ''})`}
+        description="Chứng chỉ do hội đồng thi gửi về trung tâm. Lưu số chứng chỉ để tra cứu; học viên được báo đến nhận."
+        submitAction="save"
+        successMessage="Đã ghi nhận chứng chỉ về — học viên được thông báo đến nhận"
+        initialValues={{ receivedAt: dayjs() }}
+        onSubmit={(v) => update(certFor!.id, { certificate: { no: v.no.trim(), receivedAt: v.receivedAt.format('YYYY-MM-DD'), receivedBy: user?.fullName ?? 'Giáo vụ' } })}
+      >
+        <Form.Item name="no" label="Số chứng chỉ" rules={[{ required: true, message: 'Nhập số chứng chỉ' }]}>
+          <TextInput placeholder="Vd: N3A123456789" />
+        </Form.Item>
+        <Form.Item name="receivedAt" label="Ngày về trung tâm" rules={[{ required: true }]}>
+          <DateInput />
+        </Form.Item>
+      </ModalForm>
     </>
   );
 }

@@ -11,6 +11,7 @@ import {
   ClipboardCheck,
   Clock,
   History,
+  Flag,
   Info,
   LogIn,
   MapPin,
@@ -33,7 +34,7 @@ import { fmtDate } from '@/lib/date';
 import { EXAM_KINDS } from '../../curriculum/constants';
 import { useCurriculumStore } from '../../curriculum/curriculumStore';
 import { useClassStore } from '../classStore';
-import { TEACHERS, teacherName, WEEKDAYS, weekdayOf } from '../constants';
+import { LESSON_COVERAGE, teacherName, useTeachers, WEEKDAYS, weekdayOf } from '../constants';
 import { canTakeAttendance, notStarted, originOf, SESSION_ORIGIN, sessionRoom, summarize } from '../sessionUtils';
 import type { AttendanceStatus, ClassInfo, ClassSession, TeacherAttendance } from '../types';
 import { SessionAttendanceTab } from './SessionAttendanceTab';
@@ -440,6 +441,20 @@ function InfoTab({
         </h3>
         {s.teacherLog ? (
           <div className="flex flex-col gap-2 rounded-[var(--radius-card)] bg-page px-4 py-3 text-[13px]">
+            {s.teacherLog.coverage && (
+              <div className="flex flex-wrap items-center gap-2">
+                <StatusTag tone={LESSON_COVERAGE[s.teacherLog.coverage].tone} icon={Flag} size="sm">
+                  {LESSON_COVERAGE[s.teacherLog.coverage].label}
+                </StatusTag>
+                {s.teacherLog.coverage === 'partial' &&
+                  (() => {
+                    const chapters = curriculum?.lessons.find((l) => l.id === s.lessonId)?.chapters ?? [];
+                    const left = chapters.filter((c) => !(s.teacherLog!.coveredChapterIds ?? []).includes(c.id));
+                    return left.length > 0 && <span className="text-warning-700">Còn dở: {left.map((c) => c.title).join(', ')}</span>;
+                  })()}
+                {s.teacherLog.endedAt && <span className="text-xs text-ink-muted">GV kết thúc buổi lúc {dayjs(s.teacherLog.endedAt).format('HH:mm DD/MM')}</span>}
+              </div>
+            )}
             <p className="text-ink">{s.teacherLog.content}</p>
             {s.teacherLog.homework && (
               <p>
@@ -505,6 +520,7 @@ function InfoTab({
 function TeachersTab({ cls, s, editable }: { cls: ClassInfo; s: ClassSession; editable: boolean }) {
   const notify = useNotify();
   const updateSession = useClassStore((st) => st.updateSession);
+  const teachers = useTeachers();
   const staff = staffOf(s, cls);
   const [rows, setRows] = useState<TeacherAttendance[]>(() => {
     const saved = new Map((s.teacherAttendance ?? []).map((t) => [t.teacherId, t]));
@@ -546,7 +562,7 @@ function TeachersTab({ cls, s, editable }: { cls: ClassInfo; s: ClassSession; ed
       )}
       {rows.map((r) => {
         const worked = r.status === 'absent' ? 0 : minutes(r.checkIn, r.checkOut);
-        const substituteOptions = TEACHERS.filter((t) => t.id !== r.teacherId && t.branchIds.includes(cls.branchId)).map((t) => ({ value: t.id, label: t.name }));
+        const substituteOptions = teachers.filter((t) => t.id !== r.teacherId && t.branchIds.includes(cls.branchId)).map((t) => ({ value: t.id, label: t.name }));
         return (
           <div key={r.teacherId} className="flex flex-col gap-3 rounded-[var(--radius-card)] border border-line p-4">
             <div className="flex flex-wrap items-center gap-2">

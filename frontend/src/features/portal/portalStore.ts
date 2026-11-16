@@ -5,6 +5,7 @@ import { recordActivity } from '@/features/system/activity';
 import { useClassStore } from '@/features/academic/classes/classStore';
 import type { AttendanceRecord } from '@/features/academic/classes/types';
 import type { CancelRequest, CardProgress, FlashDeck, LeaveRequest, SubInvite, TeacherDoc } from './types';
+import { moveToTrash, registerRestorer } from '@/features/system/trash';
 
 /** Store CỔNG giả lập. Khi có backend: thay hàm bằng gọi API, giữ nguyên chữ ký. */
 
@@ -165,7 +166,11 @@ export const usePortalStore = create<PortalState>((set, get) => ({
 
   addTeacherDoc: (d) => set((s) => ({ teacherDocs: [{ ...d, id: `TD-${++seq}`, createdAt: now(), viewedBy: [] }, ...s.teacherDocs] })),
   updateTeacherDoc: (id, patch) => set((s) => ({ teacherDocs: s.teacherDocs.map((x) => (x.id === id ? { ...x, ...patch } : x)) })),
-  removeTeacherDoc: (id) => set((s) => ({ teacherDocs: s.teacherDocs.filter((x) => x.id !== id) })),
+  removeTeacherDoc: (id) => {
+    const d = usePortalStore.getState().teacherDocs.find((x) => x.id === id);
+    if (d) moveToTrash({ kind: 'teacher_doc', label: d.title, detail: d.fileName, payload: d });
+    set((s) => ({ teacherDocs: s.teacherDocs.filter((x) => x.id !== id) }));
+  },
   viewTeacherDoc: (id, studentId) =>
     set((s) => ({ teacherDocs: s.teacherDocs.map((x) => (x.id === id && !x.viewedBy.includes(studentId) ? { ...x, viewedBy: [...x.viewedBy, studentId] } : x)) })),
 
@@ -249,3 +254,5 @@ function syncLeaveToSession(lr: LeaveRequest) {
   });
   updateSession(s.id, { records });
 }
+
+registerRestorer<TeacherDoc>('teacher_doc', (d) => usePortalStore.setState((s) => ({ teacherDocs: [d, ...s.teacherDocs] })));

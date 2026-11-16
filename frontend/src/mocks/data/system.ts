@@ -65,6 +65,7 @@ export const MOCK_ROLES: Role[] = [
     grants: g({
       'dashboard.*': ['*', 'all'], 'crm.*': ['*', 'all'], 'students.*': ['*', 'all'], 'academic.*': ['*', 'all'], 'library.*': ['*', 'all'],
       'finance.*': ['*', 'all'], 'hr.*': ['*', 'all'], 'work.*': ['*', 'all'], 'system.branches': ['view,update', 'all'], 'system.audit': ['*', 'all'],
+      'system.approvals': ['view,approve', 'all'], 'system.trash': ['*', 'all'], 'system.settings': ['view,update', 'all'],
     }),
   },
   {
@@ -72,23 +73,25 @@ export const MOCK_ROLES: Role[] = [
     grants: g({
       'dashboard.*': ['*', 'branch'], 'crm.*': ['*', 'branch'], 'students.*': ['*', 'branch'], 'academic.*': ['*', 'branch'], 'library.*': ['*', 'branch'],
       'finance.*': ['view,create,update,export,approve', 'branch'], 'hr.*': ['*', 'branch'], 'work.*': ['*', 'branch'],
+      'system.approvals': ['view,approve', 'branch'],
     }),
   },
   {
     id: 'R-GV', name: 'Giáo vụ', description: 'Học viên, lớp, buổi học, điểm danh; tạo hóa đơn khi ghi danh.', system: true, ...base,
     grants: g({
-      'dashboard.overview': ['view', 'branch'], 'students.*': ['view,create,update,export', 'branch'], 'academic.*': ['view,create,update,export', 'branch'],
+      'dashboard.overview': ['view', 'branch'], 'students.*': ['view,create,update,export', 'branch'], 'academic.*': ['view,create,update,export', 'branch'], 'crm.promotions': ['view', 'branch'],
       'academic.questions': ['view,create,update', 'own'], 'library.documents': ['view,create', 'branch'], 'finance.invoices': ['view,create', 'branch'], ...SELF,
     }),
   },
   {
     id: 'R-KT', name: 'Kế toán', description: 'Học phí, hóa đơn, đối soát, công nợ, lương toàn hệ thống.', system: true, ...base,
-    grants: g({ 'dashboard.*': ['view,export', 'all'], 'finance.*': ['*', 'all'], 'students.profiles': ['view', 'all'], 'hr.timesheets': ['view,export', 'all'], ...SELF }),
+    grants: g({ 'dashboard.*': ['view,export', 'all'], 'finance.*': ['*', 'all'], 'system.approvals': ['view,approve', 'all'], 'students.profiles': ['view', 'all'], 'hr.timesheets': ['view,export', 'all'], ...SELF }),
   },
   {
     id: 'R-SALE', name: 'Sale', description: 'Tư vấn lead được giao, gửi test xếp lớp.', system: true, ...base,
     grants: g({
       'dashboard.overview': ['view', 'own'], 'crm.leads': ['view,create,update', 'own'], 'crm.placement-tests': ['view,create', 'branch'], 'crm.campaigns': ['view', 'all'],
+      'crm.appointments': ['view,create,update', 'branch'], 'crm.funnel': ['view', 'own'], 'crm.message-templates': ['view', 'all'], 'crm.promotions': ['view,update', 'own'],
       'students.profiles': ['view', 'branch'], 'work.shifts': ['view', 'own'], 'work.handover': ['view,create', 'own'], ...SELF,
     }),
   },
@@ -100,7 +103,7 @@ export const MOCK_ROLES: Role[] = [
   {
     id: 'R-LT', name: 'Lễ tân', description: 'Tiếp khách, nhập lead đến trực tiếp, thu tiền tại quầy.', system: false, updatedAt: ago(60 * 24 * 12), updatedBy: 'Phạm Thu Trang',
     grants: g({
-      'crm.leads': ['view,create', 'branch'], 'students.profiles': ['view', 'branch'], 'academic.sessions': ['view', 'branch'], 'academic.rooms': ['view', 'branch'],
+      'crm.leads': ['view,create', 'branch'], 'crm.appointments': ['*', 'branch'], 'students.profiles': ['view', 'branch'], 'academic.sessions': ['view', 'branch'], 'academic.rooms': ['view', 'branch'],
       'finance.invoices': ['view,create', 'branch'], 'work.shifts': ['view', 'own'], 'work.handover': ['view,create', 'own'], ...SELF,
     }),
   },
@@ -108,6 +111,7 @@ export const MOCK_ROLES: Role[] = [
     id: 'R-TL', name: 'Trưởng nhóm Sale', description: 'Như Sale + xem lead cả chi nhánh, chia lead, xem hoa hồng nhóm.', system: false, updatedAt: ago(60 * 24 * 5), updatedBy: 'Lê Hoàng Nam',
     grants: g({
       'dashboard.*': ['view', 'branch'], 'crm.leads': ['*', 'branch'], 'crm.lead-rules': ['view,update', 'branch'], 'crm.placement-tests': ['*', 'branch'], 'crm.campaigns': ['view', 'all'],
+      'crm.appointments': ['*', 'branch'], 'crm.funnel': ['view', 'branch'], 'crm.message-templates': ['*', 'branch'], 'crm.promotions': ['*', 'branch'],
       'students.profiles': ['view', 'branch'], 'finance.commissions': ['view', 'branch'], 'work.shifts': ['view,approve', 'branch'], 'work.handover': ['*', 'branch'], ...SELF,
     }),
   },

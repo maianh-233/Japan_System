@@ -12,6 +12,7 @@ import { ACTIVE_ENROLLMENT, STUDY_STATUS, STUDY_STATUS_OPTIONS } from '@/feature
 import { groupByStudent, studyStatusOf, summarizeTuition, useStudentStore } from '@/features/student/studentStore';
 import type { AccountStatus, StudyStatus, TuitionStatus } from '@/features/student/types';
 import { useHideStudent } from '@/features/student/useHideStudent';
+import { StudentImportDialog } from '@/features/student/StudentImportDialog';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/cn';
 import { fmtDate } from '@/lib/date';
@@ -41,7 +42,7 @@ const ACCOUNT_FILTER = [
 
 /** Hồ sơ học viên — DỮ LIỆU GIẢ (store trong bộ nhớ). */
 export default function StudentsPage() {
-  const { branchId, currentBranch } = useAuth();
+  const { branchId, currentBranch, can } = useAuth();
   const notify = useNotify();
   const [params, setParams] = useSearchParams();
   const students = useCrmStore((s) => s.students);
@@ -56,6 +57,7 @@ export default function StudentsPage() {
   const [account, setAccount] = useState<string>();
   const [showHidden, setShowHidden] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [importing, setImporting] = useState(false);
   const [openTab, setOpenTab] = useState<StudentTab>('info');
 
   const open = (id: string, tab: StudentTab = 'info') => {
@@ -206,7 +208,16 @@ export default function StudentsPage() {
         title="Hồ sơ học viên"
         subtitle={`Học viên đã đăng ký học · ${currentBranch ? `Chi nhánh ${currentBranch.name}` : 'Toàn hệ thống'}`}
         breadcrumb={[{ title: 'Học viên' }, { title: 'Hồ sơ học viên' }]}
-        actions={<Button action="export" variant="outline" collapseOnMobile onClick={() => notify.toast.info('Xuất Excel (giả lập)')} />}
+        actions={
+          <>
+            <Button action="export" variant="outline" collapseOnMobile onClick={() => notify.toast.info('Xuất Excel (giả lập)')} />
+            {can('students.profiles') && (
+              <Button action="import" collapseOnMobile onClick={() => setImporting(true)}>
+                Nhập Excel
+              </Button>
+            )}
+          </>
+        }
       />
 
       {/* Lọc nhanh theo trạng thái học */}
@@ -291,6 +302,7 @@ export default function StudentsPage() {
 
       <StudentDetailDrawer studentId={openId} initialTab={openTab} onClose={() => setOpenId(null)} />
       {confirmDialog}
+      <StudentImportDialog open={importing} onClose={() => setImporting(false)} />
     </>
   );
 }

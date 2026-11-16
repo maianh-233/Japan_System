@@ -11,6 +11,7 @@ import { useHrStore } from '@/features/hr/hrStore';
 import { contractEndsIn, toMin } from '@/features/hr/hrUtils';
 import type { Department, Employee, EmployeeKind } from '@/features/hr/types';
 import { useAuth } from '@/hooks/useAuth';
+import { useOpenParam } from '@/hooks/useOpenParam';
 import { cn } from '@/lib/cn';
 import { fmtDate } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
@@ -44,6 +45,10 @@ export function PeoplePage({ mode }: { mode: 'staff' | 'teacher' }) {
   const [level, setLevel] = useState<string>();
   const [showQuit, setShowQuit] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
+  useOpenParam((id) => {
+    if (employees.find((e) => e.id === id)?.status === 'quit') setShowQuit(true);
+    setOpenId(id);
+  });
   const [dialog, setDialog] = useState<Dialog>(null);
 
   const monthStart = dayjs().startOf('month').format('YYYY-MM-DD');

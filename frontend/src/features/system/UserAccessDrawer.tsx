@@ -13,6 +13,8 @@ import { ACCOUNT_STATUS, PERM_ACTIONS, PERM_CATALOG, PERM_OPTIONS, PERM_SCOPES, 
 import { useSystemStore } from './systemStore';
 import type { PermAction, PermOverride, PermScope, RoleAssignment } from './types';
 import { useActor } from './useActor';
+import { useAuth } from '@/hooks/useAuth';
+import { isFinancePerm, useApprovalStore } from './approvals';
 
 const branchNames = (ids: string[]) => (ids.length ? ids.map((id) => getBranches(false).find((b) => b.id === id)?.name ?? id).join(', ') : 'Mọi chi nhánh');
 const SCOPE_TONE: Record<PermScope, string> = { own: 'bg-warning-100 text-warning-700', branch: 'bg-primary-100 text-primary-700', all: 'bg-success-100 text-success-700' };
@@ -32,6 +34,9 @@ export function UserAccessDrawer({ userId, editable, onClose }: Props) {
   const { confirm, confirmDialog } = useConfirm();
   const { actor, granter, employeeId } = useActor();
   const { roles, updateAccess, addOverride, removeOverride } = useSystemStore();
+  const { user } = useAuth();
+  const requestApproval = useApprovalStore((s) => s.request);
+  const me = { id: user?.id ?? '', name: user?.fullName ?? actor.name };
   const access = useSystemStore((s) => s.access.find((a) => a.userId === userId));
   const emp = useHrStore((s) => s.employees.find((e) => e.id === userId));
 
@@ -60,6 +65,18 @@ export function UserAccessDrawer({ userId, editable, onClose }: Props) {
       return;
     }
     const fmt = (l: RoleAssignment[]) => l.map((a) => `${roles.find((r) => r.id === a.roleId)?.name} @ ${branchNames(a.branchIds)}`).join('; ');
+    // Vai trò mới làm người này CÓ THÊM quyền tài chính → phải qua người thứ hai duyệt
+    const before = new Set([...effectivePerms(access, roles).keys()].filter(isFinancePerm));
+    const gained = [...effectivePerms({ ...access, roles: list }, roles).keys()].filter((p) => isFinancePerm(p) && !before.has(p));
+    if (gained.length) {
+      requestApproval(
+        { kind: 'finance_perm', title: `Vai trò mới cho ${emp.fullName} (thêm ${gained.length} quyền tài chính)`, detail: gained.slice(0, 6).join(', '), payload: { kind: 'finance_perm', userId: access.userId, userName: emp.fullName, change: { type: 'roles', roles: list, before: fmt(access.roles), after: fmt(list) } } },
+        me,
+      );
+      setDraft(null);
+      notify.info({ title: 'Đã gửi yêu cầu duyệt', description: `Vai trò mới có quyền tài chính (${gained.slice(0, 3).join(', ')}${gained.length > 3 ? '…' : ''}) — cần một người khác duyệt mới có hiệu lực.` });
+      return;
+    }
     updateAccess(access.userId, { roles: list }, actor, { severity: 'warning', action: 'Đổi vai trò', changes: [{ field: 'Vai trò', before: fmt(access.roles), after: fmt(list) }] });
     setDraft(null);
     notify.toast.success('Đã lưu vai trò');
@@ -271,11 +288,17 @@ export function UserAccessDrawer({ userId, editable, onClose }: Props) {
         title={`Quyền lẻ cho ${emp.fullName}`}
         description="Dùng cho nhu cầu tạm thời (thay người nghỉ phép, hỗ trợ đợt cao điểm). Nên đặt ngày hết hạn."
         submitAction="save"
-        successMessage="Đã lưu quyền lẻ"
+        successMessage="Đã ghi nhận"
         initialValues={{ effect: 'grant', scope: 'branch', until: dayjs().add(7, 'day') }}
         onSubmit={(v) => {
           if (v.effect === 'grant' && !canGrant(granter, v.perm, v.scope ?? 'own')) throw new Error('Bạn chỉ cấp được quyền mình đang có, với phạm vi không rộng hơn của mình');
-          addOverride(access.userId, { perm: v.perm, effect: v.effect, scope: v.effect === 'grant' ? v.scope : undefined, until: v.until?.endOf('day').toISOString(), reason: v.reason }, actor);
+          const ov = { perm: v.perm, effect: v.effect, scope: v.effect === 'grant' ? v.scope : undefined, until: v.until?.endOf('day').toISOString(), reason: v.reason };
+          if (v.effect === 'grant' && isFinancePerm(v.perm)) {
+            requestApproval({ kind: 'finance_perm', title: `Cấp quyền ${v.perm} cho ${emp.fullName}`, detail: v.reason, payload: { kind: 'finance_perm', userId: access.userId, userName: emp.fullName, change: { type: 'override', override: ov } } }, me);
+            notify.info({ title: 'Đã gửi yêu cầu duyệt', description: 'Quyền tài chính chỉ có hiệu lực khi một người khác duyệt.' });
+            return;
+          }
+          addOverride(access.userId, ov, actor);
           setTab('overrides');
         }}
       >

@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Drawer, Form, Radio } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
-import { BellRing, Copy, HandCoins, Printer, QrCode, Undo2 } from 'lucide-react';
-import { Button, DateInput, ModalForm, NumberInput, Select, StatusTag, TextInput, UserCell, useNotify } from '@/components/common';
+import { BellRing, Copy, FileX2, HandCoins, Hourglass, Printer, QrCode, Undo2 } from 'lucide-react';
+import { Button, DateInput, ModalForm, NumberInput, Select, StatusTag, TextInput, UserCell, useConfirm, useNotify } from '@/components/common';
+import { APPROVAL_KIND, pendingRefundOf, pendingVoidOf, refundNeedsApproval, refundTitle, useApprovalStore } from '@/features/system/approvals';
 import { FakeQr } from '@/features/academic/classes/detail/SessionAttendanceTab';
 import { useHrStore } from '@/features/hr/hrStore';
 import { nameOf } from '@/features/hr/hrUtils';
@@ -14,7 +15,10 @@ import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { cn } from '@/lib/cn';
 import { fmtDate, fmtDateTime } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
+import { getSettings } from '@/features/system/settings';
 import { getBranches } from '@/features/system/useBranches';
+
+const getRefundMin = () => getSettings().safety.refundApprovalMin;
 import { BANK_ACCOUNTS, REMINDER_CHANNEL } from './constants';
 import { useFinanceStore } from './financeStore';
 import { daysLate, transferContent, type InvoiceRow } from './financeUtils';
@@ -33,6 +37,31 @@ export function InvoiceDrawer({ row, onClose }: { row?: InvoiceRow; onClose: () 
   const reminders = useFinanceStore((s) => s.reminders);
   const [dialog, setDialog] = useState<'pay' | 'refund' | 'remind' | null>(null);
   const editable = can('finance.invoices');
+  const { confirm, confirmDialog } = useConfirm();
+  const approvals = useApprovalStore((s) => s.requests);
+  const requestApproval = useApprovalStore((s) => s.request);
+  const me = { id: user?.id ?? '', name: user?.fullName ?? 'Nhân viên' };
+  const pendingRefund = row ? pendingRefundOf(approvals, row.invoice.id) : 0;
+  const pendingVoid = row ? pendingVoidOf(approvals, row.invoice.id) : undefined;
+  const pendingHere = row ? approvals.filter((r) => r.status === 'pending' && 'invoiceId' in r.payload && r.payload.invoiceId === row.invoice.id) : [];
+  /** Còn hoàn được = theo hóa đơn − khoản đang chờ duyệt (tránh gửi trùng) */
+  const refundable = Math.max(0, (row?.sum.refundable ?? 0) - pendingRefund);
+
+  const requestVoid = async () => {
+    if (!row) return;
+    const res = await confirm({
+      title: `Hủy hóa đơn ${row.invoice.code}?`,
+      description: 'Cần một người khác (có quyền duyệt) đồng ý mới thực hiện. Hóa đơn đã hủy vào Thùng rác, khôi phục được trong thời hạn lưu.',
+      consequences: [`${row.student?.fullName ?? ''} không còn công nợ ${formatCurrency(row.sum.remaining)} của hóa đơn này`, 'Ghi vào Nhật ký hệ thống: người yêu cầu + người duyệt'],
+      tone: 'danger',
+      confirmAction: 'send',
+      confirmText: 'Gửi yêu cầu hủy',
+      requireReason: { label: 'Lý do hủy', placeholder: 'VD: Lập trùng với HD-CG-2611-0004', minLength: 5 },
+    });
+    if (!res) return;
+    requestApproval({ kind: 'void_invoice', title: `Hủy ${row.invoice.code} — ${row.student?.fullName ?? ''}`, detail: res.reason, branchId: row.branchId, payload: { kind: 'void_invoice', invoiceId: row.invoice.id, invoiceCode: row.invoice.code, reason: res.reason ?? '' } }, me);
+    notify.info({ title: 'Đã gửi yêu cầu hủy hóa đơn', description: 'Chờ người thứ hai duyệt ở Hệ thống › Duyệt thao tác.' });
+  };
 
   const inv = row?.invoice;
   const sum = row?.sum;
@@ -40,7 +69,7 @@ export function InvoiceDrawer({ row, onClose }: { row?: InvoiceRow; onClose: () 
   const history = inv
     ? [
         ...inv.payments.map((p) => ({ at: p.paidAt, kind: 'pay' as const, text: `Thu ${formatCurrency(p.amount)} · ${PAYMENT_METHODS[p.method]}`, by: p.collector })),
-        ...inv.refunds.map((r) => ({ at: r.refundedAt, kind: 'refund' as const, text: `Hoàn ${formatCurrency(r.amount)} · ${PAYMENT_METHODS[r.method]} — ${r.reason}`, by: r.by })),
+        ...inv.refunds.map((r) => ({ at: r.refundedAt, kind: 'refund' as const, text: `Hoàn ${formatCurrency(r.amount)} · ${PAYMENT_METHODS[r.method]} — ${r.reason}`, by: r.approvedBy ? `${r.by} · duyệt: ${r.approvedBy}` : r.by })),
         ...reminders.filter((r) => r.invoiceId === inv.id).map((r) => ({ at: r.at, kind: 'remind' as const, text: `Nhắc qua ${REMINDER_CHANNEL[r.channel].label}${r.note ? ` — ${r.note}` : ''}`, by: r.by })),
         { at: inv.issuedAt, kind: 'issue' as const, text: `Phát hành hóa đơn ${formatCurrency(inv.amount)}${inv.discount ? ` (giảm ${formatCurrency(inv.discount)})` : ''}`, by: 'Hệ thống (ghi danh)' },
       ].sort((a, b) => b.at.localeCompare(a.at))
@@ -114,7 +143,22 @@ export function InvoiceDrawer({ row, onClose }: { row?: InvoiceRow; onClose: () 
               </div>
             )}
 
-            {editable && (
+            {inv.voided && (
+              <p className="rounded-lg bg-danger-50 px-3 py-2 text-danger-700">
+                Đã hủy hóa đơn — {inv.voided.reason}. Yêu cầu: {inv.voided.requestedBy} · duyệt: {inv.voided.approvedBy} · {fmtDateTime(inv.voided.at)}
+              </p>
+            )}
+            {pendingHere.length > 0 && (
+              <ul className="flex flex-col gap-1 rounded-lg bg-warning-50 px-3 py-2 text-warning-700">
+                {pendingHere.map((r) => (
+                  <li key={r.id} className="flex items-center gap-2">
+                    <Hourglass size={14} aria-hidden /> {r.code} · {APPROVAL_KIND[r.kind]}: {r.title} — chờ duyệt (gửi bởi {r.requestedBy.name})
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {editable && !inv.voided && (
               <div className="flex flex-wrap gap-2">
                 {sum.remaining > 0 && (
                   <Button icon={HandCoins} onClick={() => setDialog('pay')}>
@@ -126,9 +170,14 @@ export function InvoiceDrawer({ row, onClose }: { row?: InvoiceRow; onClose: () 
                     Nhắc học phí
                   </Button>
                 )}
-                {sum.refundable > 0 && (
+                {refundable > 0 && (
                   <Button icon={Undo2} variant="soft" tone="neutral" onClick={() => setDialog('refund')}>
                     Hoàn tiền
+                  </Button>
+                )}
+                {sum.paid === 0 && !pendingVoid && (
+                  <Button icon={FileX2} variant="ghost" tone="danger" tooltip="Hóa đơn lập sai / trùng — cần người thứ hai duyệt" onClick={requestVoid}>
+                    Hủy hóa đơn
                   </Button>
                 )}
                 <Button icon={Printer} variant="ghost" tone="neutral" onClick={() => notify.toast.info('Đã gửi phiếu thu tới máy in (mô phỏng)')}>
@@ -190,17 +239,24 @@ export function InvoiceDrawer({ row, onClose }: { row?: InvoiceRow; onClose: () 
         open={dialog === 'refund'}
         onClose={() => setDialog(null)}
         title="Hoàn tiền học phí"
-        description={row && `${row.student?.fullName} · đã đóng ${formatCurrency(sum?.paid)} · hoàn tối đa ${formatCurrency(sum?.refundable)}`}
-        submitAction="save"
-        submitText="Xác nhận hoàn tiền"
-        successMessage="Đã ghi nhận hoàn tiền"
+        description={row && `${row.student?.fullName} · đã đóng ${formatCurrency(sum?.paid)} · hoàn tối đa ${formatCurrency(refundable)}${pendingRefund ? ` (đang chờ duyệt ${formatCurrency(pendingRefund)})` : ''} · ${getRefundMin() > 0 ? `khoản từ ${formatCurrency(getRefundMin())} cần người thứ hai duyệt` : 'mọi khoản hoàn cần người thứ hai duyệt'}`}
+        submitAction="send"
+        submitText="Gửi hoàn tiền"
+        successMessage="Đã ghi nhận"
         initialValues={{ method: 'transfer' }}
-        onSubmit={(v) => addRefund(inv!.id, { amount: v.amount, method: v.method, reason: v.reason.trim(), refundedAt: new Date().toISOString(), by: user?.fullName ?? 'Nhân viên' })}
+        onSubmit={(v) => {
+          if (!row) return;
+          const reason = v.reason.trim();
+          if (refundNeedsApproval(v.amount)) {
+            requestApproval({ kind: 'refund', title: refundTitle(v.amount, row.invoice.code, row.student?.fullName), detail: reason, branchId: row.branchId, payload: { kind: 'refund', invoiceId: row.invoice.id, invoiceCode: row.invoice.code, amount: v.amount, method: v.method, reason } }, me);
+            notify.info({ title: 'Đã gửi yêu cầu hoàn tiền', description: 'Tiền chỉ được ghi hoàn sau khi người thứ hai duyệt.' });
+          } else addRefund(row.invoice.id, { amount: v.amount, method: v.method, reason, refundedAt: new Date().toISOString(), by: me.name });
+        }}
       >
         <Form.Item
           name="amount"
           label="Số tiền hoàn"
-          rules={[{ required: true, message: 'Nhập số tiền' }, { validator: (_, v: number) => (v > (sum?.refundable ?? 0) ? Promise.reject(new Error('Vượt quá số đã đóng')) : v > 0 ? Promise.resolve() : Promise.reject(new Error('Phải lớn hơn 0'))) }]}
+          rules={[{ required: true, message: 'Nhập số tiền' }, { validator: (_, v: number) => (v > refundable ? Promise.reject(new Error(pendingRefund ? 'Vượt quá số còn hoàn được (đã trừ khoản đang chờ duyệt)' : 'Vượt quá số đã đóng')) : v > 0 ? Promise.resolve() : Promise.reject(new Error('Phải lớn hơn 0'))) }]}
         >
           <NumberInput currency min={0} step={100_000} />
         </Form.Item>
@@ -213,6 +269,7 @@ export function InvoiceDrawer({ row, onClose }: { row?: InvoiceRow; onClose: () 
       </ModalForm>
 
       <RemindModal open={dialog === 'remind'} invoiceIds={inv ? [inv.id] : []} onClose={() => setDialog(null)} description={row && `${row.student?.fullName} · còn nợ ${formatCurrency(sum?.remaining)} · hạn ${fmtDate(inv?.dueDate)}`} onDone={() => undefined} />
+      {confirmDialog}
     </>
   );
 }

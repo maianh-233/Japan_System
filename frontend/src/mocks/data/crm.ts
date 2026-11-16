@@ -86,9 +86,52 @@ const generated: Lead[] = Array.from({ length: 42 }, (_, i) => {
 /** Lead từ kênh có chạy quảng cáo → gắn chiến dịch (xem mocks/data/admissions.ts). Website: 1/3 tự nhiên (SEO), còn lại từ Ads */
 const CAMPAIGN_BY_SOURCE: Partial<Record<LeadSource, string>> = { facebook: 'CP-01', tiktok: 'CP-02', event: 'CP-03', website: 'CP-04', zalo: 'CP-05' };
 
+/**
+ * Lịch sử tư vấn giả cho lead sinh tự động — có mốc thời gian từng bước để Phễu chuyển đổi tính được "thời gian trung bình mỗi bước".
+ * Mỗi Sale có nhịp riêng (vd: Khoa gọi chậm, Bảo hẹn test chậm) để phễu thấy được lead "kẹt" ở đâu.
+ * Chuỗi: gọi lần đầu → hẹn test (test_booked) → chốt (enrolled) / mất (not_interested). Tự co lại cho vừa tuổi của lead.
+ */
+const PACE: Record<string, { callH: number; testD: number; wonD: number; name: string }> = {
+  'e-tung': { callH: 0.4, testD: 2, wonD: 3, name: 'Nguyễn Thanh Tùng' },
+  'e-bao': { callH: 2, testD: 9, wonD: 4, name: 'Đinh Quốc Bảo' },
+  'e-nhu': { callH: 0.8, testD: 3, wonD: 6, name: 'Hồ Quỳnh Như' },
+  'e-khoa': { callH: 20, testD: 3, wonD: 3, name: 'Trần Minh Khoa' },
+  'e-han': { callH: 1, testD: 4, wonD: 8, name: 'Bùi Ngọc Hân' },
+  'e-vy': { callH: 1.5, testD: 3, wonD: 4, name: 'Lý Thanh Vy' },
+};
+
+function genConsults(l: Lead, i: number): Consultation[] {
+  if (l.status === 'new') return [];
+  const pace = PACE[l.assigneeId ?? ''] ?? PACE['e-tung'];
+  const created = dayjs(l.createdAt);
+  const age = dayjs().diff(created, 'minute');
+  const jitter = 0.6 + ((i * 37) % 9) / 10; // 0.6–1.4
+  const skipTest = l.status === 'won' && i % 4 === 0; // chốt luôn sau tư vấn, không test
+  const steps: { min: number; result: Consultation['result']; content: string; channel: Consultation['channel'] }[] = [
+    { min: pace.callH * 60 * jitter, result: 'interested', content: 'Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.', channel: 'call' },
+  ];
+  const wantTest = l.status === 'test_scheduled' || (l.status === 'won' && !skipTest) || (l.status === 'lost' && i % 2 === 0);
+  if (wantTest) steps.push({ min: pace.testD * 1440 * jitter, result: 'test_booked', content: 'Hẹn test xếp lớp tại trung tâm.', channel: 'zalo' });
+  if (l.status === 'won') steps.push({ min: pace.wonD * 1440 * jitter, result: 'enrolled', content: 'Chốt khóa học, đóng học phí đợt 1.', channel: 'meeting' });
+  if (l.status === 'lost') steps.push({ min: 2 * 1440 * jitter, result: 'not_interested', content: 'Khách chê học phí cao, chưa có nhu cầu.', channel: 'call' });
+  // Co lại nếu tổng thời gian vượt tuổi lead (lead mới tạo vài giờ)
+  const total = steps.reduce((t, s) => t + s.min, 0);
+  const k = total > age * 0.9 ? (age * 0.9) / total : 1;
+  let t = 0;
+  return steps.map((s, j) => {
+    t += s.min * k;
+    return { id: `C-g${i}-${j}`, leadId: l.id, channel: s.channel, result: s.result, content: s.content, staffName: pace.name, createdAt: created.add(Math.max(1, Math.round(t)), 'minute').toISOString() };
+  });
+}
+
+const GEN_CONSULTS = generated.flatMap((l, i) => genConsults(l, i));
+
 export const MOCK_LEADS: Lead[] = [...special, ...generated].map((l, i) => {
   const campaignId = CAMPAIGN_BY_SOURCE[l.source];
-  return campaignId && !(l.source === 'website' && i % 3 === 0) ? { ...l, campaignId } : l;
+  const mine = GEN_CONSULTS.filter((c) => c.leadId === l.id);
+  const last = mine.length ? mine[mine.length - 1].createdAt : undefined;
+  const patched = last ? { ...l, lastContactAt: last } : l;
+  return campaignId && !(l.source === 'website' && i % 3 === 0) ? { ...patched, campaignId } : patched;
 });
 
 export const MOCK_CONSULTATIONS: Consultation[] = [
@@ -97,15 +140,7 @@ export const MOCK_CONSULTATIONS: Consultation[] = [
   { id: 'C-3', leadId: 'L-0001', channel: 'zalo', result: 'enrolled', content: 'Đã đóng học phí đợt 1 cho cả 2 con, ưu đãi anh chị em 10%.', staffName: 'Nguyễn Thanh Tùng', createdAt: ago(60 * 24 * 20) },
   { id: 'C-4', leadId: 'L-0002', channel: 'message', result: 'thinking', content: 'Hỏi lịch học cuối tuần cho con. Hẹn trao đổi thêm với chồng.', staffName: 'Đinh Quốc Bảo', createdAt: ago(60 * 24 * 69) },
   { id: 'C-5', leadId: 'L-0003', channel: 'call', result: 'enrolled', content: 'Chốt khóa N2 buổi tối, đóng 1 lần.', staffName: 'Trần Minh Khoa', createdAt: ago(60 * 24 * 10) },
-  ...MOCK_LEADS.filter((l) => l.status !== 'new' && !l.id.startsWith('L-000')).slice(0, 30).map((l, i) => ({
-    id: `C-g${i}`,
-    leadId: l.id,
-    channel: (['call', 'zalo', 'message', 'meeting'] as const)[i % 4],
-    result: l.status === 'lost' ? ('not_interested' as const) : l.status === 'test_scheduled' ? ('test_booked' as const) : ('interested' as const),
-    content: l.status === 'lost' ? 'Khách chê học phí cao, chưa có nhu cầu.' : 'Tư vấn lộ trình, gửi bảng giá và lịch khai giảng.',
-    staffName: 'Nhân viên tư vấn',
-    createdAt: l.lastContactAt ?? l.createdAt,
-  })),
+  ...GEN_CONSULTS,
 ];
 
 export const MOCK_LINKS: LeadStudentLink[] = [

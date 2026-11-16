@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { Button, DateInput, PageHeader, Select, StatCard, StatusTag, useConfirm, useNotify, type Tone } from '@/components/common';
 import { useClassStore } from '@/features/academic/classes/classStore';
-import { TEACHERS, ASSISTANTS, teacherName } from '@/features/academic/classes/constants';
+import { teacherName, useAssistants, useTeachers } from '@/features/academic/classes/constants';
 import { SessionDetailDrawer } from '@/features/academic/classes/detail/SessionDetailDrawer';
 import { SessionScheduleModal, type ScheduleMode } from '@/features/academic/classes/detail/SessionScheduleModal';
 import { notStarted, sessionRoom } from '@/features/academic/classes/sessionUtils';
@@ -51,6 +51,9 @@ interface Item {
 
 /** Buổi học — lịch tuần / ngày của toàn bộ lớp trong chi nhánh, xác nhận buổi đã diễn ra, xử lý sự cố GV. DỮ LIỆU GIẢ. */
 export default function SessionsPage() {
+  // Bộ lọc gồm cả người đã nghỉ — để tra buổi cũ
+  const teachers = useTeachers(true);
+  const assistants = useAssistants(true);
   const { user, branchId, currentBranch, can } = useAuth();
   const notify = useNotify();
   const { confirm, confirmDialog } = useConfirm();
@@ -223,8 +226,8 @@ export default function SessionsPage() {
   };
 
   const teacherOptions = [
-    ...TEACHERS.filter((t) => branchId === ALL_BRANCHES || t.branchIds.includes(branchId)).map((t) => ({ value: t.id, label: t.name })),
-    ...ASSISTANTS.filter((t) => branchId === ALL_BRANCHES || t.branchIds.includes(branchId)).map((t) => ({ value: t.id, label: `${t.name} (trợ giảng)` })),
+    ...teachers.filter((t) => branchId === ALL_BRANCHES || t.branchIds.includes(branchId)).map((t) => ({ value: t.id, label: t.name })),
+    ...assistants.filter((t) => branchId === ALL_BRANCHES || t.branchIds.includes(branchId)).map((t) => ({ value: t.id, label: `${t.name} (trợ giảng)` })),
   ];
   const quickCounts: Record<Quick, number> = {
     all: all.length,

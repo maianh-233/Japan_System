@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import { ArrowLeftRight, CalendarX2, CalendarPlus } from 'lucide-react';
 import { Button, DateInput, Select, TextArea, useNotify } from '@/components/common';
 import { useClassStore } from '@/features/academic/classes/classStore';
-import { TEACHERS, teacherName } from '@/features/academic/classes/constants';
+import { teacherName, useTeachers } from '@/features/academic/classes/constants';
 import { SessionScheduleModal } from '@/features/academic/classes/detail/SessionScheduleModal';
 import { notStarted, sessionTeachers } from '@/features/academic/classes/sessionUtils';
 import type { ClassInfo, ClassSession } from '@/features/academic/classes/types';
@@ -45,6 +45,7 @@ export function HandleCancelModal({ request, session: s, cls, onClose }: Props) 
   const classes = useClassStore((st) => st.classes);
   const updateSession = useClassStore((st) => st.updateSession);
   const employees = useHrStore((st) => st.employees);
+  const teachers = useTeachers();
   const invites = usePortalStore((st) => st.subInvites);
   const { decideCancelRequest, addSubInvites } = usePortalStore();
   const [action, setAction] = useState<Action>('invite');
@@ -59,7 +60,7 @@ export function HandleCancelModal({ request, session: s, cls, onClose }: Props) 
     const shift = shiftOf(s.startTime);
     const wd = ((dayjs(s.date).day() + 6) % 7) + 1;
     const asked = new Map(invites.filter((i) => i.sessionId === s.id).map((i) => [i.toTeacherId, i.status]));
-    return TEACHERS.filter((t) => t.branchIds.includes(cls.branchId) && !absentIds.includes(t.id))
+    return teachers.filter((t) => t.branchIds.includes(cls.branchId) && !absentIds.includes(t.id))
       .map((t) => {
         const avail = employees.find((e) => e.id === t.id)?.teacher?.availability?.[wd]?.includes(shift);
         const b = busy.get(t.id);
@@ -72,7 +73,7 @@ export function HandleCancelModal({ request, session: s, cls, onClose }: Props) 
         };
       })
       .sort((a, b) => a.rank - b.rank);
-  }, [s, cls, sessions, classes, invites, employees, absentIds]);
+  }, [s, cls, sessions, classes, invites, employees, absentIds, teachers]);
 
   const cancelSession = (reason: string) =>
     updateSession(s.id, { status: 'cancelled', note: reason, cancelledBy: { name: by, at: new Date().toISOString() } });

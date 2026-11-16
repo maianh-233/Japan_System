@@ -4,6 +4,7 @@ import { PORTAL_HOME } from '@/config/navigation';
 import { useAuthStore } from '@/stores/authStore';
 import type { Portal } from '@/types/auth';
 import { useHrStore } from '@/features/hr/hrStore';
+import { meOf } from '@/features/hr/hrUtils';
 import { useStudentStore } from '@/features/student/studentStore';
 import { useSystemStore } from '@/features/system/systemStore';
 
@@ -21,7 +22,7 @@ export function RequirePortal({ portal, children }: { portal: Portal; children: 
   const user = useAuthStore((s) => s.user);
   const signOut = useAuthStore((s) => s.signOut);
   const location = useLocation();
-  const employeeId = useHrStore((s) => s.employees.find((e) => e.fullName === user?.fullName)?.id);
+  const employeeId = useHrStore((s) => meOf(s.employees, user)?.id);
   const access = useSystemStore((s) => s.access.find((a) => a.userId === user?.id || a.userId === employeeId));
   const portalAccount = useStudentStore((s) => {
     if (user?.portalAccountId) return s.accounts.find((account) => account.id === user.portalAccountId);

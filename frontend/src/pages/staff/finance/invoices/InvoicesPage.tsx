@@ -8,6 +8,7 @@ import { useHrStore } from '@/features/hr/hrStore';
 import { nameOf } from '@/features/hr/hrUtils';
 import type { TuitionStatus } from '@/features/student/types';
 import { useAuth } from '@/hooks/useAuth';
+import { useOpenParam } from '@/hooks/useOpenParam';
 import { cn } from '@/lib/cn';
 import { fmtDate } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
@@ -26,10 +27,12 @@ const STATUS_OPTIONS: { value: TuitionStatus; label: string }[] = [
 export default function InvoicesPage() {
   const { branchId } = useAuth();
   const employees = useHrStore((s) => s.employees);
-  const rows = useInvoiceRows().filter((r) => branchId === ALL_BRANCHES || r.branchId === branchId);
+  const allRows = useInvoiceRows();
+  const rows = allRows.filter((r) => branchId === ALL_BRANCHES || r.branchId === branchId);
   const [status, setStatus] = useState<TuitionStatus[]>([]);
   const [period, setPeriod] = useState<'all' | 'month' | 'due7'>('all');
   const [openId, setOpenId] = useState<string | null>(null);
+  useOpenParam(setOpenId);
   const [q, setQ] = useState('');
 
   const now = dayjs();
@@ -128,7 +131,7 @@ export default function InvoicesPage() {
         empty={{ icon: Receipt, title: 'Không có hóa đơn' }}
       />
 
-      <InvoiceDrawer row={rows.find((r) => r.id === openId)} onClose={() => setOpenId(null)} />
+      <InvoiceDrawer row={allRows.find((r) => r.id === openId)} onClose={() => setOpenId(null)} />
     </>
   );
 }

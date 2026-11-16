@@ -1,18 +1,18 @@
 import { useMemo, useState } from 'react';
 import { Input, Tabs, Tooltip } from 'antd';
 import dayjs from 'dayjs';
-import { NotebookPen, Users } from 'lucide-react';
+import { MessageSquareQuote, NotebookPen, Users } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, DataTable, EmptyState, PageHeader, StatusTag, UserCell, useNotify, type DataColumn } from '@/components/common';
 import { useClassStore } from '@/features/academic/classes/classStore';
-import { scheduleLabel, SESSION_STATUS } from '@/features/academic/classes/constants';
+import { EVAL_RECOMMENDATION, scheduleLabel, SESSION_STATUS } from '@/features/academic/classes/constants';
 import { StudentLearningDrawer } from '@/features/academic/classes/detail/StudentLearningDrawer';
+import { EvaluationModal } from '@/features/academic/classes/evaluation/EvaluationModal';
 import { useClassStudentStats, type StudentStats } from '@/features/academic/classes/studentInsights';
 import { notStarted } from '@/features/academic/classes/sessionUtils';
 import type { ClassInfo, ClassSession } from '@/features/academic/classes/types';
 import { useCurriculumStore } from '@/features/academic/curriculum/curriculumStore';
 import { useCrmStore } from '@/features/crm/crmStore';
-import { TeachSessionDrawer } from '@/features/portal/components/TeachSessionDrawer';
 import { shortCode, useTeacherId } from '@/features/portal/usePortal';
 import { cn } from '@/lib/cn';
 
@@ -39,8 +39,9 @@ function ClassView({ cls }: { cls: ClassInfo }) {
   const students = useCrmStore((s) => s.students);
   const curriculum = useCurriculumStore((s) => s.curricula.find((c) => c.id === cls.curriculumId));
   const [tab, setTab] = useState('sessions');
-  const [openSession, setOpenSession] = useState<string | null>(null);
   const [openStudent, setOpenStudent] = useState<string | null>(null);
+  const [evaluating, setEvaluating] = useState<string | null>(null);
+  const evaluations = useClassStore((s) => s.evaluations);
   const [showPast, setShowPast] = useState(false);
 
   const sessions = useMemo(() => allSessions.filter((s) => s.classId === cls.id).sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime)), [allSessions, cls.id]);
@@ -72,6 +73,25 @@ function ClassView({ cls }: { cls: ClassInfo }) {
     { key: 'sub', title: 'Nộp bài', width: 100, align: 'center', render: (_, r) => <span className="tabular">{r.assignments.submitted}/{r.assignments.due}</span> },
     { key: 'avg', title: 'Điểm BT', width: 90, align: 'center', render: (_, r) => (r.assignments.avgPct !== undefined ? <span className="tabular">{r.assignments.avgPct}%</span> : '—') },
     { key: 'exam', title: 'Điểm thi', width: 90, align: 'center', render: (_, r) => (r.exams.avgPct !== undefined ? <span className="tabular">{r.exams.avgPct}%</span> : '—') },
+    {
+      key: 'eval',
+      title: 'Nhận xét cuối khóa',
+      width: 190,
+      render: (_, r) => {
+        const ev = evaluations.find((e) => e.classId === cls.id && e.studentId === r.id);
+        return ev ? (
+          <button type="button" onClick={(e) => { e.stopPropagation(); setEvaluating(r.id); }} className="text-left" title="Bấm để sửa">
+            <StatusTag tone={EVAL_RECOMMENDATION[ev.recommendation].tone} icon={MessageSquareQuote} size="sm">
+              {EVAL_RECOMMENDATION[ev.recommendation].label}
+            </StatusTag>
+          </button>
+        ) : (
+          <Button size="sm" variant="ghost" icon={MessageSquareQuote} onClick={(e) => { e.stopPropagation(); setEvaluating(r.id); }}>
+            Viết nhận xét
+          </Button>
+        );
+      },
+    },
     {
       key: 'flags',
       title: 'Cần chú ý',
@@ -136,7 +156,7 @@ function ClassView({ cls }: { cls: ClassInfo }) {
                     const today = s.date === dayjs().format('YYYY-MM-DD');
                     return (
                       <li key={s.id}>
-                        <button type="button" onClick={() => setOpenSession(s.id)} className={cn('flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-canvas', today && 'bg-primary-50/60')}>
+                        <button type="button" onClick={() => navigate(`/teacher/teaching/${s.id}`)} className={cn('flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-canvas', today && 'bg-primary-50/60')}>
                           <span className="w-16 shrink-0 text-center">
                             <span className="block text-xs text-ink-muted">{dayjs(s.date).format('dd')}</span>
                             <span className="tabular block font-semibold text-ink">{dayjs(s.date).format('DD/MM')}</span>
@@ -168,6 +188,21 @@ function ClassView({ cls }: { cls: ClassInfo }) {
             key: 'students',
             label: `Học viên (${studentRows.length})`,
             children: (
+              <>
+              {(() => {
+                const done = studentRows.filter((r) => evaluations.some((e) => e.classId === cls.id && e.studentId === r.id)).length;
+                const left = sessions.filter((s) => s.status === 'scheduled').length;
+                const nearEnd = cls.status === 'finished' || left <= 4;
+                return (
+                  <div className={cn('mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-[var(--radius-card)] border px-3.5 py-2.5 text-[13px]', nearEnd && done < studentRows.length ? 'border-warning-100 bg-warning-50 text-warning-700' : 'border-line bg-surface text-ink-secondary')}>
+                    <MessageSquareQuote size={16} className="shrink-0" aria-hidden />
+                    <span>
+                      Nhận xét cuối khóa: <b className="tabular">{done}/{studentRows.length}</b> học viên
+                      {nearEnd && done < studentRows.length ? (cls.status === 'finished' ? ' — lớp đã kết thúc, hoàn thành nhận xét giúp Sale tư vấn khóa tiếp theo.' : ` — còn ${left} buổi là kết thúc khóa, nhớ viết nhận xét.`) : ' — Sale dùng để tư vấn học viên học khóa tiếp theo (học viên không thấy).'}
+                    </span>
+                  </div>
+                );
+              })()}
               <DataTable<StudentRow>
                 storageKey="teacher-class-students"
                 columns={studentCols}
@@ -178,6 +213,7 @@ function ClassView({ cls }: { cls: ClassInfo }) {
                 onRowClick={(r) => setOpenStudent(r.id)}
                 empty={{ icon: Users, title: 'Lớp chưa có học viên' }}
               />
+              </>
             ),
           },
           {
@@ -226,8 +262,17 @@ function ClassView({ cls }: { cls: ClassInfo }) {
         ]}
       />
 
-      {openSession && <TeachSessionDrawer key={openSession} cls={cls} sessionId={openSession} onClose={() => setOpenSession(null)} />}
-      <StudentLearningDrawer cls={cls} studentId={openStudent} onClose={() => setOpenStudent(null)} />
+      <StudentLearningDrawer cls={cls} studentId={openStudent} onClose={() => setOpenStudent(null)} viewer="teacher" onEvaluate={setEvaluating} />
+      {evaluating && (
+        <EvaluationModal
+          open
+          onClose={() => setEvaluating(null)}
+          classId={cls.id}
+          studentId={evaluating}
+          studentName={students.find((s) => s.id === evaluating)?.fullName ?? evaluating}
+          teacherId={me}
+        />
+      )}
     </>
   );
 }

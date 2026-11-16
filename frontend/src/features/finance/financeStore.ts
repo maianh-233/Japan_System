@@ -13,6 +13,7 @@ import {
   MOCK_SALE_TARGETS,
 } from '@/mocks/data/finance';
 import type { BankTxn, BranchPrice, CommissionTier, InstallmentPlan, PayAdjust, PayrollLock, Promotion, Reminder, SaleTarget } from './types';
+import { moveToTrash, registerRestorer } from '@/features/system/trash';
 
 /** Store TÀI CHÍNH GIẢ LẬP. Hóa đơn / thu / hoàn dùng chung studentStore. */
 interface FinanceState {
@@ -108,7 +109,11 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     set((s) => ({ reminders: [...invoiceIds.map((invoiceId, i) => ({ id: `RM-${Date.now()}-${i}`, invoiceId, channel, at: now(), by, note })), ...s.reminders] })),
 
   addAdjust: (a) => set((s) => ({ adjusts: [...s.adjusts, { ...a, id: `PA-${Date.now()}` }] })),
-  removeAdjust: (id) => set((s) => ({ adjusts: s.adjusts.filter((a) => a.id !== id) })),
+  removeAdjust: (id) => {
+    const a = useFinanceStore.getState().adjusts.find((x) => x.id === id);
+    if (a) moveToTrash({ kind: 'pay_adjust', label: `${a.amount > 0 ? '+' : ''}${a.amount.toLocaleString('vi-VN')}đ — ${a.reason}`, detail: `Tháng ${a.month} · ${a.employeeId}`, payload: a });
+    set((s) => ({ adjusts: s.adjusts.filter((x) => x.id !== id) }));
+  },
   lockPayroll: (l) => set((s) => ({ locks: [...s.locks.filter((x) => !sameLock(l.kind, l.month, l.branchId)(x)), { ...l, lockedAt: now() }] })),
   unlockPayroll: (kind, month, branchId) => set((s) => ({ locks: s.locks.filter((x) => !sameLock(kind, month, branchId)(x)) })),
   markPaid: (kind, month, branchId) => set((s) => ({ locks: s.locks.map((x) => (sameLock(kind, month, branchId)(x) ? { ...x, paidAt: now() } : x)) })),
@@ -120,3 +125,5 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
 }));
 
 export const monthKey = (d = dayjs()) => d.format('YYYY-MM');
+
+registerRestorer<PayAdjust>('pay_adjust', (a) => useFinanceStore.setState((s) => ({ adjusts: [...s.adjusts, a] })));

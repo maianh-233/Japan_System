@@ -4,7 +4,7 @@ import dayjs, { type Dayjs } from 'dayjs';
 import { ChevronLeft, ChevronRight, Clock, LogIn, TriangleAlert } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button, ModalForm, PageHeader, Select, TextInput, TimeInput } from '@/components/common';
-import { DEPARTMENT_OPTIONS, LATE_GRACE_MIN } from '@/features/hr/constants';
+import { DEPARTMENT_OPTIONS, lateGraceMin } from '@/features/hr/constants';
 import { useHrStore } from '@/features/hr/hrStore';
 import { DAY_STATE, dayState, meOf, type DayState } from '@/features/hr/hrUtils';
 import type { Employee } from '@/features/hr/types';
@@ -80,7 +80,7 @@ export default function TimesheetsPage() {
     <>
       <PageHeader
         title="Chấm công"
-        subtitle={`Phòng nhân sự theo dõi công TOÀN BỘ nhân viên văn phòng & làm theo ca — so khớp ca được xếp: đi muộn / về sớm quá ${LATE_GRACE_MIN} phút bị đánh dấu`}
+        subtitle={`Phòng nhân sự theo dõi công TOÀN BỘ nhân viên văn phòng & làm theo ca — so khớp ca được xếp: đi muộn / về sớm quá ${lateGraceMin()} phút bị đánh dấu`}
         breadcrumb={[{ title: 'Nhân sự' }, { title: 'Chấm công' }]}
         actions={
           <>
@@ -154,7 +154,7 @@ export default function TimesheetsPage() {
                             {dayjs(c.date).format('DD/MM')} · {c.exp ? `${c.exp.label} ${c.exp.from}–${c.exp.to}` : 'Không có ca'}
                             <br />
                             Vào {c.rec?.checkIn ?? '—'} · Ra {c.rec?.checkOut ?? '—'} — {DAY_STATE[c.state].label}
-                            {c.lateMin > LATE_GRACE_MIN && ` ${c.lateMin}′`}
+                            {c.lateMin > lateGraceMin() && ` ${c.lateMin}′`}
                             {c.rec?.edited && (
                               <>
                                 <br />

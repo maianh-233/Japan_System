@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { MOCK_AUDIT_LOGS, MOCK_BRANCH_PROFILES, MOCK_INTEGRATION_LOGS, MOCK_INTEGRATIONS, MOCK_ROLES, MOCK_USER_ACCESS } from '@/mocks/data/system';
 import { useHrStore } from '@/features/hr/hrStore';
 import type { AuditLog, BranchProfile, Integration, IntegrationLog, PermOverride, Role, UserAccess } from './types';
+import { moveToTrash, registerRestorer } from './trash';
 
 /**
  * Store HỆ THỐNG giả lập. Mọi thay đổi cấu hình / phân quyền đều GHI NHẬT KÝ (audit) — backend làm tương tự.
@@ -79,6 +80,7 @@ export const useSystemStore = create<SystemState>((set, get) => ({
   },
   removeRole: (id, actor) => {
     const r = get().roles.find((x) => x.id === id);
+    if (r) moveToTrash({ kind: 'role', label: r.name, detail: `${Object.keys(r.grants).length} quyền`, payload: r, deletedBy: actor.name });
     set((s) => ({ roles: s.roles.filter((x) => x.id !== id) }));
     get().audit(actor, { category: 'permission', severity: 'critical', action: 'Xóa role', target: r?.name ?? id });
   },
@@ -110,3 +112,5 @@ export const useSystemStore = create<SystemState>((set, get) => ({
   },
   addIntLog: (l) => set((s) => ({ intLogs: [{ ...l, id: `IL-${++seq}`, at: now() }, ...s.intLogs] })),
 }));
+
+registerRestorer<Role>('role', (r) => useSystemStore.setState((s) => ({ roles: [...s.roles, r] })));

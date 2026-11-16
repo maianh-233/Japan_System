@@ -117,6 +117,7 @@ export const RELATIONSHIPS: Record<Relationship, string> = {
 };
 
 /** SLA MẶC ĐỊNH: lead mới chưa được liên hệ sau X phút → cảnh báo. Quy tắc chia lead có thể đặt SLA riêng. */
+/** @deprecated Đọc getSettings().crm.defaultSlaMinutes (Hệ thống › Cài đặt chung) */
 export const SLA_MINUTES = 15;
 
 // ---------------- Chia lead ----------------

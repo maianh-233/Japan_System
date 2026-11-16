@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Drawer, Tabs, Tooltip } from 'antd';
-import { Eye, EyeOff, Info, KeyRound, School, Users } from 'lucide-react';
+import { Eye, EyeOff, Info, KeyRound, MessageCircle, School, Users } from 'lucide-react';
 import { Button, StatusTag, useNotify } from '@/components/common';
 import { useCrmStore } from '@/features/crm/crmStore';
+import { SendMessageModal } from '@/features/crm/messages/SendMessageModal';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { STUDY_STATUS } from '../constants';
 import { studyStatusOf, useStudentStore } from '../studentStore';
@@ -31,6 +32,7 @@ export function StudentDetailDrawer({ studentId, initialTab = 'info', onClose }:
   const issueAccount = useStudentStore((s) => s.issueAccount);
   const { toggleHidden, hideBlockReason, confirmDialog } = useHideStudent();
   const [tab, setTab] = useState<StudentTab>(initialTab);
+  const [messaging, setMessaging] = useState(false);
 
   useEffect(() => {
     if (studentId) setTab(initialTab);
@@ -76,6 +78,10 @@ export function StudentDetailDrawer({ studentId, initialTab = 'info', onClose }:
       }
       extra={
         student && (
+          <div className="flex gap-2">
+          <Button icon={MessageCircle} size="sm" variant="outline" collapseOnMobile onClick={() => setMessaging(true)}>
+            Nhắn tin
+          </Button>
           <Tooltip title={blocked}>
             <span>
               <Button
@@ -91,6 +97,7 @@ export function StudentDetailDrawer({ studentId, initialTab = 'info', onClose }:
               </Button>
             </span>
           </Tooltip>
+          </div>
         )
       }
     >
@@ -122,6 +129,7 @@ export function StudentDetailDrawer({ studentId, initialTab = 'info', onClose }:
         />
       )}
       {confirmDialog}
+      <SendMessageModal target={student && messaging ? { kind: 'student', studentId: student.id } : null} onClose={() => setMessaging(false)} />
     </Drawer>
   );
 }
