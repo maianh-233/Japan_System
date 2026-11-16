@@ -172,7 +172,7 @@ export function ForgotPasswordDialog({ open, initialEmail, onClose, onDone }: Fo
             title="Nhập mã xác thực"
             desc={
               <>
-                Mã 6 số đã được gửi tới <strong className="text-ink">{maskedEmail}</strong>. Mã có hiệu lực 5 phút.
+                Nếu <strong className="text-ink">{maskedEmail}</strong> có tài khoản trong hệ thống, mã 6 số đã được gửi tới email này. Mã có hiệu lực 5 phút.
               </>
             }
           />

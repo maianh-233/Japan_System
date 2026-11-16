@@ -1,0 +1,19 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+.idea/
+TestResults/
+*.trx
+coverage*/
+
+# Cấu hình cục bộ / bí mật
+appsettings.Local.json
+appsettings.*.Local.json
+*.env
+!deploy/*.env.example
+
+# Dữ liệu docker local
+deploy/data/

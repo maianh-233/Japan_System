@@ -138,17 +138,21 @@ export async function login(identifier: string, password: string): Promise<Sessi
 
 // ---------------- Quên mật khẩu ----------------
 /** Lưu tạm trạng thái OTP theo email (giả lập phía server) */
-const otpState = new Map<string, { attempts: number; verified: boolean; sentAt: number }>();
+/** `exists = false`: email không có / bị khóa — vẫn giữ trạng thái để phản hồi y hệt email thật (chống dò email) */
+const otpState = new Map<string, { attempts: number; verified: boolean; sentAt: number; exists: boolean }>();
 const MAX_OTP_ATTEMPTS = 5;
 
-/** Bước 1: kiểm tra email có tồn tại → gửi OTP */
+/**
+ * Bước 1: gửi OTP. LUÔN trả cùng một kết quả dù email có tồn tại hay không, có bị khóa hay không
+ * (user story AUTH-04.E1 / E2) — người ngoài không dò được email nào có trong hệ thống.
+ */
 export async function requestPasswordReset(email: string): Promise<{ maskedEmail: string; resendAfter: number }> {
   await delay(900);
-  const acc = MOCK_ACCOUNTS.find((a) => a.email === normalize(email));
-  if (!acc) throw new ApiError('Không tìm thấy tài khoản với email này.', 'EMAIL_NOT_FOUND');
-  if (acc.locked) throw new ApiError('Tài khoản đã bị khóa, không thể đặt lại mật khẩu.', 'ACCOUNT_LOCKED');
-  otpState.set(acc.email, { attempts: 0, verified: false, sentAt: Date.now() });
-  const [name, domain] = acc.email.split('@');
+  const key = normalize(email);
+  const acc = MOCK_ACCOUNTS.find((a) => a.email === key);
+  // Chỉ thật sự gửi mã khi tài khoản tồn tại và không bị khóa
+  otpState.set(key, { attempts: 0, verified: false, sentAt: Date.now(), exists: Boolean(acc && !acc.locked) });
+  const [name, domain = ''] = key.split('@');
   return { maskedEmail: `${name.slice(0, 2)}${'*'.repeat(Math.max(1, name.length - 2))}@${domain}`, resendAfter: 60 };
 }
 
@@ -159,7 +163,8 @@ export async function verifyOtp(email: string, otp: string): Promise<void> {
   if (!st) throw new ApiError('Phiên đặt lại mật khẩu đã hết hạn, vui lòng gửi lại mã.', 'OTP_EXPIRED');
   if (st.attempts >= MAX_OTP_ATTEMPTS) throw new ApiError('Nhập sai quá nhiều lần. Vui lòng gửi lại mã mới.', 'OTP_LOCKED');
   if (Date.now() - st.sentAt > 5 * 60_000) throw new ApiError('Mã OTP đã hết hạn (5 phút). Vui lòng gửi lại.', 'OTP_EXPIRED');
-  if (otp !== DEMO_OTP) {
+  // Email không tồn tại / bị khóa: mã nào cũng sai, đếm lượt như thường
+  if (!st.exists || otp !== DEMO_OTP) {
     st.attempts += 1;
     const left = MAX_OTP_ATTEMPTS - st.attempts;
     throw new ApiError(left > 0 ? `Mã OTP không đúng. Còn ${left} lần thử.` : 'Nhập sai quá nhiều lần. Vui lòng gửi lại mã mới.', 'OTP_INVALID');
