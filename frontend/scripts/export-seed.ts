@@ -3,13 +3,15 @@
  * Dữ liệu mẫu backend vì thế giống hệt những gì giao diện đang hiển thị.
  *
  * Chạy (từ thư mục frontend):  npm run export-seed
- * Kết quả: backend/src/Modules/{System,Hr}/.../Infrastructure/Persistence/Seed/*.seed.json
+ * Kết quả: backend/src/Modules/{System,Hr,Academic}/.../Infrastructure/Persistence/Seed/*.seed.json
  * Thời gian tương đối (dayjs "x ngày trước") được chốt tại lúc chạy script.
  */
 import { createHash } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { MOCK_EMPLOYEES } from '@/mocks/data/employees';
+import { MOCK_COURSES } from '@/mocks/data/courses';
+import { MOCK_COURSE_CURRICULA, MOCK_CURRICULA } from '@/mocks/data/curricula';
 import { MOCK_LEADS } from '@/mocks/data/crm';
 import { MOCK_ACCOUNTS as PORTAL_ACCOUNTS, MOCK_STUDENTS } from '@/mocks/data/students';
 import {
@@ -51,6 +53,15 @@ write(resolve(backend, 'Hr', 'JPCenter.Modules.Hr', 'Infrastructure', 'Persisten
   employees: MOCK_EMPLOYEES,
 });
 
+// Khóa học + lộ trình (user story 09). Người soạn: tên → Id nhân viên
+const employeeIdByName = new Map(MOCK_EMPLOYEES.map((e) => [e.fullName, e.id]));
+write(resolve(backend, 'Academic', 'JPCenter.Modules.Academic', 'Infrastructure', 'Persistence', 'Seed', 'academic.seed.json'), {
+  generatedAt: new Date().toISOString(),
+  courses: MOCK_COURSES,
+  curricula: MOCK_CURRICULA.map((c) => ({ ...c, authorId: employeeIdByName.get(c.author) ?? null })),
+  courseCurricula: MOCK_COURSE_CURRICULA,
+});
+
 write(resolve(backend, 'System', 'JPCenter.Modules.System', 'Infrastructure', 'Persistence', 'Seed', 'system.seed.json'), {
   generatedAt: new Date().toISOString(),
   branches: MOCK_BRANCH_PROFILES,
@@ -85,6 +96,8 @@ const seedIds = [
   ...MOCK_STUDENTS.map((x) => x.id),
   ...MOCK_LEADS.map((x) => x.id),
   ...PORTAL_ACCOUNTS.map((a) => a.id),
+  ...MOCK_COURSES.map((c) => c.id),
+  ...MOCK_CURRICULA.map((c) => c.id),
 ];
 const idPath = resolve(process.cwd(), 'src', 'lib', 'api', 'seedIds.generated.ts');
 mkdirSync(dirname(idPath), { recursive: true });

@@ -4,6 +4,7 @@ using JPCenter.Api.Common.Modules;
 using JPCenter.Application.Common.Messaging;
 using JPCenter.Infrastructure.Common.Jobs;
 using JPCenter.Infrastructure.Common.Persistence;
+using JPCenter.Modules.Academic;
 using JPCenter.Modules.Hr;
 using JPCenter.Modules.System;
 using Serilog;
@@ -28,6 +29,7 @@ builder.Services
     .AddInfrastructureCommon()
     .AddScheduledJobs(builder.Configuration)
     .AddModules(builder.Configuration,
+        new AcademicModule(),
         new HrModule(),
         new SystemModule());
 
