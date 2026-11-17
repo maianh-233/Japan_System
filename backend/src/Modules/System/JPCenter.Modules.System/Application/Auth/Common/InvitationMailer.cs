@@ -1,3 +1,4 @@
+using JPCenter.Application.Common.Email;
 using JPCenter.Modules.Hr.Contracts;
 using JPCenter.Modules.System.Application.Abstractions;
 using JPCenter.Modules.System.Domain.OneTimeTokens;
@@ -33,8 +34,7 @@ public sealed class InvitationMailer(ISystemDbContext db, ITokenService tokens, 
         var employee = await employees.FindAsync(account.EmployeeId, ct);
         var roleIds = account.Roles.Select(r => r.RoleId).ToList();
         var roles = await db.Roles.Where(r => roleIds.Contains(r.Id)).Select(r => r.Name).ToListAsync(ct);
-        var (subject, html) = AuthEmails.Invitation(employee?.FullName ?? account.Email,
-            roles.Count > 0 ? string.Join(", ", roles) : "chưa gán", links.Activation(secret));
-        await email.SendAsync(account.Email, subject, html, ct);
+        await email.SendAsync(account.Email, AuthEmails.Invitation(employee?.FullName ?? account.Email,
+            roles.Count > 0 ? string.Join(", ", roles) : "Chưa gán — quản trị sẽ phân quyền sau", links.Activation(secret)), ct);
     }
 }

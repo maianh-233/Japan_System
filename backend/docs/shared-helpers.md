@@ -38,6 +38,7 @@
 | `IAuditTrail.Record(category, severity, action, target, ...)` (`Auditing/`) | Ghi nhật ký từ handler (vd đăng nhập sai); tự điền người, IP, thiết bị, thay đổi dữ liệu | ✅ |
 | `IAuditSink` (module System ghi `audit_logs`), `IAuditWriter` (hàng đợi) | Hạ tầng nhật ký | ✅ |
 | `IIdempotencyStore` (`Idempotency/`) | Lưu kết quả theo Idempotency-Key | ✅ |
+| `IEmailSender.SendAsync(to, EmailContent)` + `EmailContent` (`Email/`) | Gửi email giao dịch từ **mọi module**. Chỉ mô tả nội dung: `EmailContent.Create(subject, heading, preheader).Hello(name).Text("…**đậm**…").Code(otp).Button(label, url).Details((nhãn, giá trị)).Items(list).Notice(text, tone).Footnote(text)` — khuôn thương hiệu áp khi gửi. Test: thay bằng bản ghi giả, đọc `content.ToPlainText()` | ✅ |
 | `IIntegrationEventPublisher` | Phát event cho module khác (đi qua Outbox) | 📝 |
 | `ICodeGenerator` (sinh mã HV1000, HD2400, LD0001 theo dãy số trong DB) | Mã hiển thị tăng dần, không trùng | 📝 |
 | `IFileStorage` (upload, link tạm có hạn, xóa) | Tài liệu, đề bài, bài nộp, ảnh hồ sơ | 📝 |
@@ -61,6 +62,7 @@
 | `DataChangeAuditInterceptor` + `AuditChangeCollector` (`Auditing/`) | Gom before → after (che mật khẩu / token / khóa) vào dòng nhật ký của hành động | ✅ |
 | `ChannelAuditWriter` + `AuditBackgroundWriter` (`Auditing/`) | Hàng đợi nhật ký ghi nền theo lô 200 dòng, không làm chậm request | ✅ |
 | `LoggingAuditSink`, `InMemoryIdempotencyStore` | Mặc định khi chưa có module System (System thay bằng bản PostgreSQL) | ✅ |
+| `SmtpEmailSender` + `EmailRenderer` + `EmailOptions` (`Email/`, đăng ký sẵn trong `AddInfrastructureCommon()`) | Khuôn email chung: logo + thẻ nội dung + chân trang (hotline, email hỗ trợ, địa chỉ — `App:*`), bảng + CSS inline chuẩn email, thu lề trên điện thoại; gửi multipart chữ thuần + HTML, `Reply-To` hộp thư hỗ trợ, `Auto-Submitted`. Cấu hình `Email:*` (SMTP, SSL, tài khoản) | ✅ |
 | `AddScheduledJobs(config)` + `JobServiceCollectionExtensions.IsEnabled(config)` (`Jobs/`) | Bật Quartz (Host gọi 1 lần); module khai báo job bằng `services.AddQuartz(q => q.ScheduleJob<TJob>(...))` khi `IsEnabled`. Tắt bằng `Jobs:Enabled=false` (test tích hợp) | ✅ |
 | `DomainEventOutboxInterceptor` | Sau này | 📝 |
 | `OutboxMessage`, `OutboxProcessor` (BackgroundService) | Gửi integration event chắc chắn | 📝 |

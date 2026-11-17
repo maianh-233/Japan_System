@@ -11,4 +11,6 @@ internal sealed class FrontendLinks(IConfiguration configuration) : IFrontendLin
     public string Activation(string token) => $"{Base}/activate?token={Uri.EscapeDataString(token)}";
 
     public string Login() => $"{Base}/login";
+
+    public string Page(string path) => $"{Base}/{path.TrimStart('/')}";
 }

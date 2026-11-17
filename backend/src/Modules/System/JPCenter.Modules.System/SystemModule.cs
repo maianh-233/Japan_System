@@ -47,7 +47,6 @@ public sealed class SystemModule : IModule
         // Hạ tầng riêng của module
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddSingleton<ITokenService, TokenService>();
-        services.AddSingleton<IEmailSender, SmtpEmailSender>();
         services.AddSingleton<IFrontendLinks, FrontendLinks>();
         services.AddSingleton<IPermissionCatalog, PermissionCatalog>();
 

@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 using JPCenter.Infrastructure.Common.Persistence;
-using JPCenter.Modules.System.Application.Abstractions;
+using JPCenter.Application.Common.Email;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -51,17 +51,18 @@ public sealed class SeededApiFactory : WebApplicationFactory<Program>, IAsyncLif
     public AsyncServiceScope Scope() => Services.CreateAsyncScope();
 }
 
+/// <summary>Ghi lại email "đã gửi" — <c>Text</c> là bản chữ thuần (đọc mã OTP, link mời trong test).</summary>
 public sealed class CapturingEmailSender : IEmailSender
 {
-    public ConcurrentQueue<(string To, string Subject, string Html)> Sent { get; } = new();
+    public ConcurrentQueue<(string To, string Subject, string Text)> Sent { get; } = new();
 
-    public Task SendAsync(string to, string subject, string htmlBody, CancellationToken ct)
+    public Task SendAsync(string to, EmailContent content, CancellationToken ct)
     {
-        Sent.Enqueue((to, subject, htmlBody));
+        Sent.Enqueue((to, content.Subject, content.ToPlainText()));
         return Task.CompletedTask;
     }
 
-    public (string To, string Subject, string Html) Last(string to) => Sent.Last(m => m.To == to);
+    public (string To, string Subject, string Text) Last(string to) => Sent.Last(m => m.To == to);
 }
 
 [CollectionDefinition(Name)]

@@ -1,3 +1,4 @@
+using JPCenter.Application.Common.Email;
 using JPCenter.Application.Common.Auditing;
 using JPCenter.Application.Common.Messaging;
 using JPCenter.Application.Common.Security;
@@ -18,7 +19,7 @@ namespace JPCenter.Modules.System.Application.Auth.Login;
 /// </summary>
 public sealed class LoginHandler(
     ISystemDbContext db, SignInAccounts accounts, IPasswordHasher hasher, IUserAccessProvider accessProvider,
-    SessionIssuer sessions, IAuditTrail audit, IEmailSender email, IClock clock) : ICommandHandler<LoginCommand, SignInResult>
+    SessionIssuer sessions, IAuditTrail audit, IEmailSender email, IClock clock, IRequestInfo request) : ICommandHandler<LoginCommand, SignInResult>
 {
     public const string LockedAction = "Tạm khóa do nhập sai mật khẩu";
     private static string? _dummyHash;
@@ -82,8 +83,7 @@ public sealed class LoginHandler(
 
         if (times >= 3 && account.Email is { } to)
         {
-            var (subject, html) = AuthEmails.LockoutWarning(times);
-            await email.SendAsync(to, subject, html, ct);
+            await email.SendAsync(to, AuthEmails.LockoutWarning(times, clock.UtcNow, request.Device, request.Ip), ct);
         }
     }
 }

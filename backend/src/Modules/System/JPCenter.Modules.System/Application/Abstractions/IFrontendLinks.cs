@@ -7,4 +7,7 @@ public interface IFrontendLinks
     string Activation(string token);
 
     string Login();
+
+    /// <summary>Trang bất kỳ của frontend, vd "/admin/system/user-permissions"</summary>
+    string Page(string path);
 }

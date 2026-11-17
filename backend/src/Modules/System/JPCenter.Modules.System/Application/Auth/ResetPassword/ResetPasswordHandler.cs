@@ -1,3 +1,4 @@
+using JPCenter.Application.Common.Email;
 using JPCenter.Application.Common.Auditing;
 using JPCenter.Application.Common.Messaging;
 using JPCenter.Application.Common.Security;
@@ -15,7 +16,7 @@ namespace JPCenter.Modules.System.Application.Auth.ResetPassword;
 /// </summary>
 public sealed class ResetPasswordHandler(
     ISystemDbContext db, SignInAccounts accounts, ITokenService tokens, IPasswordHasher hasher, SessionRevoker revoker,
-    IUserAccessCache accessCache, IEmailSender email, IAuditTrail audit, IClock clock) : ICommandHandler<ResetPasswordCommand>
+    IUserAccessCache accessCache, IEmailSender email, IAuditTrail audit, IClock clock, IRequestInfo request, IFrontendLinks links) : ICommandHandler<ResetPasswordCommand>
 {
     public async Task<Result> Handle(ResetPasswordCommand cmd, CancellationToken ct)
     {
@@ -36,8 +37,7 @@ public sealed class ResetPasswordHandler(
 
         if (account.Email is { } to)
         {
-            var (subject, html) = AuthEmails.PasswordChanged(now);
-            await email.SendAsync(to, subject, html, ct);
+            await email.SendAsync(to, AuthEmails.PasswordChanged(now, request.Device, request.Ip, links.Login()), ct);
         }
         audit.Record(AuditCategory.Auth, AuditSeverity.Warning, "Đặt lại mật khẩu (quên mật khẩu)", account.LoginName,
             actor: new AuditActor(account.AccountGuid, account.LoginName, "—"));

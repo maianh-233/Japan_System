@@ -209,7 +209,7 @@ public sealed partial class AuthFlowTests(SeededApiFactory api)
 
         (await WithToken(oldToken).GetAsync("/api/v1/system/auth/me", Ct)).StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
         (await Login(client, email, "MatKhauMoi2026")).StatusCode.ShouldBe(HttpStatusCode.OK);
-        api.Emails.Last(email).Subject.ShouldContain("vừa được đổi");
+        api.Emails.Last(email).Subject.ShouldContain("vừa được thay đổi");
     }
 
     [Fact]
@@ -234,7 +234,7 @@ public sealed partial class AuthFlowTests(SeededApiFactory api)
 
         // AUTH-04.E13: tài khoản chưa kích hoạt quên mật khẩu → nhận lại email mời
         await client.PostAsJsonAsync("/api/v1/system/auth/password/forgot", new { email }, Ct);
-        var token = Uri.UnescapeDataString(InviteRegex().Match(api.Emails.Last(email).Html).Groups[1].Value);
+        var token = Uri.UnescapeDataString(InviteRegex().Match(api.Emails.Last(email).Text).Groups[1].Value);
 
         var info = await client.GetAsync($"/api/v1/system/auth/invitations/{Uri.EscapeDataString(token)}", Ct);
         info.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -358,7 +358,7 @@ public sealed partial class AuthFlowTests(SeededApiFactory api)
     [GeneratedRegex(@"\d{6}")]
     private static partial Regex OtpRegex();
 
-    [GeneratedRegex(@"activate\?token=([^""&]+)")]
+    [GeneratedRegex(@"activate\?token=([^""&\s]+)")]
     private static partial Regex InviteRegex();
 
     [GeneratedRegex(@"jp_refresh=([^;]+)")]

@@ -1,3 +1,4 @@
+using JPCenter.Application.Common.Email;
 using JPCenter.Application.Common.Auditing;
 using JPCenter.Application.Common.Messaging;
 using JPCenter.Modules.System.Application.Abstractions;
@@ -48,8 +49,7 @@ public sealed class ForgotPasswordHandler(
 
         if (canReceive)
         {
-            var (subject, html) = AuthEmails.ResetOtp(otp);
-            await email.SendAsync(recipient, subject, html, ct);
+            await email.SendAsync(recipient, AuthEmails.ResetOtp(otp), ct);
         }
         else if (account is UserAccount { Status: UserAccountStatus.Invited } invited)
         {

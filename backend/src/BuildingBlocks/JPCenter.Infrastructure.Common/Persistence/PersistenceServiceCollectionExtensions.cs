@@ -1,3 +1,5 @@
+using JPCenter.Application.Common.Email;
+using JPCenter.Infrastructure.Common.Email;
 using JPCenter.Application.Common.Auditing;
 using JPCenter.Application.Common.Idempotency;
 using JPCenter.Application.Common.Security;
@@ -35,6 +37,11 @@ public static class PersistenceServiceCollectionExtensions
         services.AddHostedService<AuditBackgroundWriter>();
 
         services.TryAddSingleton<IIdempotencyStore, InMemoryIdempotencyStore>();
+
+        // Email dùng chung mọi module: nội dung (EmailContent) + khuôn thương hiệu + SMTP
+        services.TryAddSingleton(sp => EmailOptions.Load(sp.GetRequiredService<IConfiguration>()));
+        services.TryAddSingleton<EmailRenderer>();
+        services.TryAddSingleton<IEmailSender, SmtpEmailSender>();
         return services;
     }
 

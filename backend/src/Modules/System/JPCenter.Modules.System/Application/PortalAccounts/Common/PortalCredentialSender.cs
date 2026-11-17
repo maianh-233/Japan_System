@@ -1,3 +1,4 @@
+using JPCenter.Application.Common.Email;
 using JPCenter.Modules.System.Application.Abstractions;
 using JPCenter.Modules.System.Application.Auth.Common;
 using JPCenter.Modules.System.Domain.PortalAccounts;
@@ -18,8 +19,7 @@ public sealed class PortalCredentialSender(ITokenService tokens, IPasswordHasher
 
         if (account.Email is not { } to) return new PortalCredentialDto(account.ToDto(), password, false);
 
-        var (subject, html) = AuthEmails.TemporaryPassword(account.DisplayName, account.Username, password, links.Login());
-        await email.SendAsync(to, subject, html, ct);
+        await email.SendAsync(to, AuthEmails.TemporaryPassword(account.DisplayName, account.Username, password, links.Login()), ct);
         return new PortalCredentialDto(account.ToDto(), null, true);
     }
 }

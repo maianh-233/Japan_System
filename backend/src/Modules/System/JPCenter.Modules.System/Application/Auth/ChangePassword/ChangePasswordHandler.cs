@@ -1,3 +1,4 @@
+using JPCenter.Application.Common.Email;
 using JPCenter.Application.Common.Auditing;
 using JPCenter.Application.Common.Messaging;
 using JPCenter.Application.Common.Security;
@@ -12,7 +13,7 @@ namespace JPCenter.Modules.System.Application.Auth.ChangePassword;
 /// <summary>AUTH-06: sai mật khẩu hiện tại tính vào bộ đếm sai (E1); mới phải khác cũ (E2); chọn đăng xuất thiết bị khác (E3).</summary>
 public sealed class ChangePasswordHandler(
     ISystemDbContext db, ICurrentUser user, SignInAccounts accounts, IPasswordHasher hasher, SessionIssuer sessions,
-    SessionRevoker revoker, IUserAccessCache accessCache, IEmailSender email, IAuditTrail audit, IClock clock)
+    SessionRevoker revoker, IUserAccessCache accessCache, IEmailSender email, IAuditTrail audit, IClock clock, IRequestInfo request, IFrontendLinks links)
     : ICommandHandler<ChangePasswordCommand, ChangePasswordResult>
 {
     public async Task<Result<ChangePasswordResult>> Handle(ChangePasswordCommand cmd, CancellationToken ct)
@@ -42,8 +43,7 @@ public sealed class ChangePasswordHandler(
 
         if (account.Email is { } to)
         {
-            var (subject, html) = AuthEmails.PasswordChanged(now);
-            await email.SendAsync(to, subject, html, ct);
+            await email.SendAsync(to, AuthEmails.PasswordChanged(now, request.Device, request.Ip, links.Login()), ct);
         }
         audit.Record(AuditCategory.Auth, AuditSeverity.Warning, "Đổi mật khẩu", account.LoginName,
             loggedOut > 0 ? $"Đăng xuất {loggedOut} thiết bị khác" : null);

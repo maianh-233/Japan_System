@@ -1,4 +1,4 @@
-using System.Net;
+using JPCenter.Application.Common.Email;
 using JPCenter.Application.Common.Auditing;
 using JPCenter.Application.Common.Messaging;
 using JPCenter.Modules.Hr.Contracts;
@@ -20,7 +20,7 @@ public sealed record ExpireOverridesCommand : ICommand<ExpireOverridesResult>;
 public sealed record ExpireOverridesResult(int Reminded, int Expired);
 
 public sealed class ExpireOverridesHandler(
-    ISystemDbContext db, IEmployeeDirectory employees, IEmailSender email, PermissionChanges changes, IAuditTrail audit, IClock clock)
+    ISystemDbContext db, IEmployeeDirectory employees, IEmailSender email, IFrontendLinks links, PermissionChanges changes, IAuditTrail audit, IClock clock)
     : ICommandHandler<ExpireOverridesCommand, ExpireOverridesResult>
 {
     public static readonly TimeSpan RemindBefore = TimeSpan.FromDays(3);
@@ -38,7 +38,7 @@ public sealed class ExpireOverridesHandler(
         var granterIds = accounts.SelectMany(a => a.Overrides.Select(o => new UserAccountId(o.GrantedBy))).Distinct().ToList();
         var granters = await db.UserAccounts.AsNoTracking().Where(a => granterIds.Contains(a.Id) && a.Status == UserAccountStatus.Active)
             .ToDictionaryAsync(a => a.Id.Value, ct);
-        var names = await employees.FindManyAsync(accounts.Select(a => a.EmployeeId).ToList(), ct);
+        var names = await employees.FindManyAsync(accounts.Select(a => a.EmployeeId).Concat(granters.Values.Select(g => g.EmployeeId)).ToList(), ct);
         string NameOf(UserAccount a) => names.TryGetValue(a.EmployeeId, out var e) ? e.FullName : a.Email;
 
         var reminders = new List<(Guid Granter, string Line)>();
@@ -58,7 +58,7 @@ public sealed class ExpireOverridesHandler(
                 }
                 else
                 {
-                    reminders.Add((o.GrantedBy, $"{label} · hết hạn {o.Until!.Value.ToOffset(TimeSpan.FromHours(7)):dd/MM/yyyy HH:mm}"));
+                    reminders.Add((o.GrantedBy, $"**{label}** · hết hạn {o.Until!.Value.ToOffset(TimeSpan.FromHours(7)):HH:mm dd/MM/yyyy}"));
                 }
             }
         }
@@ -66,10 +66,16 @@ public sealed class ExpireOverridesHandler(
         foreach (var group in reminders.GroupBy(r => r.Granter))
         {
             if (!granters.TryGetValue(group.Key, out var granter)) continue;
-            var items = string.Join("", group.Select(r => $"<li>{WebUtility.HtmlEncode(r.Line)}</li>"));
-            await email.SendAsync(granter.Email, $"[JP Center] {group.Count()} quyền lẻ sắp hết hạn",
-                $"<p>Các quyền lẻ bạn đã cấp sẽ hết hạn trong {RemindBefore.TotalDays:0} ngày tới:</p><ul>{items}</ul>" +
-                "<p>Cần gia hạn thì vào Hệ thống › Phân quyền người dùng.</p>", ct);
+            var count = group.Count();
+            await email.SendAsync(granter.Email,
+                EmailContent.Create($"{count} quyền lẻ bạn cấp sắp hết hạn", "Quyền lẻ sắp hết hạn",
+                        $"{count} quyền lẻ sẽ hết hạn trong {RemindBefore.TotalDays:0} ngày tới — gia hạn nếu vẫn cần.")
+                    .Hello(names.TryGetValue(granter.EmployeeId, out var me) ? me.FullName : null)
+                    .Text($"Các quyền lẻ bạn đã cấp dưới đây sẽ **hết hạn trong {RemindBefore.TotalDays:0} ngày tới**. Khi hết hạn, người được cấp tự mất quyền:")
+                    .Items(group.Select(r => r.Line))
+                    .Text("Nếu vẫn cần, hãy cấp lại với hạn mới. Nếu không, bạn không cần làm gì.")
+                    .Button("Mở Phân quyền người dùng", links.Page("/admin/system/user-permissions"))
+                    .Footnote("Bạn nhận email này vì là người đã cấp các quyền trên."), ct);
         }
         return new ExpireOverridesResult(reminders.Count, expired);
     }
