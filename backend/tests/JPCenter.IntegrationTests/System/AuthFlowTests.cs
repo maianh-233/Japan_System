@@ -319,6 +319,34 @@ public sealed partial class AuthFlowTests(SeededApiFactory api)
             .StatusCode.ShouldBe(HttpStatusCode.Forbidden);
     }
 
+    [Fact]
+    public async Task Giao_vu_khoa_mo_khoa_va_dat_lai_mat_khau_tai_khoan_cong()
+    {
+        var owner = Guid.NewGuid();
+        var (giaovu, _) = await SignIn("giaovu@jpcenter.vn");
+        var created = await Json(await giaovu.PostAsJsonAsync("/api/v1/system/portal-accounts",
+            new { ownerType = "student", ownerId = owner, displayName = "Học viên Khóa", username = $"hk{owner.ToString()[..6]}", email = (string?)null }, Ct));
+        var id = created.GetProperty("account").GetProperty("id").GetGuid();
+        var username = created.GetProperty("account").GetProperty("username").GetString()!;
+        var temp = created.GetProperty("temporaryPassword").GetString()!;
+
+        var list = await Json(await giaovu.GetAsync($"/api/v1/system/portal-accounts?ownerType=student&ownerId={owner}", Ct));
+        list.GetArrayLength().ShouldBe(1);
+
+        // Khóa → không đăng nhập được; mở khóa → được
+        var locked = await Json(await giaovu.PostAsync($"/api/v1/system/portal-accounts/{id}/lock", null, Ct));
+        locked.GetProperty("status").GetString().ShouldBe("locked");
+        (await Code(await Login(api.CreateClient(), username, temp))).ShouldBe("auth.account_locked");
+        (await giaovu.PostAsync($"/api/v1/system/portal-accounts/{id}/unlock", null, Ct)).StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        // Đặt lại mật khẩu tạm → mật khẩu cũ hết dùng được
+        var reset = await Json(await giaovu.PostAsync($"/api/v1/system/portal-accounts/{id}/reset-password", null, Ct));
+        var newTemp = reset.GetProperty("temporaryPassword").GetString()!;
+        newTemp.ShouldNotBe(temp);
+        (await Login(api.CreateClient(), username, temp)).StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        (await Login(api.CreateClient(), username, newTemp)).StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
     private async Task<string> CurrentRefreshCookie(HttpClient client)
     {
         // Lấy refresh token hiện tại từ cookie của client (WebApplicationFactory giữ cookie trong handler)

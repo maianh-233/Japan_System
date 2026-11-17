@@ -217,6 +217,39 @@ public sealed class PermissionFlowTests(SeededApiFactory api)
             .StatusCode.ShouldBe(HttpStatusCode.Forbidden);
     }
 
+    [Fact]
+    public async Task Tu_choi_can_ly_do_va_nguoi_tao_rut_lai_yeu_cau()
+    {
+        var target = await Target("linh.ta.linh@jpcenter.vn");
+        var sa = await SignIn(SuperAdmin);
+        var admin = await SignIn(Admin);
+        var body = new { roles = new[] { new { roleId = Role("R-KT"), branchIds = Array.Empty<Guid>() } } };
+
+        // Xem trước quyền hiệu lực nếu đổi vai trò (PQ-05 bước 3) — không lưu gì
+        var preview = await Ok(await sa.PostAsJsonAsync($"/api/v1/system/users/{target.Id.Value}/effective-permissions/preview", body, Ct));
+        preview.GetProperty("permissions").EnumerateArray().ShouldContain(p => p.GetProperty("perm").GetString()!.StartsWith("finance."));
+        (await Reload(target.Id)).Roles.Single().RoleId.ShouldBe(new RoleId(Role("R-TEACHER")));
+
+        // Yêu cầu 1: Admin từ chối — thiếu lý do → 400
+        var first = (await Ok(await sa.PutAsJsonAsync($"/api/v1/system/users/{target.Id.Value}/roles", body, Ct))).GetProperty("pendingApprovalId").GetGuid();
+        (await admin.PostAsJsonAsync($"/api/v1/system/approvals/{first}/reject", new { note = "" }, Ct)).StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var rejected = await Ok(await admin.PostAsJsonAsync($"/api/v1/system/approvals/{first}/reject", new { note = "Chưa cần quyền này" }, Ct));
+        rejected.GetProperty("request").GetProperty("status").GetString().ShouldBe("rejected");
+
+        // Yêu cầu 2: người khác không rút được, người tạo rút được
+        var second = (await Ok(await sa.PutAsJsonAsync($"/api/v1/system/users/{target.Id.Value}/roles", body, Ct))).GetProperty("pendingApprovalId").GetGuid();
+        (await Code(await admin.PostAsync($"/api/v1/system/approvals/{second}/withdraw", null, Ct))).ShouldBe("system.approval.only_requester");
+        (await Ok(await sa.PostAsync($"/api/v1/system/approvals/{second}/withdraw", null, Ct))).GetProperty("status").GetString().ShouldBe("withdrawn");
+
+        // Không yêu cầu nào được áp dụng
+        (await Reload(target.Id)).Roles.Single().RoleId.ShouldBe(new RoleId(Role("R-TEACHER")));
+
+        // Lọc danh sách người dùng theo vai trò
+        var users = await Ok(await sa.GetAsync($"/api/v1/system/users?roleId={Role("R-TEACHER")}&status=active", Ct));
+        users.EnumerateArray().ShouldContain(u => u.GetProperty("accountId").GetGuid() == target.Id.Value);
+        users.EnumerateArray().ShouldAllBe(u => u.GetProperty("status").GetString() == "active");
+    }
+
     // ---------- PQ-06 / PQ-07 ----------
 
     [Fact]

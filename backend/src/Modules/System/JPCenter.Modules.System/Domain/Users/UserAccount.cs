@@ -120,7 +120,8 @@ public sealed class UserAccount : AggregateRoot<UserAccountId>, IAuditable, ISig
         return Result.Success();
     }
 
-    public void Unlock() => (Status, LockedReason) = (UserAccountStatus.Active, null);
+    /// <summary>Mở khóa: chưa từng đặt mật khẩu (khóa khi còn "đã mời") thì về lại "đã mời", không thành đang hoạt động.</summary>
+    public void Unlock() => (Status, LockedReason) = (PasswordHash is null ? UserAccountStatus.Invited : UserAccountStatus.Active, null);
 
     public void RecordLogin(DateTimeOffset at) => (LastLoginAt, Throttle) = (at, LoginThrottle.None);
 

@@ -412,8 +412,14 @@ Toàn bộ là hạ tầng dùng chung → nằm trong **BuildingBlocks**, khôn
 - Lỗi 500 ở production không lộ stack trace, có `traceId`.
 - Test kiến trúc: mọi endpoint phải có `RequirePermission`, `RequireSignedIn`, `RequirePortal` hoặc `AllowAnonymous`.
 
-Đã có: `tests/JPCenter.IntegrationTests/Middleware/RequestPipelineTests.cs` (20 test — token, quyền, rate limit, phạt,
-Idempotency, audit, trường lạ, chuẩn hóa chuỗi, 413, 500, mã truy vết, header, CORS).
+Đã có:
+- `tests/JPCenter.IntegrationTests/Middleware/RequestPipelineTests.cs` (20 test — token, quyền, rate limit, phạt,
+  Idempotency, audit, trường lạ, chuẩn hóa chuỗi, 413, 500, mã truy vết, header, CORS).
+- `Middleware/PipelineImportTests.cs` — nhập 5.000 dòng trong 1 request không bị 429, lần nhập thứ 2 cùng lúc → 429; sai Content-Type → 415
+  (**chưa đăng nhập thì nhận 401 trước** — endpoint 415 nội bộ của ASP.NET không có AllowAnonymous, không lộ thông tin cho người lạ).
+- `System/EndpointAccessSweepTests.cs` — quét MỌI endpoint thật: không token → 401; endpoint cần mã quyền mà người gọi không có quyền → 403.
+  Endpoint mới thêm tự được kiểm, không cần viết tay test "sai quyền".
+- Dữ liệu ngoài chi nhánh → 404: làm cùng global query filter (PQ-10) ở module có dữ liệu chi nhánh đầu tiên.
 
 ---
 

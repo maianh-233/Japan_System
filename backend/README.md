@@ -18,6 +18,17 @@ dotnet run --project src/Host/JPCenter.Api                        # API: http://
 dotnet test --project tests/JPCenter.ArchitectureTests            # test kiến trúc
 ```
 
+**Kiểm thử** (153 test, 2026-11-17):
+
+| Dự án | Nội dung | Cần Docker |
+|---|---|---|
+| `tests/JPCenter.ArchitectureTests` | Quy tắc phụ thuộc giữa tầng / module (CLAUDE.md mục 3) | Không |
+| `tests/Modules/<Module>/JPCenter.Modules.<Module>.Tests` | Unit test domain + quy tắc thuần (không DB) — hiện có System, Hr | Không |
+| `tests/JPCenter.IntegrationTests` | API thật + PostgreSQL thật (Testcontainers, tự tạo / xóa container): middleware, đăng nhập, phân quyền, quét mọi endpoint 401 / 403 | **Có** |
+
+Chạy 1 dự án: `dotnet test --project <thư mục>`; 1 lớp: thêm `-- --filter-class "*PermissionFlowTests"`.
+Test tích hợp tắt job nền (`Jobs:Enabled=false`) và rate limit (trừ nhóm Middleware); mỗi test dùng tài khoản mẫu riêng để không ảnh hưởng nhau.
+
 | Dịch vụ | Địa chỉ | Ghi chú |
 |---|---|---|
 | API | http://localhost:5080 | `/health` kiểm tra sống |

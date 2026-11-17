@@ -3,6 +3,7 @@ using JPCenter.Api.Common.Idempotency;
 using JPCenter.Api.Common.Modules;
 using JPCenter.Api.Common.RateLimiting;
 using JPCenter.Api.Common.Security;
+using JPCenter.Api.Common.Validation;
 using JPCenter.Application.Common.Security;
 using JPCenter.SharedKernel.Primitives;
 using Microsoft.AspNetCore.Builder;
@@ -17,6 +18,9 @@ namespace JPCenter.IntegrationTests.Middleware;
 public sealed class TestModule : IModule
 {
     public static int CreateCalls;
+
+    /// <summary>Giữ request nhập file đang chạy để test gửi lần 2 cùng lúc.</summary>
+    public static readonly SemaphoreSlim ImportEntered = new(0), ImportRelease = new(0);
 
     public string Name => "test";
 
@@ -43,6 +47,16 @@ public sealed class TestModule : IModule
             .Idempotent()
             .Audited("Tạo mục thử", AuditCategory.Data);
 
+        group.MapPost("/import", async (ImportRequest body, CancellationToken ct) =>
+            {
+                ImportEntered.Release();
+                await ImportRelease.WaitAsync(ct);
+                return Results.Ok(new { rows = body.Rows.Count });
+            })
+            .RequirePermission("test.items", PermissionAction.Create)
+            .RequireRateLimiting(RateLimitPolicies.Import)
+            .WithBodyLimit(10 * 1024 * 1024);
+
         group.MapPost("/sensitive", () => Results.NoContent())
             .RequirePermission("test.items", PermissionAction.Update)
             .RequireRateLimiting(RateLimitPolicies.WriteSensitive);
@@ -52,3 +66,5 @@ public sealed class TestModule : IModule
 public sealed record EchoRequest(string Name);
 
 public sealed record CreateItemRequest(string Name);
+
+public sealed record ImportRequest(List<CreateItemRequest> Rows);
