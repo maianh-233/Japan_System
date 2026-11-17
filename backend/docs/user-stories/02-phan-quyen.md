@@ -325,3 +325,35 @@ Module `system` chỉ có ý nghĩa **toàn hệ thống** — gán theo chi nh�
 | Trùng tên role | UQ `roles.name` (trong số chưa xóa) — đã ghi UQ trong database.md | PQ-02.E1 |
 | Sao chép role | Không cần cột mới (copy grants khi tạo) | PQ-02 |
 | Đảm bảo ≥ 1 Super Admin | Kiểm tra ở Application khi gỡ role / khóa | PQ-05.E8, PQ-08.E5 |
+
+## Đã làm (backend, 2026-11-17)
+
+Code: `src/Modules/System/JPCenter.Modules.System/Application/{Roles,Users,Approvals,Permissions}/` · Test: `tests/JPCenter.IntegrationTests/System/PermissionFlowTests.cs`.
+
+| Story | API (`/api/v1/system/...`) | Quyền |
+|---|---|---|
+| — | `GET permissions/catalog` → module → trang → hành động (= `PERM_CATALOG` frontend) | Đăng nhập (nhân viên / GV) |
+| PQ-01 | `GET roles` → `{ id, name, description, system, superAdmin, grants, userCount, updatedAt, updatedBy, version }` | `system.roles.view` |
+| PQ-02 | `POST roles` `{ name, description, copyFromRoleId?, grants? }` → `{ role, keptCells, pendingApprovalId, message }` | `system.roles.create` |
+| PQ-03 | `PUT roles/{id}/grants` `{ grants, version }` (cả ma trận) · `PUT roles/{id}` `{ name, description }` | `system.roles.update` |
+| PQ-04 | `DELETE roles/{id}` → Thùng rác 30 ngày | `system.roles.delete` |
+| PQ-05 | `GET users?roleId=&branchId=&status=` · `PUT users/{id}/roles` `{ roles: [{ roleId, branchIds }] }` | `system.user-permissions.view` / `.update` |
+| PQ-06 | `POST users/{id}/overrides` `{ perm, effect, scope?, until?, reason }` · `DELETE users/{id}/overrides/{overrideId}` | `system.user-permissions.update` |
+| PQ-07 | `GET users/{id}/effective-permissions` · `POST users/{id}/effective-permissions/preview` `{ roles }` (xem trước khi đổi vai trò) | `system.user-permissions.view` |
+| PQ-08 | `GET users/employees-without-account` · `POST users` `{ employeeId, roles }` · `POST users/{id}/resend-invite` · `.../lock` `{ reason }` · `.../unlock` | `.view` / `.create` / `.update` |
+| PQ-09 | `GET approvals?status=` · `POST approvals/{id}/approve` `{ note? }` · `.../reject` `{ note }` · `.../withdraw` | `system.approvals.view` + (`system.audit.view` hoặc `system.user-permissions.view`) với cấp quyền tài chính; rút lại: chỉ người tạo |
+| PQ-12 | Job Quartz 02:00 hằng ngày (`SystemHousekeepingJob`) | — |
+
+**Chốt khi code (khác / chi tiết hơn tài liệu):**
+- Mọi thay đổi quyền có hiệu lực **ngay** (xóa cache quyền + tăng `token_version`), không đợi làm mới token 15 phút như PQ-03 bước 5 / PQ-12.E1.
+- PQ-03.E2 / PQ-05.E2: chỉ kiểm các ô / dòng gán **thay đổi**; dòng giữ nguyên không bắt người sửa phải đủ quyền. Gỡ 1 vai trò cũng cần đủ quyền với vai trò đó (không cho người quyền thấp gỡ vai trò cao).
+- PQ-03.E5: tách phần thêm / nới `finance.*` thành 1 yêu cầu duyệt, phần còn lại lưu ngay. Payload `role_grants` lưu đúng các ô tài chính.
+- PQ-03.E6: version = `xmin` của dòng `roles`; lưu ma trận luôn cập nhật dòng `roles` để kiểm và tăng version.
+- PQ-06: gỡ **chặn** lẻ = mở lại quyền → người gỡ phải có quyền đó; mở lại quyền tài chính từ role không cần duyệt lại (role đã qua duyệt khi gán).
+- PQ-08: vai trò ban đầu có quyền tài chính → tài khoản vẫn được tạo + gửi email mời, còn vai trò chờ duyệt. "Nhân viên chưa có tài khoản" tính ở System (nhân viên chưa nghỉ − đã có `user_accounts`), không dựa cờ `has_account` của Hr.
+- PQ-08.E6 (tự khóa khi nhân viên nghỉ việc), E8 (cảnh báo GV đang có lớp) — chờ event Hr / module Đào tạo.
+- PQ-09: danh mục quyền không có hành động `approve` cho `system.approvals` → duyệt dùng `view` (giống `canApproveKind` frontend). Kiểu trả về `kind = "finance_permission"` (frontend đang dùng `finance_perm` — đổi khi nối API). Duyệt hoàn tiền / hủy hóa đơn trả `system.approval.unsupported` tới khi có module Tài chính. E4 → `system.approval.requester_lacks_rights`. Báo kết quả cho người đề nghị (chuông) chờ module Thông báo.
+- PQ-10: global query filter theo phạm vi làm cùng module có dữ liệu chi nhánh đầu tiên (CRM / Học viên); System chưa có dữ liệu cần lọc.
+- PQ-12: nhắc người cấp **qua email** mỗi ngày cho quyền lẻ hết hạn trong 3 ngày tới; ghi nhật ký quyền lẻ hết hạn trong 24 giờ qua. Cùng job: xóa Idempotency-Key quá hạn, token dùng 1 lần hết hạn > 30 ngày, phiên kết thúc > 90 ngày.
+- PQ-04.E3 (khôi phục trùng tên thêm "(khôi phục)") có sẵn `Role.RenameForRestore` — làm cùng trang Thùng rác.
+

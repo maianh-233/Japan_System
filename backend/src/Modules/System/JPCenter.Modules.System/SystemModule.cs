@@ -3,11 +3,16 @@ using JPCenter.Application.Common.Auditing;
 using JPCenter.Application.Common.Idempotency;
 using JPCenter.Application.Common.Messaging;
 using JPCenter.Application.Common.Security;
+using JPCenter.Infrastructure.Common.Jobs;
 using JPCenter.Infrastructure.Common.Persistence;
 using JPCenter.Modules.System.Api;
 using JPCenter.Modules.System.Application.Abstractions;
+using JPCenter.Modules.System.Application.Approvals.Common;
 using JPCenter.Modules.System.Application.Auth.Common;
+using JPCenter.Modules.System.Application.Permissions.Common;
 using JPCenter.Modules.System.Application.PortalAccounts.Common;
+using JPCenter.Modules.System.Application.Roles.Common;
+using JPCenter.Modules.System.Application.Users.Common;
 using JPCenter.Modules.System.Infrastructure.Persistence;
 using JPCenter.Modules.System.Infrastructure.Persistence.Seed;
 using JPCenter.Modules.System.Infrastructure.Services;
@@ -15,6 +20,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Quartz;
 
 namespace JPCenter.Modules.System;
 
@@ -43,6 +49,7 @@ public sealed class SystemModule : IModule
         services.AddSingleton<ITokenService, TokenService>();
         services.AddSingleton<IEmailSender, SmtpEmailSender>();
         services.AddSingleton<IFrontendLinks, FrontendLinks>();
+        services.AddSingleton<IPermissionCatalog, PermissionCatalog>();
 
         // Dịch vụ dùng chung giữa các use case (Application/*/Common)
         services.AddScoped<SignInAccounts>();
@@ -51,6 +58,23 @@ public sealed class SystemModule : IModule
         services.AddScoped<InvitationMailer>();
         services.AddScoped<InvitationLookup>();
         services.AddScoped<PortalCredentialSender>();
+        services.AddScoped<PermissionChanges>();
+        services.AddScoped<SuperAdminGuard>();
+        services.AddScoped<RoleReader>();
+        services.AddScoped<UserReader>();
+        services.AddScoped<UserEditGuard>();
+        services.AddScoped<ApprovalFactory>();
+        services.AddScoped<ApprovalReader>();
+        services.AddScoped<FinancePermissionApplier>();
+
+        // Job định kỳ (Host bật scheduler khi Jobs:Enabled ≠ false)
+        if (JobServiceCollectionExtensions.IsEnabled(configuration))
+        {
+            services.AddQuartz(q => q.ScheduleJob<SystemHousekeepingJob>(
+                trigger => trigger.WithIdentity("system-housekeeping")
+                    .WithCronSchedule(SystemHousekeepingJob.Cron, x => x.InTimeZone(TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh"))),
+                job => job.WithIdentity("system-housekeeping")));
+        }
 
         services.AddScoped<IDataSeeder, SystemSeeder>();
     }

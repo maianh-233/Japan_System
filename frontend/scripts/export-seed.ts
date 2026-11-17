@@ -20,6 +20,7 @@ import {
   MOCK_USER_ACCESS,
 } from '@/mocks/data/system';
 import { MOCK_ACCOUNTS as DEMO_ACCOUNTS } from '@/mocks/data/users';
+import { PERM_CATALOG } from '@/features/system/constants';
 
 const backend = resolve(process.cwd(), '..', 'backend', 'src', 'Modules');
 
@@ -36,6 +37,13 @@ const DEMO_PORTAL: Record<string, string> = { 'ST-1': 'hocvien@jpcenter.vn', 'L-
 
 const studentName = new Map(MOCK_STUDENTS.map((s) => [s.id, s.fullName]));
 const leadName = new Map(MOCK_LEADS.map((l) => [l.id, l.fullName]));
+
+// Danh mục quyền (module → trang → hành động) — backend dùng để kiểm tra mã quyền hợp lệ, KHÔNG phải dữ liệu mẫu
+write(resolve(backend, 'System', 'JPCenter.Modules.System', 'Infrastructure', 'Services', 'permission-catalog.json'), {
+  generatedAt: new Date().toISOString(),
+  globalOnlyModules: ['system'],
+  modules: PERM_CATALOG,
+});
 
 write(resolve(backend, 'Hr', 'JPCenter.Modules.Hr', 'Infrastructure', 'Persistence', 'Seed', 'hr.seed.json'), {
   generatedAt: new Date().toISOString(),

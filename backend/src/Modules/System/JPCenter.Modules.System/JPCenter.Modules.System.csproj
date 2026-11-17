@@ -10,5 +10,7 @@
   <ItemGroup>
     <!-- Dữ liệu mẫu xuất từ mock frontend (npm run export-seed) -->
     <EmbeddedResource Include="Infrastructure\Persistence\Seed\*.seed.json" />
+    <!-- Danh mục mã quyền = PERM_CATALOG frontend (cũng xuất bằng npm run export-seed) -->
+    <EmbeddedResource Include="Infrastructure\Services\permission-catalog.json" />
   </ItemGroup>
 </Project>

@@ -24,10 +24,10 @@ internal sealed class EmployeeDirectory(HrDbContext db) : IEmployeeDirectory
         return list.ToDictionary(x => x.Id.Value, ToSummary);
     }
 
-    public async Task<IReadOnlyList<EmployeeSummary>> ListWithoutAccountAsync(CancellationToken ct)
+    public async Task<IReadOnlyList<EmployeeSummary>> ListActiveAsync(CancellationToken ct)
     {
         var list = await db.Employees.AsNoTracking()
-            .Where(x => !x.HasAccount && x.Status != EmployeeStatus.Quit)
+            .Where(x => x.Status != EmployeeStatus.Quit)
             .OrderBy(x => x.FullName)
             .ToListAsync(ct);
         return list.Select(ToSummary).ToList();

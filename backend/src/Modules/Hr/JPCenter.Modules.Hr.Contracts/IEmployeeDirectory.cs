@@ -9,6 +9,6 @@ public interface IEmployeeDirectory
 
     Task<IReadOnlyDictionary<Guid, EmployeeSummary>> FindManyAsync(IReadOnlyCollection<Guid> employeeIds, CancellationToken ct);
 
-    /// <summary>Nhân viên chưa nghỉ việc mà chưa có tài khoản (PQ-08: "N nhân viên chưa có tài khoản").</summary>
-    Task<IReadOnlyList<EmployeeSummary>> ListWithoutAccountAsync(CancellationToken ct);
+    /// <summary>Nhân viên chưa nghỉ việc — System trừ đi người đã có tài khoản để ra "N nhân viên chưa có tài khoản" (PQ-08).</summary>
+    Task<IReadOnlyList<EmployeeSummary>> ListActiveAsync(CancellationToken ct);
 }

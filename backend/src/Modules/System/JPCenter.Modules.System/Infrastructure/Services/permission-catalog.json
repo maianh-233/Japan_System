@@ -1,0 +1,595 @@
+{
+  "generatedAt": "2026-11-17T05:33:54.086Z",
+  "globalOnlyModules": [
+    "system"
+  ],
+  "modules": [
+    {
+      "key": "dashboard",
+      "label": "Tổng quan",
+      "groups": [
+        {
+          "key": "dashboard.overview",
+          "label": "Bảng điều khiển",
+          "actions": [
+            "view",
+            "export"
+          ]
+        },
+        {
+          "key": "dashboard.reports",
+          "label": "Báo cáo",
+          "actions": [
+            "view",
+            "export"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "crm",
+      "label": "Tuyển sinh",
+      "groups": [
+        {
+          "key": "crm.leads",
+          "label": "Lead",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "crm.lead-rules",
+          "label": "Chia lead & SLA",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "crm.placement-tests",
+          "label": "Test xếp lớp",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "crm.appointments",
+          "label": "Lịch hẹn",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "crm.promotions",
+          "label": "Tư vấn lên lớp",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "crm.funnel",
+          "label": "Phễu chuyển đổi",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "crm.message-templates",
+          "label": "Mẫu tin nhắn",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "crm.campaigns",
+          "label": "Chiến dịch",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "students",
+      "label": "Học viên",
+      "groups": [
+        {
+          "key": "students.profiles",
+          "label": "Hồ sơ học viên",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "students.contacts",
+          "label": "Phụ huynh / Người giám hộ",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "students.at-risk",
+          "label": "Cảnh báo bỏ học",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "students.jlpt",
+          "label": "Chứng chỉ JLPT",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "students.certificates",
+          "label": "Chứng nhận hoàn thành",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "students.study-abroad",
+          "label": "Du học / XKLĐ",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "academic",
+      "label": "Đào tạo",
+      "groups": [
+        {
+          "key": "academic.courses",
+          "label": "Khóa học",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "academic.curriculum",
+          "label": "Lộ trình (Curriculum)",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "academic.questions",
+          "label": "Ngân hàng câu hỏi",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export",
+            "approve"
+          ]
+        },
+        {
+          "key": "academic.classes",
+          "label": "Lớp học",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "academic.sessions",
+          "label": "Buổi học (Session)",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export",
+            "approve"
+          ]
+        },
+        {
+          "key": "academic.requests",
+          "label": "Đơn chờ xử lý",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export",
+            "approve"
+          ]
+        },
+        {
+          "key": "academic.rooms",
+          "label": "Phòng học",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "library",
+      "label": "Thư viện",
+      "groups": [
+        {
+          "key": "library.documents",
+          "label": "Thư viện tài liệu",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export",
+            "approve"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "finance",
+      "label": "Tài chính",
+      "groups": [
+        {
+          "key": "finance.tuition",
+          "label": "Học phí & bảng giá",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "finance.invoices",
+          "label": "Hóa đơn & thu tiền",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export",
+            "approve"
+          ]
+        },
+        {
+          "key": "finance.reconciliation",
+          "label": "Đối soát VietQR",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export",
+            "approve"
+          ]
+        },
+        {
+          "key": "finance.debts",
+          "label": "Công nợ",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "finance.teacher-payroll",
+          "label": "Lương giáo viên",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export",
+            "approve"
+          ]
+        },
+        {
+          "key": "finance.staff-payroll",
+          "label": "Lương nhân viên",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export",
+            "approve"
+          ]
+        },
+        {
+          "key": "finance.commissions",
+          "label": "Hoa hồng & KPI Sale",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export",
+            "approve"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "hr",
+      "label": "Nhân sự",
+      "groups": [
+        {
+          "key": "hr.recruitment",
+          "label": "Tuyển dụng",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export",
+            "approve"
+          ]
+        },
+        {
+          "key": "hr.onboarding",
+          "label": "Onboarding",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "hr.employees",
+          "label": "Nhân viên",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "hr.teachers",
+          "label": "Giáo viên",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "hr.timesheets",
+          "label": "Chấm công",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export",
+            "approve"
+          ]
+        },
+        {
+          "key": "hr.requests",
+          "label": "Đơn từ & phê duyệt",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export",
+            "approve"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "work",
+      "label": "Công việc",
+      "groups": [
+        {
+          "key": "work.tasks",
+          "label": "Task toàn hệ thống",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "work.shifts",
+          "label": "Xếp ca làm việc",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export",
+            "approve"
+          ]
+        },
+        {
+          "key": "work.handover",
+          "label": "Bàn giao ca",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export",
+            "approve"
+          ]
+        }
+      ]
+    },
+    {
+      "key": "system",
+      "label": "Hệ thống",
+      "groups": [
+        {
+          "key": "system.branches",
+          "label": "Chi nhánh",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "system.roles",
+          "label": "Vai trò & quyền",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "system.user-permissions",
+          "label": "Phân quyền người dùng",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "system.integrations",
+          "label": "Tích hợp",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "system.audit",
+          "label": "Nhật ký hệ thống",
+          "actions": [
+            "view",
+            "export"
+          ]
+        },
+        {
+          "key": "system.approvals",
+          "label": "Duyệt thao tác",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "system.trash",
+          "label": "Thùng rác",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        },
+        {
+          "key": "system.settings",
+          "label": "Cài đặt chung",
+          "actions": [
+            "view",
+            "create",
+            "update",
+            "delete",
+            "export"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -40,9 +40,14 @@ public sealed partial class AuthFlowTests(SeededApiFactory api)
     private async Task<string> InvitedEmail(int n)
     {
         await using var scope = api.Scope();
-        var employees = await scope.ServiceProvider.GetRequiredService<JPCenter.Modules.Hr.Contracts.IEmployeeDirectory>().ListWithoutAccountAsync(Ct);
-        var employee = employees[n];
+        var active = await scope.ServiceProvider.GetRequiredService<JPCenter.Modules.Hr.Contracts.IEmployeeDirectory>().ListActiveAsync(Ct);
         var db = scope.ServiceProvider.GetRequiredService<SystemDbContext>();
+        var accounts = await db.UserAccounts.ToDictionaryAsync(x => x.EmployeeId, x => x.Status, Ct);
+        // Chưa có tài khoản hoặc vẫn đang "đã mời"; bỏ nhân viên do PermissionFlowTests tự tạo
+        var employee = active
+            .Where(e => !e.Email.StartsWith(PermissionFlowTests.EmployeePrefix, StringComparison.Ordinal))
+            .Where(e => !accounts.TryGetValue(e.Id, out var s) || s == UserAccountStatus.Invited)
+            .OrderBy(e => e.FullName, StringComparer.Ordinal).ElementAt(n);
         if (!await db.UserAccounts.AnyAsync(x => x.EmployeeId == employee.Id, Ct))
         {
             db.UserAccounts.Add(UserAccount.Invite(employee.Id, employee.Email).Value);

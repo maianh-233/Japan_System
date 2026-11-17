@@ -80,6 +80,19 @@ public sealed class UserAccount : AggregateRoot<UserAccountId>, IAuditable, ISig
         RevokeTokens();
     }
 
+    /// <summary>Thay toàn bộ vai trò (PQ-05). Cùng role gán 2 lần → gộp chi nhánh (E4).</summary>
+    public void SetRoles(IEnumerable<(RoleId RoleId, IReadOnlyCollection<BranchId> BranchIds)> roles)
+    {
+        _roles.Clear();
+        foreach (var g in roles.GroupBy(r => r.RoleId))
+        {
+            // 1 dòng gán "mọi chi nhánh" thì cả role là mọi chi nhánh
+            var all = g.Any(r => r.BranchIds.Count == 0);
+            _roles.Add(new UserRoleAssignment(g.Key, all ? [] : g.SelectMany(r => r.BranchIds).Distinct().ToList()));
+        }
+        RevokeTokens();
+    }
+
     public void RemoveRole(RoleId roleId)
     {
         if (_roles.RemoveAll(r => r.RoleId == roleId) > 0) RevokeTokens();

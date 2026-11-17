@@ -35,6 +35,7 @@ public sealed class SeededApiFactory : WebApplicationFactory<Program>, IAsyncLif
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
+        builder.UseSetting("Jobs:Enabled", "false");
         builder.UseSetting("ConnectionStrings:Database", _pg.ConnectionString);
         builder.UseSetting("Jwt:SigningKey", "integration-test-signing-key-0123456789-abcdef");
         builder.UseSetting("Seed:Enabled", "true");

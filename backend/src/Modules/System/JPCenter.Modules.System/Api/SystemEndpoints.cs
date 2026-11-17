@@ -11,5 +11,8 @@ public static class SystemEndpoints
         AuthEndpoints.Map(system);
         MySessionEndpoints.Map(system);
         PortalAccountEndpoints.Map(system);
+        RoleEndpoints.Map(system);
+        UserPermissionEndpoints.Map(system);
+        ApprovalEndpoints.Map(system);
     }
 }

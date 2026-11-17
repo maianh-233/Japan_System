@@ -34,4 +34,16 @@ public sealed class Role : AggregateRoot<RoleId>, IAuditable, ISoftDeletable
     }
 
     public Result EnsureDeletable() => IsSystem ? RoleErrors.SystemRole : Result.Success();
+
+    /// <summary>Đổi tên / mô tả — role mặc định không đổi tên được (PQ-03.E7), vẫn sửa được mô tả.</summary>
+    public Result Rename(string name, string description)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return RoleErrors.NameRequired;
+        if (IsSystem && name.Trim() != Name) return RoleErrors.SystemRoleRename;
+        (Name, Description) = (name.Trim(), description.Trim());
+        return Result.Success();
+    }
+
+    /// <summary>Đổi tên khi khôi phục từ Thùng rác mà trùng tên role khác (PQ-04.E3).</summary>
+    public void RenameForRestore(string name) => Name = name;
 }

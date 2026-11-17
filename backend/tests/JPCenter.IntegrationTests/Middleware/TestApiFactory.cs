@@ -28,6 +28,7 @@ public sealed class TestApiFactory : WebApplicationFactory<Program>
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
+        builder.UseSetting("Jobs:Enabled", "false");
         builder.UseSetting("Jwt:SigningKey", SigningKey);
         builder.UseSetting("Jwt:Issuer", "jpcenter-api");
         builder.UseSetting("Jwt:Audience", "jpcenter-web");

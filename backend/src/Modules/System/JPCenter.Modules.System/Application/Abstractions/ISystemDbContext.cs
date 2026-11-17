@@ -1,9 +1,11 @@
+using JPCenter.Modules.System.Domain.Approvals;
 using JPCenter.Modules.System.Domain.AuditLogs;
 using JPCenter.Modules.System.Domain.Branches;
 using JPCenter.Modules.System.Domain.OneTimeTokens;
 using JPCenter.Modules.System.Domain.PortalAccounts;
 using JPCenter.Modules.System.Domain.Roles;
 using JPCenter.Modules.System.Domain.Sessions;
+using JPCenter.Modules.System.Domain.Trash;
 using JPCenter.Modules.System.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +21,8 @@ public interface ISystemDbContext
     DbSet<UserSession> UserSessions { get; }
     DbSet<OneTimeToken> OneTimeTokens { get; }
     DbSet<AuditLog> AuditLogs { get; }
+    DbSet<ApprovalRequest> ApprovalRequests { get; }
+    DbSet<TrashItem> TrashItems { get; }
 
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

@@ -61,6 +61,7 @@
 | `DataChangeAuditInterceptor` + `AuditChangeCollector` (`Auditing/`) | Gom before → after (che mật khẩu / token / khóa) vào dòng nhật ký của hành động | ✅ |
 | `ChannelAuditWriter` + `AuditBackgroundWriter` (`Auditing/`) | Hàng đợi nhật ký ghi nền theo lô 200 dòng, không làm chậm request | ✅ |
 | `LoggingAuditSink`, `InMemoryIdempotencyStore` | Mặc định khi chưa có module System (System thay bằng bản PostgreSQL) | ✅ |
+| `AddScheduledJobs(config)` + `JobServiceCollectionExtensions.IsEnabled(config)` (`Jobs/`) | Bật Quartz (Host gọi 1 lần); module khai báo job bằng `services.AddQuartz(q => q.ScheduleJob<TJob>(...))` khi `IsEnabled`. Tắt bằng `Jobs:Enabled=false` (test tích hợp) | ✅ |
 | `DomainEventOutboxInterceptor` | Sau này | 📝 |
 | `OutboxMessage`, `OutboxProcessor` (BackgroundService) | Gửi integration event chắc chắn | 📝 |
 | `InboxMessage` (chống xử lý event 2 lần) | Handler integration event | 📝 |
