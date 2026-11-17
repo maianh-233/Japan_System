@@ -9,10 +9,12 @@ Mỗi file = 1 nhóm nghiệp vụ. Viết từ giao diện frontend đã dựng
 |---|---|---|---|
 | 01 | [Đăng nhập & bảo mật tài khoản](01-dang-nhap-bao-mat.md) | `AUTH-xx` | ✍️ Đã viết |
 | 02 | [Vai trò & phân quyền](02-phan-quyen.md) | `PQ-xx` | ✍️ Đã viết |
-| 03 | Tuyển sinh (lead, chia lead, test xếp lớp) | `CRM-xx` | ⏳ Chưa viết |
-| 04 | Học viên & ghi danh | `HV-xx` | ⏳ |
-| 05 | Lớp học & buổi học | `DT-xx` | ⏳ |
-| 06 | Học phí & hóa đơn | `TC-xx` | ⏳ |
+| 03 | [Quản lý chi nhánh](03-chi-nhanh.md) | `CN-xx` | ✍️ Đã viết |
+| 04 | [Quản lý nhân viên & giáo viên](04-nhan-su.md) | `NS-xx` | ✍️ Đã viết |
+| 05 | Tuyển sinh (lead, chia lead, test xếp lớp) | `CRM-xx` | ⏳ Chưa viết |
+| 06 | Học viên & ghi danh | `HV-xx` | ⏳ |
+| 07 | Lớp học & buổi học | `DT-xx` | ⏳ |
+| 08 | Học phí & hóa đơn | `TC-xx` | ⏳ |
 
 ## Mẫu 1 user story
 
@@ -44,3 +46,4 @@ Mỗi file = 1 nhóm nghiệp vụ. Viết từ giao diện frontend đã dựng
 - **Mã lỗi** khớp `Error.Code` trong Domain / ProblemDetails (vd `auth.invalid_credentials`).
 - Ghi **🆕 Đề xuất backend** cho hành vi frontend mock chưa làm nhưng backend thật cần có (khóa khi nhập sai nhiều lần, phiên đăng nhập...).
 - Đổi giao diện / nghiệp vụ → sửa story trước, rồi mới sửa code.
+- ⏳ = phụ thuộc module chưa làm: viết sẵn quy tắc, làm khi có module đó.
