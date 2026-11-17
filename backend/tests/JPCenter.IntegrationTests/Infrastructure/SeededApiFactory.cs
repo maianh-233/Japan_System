@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using JPCenter.Infrastructure.Common.Persistence;
 using JPCenter.Application.Common.Email;
+using JPCenter.Application.Common.Files;
 using JPCenter.Application.Common.IntegrationEvents;
 using JPCenter.IntegrationTests.BuildingBlocks;
 using Microsoft.AspNetCore.Hosting;
@@ -51,11 +52,15 @@ public sealed class SeededApiFactory : WebApplicationFactory<Program>, IAsyncLif
         builder.ConfigureTestServices(services =>
         {
             services.Replace(ServiceDescriptor.Singleton<IEmailSender>(Emails));
+            services.Replace(ServiceDescriptor.Singleton<IFileStorage>(Files));
             // Handler sự kiện chỉ có trong test (BuildingBlocks/OutboxTests.cs)
             services.AddScoped<IIntegrationEventHandler<OutboxPing>, OutboxPingOkHandler>();
             services.AddScoped<IIntegrationEventHandler<OutboxPing>, OutboxPingFlakyHandler>();
         });
     }
+
+    /// <summary>Kho file giả — tài liệu lộ trình, file mẫu của seeder.</summary>
+    public InMemoryFileStorage Files { get; } = new();
 
     /// <summary>Email "đã gửi" (OTP, link mời...) — test đọc lại thay cho Mailpit.</summary>
     public CapturingEmailSender Emails { get; } = new();

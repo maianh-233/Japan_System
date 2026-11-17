@@ -54,7 +54,7 @@
 |---|---|---|
 | `ModuleDbContextBase` (`Persistence/`) | Base cho DbContext mọi module: schema, Id strongly-typed ↔ `uuid` (+ `List<XxxId>` ↔ `uuid[]`), enum ↔ chuỗi snake_case, `Money` ↔ `numeric(18,0)`, cột chung created/updated, xóa mềm + query filter tên `soft_delete`, `xmin` cho aggregate. Cấu hình EF đặt trong namespace `*.Infrastructure.*` của module được nạp tự động | ✅ |
 | `ShadowColumns` | Tên shadow property cột chung; `IgnoreQueryFilters([ShadowColumns.SoftDeleteFilter])` để xem Thùng rác | ✅ |
-| `AuditFieldsInterceptor` | Tự điền created/updated, đổi xóa → xóa mềm (gắn sẵn qua `AddModuleDbContext`) | ✅ |
+| `AuditFieldsInterceptor` | Tự điền created/updated, đổi xóa → xóa mềm (gắn sẵn qua `AddModuleDbContext`). Gốc aggregate xóa mềm → các con owned (bài học, chapter…) **giữ nguyên** để khôi phục đầy đủ | ✅ |
 | `AddInfrastructureCommon()`, `AddModuleDbContext<T>(config, schema)` | Đăng ký đồng hồ, interceptor, DbContext module (PostgreSQL, snake_case, bảng migration riêng mỗi schema) | ✅ |
 | `IDataSeeder` + `InitializeDatabaseAsync()` | Development: tự chạy migration + nạp dữ liệu mẫu theo `Order`; seeder chỉ nạp khi bảng trống, **không xóa** | ✅ |
 | `SystemClock` (`Time/`) | Hiện thực `IClock` (Today theo giờ VN) | ✅ |

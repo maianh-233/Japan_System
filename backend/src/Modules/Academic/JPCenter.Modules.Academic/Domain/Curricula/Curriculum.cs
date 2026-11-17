@@ -294,7 +294,7 @@ public sealed partial class Curriculum : AggregateRoot<CurriculumId>, IAuditable
     {
         var m = VersionNumbers().Match(version ?? "");
         if (!m.Success) return "v1.0";
-        var minor = int.Parse(m.Groups[2].Value, System.Globalization.CultureInfo.InvariantCulture) + 1;
+        var minor = int.Parse(m.Groups[2].Value, global::System.Globalization.CultureInfo.InvariantCulture) + 1;
         return $"v{m.Groups[1].Value}.{minor}";
     }
 

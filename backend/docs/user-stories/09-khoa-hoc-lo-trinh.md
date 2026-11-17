@@ -430,3 +430,36 @@ Bản **nháp** chưa từng phát hành, không lớp nào dùng → được *
 `academic.course.default_not_published`, `academic.course.not_available`, `academic.curriculum.archived`, `academic.curriculum.duplicate_version`,
 `academic.curriculum.entry_requirement_required`, `academic.curriculum.draft_exists`, `academic.curriculum.not_published`, `academic.curriculum.is_default`,
 `academic.curriculum.in_use`, `academic.material.not_found`.
+
+## Đã làm (backend, 2026-11-17)
+
+Code: `src/Modules/Academic/JPCenter.Modules.Academic/Application/{Courses,Curricula}/` · Test: `tests/JPCenter.IntegrationTests/Academic/AcademicFlowTests.cs`,
+`tests/Modules/Academic/JPCenter.Modules.Academic.Tests/Domain/{CourseTests,CurriculumTests}.cs`.
+
+| Story | API (`/api/v1/academic/...`) | Quyền |
+|---|---|---|
+| KH-01 | `GET courses` → `CourseDto[]` (lọc phạm vi xem theo chi nhánh bán) · `GET courses/{id}` · `GET courses/options?branchId=` (khóa đang tuyển sinh) | `academic.courses.view` · options: nhân viên đã đăng nhập |
+| KH-02, 03 | `POST courses` `{ …, cloneFromId? }` | `.create` |
+| KH-04 | `PUT courses/{id}` `{ …, rowVersion }` | `.update` |
+| KH-05 | `POST courses/{id}/activate` · `…/pause` | `.update` |
+| KH-06 | `POST courses/{id}/curricula` `{ curriculumId, isDefault }` · `PUT courses/{id}/curricula/{cid}/default` · `DELETE courses/{id}/curricula/{cid}` | `.update` |
+| LT-01 | `GET curricula` (kèm toàn bộ nội dung) · `GET curricula/{id}` | `academic.curriculum.view` |
+| LT-02, 03 | `POST curricula` `{ …, cloneFromId? }` | `.create` |
+| LT-04 | `PUT curricula/{id}` `{ …, rowVersion }` | `.update` |
+| LT-05 | `POST curricula/{id}/lessons` · `PUT …/lessons/order` `{ ids }` · `PUT/DELETE …/lessons/{lessonId}` · `POST …/lessons/{lessonId}/chapters` · `PUT …/chapters/order` · `PUT/DELETE …/chapters/{chapterId}` | `.update` |
+| LT-06 | `POST …/chapters/{chapterId}/materials/file` (multipart `file`, `name?`, `sharedWithStudents?`; ≤ 50 MB) · `POST …/materials/link` · `PUT/DELETE curricula/{id}/materials/{materialId}` | `.update` |
+| LT-07 | `GET curricula/{id}/materials/{materialId}/link?download=` → `{ url, expiresAt }` (link tạm 15 phút) | `.view` |
+| LT-08 | `POST curricula/{id}/exams` · `PUT/DELETE …/exams/{examId}` | `.update` |
+| LT-09 → 11 | `POST curricula/{id}/publish` `{ setDefaultFor? }` · `…/new-version` · `…/archive` · `…/restore` · `DELETE curricula/{id}` (chỉ bản nháp) | `.update` / `.create` / `.delete` |
+
+**Chốt khi code:**
+- Mọi thao tác soạn nội dung trả về lộ trình đầy đủ mới nhất (frontend thay nguyên object). JSON bỏ trường `null` (vd `url` của tài liệu file).
+- Cấp độ trả đúng dạng frontend (`beginner`, `N5`…); `rowVersion` = chống sửa đè (`version` là phiên bản nội dung `v1.0`).
+- LT-06.E8: xóa tài liệu / bài / chapter khỏi bản nháp → file bị xóa khỏi kho **ngay** nếu không còn tài liệu nào (kể cả bản sao, phiên bản khác,
+  lộ trình trong Thùng rác) dùng chung key. Xóa bản nháp lộ trình = xóa mềm, nội dung + file giữ nguyên.
+- Endpoint tải file đọc form trong handler — kiểm quyền **trước** khi nhận body; giới hạn riêng 51 MB (chung 1 MB).
+- KH-03: nhân bản bỏ qua lộ trình đã lưu trữ; nếu bản mặc định bị bỏ thì lộ trình đầu tiên còn lại tự thành mặc định (quy tắc "khóa luôn có 1 mặc định").
+- Dữ liệu mẫu: 14 khóa + 14 lộ trình từ mock frontend; tài liệu file trỏ tới 1 file mẫu / đuôi (PDF mở được thật, đuôi khác chỉ đúng phần đầu).
+- ⏳ chờ Lớp học (giai đoạn 14): `ClassUsage` đang trả rỗng — KH-04.E1/E2 (khóa mã / hình thức khi có lớp), KH-06.E2, LT-11.E3, cột "lớp đang mở",
+  số lớp dùng lộ trình; link tài liệu cho cổng GV / HV (LT-07 phía cổng).
+

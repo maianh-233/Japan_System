@@ -1,3 +1,4 @@
+using JPCenter.Modules.Academic.Api.Endpoints;
 using Microsoft.AspNetCore.Routing;
 
 namespace JPCenter.Modules.Academic.Api;
@@ -7,5 +8,7 @@ public static class AcademicEndpoints
 {
     public static void Map(IEndpointRouteBuilder academic)
     {
+        CourseEndpoints.Map(academic);
+        CurriculumEndpoints.Map(academic);
     }
 }

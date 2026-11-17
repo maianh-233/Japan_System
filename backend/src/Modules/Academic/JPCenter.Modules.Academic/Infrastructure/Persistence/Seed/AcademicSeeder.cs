@@ -72,7 +72,7 @@ internal sealed class AcademicSeeder(AcademicDbContext db, IFileStorage storage,
             var links = data.CourseCurricula.Where(l => l.CourseId == s.Id).OrderByDescending(l => l.IsDefault).ToList();
             foreach (var l in links)
                 course.LinkCurriculum(new CurriculumId(SeedData.IdOf(l.CurriculumId)), l.IsDefault, DateTimeOffset.Parse(l.LinkedAt,
-                    System.Globalization.CultureInfo.InvariantCulture));
+                    global::System.Globalization.CultureInfo.InvariantCulture));
 
             var defaultPublished = links.FirstOrDefault(l => l.IsDefault) is { } d && curriculumStatus[d.CurriculumId] == "published";
             if (s.Status is "active" or "paused" && course.Activate(defaultPublished).IsFailure)
