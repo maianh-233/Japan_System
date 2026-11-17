@@ -12,6 +12,9 @@ import { dirname, resolve } from 'node:path';
 import { MOCK_EMPLOYEES } from '@/mocks/data/employees';
 import { MOCK_COURSES } from '@/mocks/data/courses';
 import { MOCK_COURSE_CURRICULA, MOCK_CURRICULA } from '@/mocks/data/curricula';
+import { MOCK_CLASSES } from '@/mocks/data/classes';
+import { MOCK_SESSIONS } from '@/mocks/data/attendance';
+import { MOCK_ROOM_ISSUES, MOCK_ROOMS } from '@/mocks/data/rooms';
 import { MOCK_LEADS } from '@/mocks/data/crm';
 import { MOCK_ACCOUNTS as PORTAL_ACCOUNTS, MOCK_STUDENTS } from '@/mocks/data/students';
 import {
@@ -62,6 +65,24 @@ write(resolve(backend, 'Academic', 'JPCenter.Modules.Academic', 'Infrastructure'
   courseCurricula: MOCK_COURSE_CURRICULA,
 });
 
+// Phòng, lớp, buổi học (user story 07). Người thao tác lưu theo TÊN ("Phạm Thị Hồng (Giáo vụ)") → Id nhân viên nếu có, không có → null
+const personId = (name?: string) => (name ? (employeeIdByName.get(name.replace(/\s*\(.*\)\s*$/, '').trim()) ?? null) : null);
+write(resolve(backend, 'Academic', 'JPCenter.Modules.Academic', 'Infrastructure', 'Persistence', 'Seed', 'classes.seed.json'), {
+  generatedAt: new Date().toISOString(),
+  rooms: MOCK_ROOMS,
+  roomIssues: MOCK_ROOM_ISSUES.map((i) => ({ ...i, reportedById: personId(i.reportedBy) })),
+  classes: MOCK_CLASSES,
+  sessions: MOCK_SESSIONS.map((x) => ({
+    ...x,
+    attendanceById: personId(x.attendanceBy?.name),
+    confirmedById: personId(x.confirmation?.by),
+    cancelledById: personId(x.cancelledBy?.name),
+    supportLog: x.supportLog?.map((e) => ({ ...e, byId: personId(e.by) })),
+    incident: x.incident && { ...x.incident, reportedById: personId(x.incident.reportedBy), outcomeById: personId(x.incident.outcome?.by) },
+    teacherLog: x.teacherLog && { ...x.teacherLog, authorId: personId(x.teacherLog.author) },
+  })),
+});
+
 write(resolve(backend, 'System', 'JPCenter.Modules.System', 'Infrastructure', 'Persistence', 'Seed', 'system.seed.json'), {
   generatedAt: new Date().toISOString(),
   branches: MOCK_BRANCH_PROFILES,
@@ -98,6 +119,9 @@ const seedIds = [
   ...PORTAL_ACCOUNTS.map((a) => a.id),
   ...MOCK_COURSES.map((c) => c.id),
   ...MOCK_CURRICULA.map((c) => c.id),
+  ...MOCK_ROOMS.map((r) => r.id),
+  ...MOCK_CLASSES.map((c) => c.id),
+  ...MOCK_SESSIONS.map((x) => x.id),
 ];
 const idPath = resolve(process.cwd(), 'src', 'lib', 'api', 'seedIds.generated.ts');
 mkdirSync(dirname(idPath), { recursive: true });

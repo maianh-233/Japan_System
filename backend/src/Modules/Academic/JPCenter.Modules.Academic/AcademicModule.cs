@@ -33,6 +33,7 @@ public sealed class AcademicModule : IModule
         services.AddScoped<CurriculumEditor>();
 
         services.AddScoped<IDataSeeder, AcademicSeeder>();
+        services.AddScoped<IDataSeeder, ClassSeeder>();
     }
 
     public void MapEndpoints(IEndpointRouteBuilder group) => AcademicEndpoints.Map(group);
