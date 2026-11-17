@@ -66,6 +66,14 @@ export interface Employee {
   hasAccount: boolean;
   teacher?: TeacherProfile;
   note?: string;
+  /** Lý do nghỉ việc */
+  quitReason?: string;
+  /** Đã hẹn ngày nghỉ (`quitAt` ở tương lai, chưa tới ngày) */
+  quitScheduled?: boolean;
+  /** Người xem không có quyền xem lương — lương / phụ cấp / đơn giá bị ẩn (server không trả) */
+  salaryHidden?: boolean;
+  /** Hợp đồng trước đây (mới nhất trước) — chỉ có khi tải chi tiết từ server */
+  contractHistory?: Contract[];
 }
 
 // ---------------- Chấm công ----------------

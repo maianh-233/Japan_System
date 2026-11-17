@@ -7,11 +7,13 @@ import { useClassStore } from '@/features/academic/classes/classStore';
 import { useRoomStore } from '@/features/academic/rooms/roomStore';
 import { useHrStore } from '@/features/hr/hrStore';
 import { summarizeInvoice, useStudentStore } from '@/features/student/studentStore';
+import * as branchApi from '@/features/system/branchApi';
 import { BRANCH_STATUS } from '@/features/system/constants';
 import { useSystemStore } from '@/features/system/systemStore';
 import type { BranchProfile } from '@/features/system/types';
 import { useActor } from '@/features/system/useActor';
 import { useAuth } from '@/hooks/useAuth';
+import { USE_API } from '@/lib/api/config';
 import { cn } from '@/lib/cn';
 import { fmtDate } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
@@ -20,21 +22,27 @@ import dayjs from 'dayjs';
 
 type FormValues = Omit<BranchProfile, 'openedAt' | 'bank'> & { openedAt: dayjs.Dayjs; bankName?: string; bankAccount?: string; bankHolder?: string };
 
-/** Chi nhánh: thông tin liên hệ, quản lý, giờ mở cửa, tài khoản nhận học phí, trạng thái. DỮ LIỆU GIẢ. */
+/**
+ * Chi nhánh: thông tin liên hệ, quản lý, giờ mở cửa, tài khoản nhận học phí, trạng thái.
+ * Chế độ API: chi nhánh + số nhân sự / giáo viên từ backend; học viên, lớp, phòng, công nợ vẫn tính từ dữ liệu giả (module chưa có).
+ */
 export default function BranchesPage() {
-  const { can, setBranch } = useAuth();
+  const { can, canDo, setBranch } = useAuth();
   const navigate = useNavigate();
   const notify = useNotify();
   const { confirm, confirmDialog } = useConfirm();
   const { actor } = useActor();
   const branches = useSystemStore((s) => s.branches);
   const saveBranch = useSystemStore((s) => s.saveBranch);
+  const serverStats = branchApi.useBranchMeta((m) => m.stats);
+  const managerNames = branchApi.useBranchMeta((m) => m.managerNames);
   const employees = useHrStore((s) => s.employees);
   const classes = useClassStore((s) => s.classes);
   const rooms = useRoomStore((s) => s.rooms);
   const enrollments = useStudentStore((s) => s.enrollments);
   const invoices = useStudentStore((s) => s.invoices);
-  const editable = can('system.branches');
+  const editable = canDo('system.branches', 'update');
+  const creatable = canDo('system.branches', 'create');
   const [editing, setEditing] = useState<BranchProfile | 'new' | null>(null);
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -61,11 +69,12 @@ export default function BranchesPage() {
         const cls = classes.filter((c) => c.branchId === b.id);
         const branchEmployees = employees.filter((e) => e.branchId === b.id && e.status !== 'quit');
         const finance = financeByBranch.get(b.id) ?? { collected: 0, receivable: 0 };
+        const server = USE_API ? serverStats[b.id] : undefined;
         return [
           b.id,
           {
-            staff: branchEmployees.length,
-            teachers: branchEmployees.filter((e) => e.kind === 'teacher').length,
+            staff: server?.staff ?? branchEmployees.length,
+            teachers: server?.teachers ?? branchEmployees.filter((e) => e.kind === 'teacher').length,
             rooms: rooms.filter((r) => r.branchId === b.id).length,
             activeClasses: cls.filter((c) => c.status === 'ongoing' || c.status === 'enrolling').length,
             students: new Set(enrollments.filter((e) => e.status === 'studying' && classBranch.get(e.classId) === b.id).map((e) => e.studentId)).size,
@@ -75,7 +84,7 @@ export default function BranchesPage() {
         ];
       }),
     );
-  }, [branches, classes, employees, rooms, enrollments, invoices]);
+  }, [branches, classes, employees, rooms, enrollments, invoices, serverStats]);
 
   const total = (k: 'staff' | 'teachers' | 'rooms' | 'activeClasses' | 'students' | 'collected' | 'receivable') => [...stats.values()].reduce((s, x) => s + x[k], 0);
   const managers = employees.filter((e) => e.status !== 'quit' && (e.department === 'board' || e.position.toLowerCase().includes('quản lý')));
@@ -95,7 +104,8 @@ export default function BranchesPage() {
         notify.error({ title: 'Chưa đóng được chi nhánh', description: `Còn ${st.activeClasses} lớp đang học / tuyển sinh. Kết thúc hoặc chuyển lớp trước.` });
         return;
       }
-      if (st.staff) {
+      // Chế độ API: server kiểm nhân sự còn lại + mã xác nhận
+      if (!USE_API && st.staff) {
         notify.error({ title: 'Chưa đóng được chi nhánh', description: `Còn ${st.staff} nhân sự chưa chuyển chi nhánh hoặc chấm dứt công tác.` });
         return;
       }
@@ -105,8 +115,23 @@ export default function BranchesPage() {
         consequences: ['Không nhận lead, ghi danh, xếp lớp mới ở chi nhánh này.', 'Dữ liệu cũ (học viên, nhân sự, phòng, hóa đơn) vẫn giữ để tra cứu.'],
         confirmText: 'Đóng chi nhánh',
         typeToConfirm: b.code,
+        onConfirm: USE_API ? async () => void (await branchApi.closeBranch(b.id, b.code)) : undefined,
       });
       if (!ok) return;
+      if (USE_API) {
+        notify.toast.success(`${b.name}: ${BRANCH_STATUS.closed.label}`);
+        return;
+      }
+    }
+    if (USE_API && status !== 'closed') {
+      try {
+        const warnings = await (b.status === 'preparing' ? branchApi.openBranch(b.id) : branchApi.reopenBranch(b.id));
+        notify.toast.success(`${b.name}: ${BRANCH_STATUS[status].label}`);
+        if (warnings.length) notify.warning({ title: 'Cần bổ sung', description: warnings.join(' ') });
+      } catch (e) {
+        notify.error({ title: 'Chưa đổi được trạng thái', description: (e as Error).message });
+      }
+      return;
     }
     saveBranch({ ...b, status }, actor);
     notify.toast.success(`${b.name}: ${BRANCH_STATUS[status].label}`);
@@ -119,7 +144,7 @@ export default function BranchesPage() {
         subtitle="Thông tin chi nhánh dùng trên hóa đơn, mã QR học phí, thông báo gửi phụ huynh."
         breadcrumb={[{ title: 'Hệ thống' }, { title: 'Chi nhánh' }]}
         actions={
-          editable ? (
+          creatable ? (
             <Button action="create" collapseOnMobile onClick={() => setEditing('new')}>
               Thêm chi nhánh
             </Button>
@@ -163,7 +188,7 @@ export default function BranchesPage() {
       <div className="grid gap-4 md:grid-cols-2">
         {visibleBranches.map((b) => {
           const st = stats.get(b.id)!;
-          const mgr = employees.find((e) => e.id === b.managerId && e.status !== 'quit');
+          const mgr = employees.find((e) => e.id === b.managerId && e.status !== 'quit') ?? (managerNames[b.id] ? { fullName: managerNames[b.id] } : undefined);
           const S = BRANCH_STATUS[b.status];
           return (
             <article key={b.id} className={cn('flex flex-col rounded-xl border bg-surface p-4', b.status === 'closed' ? 'border-dashed border-line opacity-70' : 'border-line')}>
@@ -309,12 +334,25 @@ export default function BranchesPage() {
             ? { ...editing, openedAt: dayjs(editing.openedAt), bankName: editing.bank?.bank, bankAccount: editing.bank?.account, bankHolder: editing.bank?.holder }
             : { status: 'preparing', openedAt: dayjs().add(30, 'day'), openHours: 'T2–T7 08:00–21:30' }
         }
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           const code = v.code.trim().toUpperCase();
           if (editing === 'new' && branches.some((b) => b.code === code)) throw new Error(`Mã ${code} đã dùng cho chi nhánh khác`);
           const { bankName, bankAccount, bankHolder, ...rest } = v;
           if ((bankName || bankAccount || bankHolder) && (!bankName?.trim() || !bankAccount?.trim() || !bankHolder?.trim())) {
             throw new Error('Nếu khai báo tài khoản nhận học phí, cần nhập đủ ngân hàng, số tài khoản và chủ tài khoản.');
+          }
+          if (USE_API) {
+            // Server kiểm trùng mã / tiền tố, ngân hàng đủ 3 trường, quản lý hợp lệ, sửa đè
+            const input: branchApi.BranchInput = {
+              ...rest,
+              code,
+              openedAt: v.openedAt.format('YYYY-MM-DD'),
+              invoicePrefix: v.invoicePrefix?.trim().toUpperCase() || undefined,
+              bank: bankName && bankAccount ? { bank: bankName.trim(), account: bankAccount.trim(), holder: (bankHolder ?? '').trim() } : undefined,
+            };
+            if (editing === 'new') await branchApi.createBranch(input);
+            else await branchApi.updateBranch((editing as BranchProfile).id, input);
+            return;
           }
           saveBranch(
             {

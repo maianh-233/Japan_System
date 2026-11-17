@@ -335,3 +335,8 @@ System phát `StaffAccountCreated` khi mời tài khoản → Hr bật `hasAccou
 - Ngày nghỉ ở tương lai: chỉ hẹn (`quitScheduled = true`), tài khoản bị khóa khi job chuyển trạng thái.
 - ⏳ chờ module khác: NS-07.E2 lớp đang dạy (Đào tạo), NS-07.E5 lead / task đang giữ (CRM, Công việc); `EmployeeBranchChanged`,
   `IEmployeeDirectory.ListTeachersAsync` (làm khi có module Đào tạo cần); xuất Excel (`.export`).
+
+**Frontend (giai đoạn 11):** `frontend/src/features/hr/hrApi.ts` — trang Nhân viên / Giáo viên đọc hồ sơ trong phạm vi quyền
+(`useHrVisibility`), thêm / sửa, gia hạn hợp đồng (+ lịch sử), cho nghỉ việc, nghỉ dài hạn / quay lại, lịch rảnh GV qua API; ẩn đơn giá khi
+`salaryHidden`; form bỏ trạng thái "Đã nghỉ". ⏳ Chưa nối: chọn ngày hẹn nghỉ trên giao diện (API đã có `quitAt`), tạo hồ sơ từ Onboarding,
+trang Hồ sơ cá nhân (vẫn dữ liệu giả).

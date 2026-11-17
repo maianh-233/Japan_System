@@ -248,6 +248,8 @@ export async function inviteUser(employeeId: string, roleId: string, branchIds: 
     body: { employeeId: toGuid(employeeId), roles: [{ roleId: toGuid(roleId), branchIds: toGuids(branchIds) }] },
   });
   await afterPermissionChange();
+  // Hồ sơ nhân sự được đánh dấu "đã có tài khoản" ở nền (sự kiện StaffAccountCreated) — tải lại sau chốc lát
+  setTimeout(() => void import('@/features/hr/hrApi').then((m) => m.loadEmployees()).catch(() => undefined), 1500);
   return r;
 }
 

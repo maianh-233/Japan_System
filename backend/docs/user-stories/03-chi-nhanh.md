@@ -263,3 +263,7 @@ Code: `src/Modules/System/JPCenter.Modules.System/Application/Branches/` · Test
 - ⏳ chờ module khác: CN-01 số phòng / lớp / học viên / đã thu (Đào tạo, Học viên, Tài chính); CN-03.E2 khóa tiền tố khi đã có hóa đơn (Tài chính);
   CN-06.E1 còn lớp đang chạy (Đào tạo); CN-06.E5, E6 xử lý ở giao diện / trang Phân quyền (giai đoạn nối frontend).
 
+
+**Frontend (giai đoạn 11):** `frontend/src/features/system/branchApi.ts` — trang Chi nhánh thêm / sửa / khai trương / đóng / mở lại qua API;
+số nhân sự, giáo viên từ server (học viên, lớp, phòng, công nợ vẫn dữ liệu giả). Người không có quyền trang → `/options` cho ô chọn chi nhánh.
+Nút theo hành động: `useAuth().canDo('system.branches', 'create' | 'update')`.

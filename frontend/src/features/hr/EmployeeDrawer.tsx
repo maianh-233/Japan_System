@@ -1,18 +1,20 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Drawer, Form, Rate, Tabs } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
-import { CalendarClock, ClipboardCheck, FileSignature, KeyRound, School, Star, UserMinus, UserRound } from 'lucide-react';
+import { CalendarClock, ClipboardCheck, FileSignature, KeyRound, PauseCircle, PlayCircle, School, Star, UserMinus, UserRound } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button, DateInput, ModalForm, NumberInput, StatusTag, useConfirm, useNotify } from '@/components/common';
 import { useClassStore } from '@/features/academic/classes/classStore';
 import { CLASS_STATUS } from '@/features/academic/classes/constants';
 import { useWorkStore } from '@/features/work/workStore';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
+import { USE_API } from '@/lib/api/config';
 import { cn } from '@/lib/cn';
 import { fmtDate } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
 import { getBranches } from '@/features/system/useBranches';
 import { CONTRACT_TYPES, DEPARTMENTS, EMPLOYEE_KIND, EMPLOYEE_STATUS, SHIFT_KEYS, WORK_SHIFTS } from './constants';
+import * as hrApi from './hrApi';
 import { useHrStore } from './hrStore';
 import { contractEndsIn, DAY_STATE, dayState, nameOf, toMin, type DayState } from './hrUtils';
 import type { ShiftKey } from './types';
@@ -35,6 +37,12 @@ export function EmployeeDrawer({ employeeId, editable, onClose, onEdit }: { empl
   const reviews = useClassStore((s) => s.teacherReviews);
   const [renewing, setRenewing] = useState(false);
   const e = employees.find((x) => x.id === employeeId);
+  const kind = e?.kind;
+
+  // Chế độ API: tải chi tiết (lịch sử hợp đồng, tên quản lý mới nhất) khi mở
+  useEffect(() => {
+    if (USE_API && employeeId && kind) hrApi.loadEmployee(employeeId, kind).catch(() => undefined);
+  }, [employeeId, kind]);
 
   // ---- Chấm công tháng này (nhân viên)
   const month = useMemo(() => {
@@ -82,10 +90,47 @@ export function EmployeeDrawer({ employeeId, editable, onClose, onEdit }: { empl
       confirmAction: 'reject',
       confirmText: 'Xác nhận nghỉ việc',
       requireReason: { label: 'Lý do', placeholder: 'VD: hết hợp đồng, xin nghỉ' },
+      onConfirm: USE_API
+        ? async ({ reason }) => {
+            const warnings = await hrApi.quitEmployee(e, reason ?? '');
+            if (warnings.length) notify.warning({ title: 'Cần xử lý thêm', description: warnings.join(' ') });
+          }
+        : undefined,
     });
     if (!res) return;
+    if (USE_API) {
+      notify.success({
+        title: 'Đã cho nghỉ việc',
+        description: e.hasAccount ? `${e.fullName} — tài khoản đăng nhập bị khóa, mọi phiên bị thu hồi.` : e.fullName,
+      });
+      return;
+    }
     update(e.id, { status: 'quit', quitAt: dayjs().format('YYYY-MM-DD'), hasAccount: false, note: `Nghỉ việc: ${res.reason}` });
     notify.success({ title: 'Đã cập nhật nghỉ việc', description: e.fullName });
+  };
+
+  const longLeave = async (onLeave: boolean) => {
+    try {
+      if (USE_API) await hrApi.setLongLeave(e, onLeave);
+      else update(e.id, { status: onLeave ? 'leave' : 'active' });
+      notify.toast.success(onLeave ? 'Đã chuyển sang nghỉ dài hạn' : 'Đã quay lại làm việc');
+    } catch (err) {
+      notify.error({ title: 'Chưa đổi được trạng thái', description: (err as Error).message });
+    }
+  };
+
+  const toggleShift = async (day: number, k: ShiftKey, on: boolean) => {
+    const cur = e.teacher!.availability[day] ?? [];
+    const availability = { ...e.teacher!.availability, [day]: on ? cur.filter((x) => x !== k) : [...cur, k] };
+    if (!USE_API) {
+      update(e.id, { teacher: { ...e.teacher!, availability } });
+      return;
+    }
+    try {
+      await hrApi.saveAvailability(e, availability);
+    } catch (err) {
+      notify.error({ title: 'Chưa lưu được lịch rảnh', description: (err as Error).message });
+    }
   };
 
   const info: [string, ReactNode][] = [
@@ -99,6 +144,9 @@ export function EmployeeDrawer({ employeeId, editable, onClose, onEdit }: { empl
     ['Ngày vào làm', `${fmtDate(e.joinedAt)} (${dayjs().diff(e.joinedAt, 'month')} tháng)`],
     ...(e.kind === 'staff' ? ([['Làm theo ca', e.shiftBased ? 'Có — xếp ca hàng tuần' : 'Không — giờ hành chính']] as [string, ReactNode][]) : []),
     ['Phép năm còn', `${e.leaveBalance} ngày`],
+    ...(e.quitAt
+      ? ([[e.quitScheduled ? 'Hẹn nghỉ việc' : 'Nghỉ việc từ', `${fmtDate(e.quitAt)}${e.quitReason ? ` · ${e.quitReason}` : ''}`]] as [string, ReactNode][])
+      : []),
     ...(e.note ? ([['Ghi chú', e.note]] as [string, ReactNode][]) : []),
   ];
 
@@ -129,11 +177,26 @@ export function EmployeeDrawer({ employeeId, editable, onClose, onEdit }: { empl
           {ends !== undefined && ends >= 0 && ends <= 45 && <strong className="text-warning-700"> — còn {ends} ngày</strong>}
           {ends !== undefined && ends < 0 && <strong className="text-danger-600"> — đã hết hạn</strong>}
         </p>
+        {e.salaryHidden && <p className="text-ink-muted">Lương & phụ cấp: ẩn (bạn không có quyền xem lương)</p>}
         {(e.contract.baseSalary || e.contract.allowance) && (
           <p className="text-ink-secondary">
             {e.contract.baseSalary ? `Lương cơ bản ${formatCurrency(e.contract.baseSalary)}` : ''}
             {e.contract.allowance ? ` · phụ cấp ${formatCurrency(e.contract.allowance)}` : ''}
           </p>
+        )}
+        {e.contractHistory && e.contractHistory.length > 0 && (
+          <details className="mt-2">
+            <summary className="cursor-pointer text-xs text-ink-muted">Hợp đồng trước đây ({e.contractHistory.length})</summary>
+            <ul className="mt-1 flex flex-col gap-1 text-xs text-ink-secondary">
+              {e.contractHistory.map((c) => (
+                <li key={c.no}>
+                  {c.no} · {CONTRACT_TYPES[c.type]} · {fmtDate(c.start)}
+                  {c.end ? ` – ${fmtDate(c.end)}` : ''}
+                  {c.baseSalary ? ` · ${formatCurrency(c.baseSalary)}` : ''}
+                </li>
+              ))}
+            </ul>
+          </details>
         )}
       </section>
       <section className="flex flex-wrap items-center justify-between gap-2 rounded-[var(--radius-card)] border border-line p-3">
@@ -147,10 +210,21 @@ export function EmployeeDrawer({ employeeId, editable, onClose, onEdit }: { empl
         )}
       </section>
       {editable && e.status !== 'quit' && (
-        <div className="flex justify-end border-t border-line pt-3">
-          <Button icon={UserMinus} tone="danger" variant="ghost" onClick={quit}>
-            Cho nghỉ việc
-          </Button>
+        <div className="flex flex-wrap justify-end gap-2 border-t border-line pt-3">
+          {e.status === 'leave' ? (
+            <Button icon={PlayCircle} variant="ghost" onClick={() => longLeave(false)}>
+              Quay lại làm việc
+            </Button>
+          ) : (
+            <Button icon={PauseCircle} variant="ghost" onClick={() => longLeave(true)}>
+              Nghỉ dài hạn
+            </Button>
+          )}
+          {!e.quitScheduled && (
+            <Button icon={UserMinus} tone="danger" variant="ghost" onClick={quit}>
+              Cho nghỉ việc
+            </Button>
+          )}
         </div>
       )}
     </div>
@@ -213,10 +287,7 @@ export function EmployeeDrawer({ employeeId, editable, onClose, onEdit }: { empl
                     <button
                       type="button"
                       disabled={!editable}
-                      onClick={() => {
-                        const cur = e.teacher!.availability[day] ?? [];
-                        update(e.id, { teacher: { ...e.teacher!, availability: { ...e.teacher!.availability, [day]: on ? cur.filter((x) => x !== k) : [...cur, k as ShiftKey] } } });
-                      }}
+                      onClick={() => toggleShift(day, k as ShiftKey, Boolean(on))}
                       className={cn('h-8 w-full rounded-md border text-xs font-medium', on ? 'border-success-600 bg-success-50 text-success-700' : 'border-line text-ink-muted hover:bg-page')}
                     >
                       {on ? 'Rảnh' : '—'}
@@ -349,7 +420,11 @@ export function EmployeeDrawer({ employeeId, editable, onClose, onEdit }: { empl
           submitText="Lưu hợp đồng mới"
           successMessage="Đã cập nhật hợp đồng"
           initialValues={{ end: dayjs(e.contract.end ?? undefined).add(12, 'month'), salary: e.contract.baseSalary }}
-          onSubmit={(v) => {
+          onSubmit={async (v) => {
+            if (USE_API) {
+              await hrApi.renewContract(e, { end: v.end?.format('YYYY-MM-DD'), baseSalary: v.salary });
+              return;
+            }
             update(e.id, {
               status: e.status === 'probation' ? 'active' : e.status,
               contract: { ...e.contract, type: e.contract.type === 'probation' ? 'fixed' : e.contract.type, no: `HĐ-${dayjs().year()}/${Date.now().toString().slice(-3)}`, start: dayjs(e.contract.end ?? undefined).add(1, 'day').format('YYYY-MM-DD'), end: v.end?.format('YYYY-MM-DD'), baseSalary: v.salary },

@@ -42,5 +42,16 @@ export function useAuth() {
 
   const can = useCallback((permission?: string) => hasPermission(user?.permissions ?? [], permission), [user]);
 
-  return { user, branches, branchId, currentBranch, setBranch, signOut, can };
+  /**
+   * Quyền 1 hành động trên trang, vd canDo('system.branches', 'create').
+   * Chế độ API: theo `grants` server trả lúc đăng nhập; chế độ giả (không có grants): như `can(page)`.
+   */
+  const grants = (storedUser as { grants?: Record<string, string> } | null)?.grants;
+  const canDo = useCallback(
+    (page: string, action: 'view' | 'create' | 'update' | 'delete' | 'approve' | 'export') =>
+      grants && !user?.permissions?.includes('*') ? Boolean(grants[`${page}.${action}`]) : hasPermission(user?.permissions ?? [], page),
+    [grants, user],
+  );
+
+  return { user, branches, branchId, currentBranch, setBranch, signOut, can, canDo };
 }

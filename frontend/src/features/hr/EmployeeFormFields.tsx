@@ -109,6 +109,7 @@ export function EmployeeFormFields({ kind, editingId }: { kind: EmployeeKind; ed
   const form = Form.useFormInstance<EmployeeFormValues>();
   const ctype = Form.useWatch('contractType', form);
   const mainBranch = Form.useWatch('branchId', form);
+  const quit = employees.find((e) => e.id === editingId)?.status === 'quit';
   const managers = employees.filter((e) => e.kind === 'staff' && e.department === 'board' && e.id !== editingId).map((e) => ({ value: e.id, label: `${e.fullName} · ${e.position}` }));
 
   return (
@@ -145,8 +146,13 @@ export function EmployeeFormFields({ kind, editingId }: { kind: EmployeeKind; ed
       <Form.Item name="managerId" label="Quản lý trực tiếp">
         <Select options={managers} placeholder="Chọn" />
       </Form.Item>
-      <Form.Item name="status" label="Trạng thái" rules={[{ required: true }]}>
-        <Select options={EMPLOYEE_STATUS_OPTIONS} showSearch={false} allowClear={false} />
+      <Form.Item
+        name="status"
+        label="Trạng thái"
+        rules={[{ required: true }]}
+        extra={quit ? 'Người đã nghỉ việc: chỉ cập nhật được số điện thoại và ghi chú.' : 'Cho nghỉ việc: mở hồ sơ → "Cho nghỉ việc".'}
+      >
+        <Select options={EMPLOYEE_STATUS_OPTIONS.filter((o) => quit || o.value !== 'quit')} showSearch={false} allowClear={false} disabled={quit} />
       </Form.Item>
       {kind === 'staff' && (
         <Form.Item name="shiftBased" label="Làm theo ca" valuePropName="checked" extra="Bật cho Sale, lễ tân — xếp ca hàng tuần ở Công việc → Xếp ca.">

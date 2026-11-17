@@ -7,6 +7,7 @@ import { Q_LEVELS } from '@/features/academic/questions/constants';
 import { CONTRACT_TYPES, DEPARTMENTS, EMPLOYEE_STATUS, EMPLOYEE_STATUS_OPTIONS } from '@/features/hr/constants';
 import { EmployeeDrawer } from '@/features/hr/EmployeeDrawer';
 import { EmployeeFormFields, employeeToForm, formToEmployee, type EmployeeFormValues } from '@/features/hr/EmployeeFormFields';
+import * as hrApi from '@/features/hr/hrApi';
 import { useHrStore } from '@/features/hr/hrStore';
 import { contractEndsIn, toMin } from '@/features/hr/hrUtils';
 import type { Department, Employee, EmployeeKind } from '@/features/hr/types';
@@ -16,6 +17,7 @@ import { cn } from '@/lib/cn';
 import { fmtDate } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
 import { getBranches } from '@/features/system/useBranches';
+import { USE_API } from '@/lib/api/config';
 import { ALL_BRANCHES } from '@/types/auth';
 
 interface Row extends Employee {
@@ -27,9 +29,12 @@ interface Row extends Employee {
 
 type Dialog = { kind: 'create'; as: EmployeeKind } | { kind: 'edit'; id: string } | null;
 
-/** Nhân viên (mode = staff) / Giáo viên & trợ giảng (mode = teacher). DỮ LIỆU GIẢ. */
+/**
+ * Nhân viên (mode = staff) / Giáo viên & trợ giảng (mode = teacher).
+ * Chế độ API: hồ sơ, hợp đồng, trạng thái lấy từ backend (chỉ hồ sơ trong phạm vi quyền); lớp, giờ dạy, đánh giá vẫn là dữ liệu giả.
+ */
 export function PeoplePage({ mode }: { mode: 'staff' | 'teacher' }) {
-  const { branchId, currentBranch, can } = useAuth();
+  const { branchId, currentBranch, canDo } = useAuth();
   const notify = useNotify();
   const employees = useHrStore((s) => s.employees);
   const add = useHrStore((s) => s.addEmployee);
@@ -37,7 +42,11 @@ export function PeoplePage({ mode }: { mode: 'staff' | 'teacher' }) {
   const classes = useClassStore((s) => s.classes);
   const sessions = useClassStore((s) => s.sessions);
   const reviews = useClassStore((s) => s.teacherReviews);
-  const editable = can(mode === 'staff' ? 'hr.employees' : 'hr.teachers');
+  const page = mode === 'staff' ? 'hr.employees' : 'hr.teachers';
+  const editable = canDo(page, 'update');
+  const creatable = canDo(page, 'create');
+  /** Hồ sơ server cho xem ở trang này (phạm vi quyền) — null = dùng toàn bộ store */
+  const visible = hrApi.useHrVisibility((v) => (USE_API ? v[mode] : null));
 
   const [group, setGroup] = useState<string>('all');
   const [status, setStatus] = useState<string>();
@@ -56,6 +65,7 @@ export function PeoplePage({ mode }: { mode: 'staff' | 'teacher' }) {
     () =>
       employees
         .filter((e) => (mode === 'staff' ? e.kind === 'staff' : e.kind !== 'staff') && (branchId === ALL_BRANCHES || e.branchId === branchId))
+        .filter((e) => !visible || visible.has(e.id))
         .map((e) => {
           let minutes = 0;
           if (e.kind !== 'staff')
@@ -73,7 +83,7 @@ export function PeoplePage({ mode }: { mode: 'staff' | 'teacher' }) {
             rating: rv.length ? rv.reduce((n, r) => n + r.overall, 0) / rv.length : undefined,
           };
         }),
-    [employees, mode, branchId, classes, sessions, reviews, monthStart],
+    [employees, mode, branchId, classes, sessions, reviews, monthStart, visible],
   );
 
   const groupOf = (r: Row) => (mode === 'staff' ? r.department : r.kind === 'assistant' ? 'assistant' : r.teacher?.type === 'jp' ? 'jp' : 'vn');
@@ -150,7 +160,7 @@ export function PeoplePage({ mode }: { mode: 'staff' | 'teacher' }) {
             ),
           },
           { key: 'cert', title: 'Chứng chỉ', width: 190, render: (_, r) => <span className="line-clamp-2 text-xs text-ink-secondary">{r.teacher?.certificates.join(' · ')}</span> },
-          { key: 'rate', title: 'Đơn giá / giờ', width: 140, align: 'right', render: (_, r) => <div className="tabular leading-5"><p>{formatCurrency(r.teacher?.rate.offline ?? 0)}</p><p className="text-xs text-ink-muted">online {formatCurrency(r.teacher?.rate.online ?? 0)}</p></div> },
+          { key: 'rate', title: 'Đơn giá / giờ', width: 140, align: 'right', render: (_, r) => (r.salaryHidden ? <span className="text-ink-muted">—</span> : <div className="tabular leading-5"><p>{formatCurrency(r.teacher?.rate.offline ?? 0)}</p><p className="text-xs text-ink-muted">online {formatCurrency(r.teacher?.rate.online ?? 0)}</p></div>) },
           { key: 'classes', title: 'Lớp đang dạy', width: 100, align: 'center', sorter: (a, b) => a.classCount - b.classCount, render: (_, r) => <span className="tabular">{r.classCount || '—'}</span> },
           { key: 'hours', title: `Giờ dạy T${dayjs().month() + 1}`, width: 110, align: 'right', sorter: (a, b) => a.hours - b.hours, render: (_, r) => <span className="tabular">{r.hours ? `${r.hours.toFixed(1)}h` : '—'}</span> },
           { key: 'rating', title: 'Đánh giá', width: 90, sorter: (a, b) => (a.rating ?? 0) - (b.rating ?? 0), render: (_, r) => (r.rating ? <span className="tabular inline-flex items-center gap-1"><Star size={13} className="fill-warning-600 text-warning-600" aria-hidden />{r.rating.toFixed(1)}</span> : '—') },
@@ -181,7 +191,7 @@ export function PeoplePage({ mode }: { mode: 'staff' | 'teacher' }) {
         subtitle={`${mode === 'staff' ? 'Hồ sơ, hợp đồng, phòng ban, làm theo ca' : 'Giáo viên & trợ giảng: cấp độ dạy, chứng chỉ, đơn giá, lịch rảnh, giờ dạy'} · ${currentBranch ? `Chi nhánh ${currentBranch.name}` : 'Toàn hệ thống'}`}
         breadcrumb={[{ title: 'Nhân sự' }, { title: mode === 'staff' ? 'Nhân viên' : 'Giáo viên' }]}
         actions={
-          editable && (
+          creatable && (
             <>
               {mode === 'teacher' && (
                 <Button icon={UserPlus} variant="outline" collapseOnMobile onClick={() => setDialog({ kind: 'create', as: 'assistant' })}>
@@ -272,7 +282,18 @@ export function PeoplePage({ mode }: { mode: 'staff' | 'teacher' }) {
         submitText={editing ? 'Lưu' : 'Tạo hồ sơ'}
         successMessage={editing ? 'Đã lưu hồ sơ' : 'Đã tạo hồ sơ'}
         initialValues={editing ? employeeToForm(editing) : NEW}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
+          if (USE_API) {
+            // Server kiểm trùng email, vòng quản lý, chi nhánh được gán, sửa đè
+            if (editing) {
+              const warnings = await hrApi.updateEmployee(editing.id, editing.kind, formToEmployee(v, editing.kind, editing));
+              if (warnings.length) notify.warning({ title: 'Lưu ý', description: warnings.join(' ') });
+            } else {
+              const e = await hrApi.createEmployee(formToEmployee(v, createAs));
+              notify.info({ title: `Đã tạo ${e.code}`, description: 'Nhớ cấp tài khoản đăng nhập ở Hệ thống → Phân quyền người dùng.' });
+            }
+            return;
+          }
           if (editing) update(editing.id, formToEmployee(v, editing.kind, editing));
           else {
             const e = add(formToEmployee(v, createAs));
