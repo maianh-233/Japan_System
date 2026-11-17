@@ -30,6 +30,21 @@ internal sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
             c.Property(p => p.Allowance).HasColumnName("contract_allowance");
         });
 
+        b.Property(x => x.QuitReason).HasMaxLength(500);
+
+        // Lịch sử hợp đồng (NS-06.E5)
+        b.OwnsMany(x => x.ContractHistory, h =>
+        {
+            h.ToTable("employment_contracts");
+            h.WithOwner().HasForeignKey("EmployeeId");
+            h.Property<EmployeeId>("EmployeeId");
+            h.HasKey(x => x.Id);
+            h.Property(x => x.Id).ValueGeneratedNever();
+            h.Property(x => x.No).HasMaxLength(50);
+            h.HasIndex("EmployeeId");
+        });
+        b.Navigation(x => x.ContractHistory).HasField("_contractHistory").UsePropertyAccessMode(PropertyAccessMode.Field);
+
         b.OwnsOne(x => x.Teacher, t =>
         {
             t.ToTable("teacher_profiles");

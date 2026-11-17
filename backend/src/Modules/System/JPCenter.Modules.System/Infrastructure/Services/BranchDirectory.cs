@@ -25,5 +25,5 @@ internal sealed class BranchDirectory(SystemDbContext db) : IBranchDirectory
     }
 
     private static BranchSummary ToSummary(Branch b) => new(b.Id.Value, b.Code, b.Name, BranchReader.StatusText(b.Status), b.Address, b.Phone, b.Email,
-        b.InvoicePrefix, b.BankName, b.BankAccount, b.BankHolder);
+        b.InvoicePrefix, b.BankName, b.BankAccount, b.BankHolder, b.ManagerId);
 }

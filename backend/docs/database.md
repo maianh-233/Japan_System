@@ -1487,10 +1487,11 @@ Khóa chính (scope, key).
 | shift_based | bool | Làm theo ca → xuất hiện ở Xếp ca |
 | status | text | `probation` thử việc · `active` · `leave` nghỉ dài hạn · `quit` đã nghỉ |
 | joined_at | date | Ngày vào làm |
-| quit_at | date? | Ngày nghỉ việc |
+| quit_at | date? | Ngày nghỉ việc (ở tương lai + status ≠ `quit` = đã hẹn ngày, job hằng ngày tự chuyển khi tới ngày) |
+| quit_reason | varchar(500)? | Lý do nghỉ việc |
 | manager_id | uuid? FK | Quản lý trực tiếp → employees |
 | contract_type | text | `probation` · `fixed` · `indefinite` · `part_time` · `freelance` |
-| contract_no | text | Số hợp đồng |
+| contract_no | text | Số hợp đồng (`HĐ-{năm}/{mã NV}-{số thứ tự}`) |
 | contract_start, contract_end | date, date? | Hiệu lực hợp đồng |
 | contract_base_salary | numeric? | Lương cơ bản / tháng (GV để trống) |
 | contract_allowance | numeric? | Phụ cấp |
@@ -1512,6 +1513,20 @@ Khóa chính (scope, key).
 | availability | jsonb | Lịch rảnh: thứ (1–7) → ca (`morning` / `afternoon` / `evening`) |
 | extra_branch_ids | uuid[] | Chi nhánh dạy thêm |
 | bio | text? | Giới thiệu |
+
+### 81a. employment_contracts
+**Chức năng:** Lịch sử hợp đồng lao động — mỗi lần gia hạn / ký mới, hợp đồng cũ được lưu vào đây (hợp đồng hiện hành nằm ở `employees.contract_*`). Entity con `ContractHistoryEntry`.
+
+| Thuộc tính | Kiểu | Giải thích |
+|---|---|---|
+| id | uuid PK | |
+| employee_id | uuid FK | → employees (xóa theo) |
+| type | text | Như `employees.contract_type` |
+| no | varchar(50) | Số hợp đồng |
+| start, end | date, date? | Hiệu lực |
+| base_salary, allowance | numeric? | Lương cơ bản, phụ cấp (ẩn với người không có quyền xem lương) |
+| replaced_at | timestamptz | Lúc bị thay bằng hợp đồng mới |
+| replaced_by | uuid? | Tài khoản thực hiện → system.user_accounts |
 
 ### 82. time_records
 **Chức năng:** Chấm công ngày của nhân viên (check-in / out), sửa tay có lý do; so với giờ hành chính / ca → muộn, sớm, vắng. Entity `TimeRecord`. UQ (employee_id, date).
@@ -1809,3 +1824,4 @@ sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đ�
 | 2026-11-17 | Code giai đoạn 3: `user_accounts` + `token_version`; `portal_accounts` + `display_name`, `token_version`; `audit_logs` + `trace_id`, category thêm `security`; thêm bảng `idempotency_keys` (13c). Migration đầu tiên của schema `system`, `hr` (hr mới có `employees`, `teacher_profiles`) |
 | 2026-11-17 | Giai đoạn 8: thêm bảng chung `outbox_messages` vào mọi schema module (migration `AddOutbox` cho `system`, `hr`) |
 | 2026-11-17 | Giai đoạn 9 (user story 03): `branches.invoice_prefix` thêm UQ (trong số chưa xóa) — migration `BranchInvoicePrefixUnique` |
+| 2026-11-17 | Giai đoạn 10 (user story 04): `employees` + `quit_reason`; thêm bảng `employment_contracts` (81a) lưu hợp đồng cũ — migration `HrEmployeeHistory` |

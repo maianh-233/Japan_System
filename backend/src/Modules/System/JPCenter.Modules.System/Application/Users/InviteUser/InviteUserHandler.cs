@@ -1,7 +1,9 @@
 using JPCenter.Application.Common.Auditing;
 using JPCenter.Application.Common.Messaging;
 using JPCenter.Application.Common.Security;
+using JPCenter.Application.Common.IntegrationEvents;
 using JPCenter.Modules.Hr.Contracts;
+using JPCenter.Modules.System.Contracts.IntegrationEvents;
 using JPCenter.Modules.System.Application.Abstractions;
 using JPCenter.Modules.System.Application.Approvals.Common;
 using JPCenter.Modules.System.Application.Auth.Common;
@@ -19,7 +21,7 @@ namespace JPCenter.Modules.System.Application.Users.InviteUser;
 /// </summary>
 public sealed class InviteUserHandler(
     ISystemDbContext db, ICurrentUser user, IEmployeeDirectory employees, UserEditGuard guard, PermissionChanges changes,
-    ApprovalFactory approvals, InvitationMailer mailer, UserReader reader, IAuditTrail audit)
+    ApprovalFactory approvals, InvitationMailer mailer, UserReader reader, IAuditTrail audit, IIntegrationEventPublisher events)
     : ICommandHandler<InviteUserCommand, UserChangeResult>
 {
     public async Task<Result<UserChangeResult>> Handle(InviteUserCommand cmd, CancellationToken ct)
@@ -41,6 +43,8 @@ public sealed class InviteUserHandler(
         if (created.IsFailure) return created.Error;
         var account = created.Value;
         db.UserAccounts.Add(account);
+        // Hr đánh dấu hồ sơ "đã có tài khoản" (NS-01.E4) — ghi cùng lần lưu tài khoản
+        events.Publish(new StaffAccountCreated(employee.Id, account.Id.Value, email));
 
         var after = await guard.DescribeAsync(next, roles, ct);
         var financeAdded = changes.FinanceAdded(account, roles, next, []);

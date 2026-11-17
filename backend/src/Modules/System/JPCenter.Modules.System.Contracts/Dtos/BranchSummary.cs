@@ -13,7 +13,9 @@ public sealed record BranchSummary(
     string InvoicePrefix,
     string? BankName,
     string? BankAccount,
-    string? BankHolder)
+    string? BankHolder,
+    /// <summary>Quản lý chi nhánh (Hr.Employee)</summary>
+    Guid? ManagerId)
 {
     public bool IsActive => Status == "active";
     /// <summary>Có thể tạo dữ liệu mới (lead, lớp, nhân viên...) — đang hoạt động hoặc đang chuẩn bị</summary>

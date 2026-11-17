@@ -39,6 +39,7 @@
 | `IAuditSink` (module System ghi `audit_logs`), `IAuditWriter` (hàng đợi) | Hạ tầng nhật ký | ✅ |
 | `IIdempotencyStore` (`Idempotency/`) | Lưu kết quả theo Idempotency-Key | ✅ |
 | `IEmailSender.SendAsync(to, EmailContent)` + `EmailContent` (`Email/`) | Gửi email giao dịch từ **mọi module**. Chỉ mô tả nội dung: `EmailContent.Create(subject, heading, preheader).Hello(name).Text("…**đậm**…").Code(otp).Button(label, url).Details((nhãn, giá trị)).Items(list).Notice(text, tone).Footnote(text)` — khuôn thương hiệu áp khi gửi. Test: thay bằng bản ghi giả, đọc `content.ToPlainText()` | ✅ |
+| `IAppLinks.Page(path)` (`Email/`) | Link tới trang frontend trong email / thông báo (gốc `App:FrontendUrl`), vd `links.Page("/admin/hr/employees?open=" + id)`. System bọc thêm `IFrontendLinks` (link kích hoạt, đăng nhập) dựa trên nó | ✅ |
 | `IIntegrationEventPublisher.Publish(event)` (`IntegrationEvents/`) | Phát sự kiện cho module khác: gọi **trước** `SaveChangesAsync` của module mình → ghi `outbox_messages` cùng giao dịch, gửi nền. Kiểu sự kiện: `sealed record` trong `<Module>.Contracts/IntegrationEvents`, implement `IIntegrationEvent` (SharedKernel `Events/`) | ✅ |
 | `IIntegrationEventHandler<TEvent>` (`IntegrationEvents/`) | Module nhận xử lý sự kiện — đặt ở `Application/<Feature>/EventHandlers/`, tự đăng ký bởi `AddHandlersFromAssembly`. Chạy nền, scope riêng, **phải chịu được chạy lại** | ✅ |
 | `ICodeGenerator` (sinh mã HV1000, HD2400, LD0001 theo dãy số trong DB) | Mã hiển thị tăng dần, không trùng | 📝 |

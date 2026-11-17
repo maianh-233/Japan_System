@@ -323,7 +323,7 @@ public sealed class PermissionFlowTests(SeededApiFactory api)
             var hr = scope.ServiceProvider.GetRequiredService<HrDbContext>();
             var employee = Employee.Create($"NV-PQ{Random.Shared.Next(1000, 9999)}", "Nhân viên Test PQ", Gender.Female, null, "0900000000", email,
                 new BranchId(Branch("cg")), EmployeeKind.Staff, Department.Sales, "Sale", false, new DateOnly(2026, 11, 1), null,
-                new EmploymentContract(ContractType.Probation, "HD-PQ", new DateOnly(2026, 11, 1), null, null, null), 0).Value;
+                new EmploymentContract(ContractType.Probation, "HD-PQ", new DateOnly(2026, 11, 1), new DateOnly(2027, 1, 1), null, null), 0).Value;
             hr.Employees.Add(employee);
             await hr.SaveChangesAsync(Ct);
             employeeId = employee.Id.Value;

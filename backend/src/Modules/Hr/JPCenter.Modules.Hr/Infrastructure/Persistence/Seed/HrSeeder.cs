@@ -38,7 +38,7 @@ internal sealed class HrSeeder(HrDbContext db) : IDataSeeder
                     SnakeCaseEnumConverter<TeacherNationality>.Parse(t.Type),
                     t.Levels.Select(SnakeCaseEnumConverter<JlptLevel>.Parse).ToList(),
                     t.Certificates, Money.FromTrusted(t.Rate.Offline), Money.FromTrusted(t.Rate.Online),
-                    (t.Availability ?? []).ToDictionary(kv => int.Parse(kv.Key, System.Globalization.CultureInfo.InvariantCulture),
+                    (t.Availability ?? []).ToDictionary(kv => int.Parse(kv.Key, global::System.Globalization.CultureInfo.InvariantCulture),
                         kv => kv.Value.Select(SnakeCaseEnumConverter<ShiftKey>.Parse).ToList()),
                     (t.ExtraBranchIds ?? []).Select(b => new BranchId(SeedData.IdOf(b))).ToList(),
                     t.Bio));
@@ -47,7 +47,7 @@ internal sealed class HrSeeder(HrDbContext db) : IDataSeeder
             switch (s.Status)
             {
                 case "leave": employee.StartLongLeave(); break;
-                case "quit": employee.Quit(s.QuitAt is null ? DateOnly.FromDateTime(DateTime.UtcNow) : DateOnly.Parse(s.QuitAt)); break;
+                case "quit": employee.MarkQuit(s.QuitAt is null ? DateOnly.FromDateTime(DateTime.UtcNow) : DateOnly.Parse(s.QuitAt), null); break;
             }
             if (s.HasAccount) employee.MarkHasAccount();
 

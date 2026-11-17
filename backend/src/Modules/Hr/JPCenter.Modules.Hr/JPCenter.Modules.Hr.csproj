@@ -2,6 +2,8 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="..\JPCenter.Modules.Hr.Contracts\JPCenter.Modules.Hr.Contracts.csproj" />
+    <!-- Đọc chi nhánh, tìm người có quyền để gửi email (CLAUDE.md mục 3: chỉ qua Contracts) -->
+    <ProjectReference Include="..\..\System\JPCenter.Modules.System.Contracts\JPCenter.Modules.System.Contracts.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\JPCenter.Application.Common\JPCenter.Application.Common.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\JPCenter.Infrastructure.Common\JPCenter.Infrastructure.Common.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\JPCenter.Api.Common\JPCenter.Api.Common.csproj" />

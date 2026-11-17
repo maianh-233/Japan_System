@@ -32,4 +32,13 @@ internal sealed class StaffAccessDirectory(SystemDbContext db, IClock clock) : I
             .Select(a => new StaffContact(a.Id.Value, a.EmployeeId, a.Email))
             .ToList();
     }
+
+    public async Task<bool> IsLastActiveSuperAdminAsync(Guid employeeId, CancellationToken ct)
+    {
+        var superRoleIds = await db.Roles.Where(r => r.IsSuperAdmin).Select(r => r.Id).ToListAsync(ct);
+        var supers = await db.UserAccounts.AsNoTracking()
+            .Where(a => a.Status == UserAccountStatus.Active && a.Roles.Any(r => superRoleIds.Contains(r.RoleId)))
+            .Select(a => a.EmployeeId).ToListAsync(ct);
+        return supers.Count == 1 && supers[0] == employeeId;
+    }
 }

@@ -298,3 +298,40 @@ Giữ nguyên: mã, loại, số hợp đồng, ngày vào làm, phép còn, l�
 | Ngày nghỉ tương lai | `quit_at` > hôm nay + job hằng ngày | NS-07.E6 |
 | "Đã có tài khoản" | Bỏ dần cờ `has_account` (dễ lệch): danh sách hỏi System qua 🆕 `System.Contracts › IAccountDirectory.HasAccountAsync(employeeIds)`; hoặc giữ cờ và cập nhật bằng event `StaffAccountCreated` | NS-01.E4 |
 | Lý do nghỉ việc | 🆕 cột `quit_reason` (thay vì ghi vào `note`) | NS-07 |
+
+## Đã làm (backend, 2026-11-17)
+
+Code: `src/Modules/Hr/JPCenter.Modules.Hr/Application/Employees/`, `Api/Endpoints/EmployeeEndpoints.cs` ·
+Test: `tests/JPCenter.IntegrationTests/Hr/HrFlowTests.cs`, `tests/Modules/Hr/JPCenter.Modules.Hr.Tests/Domain/EmployeeTests.cs`.
+
+2 nhóm đường dẫn trên cùng 1 bảng, mỗi nhóm 1 mã quyền (khớp 2 trang frontend): `/hr/employees` → `hr.employees.*` (chỉ `kind = staff`),
+`/hr/teachers` → `hr.teachers.*` (`teacher`, `assistant`). Hồ sơ khác nhóm / ngoài phạm vi → **404**.
+
+| Story | API (`/api/v1/hr/employees` hoặc `/api/v1/hr/teachers`) | Quyền |
+|---|---|---|
+| NS-01, NS-02, NS-09 | `GET ?branchId=&group=&status=&level=&special=ending\|no_account&includeQuit=&q=&page=&pageSize=` → `{ items, total, page, pageSize, stats, groups }` | `.view` |
+| NS-05 | `GET {id}` (kèm `contractHistory`) | `.view` |
+| NS-03 | `POST` `{ kind?, fullName, gender, dob, phone, email, branchId, department, position, managerId, shiftBased, status, contract, teacher?, note }` | `.create` |
+| NS-04 | `PUT {id}` `{ …như trên trừ kind / contract, version }` → `{ employee, warnings }` | `.update` |
+| NS-06 | `POST {id}/contracts` `{ type?, end?, baseSalary?, allowance? }` (bỏ trống = giữ như cũ) | `.update` |
+| NS-07 | `POST {id}/quit` `{ reason, quitAt? }` → `{ employee, warnings }` | `.update` |
+| NS-08 | `PUT /hr/teachers/{id}/availability` `{ availability: { "1": ["morning"], … } }` | `hr.teachers.update` |
+| NS-10 | `POST {id}/long-leave` · `POST {id}/return` | `.update` |
+
+Job hằng ngày `hr-daily` (01:00): nhắc hợp đồng còn **đúng** 45 / 15 / 7 ngày (email gom theo người nhận: người có `<trang>.update` ở chi nhánh chính
++ quản lý trực tiếp) và chuyển "đã nghỉ" cho người hẹn ngày nghỉ đã tới.
+
+**Giữa module:** Hr phát `EmployeeQuit` → System khóa tài khoản + thu hồi phiên (bỏ qua Super Admin cuối cùng, ghi nhật ký critical).
+System phát `StaffAccountCreated` khi mời tài khoản → Hr bật `hasAccount`. Hr đọc `IBranchDirectory`, `IStaffAccessDirectory`
+(`WithPermissionAsync`, `IsLastActiveSuperAdminAsync`) từ System.Contracts.
+
+**Chốt khi code:**
+- Lọc phạm vi (`all` / `branch` / `own`) làm **trong bộ nhớ** ở `EmployeeAccess`, không dùng global query filter: 1 bảng phục vụ 2 trang khác mã quyền,
+  số nhân sự 1 trung tâm nhỏ. `branch` tính cả chi nhánh dạy thêm của GV; `own` = chính mình + mọi cấp dưới theo cây quản lý.
+- Ẩn lương (NS-05.E3): không có `<trang>.update` và không có `finance.<staff|teacher>-payroll.view` → lương, phụ cấp, đơn giá trả `null`, `salaryHidden = true`.
+- Trạng thái "nghỉ việc" chỉ qua `quit` (thêm / sửa gửi `quit` → `hr.employee.status_not_allowed`). Người đã nghỉ: sửa chỉ đổi SĐT + ghi chú (kèm cảnh báo).
+- Thêm / chuyển nhân sự chỉ vào chi nhánh mình được gán (`hr.employee.branch_not_allowed`, 403). Chi nhánh đã đóng → `hr.employee.branch_inactive`.
+- Số hợp đồng tự sinh `HĐ-{năm}/{mã}-{số thứ tự}`; hợp đồng cũ vào `hr.employment_contracts`. Đang thử việc + hợp đồng mới khác thử việc → "đang làm".
+- Ngày nghỉ ở tương lai: chỉ hẹn (`quitScheduled = true`), tài khoản bị khóa khi job chuyển trạng thái.
+- ⏳ chờ module khác: NS-07.E2 lớp đang dạy (Đào tạo), NS-07.E5 lead / task đang giữ (CRM, Công việc); `EmployeeBranchChanged`,
+  `IEmployeeDirectory.ListTeachersAsync` (làm khi có module Đào tạo cần); xuất Excel (`.export`).

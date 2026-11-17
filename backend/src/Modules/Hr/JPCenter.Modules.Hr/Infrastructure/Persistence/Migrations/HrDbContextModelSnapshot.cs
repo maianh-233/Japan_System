@@ -183,6 +183,11 @@ namespace JPCenter.Modules.Hr.Infrastructure.Persistence.Migrations
                         .HasColumnType("date")
                         .HasColumnName("quit_at");
 
+                    b.Property<string>("QuitReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("quit_reason");
+
                     b.Property<bool>("ShiftBased")
                         .HasColumnType("boolean")
                         .HasColumnName("shift_based");
@@ -267,6 +272,66 @@ namespace JPCenter.Modules.Hr.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_employees_employees_manager_id");
 
+                    b.OwnsMany("JPCenter.Modules.Hr.Domain.Employees.ContractHistoryEntry", "ContractHistory", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<decimal?>("Allowance")
+                                .HasPrecision(18)
+                                .HasColumnType("numeric(18,0)")
+                                .HasColumnName("allowance");
+
+                            b1.Property<decimal?>("BaseSalary")
+                                .HasPrecision(18)
+                                .HasColumnType("numeric(18,0)")
+                                .HasColumnName("base_salary");
+
+                            b1.Property<Guid>("EmployeeId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("employee_id");
+
+                            b1.Property<DateOnly?>("End")
+                                .HasColumnType("date")
+                                .HasColumnName("end");
+
+                            b1.Property<string>("No")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
+                                .HasColumnName("no");
+
+                            b1.Property<DateTimeOffset>("ReplacedAt")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("replaced_at");
+
+                            b1.Property<Guid?>("ReplacedBy")
+                                .HasColumnType("uuid")
+                                .HasColumnName("replaced_by");
+
+                            b1.Property<DateOnly>("Start")
+                                .HasColumnType("date")
+                                .HasColumnName("start");
+
+                            b1.Property<string>("Type")
+                                .IsRequired()
+                                .HasColumnType("text")
+                                .HasColumnName("type");
+
+                            b1.HasKey("Id")
+                                .HasName("pk_employment_contracts");
+
+                            b1.HasIndex("EmployeeId")
+                                .HasDatabaseName("ix_employment_contracts_employee_id");
+
+                            b1.ToTable("employment_contracts", "hr");
+
+                            b1.WithOwner()
+                                .HasForeignKey("EmployeeId")
+                                .HasConstraintName("fk_employment_contracts_employees_employee_id");
+                        });
+
                     b.OwnsOne("JPCenter.Modules.Hr.Domain.Employees.TeacherProfile", "Teacher", b1 =>
                         {
                             b1.Property<Guid>("EmployeeId")
@@ -321,6 +386,8 @@ namespace JPCenter.Modules.Hr.Infrastructure.Persistence.Migrations
                                 .HasForeignKey("EmployeeId")
                                 .HasConstraintName("fk_teacher_profiles_employees_id");
                         });
+
+                    b.Navigation("ContractHistory");
 
                     b.Navigation("Teacher");
                 });

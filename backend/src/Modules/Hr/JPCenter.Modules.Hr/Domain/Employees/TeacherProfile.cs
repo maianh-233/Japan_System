@@ -28,4 +28,8 @@ public sealed class TeacherProfile
     public string? Bio { get; private set; }
 
     public Money RateFor(bool online) => online ? RateOnline : RateOffline;
+
+    /// <summary>Bản sao với lịch rảnh mới (owned entity — thay cả object để EF nhận thay đổi)</summary>
+    public TeacherProfile WithAvailability(Dictionary<int, List<ShiftKey>> availability) =>
+        new(Nationality, [.. Levels], [.. Certificates], RateOffline, RateOnline, availability, [.. ExtraBranchIds], Bio);
 }

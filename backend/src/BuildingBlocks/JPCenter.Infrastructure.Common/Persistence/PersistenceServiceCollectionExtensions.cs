@@ -44,6 +44,7 @@ public static class PersistenceServiceCollectionExtensions
         services.TryAddSingleton(sp => EmailOptions.Load(sp.GetRequiredService<IConfiguration>()));
         services.TryAddSingleton<EmailRenderer>();
         services.TryAddSingleton<IEmailSender, SmtpEmailSender>();
+        services.TryAddSingleton<IAppLinks, AppLinks>();
 
         // Outbox: phát sự kiện cho module khác (ghi cùng giao dịch, gửi nền)
         services.TryAddSingleton(sp => OutboxOptions.Load(sp.GetRequiredService<IConfiguration>()));
