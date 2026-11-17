@@ -256,3 +256,39 @@ export async function setLongLeave(e: Employee, onLeave: boolean) {
 export async function saveAvailability(e: Employee, availability: Record<number, ShiftKey[]>) {
   upsert(await api<ServerEmployee>(`/hr/teachers/${toGuid(e.id)}/availability`, { method: 'PUT', body: { availability } }));
 }
+
+/** NS-07.E9 — hủy lịch hẹn nghỉ việc (chưa tới ngày) */
+export async function cancelScheduledQuit(e: Employee) {
+  upsert(await api<ServerEmployee>(`${base(groupOf(e.kind))}/${toGuid(e.id)}/quit`, { method: 'DELETE' }));
+}
+
+// ---------- Hồ sơ của tôi (NS-11) — không cần mã quyền ----------
+
+/**
+ * Tải hồ sơ của chính người đăng nhập vào store (để `useMe()` tìm thấy). API này không trả lương:
+ * nếu store đã có bản đầy đủ (người có quyền HR) thì giữ lương / đơn giá cũ, chỉ cập nhật phần còn lại.
+ */
+export async function loadMyProfile(): Promise<Employee> {
+  const me = toEmployee(await api<ServerEmployee>('/hr/me'));
+  const old = useHrStore.getState().employees.find((x) => x.id === me.id);
+  const merged: Employee =
+    old && !old.salaryHidden
+      ? {
+          ...me,
+          salaryHidden: undefined,
+          contract: { ...me.contract, baseSalary: old.contract.baseSalary, allowance: old.contract.allowance },
+          teacher: me.teacher && old.teacher ? { ...me.teacher, rate: old.teacher.rate } : me.teacher,
+          contractHistory: old.contractHistory,
+        }
+      : me;
+  useHrStore.setState((st) => ({
+    employees: old ? st.employees.map((x) => (x.id === me.id ? merged : x)) : [...st.employees, merged],
+  }));
+  return merged;
+}
+
+/** Tự sửa SĐT, ngày sinh (NS-11) */
+export async function updateMyContact(phone: string, dob?: string) {
+  await api('/hr/me/contact', { method: 'PUT', body: { phone, dob: dob ?? null } });
+  return loadMyProfile();
+}

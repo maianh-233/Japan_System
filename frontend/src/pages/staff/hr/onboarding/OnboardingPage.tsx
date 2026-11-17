@@ -1,13 +1,17 @@
 import { useState } from 'react';
-import { Form, Progress } from 'antd';
+import { Checkbox, Form, Progress, Radio } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import { CalendarDays, CheckCircle2, ClipboardCheck, IdCard, KeyRound, Plus, Rocket, UserCheck, UserPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Button, DateInput, EmptyState, ModalForm, PageHeader, Select, StatCard, StatusTag, TextInput, UserCell, useConfirm, useNotify } from '@/components/common';
+import { Button, DateInput, EmptyState, ModalForm, NumberInput, PageHeader, Select, StatCard, StatusTag, TextInput, UserCell, useConfirm, useNotify } from '@/components/common';
+import { Q_LEVELS } from '@/features/academic/questions/constants';
+import type { QLevel } from '@/features/academic/questions/types';
+import * as hrApi from '@/features/hr/hrApi';
 import { DEPARTMENT_OPTIONS, DEPARTMENTS, EMPLOYEE_KIND, ONBOARDING_GROUPS, ONBOARDING_TEMPLATE } from '@/features/hr/constants';
-import { useHrStore } from '@/features/hr/hrStore';
+import { useHrStore, type EmployeeInput } from '@/features/hr/hrStore';
 import type { Department, EmployeeKind, Onboarding, OnboardingItem } from '@/features/hr/types';
 import { useAuth } from '@/hooks/useAuth';
+import { USE_API } from '@/lib/api/config';
 import { cn } from '@/lib/cn';
 import { fmtDate, fmtDateTime } from '@/lib/date';
 import { getBranches } from '@/features/system/useBranches';
@@ -28,14 +32,26 @@ interface NewValues {
   mentor: string;
 }
 
+/** Bổ sung khi tạo hồ sơ từ onboarding (phiếu chưa có các trường này) */
+interface ProfileValues {
+  gender: 'male' | 'female';
+  teacherType?: 'vn' | 'jp';
+  levels?: QLevel[];
+  rateOffline?: number;
+  rateOnline?: number;
+}
+
 const progressOf = (o: Onboarding) => Math.round((o.items.filter((i) => i.done).length / Math.max(1, o.items.length)) * 100);
 
-/** Onboarding nhân sự mới: checklist giấy tờ / tài khoản / thiết bị / đào tạo → tạo hồ sơ NV. DỮ LIỆU GIẢ. */
+/**
+ * Onboarding nhân sự mới: checklist giấy tờ / tài khoản / thiết bị / đào tạo → tạo hồ sơ NV.
+ * Phiếu + checklist: DỮ LIỆU GIẢ ⏳ (NS-12.E5). Chế độ API: bước "Tạo hồ sơ" gọi API thêm hồ sơ thật (NS-12 = NS-03).
+ */
 export default function OnboardingPage() {
-  const { user, branchId } = useAuth();
+  const { user, branchId, canDo } = useAuth();
   const notify = useNotify();
   const navigate = useNavigate();
-  const { confirm, confirmDialog } = useConfirm();
+  const { confirmDialog } = useConfirm();
   const onboardings = useHrStore((s) => s.onboardings);
   const employees = useHrStore((s) => s.employees);
   const updateOnboarding = useHrStore((s) => s.updateOnboarding);
@@ -44,6 +60,7 @@ export default function OnboardingPage() {
 
   const [filter, setFilter] = useState<Filter>('active');
   const [creating, setCreating] = useState(false);
+  const [profileFor, setProfileFor] = useState<Onboarding | null>(null);
   const scoped = onboardings.filter((o) => branchId === ALL_BRANCHES || o.branchId === branchId);
   const isDone = (o: Onboarding) => Boolean(o.employeeId) && progressOf(o) === 100;
   const list = scoped.filter((o) => (filter === 'all' ? true : filter === 'done' ? isDone(o) : !isDone(o))).sort((a, b) => a.startDate.localeCompare(b.startDate));
@@ -64,39 +81,38 @@ export default function OnboardingPage() {
     });
   };
 
-  /** Tạo hồ sơ nhân viên + tài khoản */
-  const createEmployee = async (o: Onboarding) => {
-    const docsOk = o.items.filter((i) => i.group === 'docs').every((i) => i.done);
-    const ok = await confirm({
-      title: `Tạo hồ sơ nhân viên cho ${o.fullName}?`,
-      description: `${docsOk ? '' : '⚠ Giấy tờ chưa đủ. '}Hệ thống tạo hồ sơ ${EMPLOYEE_KIND[o.kind].toLowerCase()} (thử việc, HĐ 2 tháng từ ${fmtDate(o.startDate)}) và tài khoản đăng nhập gửi qua ${o.email}.`,
-      confirmText: 'Tạo hồ sơ & tài khoản',
-      tone: docsOk ? 'primary' : 'warning',
-    });
-    if (!ok) return;
+  /** NS-12 — tạo hồ sơ từ phiếu onboarding (cùng quy tắc NS-03). Tài khoản cấp riêng ở Phân quyền người dùng (E4). */
+  const createEmployee = async (o: Onboarding, v: ProfileValues) => {
     const start = dayjs(o.startDate);
-    const e = addEmployee({
+    const input: EmployeeInput = {
       fullName: o.fullName,
-      gender: 'female',
+      gender: v.gender,
       phone: o.phone,
       email: o.email,
       branchId: o.branchId,
       kind: o.kind,
-      department: o.department,
+      department: o.kind === 'staff' ? o.department : 'teaching',
       position: o.position,
-      shiftBased: o.department === 'sales' || o.department === 'reception',
+      shiftBased: o.kind === 'staff' && (o.department === 'sales' || o.department === 'reception'),
       status: 'probation',
       joinedAt: o.startDate,
       contract: { type: 'probation', no: `HĐTV-${start.year()}/${Date.now().toString().slice(-3)}`, start: o.startDate, end: start.add(2, 'month').format('YYYY-MM-DD') },
       leaveBalance: 0,
-      hasAccount: true,
-      teacher: o.kind === 'staff' ? undefined : { type: 'vn', levels: [], certificates: [], rate: { offline: 0, online: 0 }, availability: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] } },
-    });
+      hasAccount: !USE_API,
+      teacher:
+        o.kind === 'staff'
+          ? undefined
+          : { type: v.teacherType ?? 'vn', levels: v.levels ?? [], certificates: [], rate: { offline: v.rateOffline ?? 0, online: v.rateOnline ?? 0 }, availability: { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] } },
+    };
+    const e = USE_API ? await hrApi.createEmployee(input) : addEmployee(input);
+    const now = dayjs().format('YYYY-MM-DDTHH:mm');
     updateOnboarding(o.id, {
       employeeId: e.id,
-      items: o.items.map((i) => (i.key === 'account' && !i.done ? { ...i, done: true, doneBy: user?.fullName, doneAt: dayjs().format('YYYY-MM-DDTHH:mm') } : i)),
+      // Chế độ API: tài khoản chưa cấp → không đánh dấu mục "tài khoản"
+      items: USE_API ? o.items : o.items.map((i) => (i.key === 'account' && !i.done ? { ...i, done: true, doneBy: user?.fullName, doneAt: now } : i)),
     });
-    notify.toast.success(`Đã tạo hồ sơ ${e.code} — bổ sung đơn giá / lịch rảnh ở trang ${o.kind === 'staff' ? 'Nhân viên' : 'Giáo viên'}`);
+    if (USE_API) notify.info({ title: `Đã tạo hồ sơ ${e.code}`, description: 'Cấp tài khoản đăng nhập ở Hệ thống → Phân quyền người dùng.' });
+    else notify.toast.success(`Đã tạo hồ sơ ${e.code} — bổ sung đơn giá / lịch rảnh ở trang ${o.kind === 'staff' ? 'Nhân viên' : 'Giáo viên'}`);
   };
 
   return (
@@ -174,9 +190,11 @@ export default function OnboardingPage() {
                   Hồ sơ {employees.find((e) => e.id === sel.employeeId)?.code}
                 </Button>
               ) : (
-                <Button icon={UserPlus} onClick={() => createEmployee(sel)}>
-                  Tạo hồ sơ NV + tài khoản
-                </Button>
+                canDo(sel.kind === 'staff' ? 'hr.employees' : 'hr.teachers', 'create') && (
+                  <Button icon={UserPlus} onClick={() => setProfileFor(sel)}>
+                    {USE_API ? 'Tạo hồ sơ' : 'Tạo hồ sơ NV + tài khoản'}
+                  </Button>
+                )
               )}
             </div>
 
@@ -267,6 +285,42 @@ export default function OnboardingPage() {
           <Select options={employees.filter((e) => e.kind === 'staff' && e.status !== 'quit').map((e) => ({ value: e.fullName, label: `${e.fullName} · ${e.position}` }))} />
         </Form.Item>
       </ModalForm>
+      {profileFor && (
+        <ModalForm<ProfileValues>
+          open
+          onClose={() => setProfileFor(null)}
+          width={560}
+          title={`Tạo hồ sơ ${EMPLOYEE_KIND[profileFor.kind].toLowerCase()} — ${profileFor.fullName}`}
+          description={`${profileFor.items.filter((i) => i.group === 'docs').every((i) => i.done) ? '' : '⚠ Giấy tờ chưa đủ. '}Thử việc, hợp đồng thử việc 2 tháng từ ${fmtDate(profileFor.startDate)}. Họ tên, liên hệ, chi nhánh, vị trí lấy từ phiếu onboarding.`}
+          submitAction="create"
+          submitText="Tạo hồ sơ"
+          successMessage="Đã tạo hồ sơ"
+          initialValues={{ gender: 'female', teacherType: 'vn', levels: [] }}
+          onSubmit={(v) => createEmployee(profileFor, v)}
+        >
+          <Form.Item name="gender" label="Giới tính">
+            <Radio.Group options={[{ value: 'female', label: 'Nữ' }, { value: 'male', label: 'Nam' }]} />
+          </Form.Item>
+          {profileFor.kind !== 'staff' && (
+            <>
+              <Form.Item name="teacherType" label="Loại giáo viên">
+                <Radio.Group options={[{ value: 'vn', label: 'GV Việt' }, { value: 'jp', label: 'GV người Nhật' }]} />
+              </Form.Item>
+              <Form.Item name="levels" label="Cấp độ được dạy" rules={[{ required: true, type: 'array', min: 1, message: 'Chọn cấp độ' }]}>
+                <Checkbox.Group options={Q_LEVELS.map((l) => ({ value: l, label: l }))} />
+              </Form.Item>
+              <div className="grid grid-cols-2 gap-x-3">
+                <Form.Item name="rateOffline" label="Đơn giá offline / giờ" rules={[{ required: true, message: 'Nhập đơn giá' }]}>
+                  <NumberInput currency min={0} />
+                </Form.Item>
+                <Form.Item name="rateOnline" label="Đơn giá online / giờ" rules={[{ required: true, message: 'Nhập đơn giá' }]}>
+                  <NumberInput currency min={0} />
+                </Form.Item>
+              </div>
+            </>
+          )}
+        </ModalForm>
+      )}
       {confirmDialog}
     </>
   );

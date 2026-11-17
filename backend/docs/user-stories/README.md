@@ -11,10 +11,15 @@ Mỗi file = 1 nhóm nghiệp vụ. Viết từ giao diện frontend đã dựng
 | 02 | [Vai trò & phân quyền](02-phan-quyen.md) | `PQ-xx` | ✍️ Đã viết |
 | 03 | [Quản lý chi nhánh](03-chi-nhanh.md) | `CN-xx` | ✍️ Đã viết |
 | 04 | [Quản lý nhân viên & giáo viên](04-nhan-su.md) | `NS-xx` | ✍️ Đã viết |
-| 05 | Tuyển sinh (lead, chia lead, test xếp lớp) | `CRM-xx` | ⏳ Chưa viết |
-| 06 | Học viên & ghi danh | `HV-xx` | ⏳ |
-| 07 | Lớp học & buổi học | `DT-xx` | ⏳ |
-| 08 | Học phí & hóa đơn | `TC-xx` | ⏳ |
+| 05 | [Tuyển sinh (lead, chia lead, test xếp lớp, lịch hẹn, chiến dịch)](05-tuyen-sinh.md) | `CRM-xx` | ✍️ Đã viết |
+| 06 | [Học viên & ghi danh (phụ huynh, cảnh báo bỏ học, chứng nhận, JLPT, du học)](06-hoc-vien.md) | `HV-xx` | ✍️ Đã viết |
+| 07 | [Lớp học & buổi học (điểm danh, dạy thay, đơn từ, lên lớp)](07-lop-hoc.md) | `DT-xx` | ✍️ Đã viết |
+| 08 | [Học phí, hóa đơn & tài chính (đối soát, công nợ, lương, hoa hồng)](08-tai-chinh.md) | `TC-xx` | ✍️ Đã viết |
+| 09 | [Khóa học & lộ trình (phiên bản, tài liệu giảng dạy, mốc thi)](09-khoa-hoc-lo-trinh.md) | `KH-xx`, `LT-xx` | ✍️ Đã viết |
+
+**Chưa có nhóm story riêng** (trang frontend đã dựng — viết khi bắt đầu làm module): Ngân hàng câu hỏi · Bài tập, bài thi,
+thông báo lớp, đánh giá GV, flashcard · Phòng học & báo hỏng · Thư viện tài liệu · Tuyển dụng & Onboarding · Chấm công, đơn từ & phê duyệt ·
+Công việc, xếp ca & bàn giao ca · Hệ thống (tích hợp, nhật ký, duyệt thao tác, thùng rác, cài đặt chung) · Báo cáo & bảng điều khiển.
 
 ## Mẫu 1 user story
 

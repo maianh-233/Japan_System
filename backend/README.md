@@ -95,7 +95,7 @@ backend/
 │  ├─ module-template.md             Khuôn 1 module + 1 use case
 │  ├─ shared-helpers.md              Danh mục helper dùng chung
 │  └─ decisions/                     ADR: 0001-tech-stack.md, ...
-├─ deploy/                           docker-compose (PostgreSQL, MinIO, Seq), cấu hình môi trường
+├─ deploy/                           docker-compose (PostgreSQL, SeaweedFS, Seq, Mailpit), cấu hình môi trường
 ├─ src/
 │  ├─ Host/
 │  │  └─ JPCenter.Api/               Điểm chạy duy nhất: Program.cs, gom module, middleware, cấu hình
@@ -134,5 +134,5 @@ backend/
 ## Chuẩn bị máy (khi bắt đầu code)
 
 1. Cài **.NET SDK 10** (máy hiện có SDK 8): `winget install Microsoft.DotNet.SDK.10`
-2. Docker Desktop (đã có) → `deploy/docker-compose.yml` chạy PostgreSQL + MinIO + Seq
+2. Docker Desktop (đã có) → `deploy/docker-compose.yml` chạy PostgreSQL + SeaweedFS (kho file) + Seq + Mailpit
 3. IDE: Visual Studio 2022 17.14+ / Rider / VS Code + C# Dev Kit

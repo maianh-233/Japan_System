@@ -194,10 +194,28 @@ public sealed class Employee : AggregateRoot<EmployeeId>, IBranchScoped, IAudita
     {
         if (HasQuit) return EmployeeErrors.AlreadyQuit;
         if (string.IsNullOrWhiteSpace(reason)) return EmployeeErrors.QuitReasonRequired;
+        if (at < JoinedAt) return EmployeeErrors.QuitBeforeJoin;
         (QuitAt, QuitReason) = (at, reason.Trim());
         if (at > today) return false;
         Status = EmployeeStatus.Quit;
         return true;
+    }
+
+    /// <summary>NS-07.E9 — hủy lịch hẹn nghỉ việc (chưa tới ngày). Đã nghỉ thật → không quay lại được (NS-10.E2).</summary>
+    public Result CancelScheduledQuit()
+    {
+        if (HasQuit) return EmployeeErrors.AlreadyQuit;
+        if (!QuitScheduled) return EmployeeErrors.NoScheduledQuit;
+        (QuitAt, QuitReason) = (null, null);
+        return Result.Success();
+    }
+
+    /// <summary>NS-11 — nhân viên tự sửa SĐT, ngày sinh (đủ 15 tuổi — E3).</summary>
+    public Result UpdateOwnContact(string phone, DateOnly? dob, DateOnly today)
+    {
+        if (dob is { } d && d > today.AddYears(-15)) return EmployeeErrors.InvalidDob;
+        (Phone, Dob) = (phone.Trim(), dob);
+        return Result.Success();
     }
 
     /// <summary>Job hằng ngày: tới ngày đã hẹn → nghỉ việc. Trả true nếu vừa chuyển.</summary>

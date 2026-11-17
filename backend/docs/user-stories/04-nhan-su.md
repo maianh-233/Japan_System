@@ -44,6 +44,8 @@ Employee (1 bảng cho cả 3 loại — kind)
 | NS-08 | Cập nhật lịch rảnh giáo viên | HR, giáo vụ | TB |
 | NS-09 | Theo dõi hợp đồng sắp hết hạn | HR | TB |
 | NS-10 | Nghỉ dài hạn / quay lại làm việc | HR | Thấp |
+| NS-11 | Xem & cập nhật hồ sơ của tôi | Mọi nhân viên, GV | TB |
+| NS-12 | Tạo hồ sơ từ Onboarding | HR | TB |
 
 **Quyền** (theo trang): nhân viên `hr.employees.*` · giáo viên & trợ giảng `hr.teachers.*` — `view` xem · `create` thêm · `update` sửa, gia hạn,
 nghỉ việc, lịch rảnh · `export` xuất Excel. Phạm vi (PQ-10): `own` = mình + cấp dưới theo cây `manager_id` 🆕 · `branch` = nhân sự có chi nhánh chính
@@ -205,7 +207,7 @@ Giữ nguyên: mã, loại, số hợp đồng, ngày vào làm, phép còn, l�
 **Quyền cần:** `hr.employees.update` / `hr.teachers.update`
 
 **Các bước:**
-1. Hồ sơ → "Cho nghỉ việc" → hộp xác nhận nêu hậu quả, **lý do bắt buộc**; 🆕 chọn ngày nghỉ (mặc định hôm nay).
+1. Hồ sơ → "Cho nghỉ việc" → hộp xác nhận nêu hậu quả, **lý do bắt buộc**, **ngày nghỉ** (mặc định hôm nay, không trước ngày vào làm).
 2. Hệ thống: `status = quit`, `quit_at`, ghi lý do vào ghi chú → nhật ký mức `warning`.
 3. Phát integration event **`EmployeeQuit`** → System **khóa tài khoản** + thu hồi mọi phiên (PQ-08.E6); Xếp ca gỡ khỏi lịch từ ngày nghỉ;
    Đào tạo không cho chọn khi xếp lớp / dạy thay.
@@ -219,6 +221,9 @@ Giữ nguyên: mã, loại, số hợp đồng, ngày vào làm, phép còn, l�
 | NS-07.E5 | Còn lead / task đang giữ ⏳ | Cảnh báo "Bàn giao N lead, M task" (CRM / Công việc) |
 | NS-07.E6 | Ngày nghỉ trong tương lai 🆕 | Hồ sơ vẫn `active` tới ngày đó; job hằng ngày chuyển `quit` + phát event đúng ngày |
 | NS-07.E7 | Nghỉ việc là Super Admin cuối cùng | System từ chối khóa (PQ-08.E5) → HR được báo phải cấp Super Admin cho người khác trước |
+| NS-07.E8 | Đã hẹn ngày nghỉ (chưa tới ngày) | Hồ sơ và danh sách hiện "Hẹn nghỉ dd/MM/yyyy"; nút "Cho nghỉ việc" đổi thành **"Hủy hẹn nghỉ"** |
+| NS-07.E9 | Hủy hẹn nghỉ 🆕 | Xóa ngày / lý do đã hẹn, nhật ký `warning`; đã nghỉ thật rồi → `hr.employee.already_quit` (không quay lại được — NS-10.E2) |
+| NS-07.E10 | Ngày nghỉ trước ngày vào làm | `hr.employee.quit_before_join` |
 
 ---
 
@@ -270,6 +275,56 @@ Giữ nguyên: mã, loại, số hợp đồng, ngày vào làm, phép còn, l�
 
 ---
 
+## NS-11 · Xem & cập nhật hồ sơ của tôi
+
+> Là **nhân viên / giáo viên**, tôi muốn **xem thông tin công việc của mình và tự sửa số điện thoại, ngày sinh** để **thông tin liên hệ luôn đúng
+> mà không phải nhờ phòng nhân sự**.
+
+**Nguồn:** Cá nhân › Thông tin cá nhân (`pages/common/account/ProfilePage.tsx`, dùng chung cổng nhân viên và cổng GV)
+· **Quyền cần:** không — chỉ dữ liệu của chính người đăng nhập (PQ-10.E5) · **Ưu tiên:** TB
+
+**Các bước:**
+1. Mở trang → hệ thống trả hồ sơ gắn với tài khoản đang đăng nhập: mã, chức vụ, phòng ban, chi nhánh, quản lý trực tiếp, ngày vào làm,
+   hợp đồng (loại, ngày hết hạn), phép năm còn, làm theo ca / hành chính, chứng chỉ (GV).
+2. Người dùng sửa **SĐT, ngày sinh** → Lưu → nhật ký `info` "Tự cập nhật liên hệ".
+3. Muốn sửa thông tin công việc / hợp đồng → liên hệ phòng nhân sự (trang chỉ đọc phần này).
+
+| Mã | Tình huống | Hệ thống xử lý |
+|---|---|---|
+| NS-11.E1 | Tài khoản không gắn hồ sơ nhân sự (học viên, phụ huynh) | Không gọi API này — trang hiện phần học viên (module Học viên ⏳) |
+| NS-11.E2 | SĐT sai định dạng | Lỗi theo trường "SĐT 10 số, bắt đầu bằng 0" |
+| NS-11.E3 | Ngày sinh ở tương lai / dưới 15 tuổi 🆕 | `hr.employee.invalid_dob` |
+| NS-11.E4 | Lương, phụ cấp, đơn giá 🆕 | **Không** trả ở API này (xem ở phiếu lương) — tránh lộ khi để máy mở |
+| NS-11.E5 | Email | Không tự sửa — là email đăng nhập; đổi qua phòng nhân sự (NS-04.E3) |
+| NS-11.E6 | HR đang sửa cùng hồ sơ | Chỉ ghi 2 trường SĐT / ngày sinh, không kiểm sửa đè (ghi sau thắng) |
+| NS-11.E7 | Ảnh đại diện, kênh nhận thông báo | ⏳ Ảnh cần lưu file (`IFileStorage`), kênh thông báo cần module Thông báo — tạm lưu trên trình duyệt |
+
+---
+
+## NS-12 · Tạo hồ sơ từ Onboarding
+
+> Là **HR**, tôi muốn **tạo hồ sơ nhân sự ngay từ phiếu onboarding** để **không phải nhập lại thông tin người mới**.
+
+**Nguồn:** Nhân sự › Onboarding (`pages/staff/hr/onboarding/OnboardingPage.tsx`) · **Quyền cần:** `hr.employees.create` (nhân viên) /
+`hr.teachers.create` (GV, trợ giảng) · **Ưu tiên:** TB
+
+**Các bước:**
+1. Chọn người đang onboarding → "Tạo hồ sơ" → hộp xác nhận lấy sẵn: họ tên, SĐT, email, chi nhánh, phòng ban, vị trí, ngày bắt đầu.
+   Người dùng bổ sung **giới tính**; GV / trợ giảng bổ sung **cấp độ dạy + đơn giá offline / online** (bắt buộc như NS-03.E6).
+2. Gọi **cùng use case NS-03** (`POST /hr/employees` hoặc `/hr/teachers`): thử việc, hợp đồng thử việc 2 tháng từ ngày bắt đầu,
+   làm theo ca nếu phòng Sale / Lễ tân, phép năm theo quy định chung.
+3. Phiếu onboarding gắn mã hồ sơ, checklist "Tạo hồ sơ" xong → nhắc **cấp tài khoản ở Phân quyền người dùng**.
+
+| Mã | Tình huống | Hệ thống xử lý |
+|---|---|---|
+| NS-12.E1 | Giấy tờ chưa đủ | Cảnh báo trong hộp xác nhận, vẫn cho tạo |
+| NS-12.E2 | Email trùng hồ sơ khác | `hr.employee.duplicate_email` (chặn tạo 2 lần cho cùng 1 người) |
+| NS-12.E3 | Không có quyền thêm ở trang tương ứng | Ẩn nút "Tạo hồ sơ"; gọi thẳng API → 403 |
+| NS-12.E4 | Tài khoản đăng nhập | **Không** tự cấp ở bước này — cấp ở PQ-08 (AUTH-05.E4 làm khi có backend Onboarding) |
+| NS-12.E5 | Phiếu onboarding, checklist | ⏳ Vẫn dữ liệu giả (cần nhóm story **Tuyển dụng & Onboarding** riêng): liên kết phiếu ↔ hồ sơ chưa lưu server, tải lại trang mất — tạo lại bị chặn bởi E2 |
+
+---
+
 ## Dữ liệu / API (đề xuất)
 
 | Story | API (`/api/v1/hr/...`) | Quyền |
@@ -282,6 +337,9 @@ Giữ nguyên: mã, loại, số hợp đồng, ngày vào làm, phép còn, l�
 | NS-07 | `POST employees/{id}/quit` `{ reason, quitAt }` | `.update` |
 | NS-08 | `PUT employees/{id}/availability` | `hr.teachers.update` |
 | NS-10 | `POST employees/{id}/long-leave` · `…/return` | `.update` |
+| NS-07.E9 | `DELETE employees/{id}/quit` 🆕 | `.update` |
+| NS-11 | `GET me` · `PUT me/contact` `{ phone, dob }` 🆕 | Đăng nhập (cổng nhân viên / GV) |
+| NS-12 | Như NS-03 | `.create` |
 
 - JSON khớp `Employee` ở `frontend/src/features/hr/types.ts` (`contract`, `teacher.rate`, `teacher.availability` = thứ 1–7 → ca).
 - Quyền theo `kind`: thao tác trên GV / trợ giảng kiểm `hr.teachers.*`, trên nhân viên kiểm `hr.employees.*` (endpoint kiểm trong handler vì phụ thuộc dữ liệu).

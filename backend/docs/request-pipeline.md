@@ -247,7 +247,7 @@ Nguyên tắc: **chặn sai kiểu ở cửa, kiểm tra nghiệp vụ trong dom
 | **SQL injection** | EF Core luôn dùng tham số; cấm nối chuỗi SQL (đã có trong CLAUDE.md mục 7); 💡 test kiến trúc cấm `FromSqlRaw` có nối chuỗi |
 | **XSS** (chèn `<script>`) | Mọi trường là **chữ thuần**: lưu nguyên văn, **mã hóa khi hiển thị** (React tự escape). Không có trường HTML nào ở thời điểm này — xem mục 6.1 |
 | Chuỗi bẩn | Tự `Trim()`, chuẩn hóa Unicode (NFC — quan trọng với tiếng Việt / tiếng Nhật để so sánh trùng), loại ký tự điều khiển |
-| **Upload file độc** | Kiểm tra đuôi trong danh sách cho phép **và** magic bytes (nội dung thật), giới hạn dung lượng ⚙️, đổi tên ngẫu nhiên, lưu S3/MinIO (không lưu trong thư mục web), tải xuống qua link tạm có hạn |
+| **Upload file độc** | Kiểm tra đuôi trong danh sách cho phép **và** magic bytes (nội dung thật), giới hạn dung lượng ⚙️, đổi tên ngẫu nhiên, lưu kho S3-compatible (`IFileStorage` — ADR 0003) (không lưu trong thư mục web), tải xuống qua link tạm có hạn |
 | Path traversal (`../../`) | Không dùng tên file người dùng gửi để ghép đường dẫn |
 | Id giả mạo | Id kiểu strongly-typed (Guid); kiểm tra phạm vi ở tầng phân quyền (mục 3) |
 | Phân trang lạm dụng (`pageSize=100000`) | `pageSize ≤ 100` (CLAUDE.md mục 8), `sort` chỉ nhận cột trong danh sách cho phép |
@@ -373,7 +373,7 @@ chạy bằng tài khoản DB riêng có quyền xóa).
 | **Security headers** (M4) | `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Content-Security-Policy`, HSTS | Trung bình |
 | **CORS allowlist** (M5) | Chỉ domain frontend chính thức; không dùng `*` khi có cookie | Cao |
 | **Request timeout** | Request quá ⚙️ 30 giây bị hủy (báo cáo nặng chạy nền thay vì giữ kết nối) | Trung bình |
-| **Health check** `/health` | Kiểm tra DB, MinIO, Seq — cho Docker / giám sát | Trung bình |
+| **Health check** `/health` | Kiểm tra DB, kho file, Seq — cho Docker / giám sát | Trung bình |
 | **Chế độ bảo trì** | Bật trong Cài đặt → mọi request trả 503 + thông báo, trừ quản trị viên | Thấp |
 | **Đo hiệu năng** (OpenTelemetry) | Thời gian xử lý từng endpoint, cảnh báo endpoint chậm | Thấp |
 

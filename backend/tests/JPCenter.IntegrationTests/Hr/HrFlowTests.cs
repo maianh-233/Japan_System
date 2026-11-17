@@ -372,4 +372,51 @@ public sealed class HrFlowTests(SeededApiFactory api)
         (await admin.PutAsJsonAsync($"{Teachers}/{staffId}/availability", new { availability = new Dictionary<string, string[]>() }, Ct))
             .StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }
+
+    // ---------- NS-07.E9, E10 ----------
+
+    [Fact]
+    public async Task Huy_hen_nghi_va_khong_cho_nghi_truoc_ngay_vao_lam()
+    {
+        var admin = await SignIn("admin@jpcenter.vn");
+        var e = await Create(admin, NewStaff(Cg));
+        var id = e.GetProperty("id").GetGuid();
+
+        (await Code(await admin.PostAsJsonAsync($"{Staff}/{id}/quit",
+            new { reason = "Sai ngày", quitAt = Today.AddYears(-5).ToString("yyyy-MM-dd") }, Ct))).ShouldBe("hr.employee.quit_before_join");
+        (await Code(await admin.DeleteAsync($"{Staff}/{id}/quit", Ct))).ShouldBe("hr.employee.no_scheduled_quit");
+
+        await Ok(await admin.PostAsJsonAsync($"{Staff}/{id}/quit", new { reason = "Hẹn nghỉ", quitAt = Today.AddDays(20).ToString("yyyy-MM-dd") }, Ct));
+        var cancelled = await Ok(await admin.DeleteAsync($"{Staff}/{id}/quit", Ct));
+        (cancelled.GetProperty("quitScheduled").GetBoolean(), IsNull(cancelled, "quitAt"), cancelled.GetProperty("status").GetString())
+            .ShouldBe((false, true, "active"));
+
+        // Sai quyền
+        var sale = await SignIn("tung.tung@jpcenter.vn");
+        (await sale.DeleteAsync($"{Staff}/{id}/quit", Ct)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+    }
+
+    // ---------- NS-11 ----------
+
+    [Fact]
+    public async Task Ho_so_cua_toi_khong_can_quyen_khong_tra_luong_va_tu_sua_lien_he()
+    {
+        // GV (cổng giáo viên, không có quyền trang nhân sự)
+        var gv = await SignIn("giaovien@jpcenter.vn");
+        (await gv.GetAsync(Teachers, Ct)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+        var me = await Ok(await gv.GetAsync("/api/v1/hr/me", Ct));
+        me.GetProperty("id").GetGuid().ShouldBe(SeedData.IdOf("t-ha"));
+        me.GetProperty("salaryHidden").GetBoolean().ShouldBeTrue();
+        IsNull(me.GetProperty("teacher"), "rate").ShouldBeTrue();
+
+        (await gv.PutAsJsonAsync("/api/v1/hr/me/contact", new { phone = "123", dob = (string?)null }, Ct)).StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        (await Code(await gv.PutAsJsonAsync("/api/v1/hr/me/contact",
+            new { phone = "0987654321", dob = Today.AddYears(-10).ToString("yyyy-MM-dd") }, Ct))).ShouldBe("hr.employee.invalid_dob");
+        (await gv.PutAsJsonAsync("/api/v1/hr/me/contact", new { phone = "0987654321", dob = "1990-02-03" }, Ct)).IsSuccessStatusCode.ShouldBeTrue();
+        var after = await Ok(await gv.GetAsync("/api/v1/hr/me", Ct));
+        (after.GetProperty("phone").GetString(), after.GetProperty("dob").GetString()).ShouldBe(("0987654321", "1990-02-03"));
+
+        // Chưa đăng nhập
+        (await api.CreateClient().GetAsync("/api/v1/hr/me", Ct)).StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+    }
 }

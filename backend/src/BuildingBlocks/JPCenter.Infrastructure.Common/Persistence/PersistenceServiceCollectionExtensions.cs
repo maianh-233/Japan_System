@@ -1,5 +1,7 @@
 using JPCenter.Application.Common.Email;
+using JPCenter.Application.Common.Files;
 using JPCenter.Infrastructure.Common.Email;
+using JPCenter.Infrastructure.Common.Files;
 using JPCenter.Infrastructure.Common.Outbox;
 using JPCenter.Application.Common.IntegrationEvents;
 using JPCenter.Application.Common.Auditing;
@@ -45,6 +47,10 @@ public static class PersistenceServiceCollectionExtensions
         services.TryAddSingleton<EmailRenderer>();
         services.TryAddSingleton<IEmailSender, SmtpEmailSender>();
         services.TryAddSingleton<IAppLinks, AppLinks>();
+
+        // Lưu file dùng chung mọi module: kho S3-compatible (local SeaweedFS, thật Cloudflare R2 — ADR 0003)
+        services.TryAddSingleton(sp => FileStorageOptions.Load(sp.GetRequiredService<IConfiguration>()));
+        services.TryAddSingleton<IFileStorage, S3FileStorage>();
 
         // Outbox: phát sự kiện cho module khác (ghi cùng giao dịch, gửi nền)
         services.TryAddSingleton(sp => OutboxOptions.Load(sp.GetRequiredService<IConfiguration>()));

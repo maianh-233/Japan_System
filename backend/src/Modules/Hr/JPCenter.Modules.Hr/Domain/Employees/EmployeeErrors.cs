@@ -33,4 +33,7 @@ public static class EmployeeErrors
     public static readonly Error LastSuperAdmin = Error.Conflict("hr.employee.last_super_admin",
         "Đây là Super Admin cuối cùng — cấp Super Admin cho người khác trước khi cho nghỉ việc");
     public static readonly Error QuitReasonRequired = Error.Validation("hr.employee.quit_reason_required", "Nhập lý do nghỉ việc");
+    public static readonly Error QuitBeforeJoin = Error.Validation("hr.employee.quit_before_join", "Ngày nghỉ việc không được trước ngày vào làm");
+    public static readonly Error NoScheduledQuit = Error.Conflict("hr.employee.no_scheduled_quit", "Hồ sơ này không có lịch hẹn nghỉ việc");
+    public static readonly Error InvalidDob = Error.Validation("hr.employee.invalid_dob", "Ngày sinh không hợp lệ (phải đủ 15 tuổi)");
 }

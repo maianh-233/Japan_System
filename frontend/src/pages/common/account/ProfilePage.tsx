@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Form, Switch } from 'antd';
 import dayjs from 'dayjs';
 import { Bell, Briefcase, KeyRound, Mail, Phone, UserRound } from 'lucide-react';
@@ -6,12 +6,14 @@ import { useNavigate } from 'react-router-dom';
 import { Avatar, Button, DateInput, ImagePicker, PageHeader, TextInput, useNotify } from '@/components/common';
 import { useCrmStore } from '@/features/crm/crmStore';
 import { CONTRACT_TYPES, DEPARTMENTS } from '@/features/hr/constants';
+import * as hrApi from '@/features/hr/hrApi';
 import { useHrStore } from '@/features/hr/hrStore';
 import { nameOf } from '@/features/hr/hrUtils';
 import { useMe } from '@/features/me/useMe';
 import { useStudentId } from '@/features/portal/usePortal';
 import { useSystemStore } from '@/features/system/systemStore';
 import { useAuth } from '@/hooks/useAuth';
+import { USE_API } from '@/lib/api/config';
 import { fmtDate, fromNow } from '@/lib/date';
 import { getBranches } from '@/features/system/useBranches';
 import { useAuthStore } from '@/stores/authStore';
@@ -32,6 +34,7 @@ function Info({ label, children }: { label: string; children: React.ReactNode })
 /**
  * Thông tin cá nhân — dùng chung 4 cổng.
  * Tự sửa: ảnh đại diện, SĐT, ngày sinh, kênh nhận thông báo. Chức vụ / hợp đồng / lương do phòng nhân sự cập nhật.
+ * Chế độ API (NS-11): nhân viên / GV đọc & tự sửa SĐT, ngày sinh qua /hr/me. Ảnh đại diện, kênh thông báo, phần học viên vẫn dữ liệu giả ⏳.
  */
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -47,6 +50,17 @@ export default function ProfilePage() {
   const roles = useSystemStore((s) => s.roles);
   const [notify3, setNotify3] = useState({ portal: true, zalo: true, email: user?.portal === 'staff' });
   const [form] = Form.useForm<{ phone?: string; dob?: dayjs.Dayjs }>();
+  const hasProfile = user?.portal === 'staff' || user?.portal === 'teacher';
+
+  // Lấy hồ sơ mới nhất của chính mình (không cần quyền trang Nhân sự)
+  useEffect(() => {
+    if (!USE_API || !hasProfile) return;
+    hrApi
+      .loadMyProfile()
+      .then((me) => form.setFieldsValue({ phone: me.phone, dob: me.dob ? dayjs(me.dob) : undefined }))
+      .catch((e: Error) => notify.error({ title: 'Chưa tải được hồ sơ', description: e.message }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasProfile]);
 
   if (!user) return null;
   const isStudent = user.portal === 'student';
@@ -57,7 +71,16 @@ export default function ProfilePage() {
     notify.toast.success(url ? 'Đã đổi ảnh đại diện' : 'Đã xóa ảnh đại diện');
   };
 
-  const save = (v: { phone?: string; dob?: dayjs.Dayjs }) => {
+  const save = async (v: { phone?: string; dob?: dayjs.Dayjs }) => {
+    if (USE_API && me) {
+      try {
+        await hrApi.updateMyContact(v.phone ?? me.phone, v.dob?.format('YYYY-MM-DD'));
+        notify.toast.success('Đã lưu thông tin');
+      } catch (e) {
+        notify.error({ title: 'Chưa lưu được', description: (e as Error).message });
+      }
+      return;
+    }
     const patch = { phone: v.phone, dob: v.dob?.format('YYYY-MM-DD') };
     if (me) updateEmployee(me.id, patch);
     else if (isStudent && student) updateStudent(student.id, patch);

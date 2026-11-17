@@ -125,9 +125,12 @@ export function PeoplePage({ mode }: { mode: 'staff' | 'teacher' }) {
     </div>
   );
   const statusCell = (r: Row) => (
-    <StatusTag tone={EMPLOYEE_STATUS[r.status].tone} icon={EMPLOYEE_STATUS[r.status].icon} size="sm">
-      {EMPLOYEE_STATUS[r.status].label}
-    </StatusTag>
+    <div className="leading-5">
+      <StatusTag tone={EMPLOYEE_STATUS[r.status].tone} icon={EMPLOYEE_STATUS[r.status].icon} size="sm">
+        {EMPLOYEE_STATUS[r.status].label}
+      </StatusTag>
+      {r.quitScheduled && r.quitAt && <p className="text-xs font-medium text-warning-700">Hẹn nghỉ {fmtDate(r.quitAt)}</p>}
+    </div>
   );
 
   const columns: DataColumn<Row>[] =

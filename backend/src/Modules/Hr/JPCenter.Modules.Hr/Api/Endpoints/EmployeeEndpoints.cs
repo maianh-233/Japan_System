@@ -2,10 +2,12 @@ using JPCenter.Api.Common.Results;
 using JPCenter.Api.Common.Security;
 using JPCenter.Application.Common.Messaging;
 using JPCenter.Application.Common.Security;
+using JPCenter.Modules.Hr.Application.Employees.CancelScheduledQuit;
 using JPCenter.Modules.Hr.Application.Employees.Common;
 using JPCenter.Modules.Hr.Application.Employees.CreateEmployee;
 using JPCenter.Modules.Hr.Application.Employees.GetEmployee;
 using JPCenter.Modules.Hr.Application.Employees.GetEmployees;
+using JPCenter.Modules.Hr.Application.Employees.MyProfile;
 using JPCenter.Modules.Hr.Application.Employees.QuitEmployee;
 using JPCenter.Modules.Hr.Application.Employees.RenewContract;
 using JPCenter.Modules.Hr.Application.Employees.SetLongLeave;
@@ -39,6 +41,8 @@ public static class EmployeeEndpoints
 
     public sealed record AvailabilityBody(Dictionary<int, List<ShiftKey>> Availability);
 
+    public sealed record MyContactBody(string Phone, DateOnly? Dob);
+
     public static void Map(IEndpointRouteBuilder hr)
     {
         MapGroup(hr.MapGroup("/employees"), EmployeeGroup.Staff);
@@ -49,6 +53,12 @@ public static class EmployeeEndpoints
         teachers.MapPut("/{id:guid}/availability", async (Guid id, AvailabilityBody body, ISender sender, CancellationToken ct) =>
                 (await sender.Send(new UpdateAvailabilityCommand(id, body.Availability), ct)).ToHttpResult())
             .RequirePermission(EmployeeGroup.Teaching.Page(), PermissionAction.Update);
+
+        // NS-11 — hồ sơ của tôi: không cần mã quyền, chỉ dữ liệu của chính người đăng nhập (cổng nhân viên / GV)
+        var me = hr.MapGroup("/me").RequirePortal(Portal.Staff, Portal.Teacher);
+        me.MapGet("/", async (ISender sender, CancellationToken ct) => (await sender.Send(new GetMyProfileQuery(), ct)).ToHttpResult());
+        me.MapPut("/contact", async (MyContactBody b, ISender sender, CancellationToken ct) =>
+            (await sender.Send(new UpdateMyContactCommand(b.Phone, b.Dob), ct)).ToHttpResult());
     }
 
     private static void MapGroup(RouteGroupBuilder g, EmployeeGroup scope)
@@ -83,6 +93,10 @@ public static class EmployeeEndpoints
 
         g.MapPost("/{id:guid}/quit", async (Guid id, QuitBody b, ISender sender, CancellationToken ct) =>
                 (await sender.Send(new QuitEmployeeCommand(scope, id, b.Reason, b.QuitAt), ct)).ToHttpResult())
+            .RequirePermission(page, PermissionAction.Update);
+
+        g.MapDelete("/{id:guid}/quit", async (Guid id, ISender sender, CancellationToken ct) =>
+                (await sender.Send(new CancelScheduledQuitCommand(scope, id), ct)).ToHttpResult())
             .RequirePermission(page, PermissionAction.Update);
 
         g.MapPost("/{id:guid}/long-leave", async (Guid id, ISender sender, CancellationToken ct) =>

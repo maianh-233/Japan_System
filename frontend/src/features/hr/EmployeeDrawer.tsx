@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Drawer, Form, Rate, Tabs } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
-import { CalendarClock, ClipboardCheck, FileSignature, KeyRound, PauseCircle, PlayCircle, School, Star, UserMinus, UserRound } from 'lucide-react';
+import { CalendarClock, ClipboardCheck, FileSignature, KeyRound, PauseCircle, PlayCircle, School, Star, Undo2, UserMinus, UserRound } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Button, DateInput, ModalForm, NumberInput, StatusTag, useConfirm, useNotify } from '@/components/common';
+import { Button, DateInput, ModalForm, NumberInput, StatusTag, TextArea, useConfirm, useNotify } from '@/components/common';
 import { useClassStore } from '@/features/academic/classes/classStore';
 import { CLASS_STATUS } from '@/features/academic/classes/constants';
 import { useWorkStore } from '@/features/work/workStore';
@@ -36,6 +36,7 @@ export function EmployeeDrawer({ employeeId, editable, onClose, onEdit }: { empl
   const sessions = useClassStore((s) => s.sessions);
   const reviews = useClassStore((s) => s.teacherReviews);
   const [renewing, setRenewing] = useState(false);
+  const [quitting, setQuitting] = useState(false);
   const e = employees.find((x) => x.id === employeeId);
   const kind = e?.kind;
 
@@ -82,31 +83,36 @@ export function EmployeeDrawer({ employeeId, editable, onClose, onEdit }: { empl
   const st = EMPLOYEE_STATUS[e.status];
   const ends = contractEndsIn(e);
 
-  const quit = async () => {
-    const res = await confirm({
-      title: `Cho ${e.fullName} nghỉ việc?`,
-      consequences: ['Khóa tài khoản đăng nhập', e.shiftBased ? 'Gỡ khỏi lịch xếp ca từ hôm nay' : 'Không còn trong danh sách chấm công', e.kind !== 'staff' ? 'Không chọn được khi xếp lớp / dạy thay' : 'Bàn giao lead / task đang dở cho người khác'],
-      tone: 'danger',
-      confirmAction: 'reject',
-      confirmText: 'Xác nhận nghỉ việc',
-      requireReason: { label: 'Lý do', placeholder: 'VD: hết hợp đồng, xin nghỉ' },
-      onConfirm: USE_API
-        ? async ({ reason }) => {
-            const warnings = await hrApi.quitEmployee(e, reason ?? '');
-            if (warnings.length) notify.warning({ title: 'Cần xử lý thêm', description: warnings.join(' ') });
-          }
-        : undefined,
-    });
-    if (!res) return;
+  /** NS-07 — lý do + ngày nghỉ (tương lai = hẹn ngày, tới ngày hệ thống tự chuyển và khóa tài khoản) */
+  const doQuit = async (v: { reason: string; quitAt: Dayjs }) => {
+    const at = v.quitAt.format('YYYY-MM-DD');
+    const scheduled = v.quitAt.isAfter(dayjs(), 'day');
     if (USE_API) {
+      const warnings = await hrApi.quitEmployee(e, v.reason.trim(), at);
       notify.success({
-        title: 'Đã cho nghỉ việc',
-        description: e.hasAccount ? `${e.fullName} — tài khoản đăng nhập bị khóa, mọi phiên bị thu hồi.` : e.fullName,
+        title: scheduled ? `Đã hẹn nghỉ việc ngày ${fmtDate(at)}` : 'Đã cho nghỉ việc',
+        description: scheduled
+          ? `${e.fullName} vẫn làm việc tới ngày đó; hệ thống tự chuyển trạng thái${e.hasAccount ? ' và khóa tài khoản' : ''}.`
+          : e.hasAccount ? `${e.fullName} — tài khoản đăng nhập bị khóa, mọi phiên bị thu hồi.` : e.fullName,
       });
+      const rest = warnings.filter((w) => !w.startsWith('Đã hẹn'));
+      if (rest.length) notify.warning({ title: 'Cần xử lý thêm', description: rest.join(' ') });
       return;
     }
-    update(e.id, { status: 'quit', quitAt: dayjs().format('YYYY-MM-DD'), hasAccount: false, note: `Nghỉ việc: ${res.reason}` });
-    notify.success({ title: 'Đã cập nhật nghỉ việc', description: e.fullName });
+    update(e.id, scheduled ? { quitAt: at, quitReason: v.reason, quitScheduled: true } : { status: 'quit', quitAt: at, quitReason: v.reason, hasAccount: false });
+    notify.success({ title: scheduled ? `Đã hẹn nghỉ việc ngày ${fmtDate(at)}` : 'Đã cập nhật nghỉ việc', description: e.fullName });
+  };
+
+  const cancelQuit = async () => {
+    const ok = await confirm({
+      title: `Hủy hẹn nghỉ việc của ${e.fullName}?`,
+      description: `Đã hẹn nghỉ ngày ${e.quitAt ? fmtDate(e.quitAt) : ''}${e.quitReason ? ` (${e.quitReason})` : ''}. Hồ sơ tiếp tục làm việc bình thường.`,
+      confirmText: 'Hủy hẹn nghỉ',
+      onConfirm: USE_API ? () => hrApi.cancelScheduledQuit(e) : undefined,
+    });
+    if (!ok) return;
+    if (!USE_API) update(e.id, { quitAt: undefined, quitReason: undefined, quitScheduled: undefined });
+    notify.toast.success('Đã hủy hẹn nghỉ việc');
   };
 
   const longLeave = async (onLeave: boolean) => {
@@ -220,8 +226,12 @@ export function EmployeeDrawer({ employeeId, editable, onClose, onEdit }: { empl
               Nghỉ dài hạn
             </Button>
           )}
-          {!e.quitScheduled && (
-            <Button icon={UserMinus} tone="danger" variant="ghost" onClick={quit}>
+          {e.quitScheduled ? (
+            <Button icon={Undo2} variant="ghost" onClick={cancelQuit}>
+              Hủy hẹn nghỉ
+            </Button>
+          ) : (
+            <Button icon={UserMinus} tone="danger" variant="ghost" onClick={() => setQuitting(true)}>
               Cho nghỉ việc
             </Button>
           )}
@@ -387,6 +397,11 @@ export function EmployeeDrawer({ employeeId, editable, onClose, onEdit }: { empl
             <StatusTag tone={st.tone} icon={st.icon} size="sm">
               {st.label}
             </StatusTag>
+            {e.quitScheduled && e.quitAt && (
+              <StatusTag tone="warning" icon={UserMinus} size="sm">
+                Hẹn nghỉ {fmtDate(e.quitAt)}
+              </StatusTag>
+            )}
             {e.teacher && <StatusTag tone="info" icon={School} size="sm">{e.teacher.type === 'jp' ? 'GV Nhật' : EMPLOYEE_KIND[e.kind]}</StatusTag>}
           </div>
           <span className="text-xs font-normal text-ink-muted">
@@ -438,6 +453,35 @@ export function EmployeeDrawer({ employeeId, editable, onClose, onEdit }: { empl
             <NumberInput currency min={0} />
           </Form.Item>
           {e.status === 'probation' && <p className="text-[13px] text-success-700">Nhân viên thử việc → chuyển thành chính thức.</p>}
+        </ModalForm>
+      )}
+      {quitting && (
+        <ModalForm<{ reason: string; quitAt: Dayjs }>
+          open
+          onClose={() => setQuitting(false)}
+          title={`Cho ${e.fullName} nghỉ việc`}
+          description={[
+            'Khóa tài khoản đăng nhập (từ ngày nghỉ)',
+            e.shiftBased ? 'Gỡ khỏi lịch xếp ca' : 'Không còn trong danh sách chấm công',
+            e.kind !== 'staff' ? 'Không chọn được khi xếp lớp / dạy thay' : 'Bàn giao lead / task đang dở cho người khác',
+          ].join(' · ')}
+          submitText="Xác nhận nghỉ việc"
+          submitAction="save"
+          successMessage="Đã lưu"
+          initialValues={{ quitAt: dayjs() }}
+          onSubmit={doQuit}
+        >
+          <Form.Item
+            name="quitAt"
+            label="Ngày nghỉ việc"
+            rules={[{ required: true, message: 'Chọn ngày' }]}
+            extra="Chọn ngày ở tương lai = hẹn nghỉ: vẫn làm việc tới ngày đó, hệ thống tự chuyển trạng thái."
+          >
+            <DateInput disabledDate={(d) => d.isBefore(dayjs(e.joinedAt), 'day')} />
+          </Form.Item>
+          <Form.Item name="reason" label="Lý do" rules={[{ required: true, whitespace: true, message: 'Nhập lý do' }]}>
+            <TextArea rows={2} maxLength={500} placeholder="VD: hết hợp đồng, xin nghỉ" />
+          </Form.Item>
         </ModalForm>
       )}
       {confirmDialog}

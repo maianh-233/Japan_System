@@ -16,7 +16,7 @@
 | Log | Serilog → console + Seq | Log có cấu trúc, không nối chuỗi |
 | Job nền | `BackgroundService` + Outbox; lịch định kỳ: Quartz.NET | |
 | Realtime | SignalR | Chuông thông báo, lời mời dạy thay, điểm danh QR |
-| File | Lưu trữ S3-compatible (MinIO local) qua `IFileStorage` | |
+| File | Lưu trữ S3-compatible qua `IFileStorage` — local SeaweedFS, thật Cloudflare R2 | ADR 0003 |
 | Test | xUnit, FluentAssertions-free (dùng `Assert` / Shouldly), Testcontainers, NetArchTest | |
 
 Thêm thư viện mới → ghi lý do + license vào ADR. Không thêm thư viện cho việc vài dòng code làm được.

@@ -5,6 +5,7 @@
 #   Adminer     http://localhost:8081        xem / sửa bảng trên trình duyệt (khỏi cài pgAdmin)
 #   Mailpit     http://localhost:8025        hộp thư giả: xem email OTP, email mời kích hoạt
 #   Seq         http://localhost:5341        xem log có cấu trúc
+#   SeaweedFS   http://localhost:8333        kho file S3-compatible (thay MinIO — ADR 0003); môi trường thật dùng Cloudflare R2
 name: jpcenter
 
 services:
@@ -55,6 +56,17 @@ services:
     volumes:
       - seqdata:/data
 
+  # Kho file giống S3 cho local. Không khai báo tài khoản → nhận mọi access key (chỉ dùng ở máy cá nhân).
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.51
+    restart: unless-stopped
+    command: server -dir=/data -ip.bind=0.0.0.0 -s3 -s3.port=8333
+    ports:
+      - "8333:8333"   # S3 API — API ghi file + trình duyệt mở link tạm
+    volumes:
+      - seaweeddata:/data
+
 volumes:
   pgdata:
   seqdata:
+  seaweeddata:

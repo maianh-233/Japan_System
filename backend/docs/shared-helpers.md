@@ -43,7 +43,8 @@
 | `IIntegrationEventPublisher.Publish(event)` (`IntegrationEvents/`) | Phát sự kiện cho module khác: gọi **trước** `SaveChangesAsync` của module mình → ghi `outbox_messages` cùng giao dịch, gửi nền. Kiểu sự kiện: `sealed record` trong `<Module>.Contracts/IntegrationEvents`, implement `IIntegrationEvent` (SharedKernel `Events/`) | ✅ |
 | `IIntegrationEventHandler<TEvent>` (`IntegrationEvents/`) | Module nhận xử lý sự kiện — đặt ở `Application/<Feature>/EventHandlers/`, tự đăng ký bởi `AddHandlersFromAssembly`. Chạy nền, scope riêng, **phải chịu được chạy lại** | ✅ |
 | `ICodeGenerator` (sinh mã HV1000, HD2400, LD0001 theo dãy số trong DB) | Mã hiển thị tăng dần, không trùng | 📝 |
-| `IFileStorage` (upload, link tạm có hạn, xóa) | Tài liệu, đề bài, bài nộp, ảnh hồ sơ | 📝 |
+| `IFileStorage` (`Files/`): `UploadAsync(stream, fileName, folder, policy)` → `Result<StoredFile>` · `GetDownloadUrlAsync(key, FileLinkOptions?)` · `OpenReadAsync` · `ExistsAsync` · `DeleteAsync` | Mọi file người dùng tải lên (tài liệu lộ trình, bài nộp, ảnh, giấy tờ). Lưu `StoredFile.Key` vào entity; trả giao diện **link tạm** sau khi kiểm quyền — không trả key. Thư mục chữ thường theo module: `academic/materials`. Xóa file khi **xóa cứng** entity | ✅ |
+| `FilePolicy` (`TeachingMaterials` 50 MB · `Submissions` 20 MB · `Documents` 10 MB · `Images` 5 MB) + `FileTypes` (đuôi + magic bytes) + `FileErrors` (`file.*`) | Chọn quy định tải lên; tự tạo `new FilePolicy(tên, maxBytes, [FileTypes.Pdf, …])` khi cần khác. Thêm loại file mới → 1 dòng trong `FileTypes` | ✅ |
 | `INotificationSender` (in-app / Zalo / email / SMS) | Gửi thông báo từ mọi module | 📝 |
 | `ValidationRules` mở rộng FluentValidation: `.VietnamPhone()`, `.VndMoney()`, `.Code()` | Validator dùng lại | 📝 |
 
@@ -68,7 +69,7 @@
 | `AddScheduledJobs(config)` + `JobServiceCollectionExtensions.IsEnabled(config)` (`Jobs/`) | Bật Quartz (Host gọi 1 lần); module khai báo job bằng `services.AddQuartz(q => q.ScheduleJob<TJob>(...))` khi `IsEnabled`. Tắt bằng `Jobs:Enabled=false` (test tích hợp) | ✅ |
 | `OutboxMessage`, `OutboxCollector`, `OutboxInterceptor`, `OutboxProcessor<TContext>`, `OutboxSignal`, `OutboxOptions` (`Outbox/`) | Hạ tầng Outbox — tự gắn qua `AddInfrastructureCommon()` + `AddModuleDbContext()`: bảng `outbox_messages` mỗi schema, gửi ngay sau khi lưu (kiểm tra dự phòng 5 giây), thử lại lùi dần, chỉ chạy lại handler lỗi (`handled_by` — thay cho bảng Inbox), quá 8 lần → `failed_at` + log lỗi, xóa bản đã gửi sau 7 ngày. Cấu hình `Outbox:*` | ✅ |
 | ~~`InboxMessage`~~ | **Không làm**: `handled_by` trong outbox + handler chịu được chạy lại là đủ cho 1 instance | — |
-| `S3FileStorage` (MinIO / S3) | Hiện thực `IFileStorage` | 📝 |
+| `S3FileStorage` + `FileStorageOptions` (`Files/`, đăng ký sẵn trong `AddInfrastructureCommon()`) | Hiện thực `IFileStorage` trên kho S3-compatible: local SeaweedFS (`deploy/docker-compose.yml`), thật Cloudflare R2. Cấu hình `Storage:*` (ServiceUrl, Bucket, AccessKey, SecretKey, CreateBucket, LinkMinutes). Chưa cấu hình → lỗi hệ thống rõ ràng. Test: Testcontainers SeaweedFS (`FileStorageTests.cs`) | ✅ |
 | `SequenceCodeGenerator` (PostgreSQL sequence) | Hiện thực `ICodeGenerator` | 📝 |
 
 ## JPCenter.Api.Common

@@ -1313,7 +1313,7 @@ Khóa chính (scope, key).
 | due_date | date | Hạn đóng |
 | issued_at | timestamptz | Lúc lập |
 | transfer_content | text UQ | Nội dung CK VietQR riêng — dùng tự đối soát |
-| status | text | `unpaid` · `partial` · `paid` · `overdue` · `refunded` · `cancelled` · `voided` |
+| status | text | Chỉ lưu trạng thái do người làm: `open` đang hiệu lực · `cancelled` hủy phần còn lại · `voided` hủy hóa đơn. `unpaid` / `partial` / `paid` / `overdue` / `refunded` **tính khi đọc** từ `payments`, `refunds`, `due_date` (TC-05) |
 | cancelled_at, cancel_reason | timestamptz?, text? | Hủy phần còn lại (nghỉ / lớp hủy) |
 | voided_at, void_reason | timestamptz?, text? | Hủy hóa đơn lập sai |
 | void_requested_by, void_approved_by | uuid? | Người đề nghị / người duyệt (khác nhau) |
@@ -1328,7 +1328,7 @@ Khóa chính (scope, key).
 | id | uuid PK | |
 | invoice_id | uuid FK | → invoices |
 | amount | numeric | Số tiền |
-| method | text | `cash` · `transfer` · `viet_qr` · `card` |
+| method | text | `cash` · `transfer` · `vietqr` · `card` (trùng giá trị frontend) |
 | paid_at | timestamptz | Lúc thu |
 | collector_id | uuid | Người thu → hr.employees (tiền mặt vào bàn giao ca) |
 | bank_transaction_id | uuid? FK | Giao dịch ngân hàng đã khớp → bank_transactions |
@@ -1825,3 +1825,4 @@ sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đ�
 | 2026-11-17 | Giai đoạn 8: thêm bảng chung `outbox_messages` vào mọi schema module (migration `AddOutbox` cho `system`, `hr`) |
 | 2026-11-17 | Giai đoạn 9 (user story 03): `branches.invoice_prefix` thêm UQ (trong số chưa xóa) — migration `BranchInvoicePrefixUnique` |
 | 2026-11-17 | Giai đoạn 10 (user story 04): `employees` + `quit_reason`; thêm bảng `employment_contracts` (81a) lưu hợp đồng cũ — migration `HrEmployeeHistory` |
+| 2026-11-17 | Chốt thiết kế (user story 08): `invoices.status` chỉ lưu `open` / `cancelled` / `voided`, các trạng thái tiền tính khi đọc; `payments.method` dùng `vietqr` (không `viet_qr`). Domain `InvoiceStatus`, `PaymentMethod` sửa theo khi code module Tài chính |

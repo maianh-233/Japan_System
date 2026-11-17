@@ -141,4 +141,26 @@ public sealed class EmployeeTests
         (e.Status, e.HasQuit, e.QuitScheduled).ShouldBe((EmployeeStatus.Quit, true, false));
         e.ApplyScheduledQuit(at).ShouldBeFalse();
     }
+
+    [Fact]
+    public void Huy_hen_nghi_va_khong_nghi_truoc_ngay_vao_lam()
+    {
+        var e = Create().Value;
+        e.Quit(new DateOnly(2025, 12, 31), "x", Today).Error.Code.ShouldBe(EmployeeErrors.QuitBeforeJoin.Code);
+        e.CancelScheduledQuit().Error.Code.ShouldBe(EmployeeErrors.NoScheduledQuit.Code);
+        e.Quit(Today.AddDays(5), "Hết hợp đồng", Today).Value.ShouldBeFalse();
+        e.CancelScheduledQuit().IsSuccess.ShouldBeTrue();
+        (e.QuitAt, e.QuitReason, e.QuitScheduled).ShouldBe(((DateOnly?)null, (string?)null, false));
+        e.Quit(Today, "Nghỉ", Today).Value.ShouldBeTrue();
+        e.CancelScheduledQuit().Error.Code.ShouldBe(EmployeeErrors.AlreadyQuit.Code);
+    }
+
+    [Fact]
+    public void Tu_sua_lien_he_can_du_15_tuoi()
+    {
+        var e = Create().Value;
+        e.UpdateOwnContact("0911111111", Today.AddYears(-14), Today).Error.Code.ShouldBe(EmployeeErrors.InvalidDob.Code);
+        e.UpdateOwnContact(" 0911111111 ", new DateOnly(1995, 1, 1), Today).IsSuccess.ShouldBeTrue();
+        (e.Phone, e.Dob).ShouldBe(("0911111111", (DateOnly?)new DateOnly(1995, 1, 1)));
+    }
 }
