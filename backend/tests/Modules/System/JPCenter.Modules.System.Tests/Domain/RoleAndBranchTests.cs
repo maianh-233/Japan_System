@@ -45,18 +45,70 @@ public sealed class RoleAndBranchTests
         role.EnsureDeletable().IsSuccess.ShouldBeTrue();
     }
 
-    [Fact]
-    public void Chi_nhanh_moi_dang_chuan_bi_mo_roi_dong()
-    {
-        Branch.Create("", "Cầu Giấy", "", "", "", "CG", new DateOnly(2026, 1, 1)).Error.ShouldBe(BranchErrors.CodeRequired);
-        Branch.Create("cg", " ", "", "", "", "CG", new DateOnly(2026, 1, 1)).Error.ShouldBe(BranchErrors.NameRequired);
+    private static readonly DateOnly Today = new(2026, 11, 17);
 
-        var b = Branch.Create(" cg ", "Cầu Giấy", "", "", "", "CG", new DateOnly(2026, 1, 1)).Value;
-        b.Code.ShouldBe("CG");
-        b.Status.ShouldBe(BranchStatus.Preparing);
-        b.Activate().IsSuccess.ShouldBeTrue();
-        b.Activate().Error.ShouldBe(BranchErrors.InvalidStatus);
+    private static Branch NewBranch(string code = "cg", string? prefix = null) =>
+        Branch.Create(code, "Cầu Giấy", "Số 1", "0900000000", "cg@jpcenter.vn", prefix, Today.AddDays(30)).Value;
+
+    [Fact]
+    public void Chi_nhanh_moi_chuan_hoa_ma_va_tien_to_mac_dinh_theo_ma()
+    {
+        Branch.Create("", "Cầu Giấy", "", "", "", null, Today).Error.ShouldBe(BranchErrors.CodeRequired);
+        Branch.Create("cg", " ", "", "", "", null, Today).Error.ShouldBe(BranchErrors.NameRequired);
+        Branch.Create("C", "X", "", "", "", null, Today).Error.ShouldBe(BranchErrors.InvalidCode);
+        Branch.Create("CGIAY", "X", "", "", "", null, Today).Error.ShouldBe(BranchErrors.InvalidCode);
+        Branch.Create("C-G", "X", "", "", "", null, Today).Error.ShouldBe(BranchErrors.InvalidCode);
+        Branch.Create("cg", "X", "", "", "", "HD-1", Today).Error.ShouldBe(BranchErrors.InvalidInvoicePrefix);
+
+        var b = NewBranch(" cg ");
+        (b.Code, b.InvoicePrefix, b.Status).ShouldBe(("CG", "CG", BranchStatus.Preparing));
+        NewBranch(prefix: "cgy").InvoicePrefix.ShouldBe("CGY");
+    }
+
+    [Fact]
+    public void Tai_khoan_ngan_hang_nhap_du_ca_3_hoac_bo_trong()
+    {
+        var b = NewBranch();
+        b.SetBankAccount("Vietcombank", "0123", null).Error.ShouldBe(BranchErrors.BankIncomplete);
+        b.SetBankAccount("Vietcombank", "12ab5678", "A").Error.ShouldBe(BranchErrors.BankAccountInvalid);
+        b.SetBankAccount("Vietcombank", "12345", "A").Error.ShouldBe(BranchErrors.BankAccountInvalid);
+
+        b.SetBankAccount("Vietcombank", "0011 0022 33", "cong ty jp").IsSuccess.ShouldBeTrue();
+        (b.BankAccount, b.BankHolder).ShouldBe(("0011002233", "CONG TY JP"));
+        b.SetBankAccount(" ", "", null).IsSuccess.ShouldBeTrue();
+        b.HasBankAccount.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void Khai_truong_som_thi_ngay_khai_truong_la_hom_nay()
+    {
+        var b = NewBranch();
+        b.Open(Today).IsSuccess.ShouldBeTrue();
+        (b.Status, b.OpenedAt).ShouldBe((BranchStatus.Active, Today));
+        b.Open(Today).Error.ShouldBe(BranchErrors.InvalidStatus);
+    }
+
+    [Fact]
+    public void Dong_tu_dang_chuan_bi_hoac_hoat_dong_mo_lai_chi_tu_da_dong()
+    {
+        var preparing = NewBranch();
+        preparing.Reopen().Error.ShouldBe(BranchErrors.InvalidStatus);
+        preparing.Close().IsSuccess.ShouldBeTrue();
+        preparing.Close().Error.ShouldBe(BranchErrors.InvalidStatus);
+
+        var b = NewBranch();
+        b.Open(Today);
         b.Close().IsSuccess.ShouldBeTrue();
-        b.Close().Error.ShouldBe(BranchErrors.InvalidStatus);
+        b.Reopen().IsSuccess.ShouldBeTrue();
+        b.Status.ShouldBe(BranchStatus.Active);
+    }
+
+    [Fact]
+    public void Sua_khong_doi_ma_tien_to_trong_thi_theo_ma()
+    {
+        var b = NewBranch(prefix: "XY");
+        b.Update(" ", "a", "p", "e", null, Today).Error.ShouldBe(BranchErrors.NameRequired);
+        b.Update("Cầu Giấy 2", "a", "p", "e", null, Today).IsSuccess.ShouldBeTrue();
+        (b.Code, b.Name, b.InvoicePrefix).ShouldBe(("CG", "Cầu Giấy 2", "CG"));
     }
 }

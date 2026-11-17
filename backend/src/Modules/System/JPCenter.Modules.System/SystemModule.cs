@@ -6,9 +6,11 @@ using JPCenter.Application.Common.Security;
 using JPCenter.Infrastructure.Common.Jobs;
 using JPCenter.Infrastructure.Common.Persistence;
 using JPCenter.Modules.System.Api;
+using JPCenter.Modules.System.Contracts;
 using JPCenter.Modules.System.Application.Abstractions;
 using JPCenter.Modules.System.Application.Approvals.Common;
 using JPCenter.Modules.System.Application.Auth.Common;
+using JPCenter.Modules.System.Application.Branches.Common;
 using JPCenter.Modules.System.Application.Permissions.Common;
 using JPCenter.Modules.System.Application.PortalAccounts.Common;
 using JPCenter.Modules.System.Application.Roles.Common;
@@ -50,6 +52,10 @@ public sealed class SystemModule : IModule
         services.AddSingleton<IFrontendLinks, FrontendLinks>();
         services.AddSingleton<IPermissionCatalog, PermissionCatalog>();
 
+        // Cho module khác (System.Contracts)
+        services.AddScoped<IBranchDirectory, BranchDirectory>();
+        services.AddScoped<IStaffAccessDirectory, StaffAccessDirectory>();
+
         // Dịch vụ dùng chung giữa các use case (Application/*/Common)
         services.AddScoped<SignInAccounts>();
         services.AddScoped<SessionIssuer>();
@@ -65,6 +71,9 @@ public sealed class SystemModule : IModule
         services.AddScoped<ApprovalFactory>();
         services.AddScoped<ApprovalReader>();
         services.AddScoped<FinancePermissionApplier>();
+        services.AddScoped<BranchReader>();
+        services.AddScoped<BranchRules>();
+        services.AddScoped<BranchStatusEvents>();
 
         // Job định kỳ (Host bật scheduler khi Jobs:Enabled ≠ false)
         if (JobServiceCollectionExtensions.IsEnabled(configuration))

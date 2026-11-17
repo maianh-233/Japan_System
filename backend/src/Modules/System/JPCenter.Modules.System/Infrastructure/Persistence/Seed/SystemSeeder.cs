@@ -37,7 +37,7 @@ internal sealed class SystemSeeder(SystemDbContext db, IPasswordHasher hasher, I
         {
             var branch = Domain.Branches.Branch.Create(s.Code, s.Name, s.Address, s.Phone ?? "", s.Email ?? "", s.InvoicePrefix ?? s.Code,
                 DateOnly.Parse(s.OpenedAt ?? "2021-01-01")).Value;
-            if (s.Status is "active" or "closed") branch.Activate();
+            if (s.Status is "active" or "closed") branch.Open(branch.OpenedAt);
             if (s.Status == "closed") branch.Close();
             if (s.Bank is { } bank) branch.SetBankAccount(bank.Bank, bank.Account, bank.Holder);
             if (s.ManagerId is not null) branch.AssignManager(SeedData.IdOf(s.ManagerId));

@@ -234,3 +234,32 @@ backend dùng GUID, `code` chỉ là mã hiển thị (CLAUDE.md mục 5).
 | Trùng tiền tố hóa đơn | UQ `branches.invoice_prefix` | CN-02.E7 |
 | Chống sửa đè | `xmin` (quy ước chung) | CN-03.E3 |
 | Không cần cột mới cho số liệu | Tính khi đọc từ module nguồn | CN-01 |
+
+## Đã làm (backend, 2026-11-17)
+
+Code: `src/Modules/System/JPCenter.Modules.System/Application/Branches/` · Test: `tests/JPCenter.IntegrationTests/System/BranchFlowTests.cs`,
+`tests/Modules/System/JPCenter.Modules.System.Tests/Domain/RoleAndBranchTests.cs`.
+
+| Story | API (`/api/v1/system/...`) | Quyền |
+|---|---|---|
+| CN-01 | `GET branches?status=&q=` → `BranchDto[]` (`stats.staff`, `stats.teachers`; các chỉ số ⏳ không trả) | `system.branches.view` |
+| CN-02 | `POST branches` `{ code, name, address, phone, email, managerId?, openHours, openedAt, invoicePrefix?, bank?, note? }` | `system.branches.create` |
+| CN-03, CN-04 | `PUT branches/{id}` `{ …như trên trừ code, version }` | `system.branches.update` |
+| CN-05 | `POST branches/{id}/open` → `{ branch, warnings }` | `system.branches.update` |
+| CN-06 | `POST branches/{id}/close` `{ confirmCode }` | `system.branches.update` |
+| CN-07 | `POST branches/{id}/reopen` | `system.branches.update` |
+| CN-08 | `GET branches/options` → `[{ id, code, name, status }]` | Đăng nhập |
+
+**Cho module khác** (`System.Contracts`): `IBranchDirectory` (FindAsync, ListAsync), `IStaffAccessDirectory.WithPermissionAsync(permission, branchId)`
+(ai đang có 1 quyền tại 1 chi nhánh — dùng gửi email đúng người), integration event `BranchStatusChanged` (khai trương / đóng / mở lại).
+`Hr.Contracts › IEmployeeDirectory.HeadcountByBranchAsync` cho số nhân sự / giáo viên.
+
+**Chốt khi code:**
+- Mã chi nhánh và tiền tố hóa đơn: 2–4 chữ / số, tự viết hoa. Sửa chi nhánh không nhận `code` (gửi lên → 400 trường lạ).
+- CN-04.E4: đổi số tài khoản → nhật ký mức `warning` + email "Tài khoản nhận học phí đã thay đổi" tới người có `finance.invoices.view` ở chi nhánh đó
+  (trừ người sửa). Nhật ký chỉ ghi 4 số cuối (`••••1234`) — áp chung cho mọi thuộc tính tên chứa `BankAccount` (DataChangeAuditInterceptor).
+- CN-05.E2: khai trương sớm → `opened_at` = hôm nay. CN-05.E3: trả `warnings` (chưa có tài khoản ngân hàng / quản lý).
+- CN-06.E2 đếm nhân sự chưa nghỉ có chi nhánh chính là chi nhánh này (mọi loại).
+- ⏳ chờ module khác: CN-01 số phòng / lớp / học viên / đã thu (Đào tạo, Học viên, Tài chính); CN-03.E2 khóa tiền tố khi đã có hóa đơn (Tài chính);
+  CN-06.E1 còn lớp đang chạy (Đào tạo); CN-06.E5, E6 xử lý ở giao diện / trang Phân quyền (giai đoạn nối frontend).
+

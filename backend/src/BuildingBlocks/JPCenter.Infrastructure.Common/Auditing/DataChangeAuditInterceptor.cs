@@ -16,6 +16,8 @@ namespace JPCenter.Infrastructure.Common.Auditing;
 public sealed class DataChangeAuditInterceptor(IAuditChangeCollector collector) : SaveChangesInterceptor
 {
     private static readonly string[] SecretMarkers = ["password", "secret", "token", "hash", "otp", "key"];
+    /// <summary>Số tài khoản ngân hàng: chỉ ghi 4 số cuối (••••1234) — đủ để nhận ra đã đổi, không lộ số đầy đủ</summary>
+    private static readonly string[] PartialMarkers = ["bankaccount", "accountnumber"];
 
     private static readonly HashSet<string> CommonColumns =
     [
@@ -55,6 +57,7 @@ public sealed class DataChangeAuditInterceptor(IAuditChangeCollector collector) 
                 var after = Format(prop, prop.CurrentValue);
                 if (before == after) continue;
                 if (IsSecret(meta.Name)) (before, after) = (before is null ? null : "***", after is null ? null : "***");
+                else if (IsPartial(meta.Name)) (before, after) = (Last4(before), Last4(after));
 
                 collector.Add(new AuditFieldChange($"{name}.{meta.Name}", before, after));
             }
@@ -62,6 +65,11 @@ public sealed class DataChangeAuditInterceptor(IAuditChangeCollector collector) 
     }
 
     private static bool IsOwnedByAuditable(EntityEntry entry) => entry.Metadata.IsOwned();
+
+    private static bool IsPartial(string property) =>
+        PartialMarkers.Any(m => property.Contains(m, StringComparison.OrdinalIgnoreCase));
+
+    public static string? Last4(string? value) => value is null ? null : "••••" + (value.Length > 4 ? value[^4..] : value);
 
     private static bool IsSecret(string property) =>
         SecretMarkers.Any(m => property.Contains(m, StringComparison.OrdinalIgnoreCase));

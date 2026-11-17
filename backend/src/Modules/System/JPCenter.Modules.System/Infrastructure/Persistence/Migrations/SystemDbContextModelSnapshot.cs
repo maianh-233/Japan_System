@@ -386,6 +386,11 @@ namespace JPCenter.Modules.System.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_branches_code")
                         .HasFilter("is_deleted = false");
 
+                    b.HasIndex("InvoicePrefix")
+                        .IsUnique()
+                        .HasDatabaseName("ix_branches_invoice_prefix")
+                        .HasFilter("is_deleted = false");
+
                     b.ToTable("branches", "system");
                 });
 

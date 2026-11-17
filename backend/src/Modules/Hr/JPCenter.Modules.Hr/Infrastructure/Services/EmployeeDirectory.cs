@@ -33,6 +33,16 @@ internal sealed class EmployeeDirectory(HrDbContext db) : IEmployeeDirectory
         return list.Select(ToSummary).ToList();
     }
 
+    public async Task<IReadOnlyDictionary<Guid, BranchHeadcount>> HeadcountByBranchAsync(CancellationToken ct)
+    {
+        var rows = await db.Employees.AsNoTracking()
+            .Where(x => x.Status != EmployeeStatus.Quit)
+            .GroupBy(x => x.BranchId)
+            .Select(g => new { Branch = g.Key, Staff = g.Count(), Teachers = g.Count(x => x.Kind == EmployeeKind.Teacher) })
+            .ToListAsync(ct);
+        return rows.ToDictionary(r => r.Branch.Value, r => new BranchHeadcount(r.Staff, r.Teachers));
+    }
+
     private static EmployeeSummary ToSummary(Employee e) => new(
         e.Id.Value, e.Code, e.FullName, e.Email,
         SnakeCaseEnumConverter<EmployeeKind>.ToText(e.Kind), e.BranchId.Value,

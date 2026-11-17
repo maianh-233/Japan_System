@@ -15,5 +15,7 @@ internal sealed class BranchConfiguration : IEntityTypeConfiguration<Branch>
         b.ToTable("branches");
         b.HasKey(x => x.Id);
         b.HasIndex(x => x.Code).IsUnique().HasFilter("is_deleted = false");
+        // CN-02.E7: 2 chi nhánh cùng tiền tố → số hóa đơn trùng
+        b.HasIndex(x => x.InvoicePrefix).IsUnique().HasFilter("is_deleted = false");
     }
 }

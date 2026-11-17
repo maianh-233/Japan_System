@@ -72,7 +72,7 @@ thêm / đổi / xóa thuộc tính → sửa dòng trong bảng + ghi 1 dòng �
 | Thuộc tính | Kiểu | Giải thích |
 |---|---|---|
 | id | uuid PK | Id chi nhánh (`BranchId` — dùng ở mọi module) |
-| code | text UQ | Mã ngắn: CG, Q1… |
+| code | text UQ | Mã ngắn: CG, Q1… — 2–4 chữ/số viết hoa, không đổi sau khi tạo |
 | name | text | Tên chi nhánh |
 | address | text | Địa chỉ |
 | phone | text | SĐT |
@@ -82,7 +82,7 @@ thêm / đổi / xóa thuộc tính → sửa dòng trong bảng + ghi 1 dòng �
 | status | text | `preparing` đang chuẩn bị · `active` hoạt động · `closed` đã đóng |
 | opened_at | date | Ngày khai trương |
 | bank_name, bank_account, bank_holder | text? | Tài khoản nhận học phí (VietQR) |
-| invoice_prefix | text | Tiền tố số hóa đơn (thay `{CN}` trong mẫu mã) |
+| invoice_prefix | text UQ | Tiền tố số hóa đơn (thay `{CN}` trong mẫu mã) — 2–4 chữ/số, mặc định = `code`, không trùng chi nhánh khác |
 | note | text? | Ghi chú |
 
 ### 2. roles
@@ -1808,3 +1808,4 @@ sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đ�
 | 2026-11-17 | Bỏ đăng nhập 2 lớp (2FA) — không làm: xóa `user_accounts.two_factor_enabled`, `two_factor_secret`, `two_factor_required`; `user_sessions.trusted_until`; `one_time_tokens.purpose` bỏ `two_factor`, `two_factor_setup` |
 | 2026-11-17 | Code giai đoạn 3: `user_accounts` + `token_version`; `portal_accounts` + `display_name`, `token_version`; `audit_logs` + `trace_id`, category thêm `security`; thêm bảng `idempotency_keys` (13c). Migration đầu tiên của schema `system`, `hr` (hr mới có `employees`, `teacher_profiles`) |
 | 2026-11-17 | Giai đoạn 8: thêm bảng chung `outbox_messages` vào mọi schema module (migration `AddOutbox` cho `system`, `hr`) |
+| 2026-11-17 | Giai đoạn 9 (user story 03): `branches.invoice_prefix` thêm UQ (trong số chưa xóa) — migration `BranchInvoicePrefixUnique` |
