@@ -29,12 +29,20 @@ public sealed class AttendanceRecord
     internal static AttendanceRecord Guest(Guid studentId, ClassSessionId originalSessionId, Guid leaveRequestId) =>
         new() { StudentId = studentId, Status = AttendanceStatus.Absent, MakeupForSessionId = originalSessionId, LeaveRequestId = leaveRequestId };
 
-    internal void Mark(AttendanceStatus status, AttendanceMethod method, TimeOnly? checkInAt, string? note) =>
-        (Status, Method, CheckInAt, Note) = (status, method, checkInAt, note ?? Note);
+    internal void Mark(AttendanceStatus status, AttendanceMethod method, TimeOnly? checkInAt, string? note, TimeOnly? leftAt, string? leaveReason)
+    {
+        var attended = status is AttendanceStatus.Present or AttendanceStatus.Late;
+        (Status, Method, Note) = (status, method, string.IsNullOrWhiteSpace(note) ? null : note.Trim());
+        CheckInAt = attended ? checkInAt ?? CheckInAt : null;
+        (LeftAt, LeaveReason) = attended && leftAt is not null ? (leftAt, string.IsNullOrWhiteSpace(leaveReason) ? null : leaveReason.Trim()) : (null, null);
+    }
 
-    internal void LeaveEarly(TimeOnly leftAt, string reason) => (LeftAt, LeaveReason) = (leftAt, reason);
-
-    internal void ExcuseByLeave(Guid leaveRequestId) => (Status, LeaveRequestId) = (AttendanceStatus.Excused, leaveRequestId);
+    /// <summary>Đơn nghỉ được duyệt: vắng → có phép; đã có mặt / muộn thì giữ nguyên (DT-09.E7)</summary>
+    internal void ExcuseByLeave(Guid leaveRequestId)
+    {
+        LeaveRequestId = leaveRequestId;
+        if (Status is AttendanceStatus.Absent or AttendanceStatus.Excused) Status = AttendanceStatus.Excused;
+    }
 
     internal void SetMadeUp(ClassSessionId sessionId, AttendanceStatus result) => (MadeUpSessionId, MadeUpStatus) = (sessionId, result);
 }

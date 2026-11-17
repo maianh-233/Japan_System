@@ -884,6 +884,7 @@ Khóa chính (scope, key).
 | fee | numeric | Học phí / HV |
 | status | text | `enrolling` chờ khai giảng · `ongoing` · `paused` · `finished` · `cancelled` |
 | previous_class_id | uuid? FK | Lớp trước (lên lớp) → classes |
+| pause_reason | text? | Lý do tạm dừng (xóa khi học lại) |
 | cancel_reason | text? | Lý do hủy |
 | note | text? | Ghi chú |
 
@@ -895,13 +896,13 @@ Khóa chính (scope, key).
 | id | uuid PK | |
 | class_id | uuid FK | → classes |
 | branch_id | uuid | → system.branches |
-| no | int | Số thứ tự buổi |
+| no | int | Số thứ tự buổi (học thêm = 0, không thuộc chuỗi) |
 | date | date | Ngày học |
 | start_time, end_time | time | Giờ học |
 | kind | text | `lesson` học · `exam` thi |
 | lesson_id | uuid? FK | Bài dự kiến → lessons |
 | exam_id | uuid? FK | Mốc thi → exam_milestones |
-| status | text | `scheduled` · `completed` đã diễn ra · `cancelled` |
+| status | text | `scheduled` chưa xác nhận (sắp tới / đang diễn ra / chờ xác nhận — suy theo giờ) · `completed` đã xác nhận · `cancelled` |
 | origin | text | `regular` · `makeup` học bù · `extra` học thêm |
 | makeup_for_id | uuid? FK | Buổi bị hủy được bù → class_sessions |
 | teacher_ids | uuid[] | Ghi đè GV cho buổi (dạy thay) — rỗng = theo lớp |
@@ -1829,4 +1830,5 @@ sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đ�
 | 2026-11-17 | Giai đoạn 9 (user story 03): `branches.invoice_prefix` thêm UQ (trong số chưa xóa) — migration `BranchInvoicePrefixUnique` |
 | 2026-11-17 | Giai đoạn 10 (user story 04): `employees` + `quit_reason`; thêm bảng `employment_contracts` (81a) lưu hợp đồng cũ — migration `HrEmployeeHistory` |
 | 2026-11-17 | Giai đoạn 12 (user story 09): `materials` + `file_key`, `file_name`, `content_type`, `url` thành tùy chọn (chỉ cho link); `curricula.version` dạng `v1.0` |
+| 2026-11-17 | Giai đoạn 13 (user story 07): `classes` + `pause_reason`; `class_sessions.status` `completed` = đã xác nhận (bỏ xác nhận → `scheduled`) |
 | 2026-11-17 | Chốt thiết kế (user story 08): `invoices.status` chỉ lưu `open` / `cancelled` / `voided`, các trạng thái tiền tính khi đọc; `payments.method` dùng `vietqr` (không `viet_qr`). Domain `InvoiceStatus`, `PaymentMethod` sửa theo khi code module Tài chính |
