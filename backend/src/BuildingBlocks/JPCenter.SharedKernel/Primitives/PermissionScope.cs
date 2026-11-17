@@ -1,4 +1,4 @@
-namespace JPCenter.Modules.System.Domain.Roles;
+namespace JPCenter.SharedKernel.Primitives;
 
 /// <summary>Phạm vi của 1 quyền</summary>
 public enum PermissionScope

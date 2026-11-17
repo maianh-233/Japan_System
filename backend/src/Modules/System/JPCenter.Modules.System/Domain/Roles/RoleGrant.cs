@@ -1,3 +1,4 @@
+using JPCenter.SharedKernel.Primitives;
 namespace JPCenter.Modules.System.Domain.Roles;
 
 /// <summary>1 quyền trong role. Bảng: system.role_grants (khóa: role_id + permission)</summary>

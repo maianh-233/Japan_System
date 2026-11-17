@@ -9,6 +9,9 @@ internal static class DotEnv
     /// <summary>Tìm <c>.env</c> từ thư mục hiện tại đi ngược lên (tối đa 6 cấp) — chạy từ Host hay từ backend/ đều được.</summary>
     public static void Load()
     {
+        // Integration test tự cấp cấu hình — KHÔNG được đọc .env (sẽ trỏ vào DB dữ liệu mẫu)
+        if (Environment.GetEnvironmentVariable("JPCENTER_SKIP_DOTENV") == "1") return;
+
         var dir = new DirectoryInfo(Directory.GetCurrentDirectory());
         for (var i = 0; dir is not null && i < 6; i++, dir = dir.Parent)
         {

@@ -22,7 +22,12 @@ public static class ApiCommonServiceCollectionExtensions
             json.UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow;
             json.MaxDepth = 32;
             json.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            // Chuẩn hóa Unicode + bỏ ký tự điều khiển cho mọi chuỗi gửi lên
+            json.Converters.Add(new Validation.NormalizedStringConverter());
         });
+
+        // Lỗi bind (JSON hỏng, trường lạ, sai kiểu) → exception để GlobalExceptionHandler trả mã lỗi rõ ràng
+        services.Configure<Microsoft.AspNetCore.Routing.RouteHandlerOptions>(o => o.ThrowOnBadRequest = true);
 
         services.AddProblemDetails(o => o.CustomizeProblemDetails = ctx =>
         {

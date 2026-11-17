@@ -1,6 +1,6 @@
-namespace JPCenter.Modules.System.Domain.AuditLogs;
+namespace JPCenter.SharedKernel.Primitives;
 
-/// <summary>Nhóm thao tác ghi nhật ký</summary>
+/// <summary>Nhóm thao tác ghi nhật ký (audit_logs.category) — mọi module dùng chung.</summary>
 public enum AuditCategory
 {
     /// <summary>Đăng nhập / bảo mật</summary>
@@ -15,4 +15,6 @@ public enum AuditCategory
     Finance,
     /// <summary>Cài đặt</summary>
     Setting,
+    /// <summary>An ninh: vượt rate limit lặp lại, token bị dùng lại, dò quyền</summary>
+    Security,
 }

@@ -36,38 +36,28 @@ lớp cần biết "endpoint nào" (quyền, validate, audit) chạy sau khi đ�
   M2  CorrelationId           gắn X-Request-Id, đưa vào log                         💡
   M3  ExceptionHandler        mọi lỗi hệ thống → ProblemDetails, không lộ stack     💡
   M4  SecurityHeaders + HSTS  header bảo mật                                        💡
+      Routing + BodySize      body quá lớn (Content-Length) → 413 trước khi đọc
   M5  CORS                    chỉ cho phép domain của frontend
-  M6  RateLimit (IP)          chặn spam ẩn danh (đăng nhập, quên mật khẩu)          🧑
   M7  Authentication          kiểm tra token (JWT)                                  🧑
-  M8  CurrentUser             nạp quyền + phạm vi của người gọi (có cache)
-  M9  RateLimit (User)        chặn spam theo người dùng + endpoint                  🧑
-  M10 Authorization           .RequirePermission("crm.leads", Update)               🧑
+  M8  CurrentUser             nạp quyền (cache), chặn token đã thu hồi
+      Penalty                 người đang bị phạt vì spam → chặn thao tác ghi
+  M6/M9 RateLimit             theo IP (chưa đăng nhập) / theo người + endpoint       🧑
+  M10 Authorization           bắt buộc đăng nhập; quyền chi tiết: filter RequirePermission 🧑
   ── Endpoint filter (chạy quanh từng endpoint) ──
   F1  Idempotency             request trùng → trả lại kết quả cũ, không chạy lại   💡
   F2  Validation              kiểm tra & làm sạch dữ liệu vào                       🧑
   F3  Audit                   ghi nhật ký sau khi xử lý                             🧑
         ▼
       Endpoint → ISender → Command/Query Handler → DbContext
-        ▲                         └─ AuditInterceptor ghi before→after (cùng transaction)
+        ▲                         └─ DataChangeAuditInterceptor gom before→after vào dòng nhật ký của hành động
   R1  Response shaping        Result → HTTP, bọc lỗi chuẩn, ẩn/che dữ liệu nhạy cảm 🧑
 ```
 
-Trong `Program.cs` (minh họa):
+Code thật: `RequestPipelineExtensions.UseRequestPipeline()` trong `JPCenter.Api.Common` (thứ tự cố định, có chú thích M1…M10).
+Host chỉ gọi `builder.Services.AddRequestPipeline(config)` + `app.UseRequestPipeline()` + `app.MapModules()`.
 
-```csharp
-app.UseForwardedHeaders();
-app.UseCorrelationId();
-app.UseExceptionHandler();
-app.UseSecurityHeaders();
-app.UseHsts();
-app.UseCors("frontend");
-app.UseRouting();
-app.UseRateLimiter();          // policy theo IP và theo user đều đăng ký ở đây
-app.UseAuthentication();
-app.UseCurrentUser();
-app.UseAuthorization();
-app.MapModules();              // mỗi module gắn filter Idempotency / Validation / Audit lên endpoint của mình
-```
+Rate limit đặt **sau** xác thực (khác bản đề xuất đầu) để phân vùng được theo tài khoản; chưa đăng nhập thì tính theo IP.
+Đường dẫn không tồn tại mà chưa đăng nhập → 401 (không lộ đường dẫn nào có thật).
 
 > Ghi chú kỹ thuật: Middleware chạy cho **mọi** request; Endpoint filter chỉ chạy cho endpoint được gắn và **biết
 > kiểu dữ liệu đầu vào** → validate, idempotency, audit dùng endpoint filter để không phải đọc lại body thô.
@@ -147,18 +137,18 @@ Người dùng bấm "Đăng ký" 10 lần khi mạng chập chờn → 10 reque
 Ở lớp 3, request bị từ chối vẫn tới app nhưng bị trả 429 **ngay ở middleware** — không xác thực lại DB, không chạy
 handler, không chạm database → chi phí gần bằng 0.
 
-### Các policy ⚙️ (đề xuất ban đầu, chỉnh trong `appsettings` / Cài đặt chung)
+### Các policy ⚙️ (ĐÃ CODE — chỉnh ở mục `RateLimit` của cấu hình, vd `RateLimit__WriteBurst=10` trong `.env`)
 
 | Policy | Áp dụng | Khóa phân vùng | Ngưỡng | Thuật toán |
 |---|---|---|---|---|
-| `anon` | Đăng nhập, quên mật khẩu, form đăng ký lead công khai | IP (+ tên đăng nhập với login) | 5 / phút | Fixed window |
-| `write` | POST / PUT / PATCH / DELETE thường | UserId + endpoint | 10 / 10 giây | Token bucket |
-| `write-sensitive` | Thanh toán, ghi danh, tạo hóa đơn, gửi tin Zalo/SMS hàng loạt | UserId + endpoint | 3 / 10 giây | Fixed window |
-| `read` | GET | UserId | 120 / phút | Sliding window |
-| `export` | Xuất Excel / báo cáo nặng | UserId | 5 / phút, tối đa 1 chạy đồng thời | Concurrency |
-| `global` | Mọi request (lưới an toàn) | UserId hoặc IP | 300 / phút | Sliding window |
+| *(tự động)* chung | Mọi request (lưới an toàn) | Tài khoản, chưa đăng nhập thì IP | 300 / phút | Sliding window |
+| *(tự động)* ghi | Mọi POST / PUT / PATCH / DELETE | Tài khoản + mẫu đường dẫn | gửi liền 10, sau đó 1 / giây | Token bucket |
+| `anon` | Đăng nhập, quên mật khẩu, form đăng ký công khai | IP + mẫu đường dẫn | 20 / phút (nhiều người chung wifi trung tâm) | Fixed window |
+| `write-sensitive` | Thanh toán, ghi danh, tạo hóa đơn, gửi tin hàng loạt | Tài khoản + mẫu đường dẫn | 3 / 10 giây | Fixed window |
+| `export`, `import` | Xuất / nhập file | Tài khoản | 1 lần chạy cùng lúc | Concurrency |
 
-Gắn vào endpoint: `.RequireRateLimiting("write-sensitive")`.
+Gắn vào endpoint: `.RequireRateLimiting(RateLimitPolicies.WriteSensitive)`. Chống dò mật khẩu theo **tài khoản** do
+domain làm (`LoginThrottle`: sai 5 lần → khóa 15 phút), không dựa vào IP.
 
 ### Khi vượt ngưỡng
 - Trả **429 Too Many Requests**, header `Retry-After: <giây>`, body ProblemDetails:
@@ -169,7 +159,7 @@ Gắn vào endpoint: `.RequireRateLimiting("write-sensitive")`.
   ```
 - Frontend hiện toast cảnh báo + khóa nút trong thời gian `retryAfter`.
 - 💡 **Phạt tăng dần** cho người cố tình: vi phạm ⚙️ 3 lần / 10 phút → khóa thao tác ghi ⚙️ 5 phút, ghi audit
-  `warning`; tiếp tục → 30 phút + báo quản trị viên. Không khóa hẳn tài khoản tự động (tránh tự gây gián đoạn).
+  nhóm `security` mức `warning` (1 lần); trong thời gian khóa vẫn xem (GET) được. Không khóa hẳn tài khoản tự động.
 - 💡 **Đăng nhập sai**: sai ⚙️ 5 lần liên tiếp cho cùng tài khoản → khóa đăng nhập ⚙️ 15 phút (chống dò mật khẩu),
   ghi audit `critical`.
 
@@ -311,7 +301,7 @@ TipTap / Quill / Lexical, không có `contentEditable`, không có `dangerouslyS
 | **Định dạng thống nhất** | Thành công: trả thẳng DTO (danh sách: `{ items, total, page, pageSize }`). Lỗi: luôn ProblemDetails `{ code, title, errors?, traceId }`. Chuyển bằng `ResultExtensions.ToHttpResult()` — endpoint không tự chọn mã HTTP |
 | **Bảng mã lỗi → HTTP** | Validation 400 · Unauthorized 401 · Forbidden 403 · NotFound 404 · Conflict (trùng, sửa đè `xmin`) 409 · Business rule 422 · TooManyRequests 429 · lỗi hệ thống 500 |
 | **Không lộ lỗi hệ thống** | Môi trường production: 500 chỉ trả `"Có lỗi hệ thống, mã tra cứu: <traceId>"`; chi tiết nằm trong log Seq |
-| 💡 **Che dữ liệu nhạy cảm** | Người không có quyền xem đầy đủ → SĐT `0912***678`, số tài khoản `****1234`. Đánh dấu thuộc tính DTO `[Sensitive(MaskType.Phone, "crm.leads.view_contact")]`, filter tự che |
+| 💡 **Che dữ liệu nhạy cảm** 📝 *chưa làm — làm khi có module Crm / Finance* | Người không có quyền xem đầy đủ → SĐT `0912***678`, số tài khoản `****1234`. Đánh dấu thuộc tính DTO `[Sensitive(MaskType.Phone, "crm.leads.view_contact")]`, filter tự che |
 | **Ẩn dữ liệu nội bộ ở cổng** | Endpoint cổng GV / HV / PH dùng **DTO riêng**, không có trường lịch sử chăm sóc, học phí, ghi chú nội bộ (CLAUDE.md mục 6). DTO riêng là chính; che dữ liệu chỉ là lưới an toàn |
 | **Không trả trường thừa** | Không bao giờ trả entity; không trả `password_hash`, `token`, `is_deleted`… |
 | 💡 **Header** | `Cache-Control: no-store` cho dữ liệu cá nhân; `X-Request-Id`; nén gzip/brotli cho response lớn |
@@ -337,9 +327,10 @@ TipTap / Quill / Lexical, không có `contentEditable`, không có `dangerouslyS
         .RequirePermission("students.list", PermissionAction.Delete)
         .Audited("Xóa học viên", AuditCategory.Data, AuditSeverity.Warning);
    ```
-2. **AuditInterceptor (EF Core)** — ghi *thay đổi dữ liệu* `{field, before, after}` cho entity đánh dấu `IAuditable`,
-   **cùng transaction** với thay đổi (dữ liệu lưu thì nhật ký cũng lưu, rollback thì cả hai cùng mất).
-   Hai bản ghi nối với nhau bằng `traceId`.
+2. **DataChangeAuditInterceptor (EF Core)** — gom *thay đổi dữ liệu* `{field, before, after}` của entity `IAuditable`
+   trong request, rồi **gắn vào chính dòng nhật ký của hành động** ở bước 1 (1 hành động = 1 dòng, đủ trước → sau).
+   Chốt khi code: không ghi cùng transaction (audit_logs ở schema `system`, dữ liệu ở schema module khác);
+   chỉ ghi khi hành động **thành công**. Handler tự ghi được qua `IAuditTrail` (vd đăng nhập sai).
 
 ### Ghi những gì (cột theo [database.md](database.md) bảng `audit_logs`)
 | Nhóm (`category`) | Sự kiện | Mức |
@@ -394,15 +385,18 @@ Toàn bộ là hạ tầng dùng chung → nằm trong **BuildingBlocks**, khôn
 
 | Thành phần | Project |
 |---|---|
-| `CorrelationIdMiddleware`, `SecurityHeadersMiddleware`, `GlobalExceptionHandler`, `CurrentUserMiddleware` | `JPCenter.Api.Common/Middleware/` |
-| `RequirePermission()`, `Audited()`, `Idempotent()`, `ValidationFilter`, `AuditFilter`, `IdempotencyFilter`, `SensitiveDataFilter` | `JPCenter.Api.Common/Filters/` |
-| Đăng ký các policy rate limit (`AddJpRateLimiting()`), cấu hình JWT (`AddJpAuthentication()`) | `JPCenter.Api.Common/Security/` |
-| `ICurrentUser`, `IAuditWriter`, `IIdempotencyStore`, `AuditCategory`, `AuditSeverity` | `JPCenter.Application.Common` |
-| `AuditInterceptor`, `ChannelAuditWriter` + `AuditBackgroundWriter`, `DbIdempotencyStore` | `JPCenter.Infrastructure.Common` |
-| Entity `AuditLog`, tài khoản / refresh token / `token_version` | Module **System** |
-
-Khi bắt đầu code: thêm các dòng tương ứng vào [shared-helpers.md](shared-helpers.md) và bảng mới
-(`idempotency_keys`, `refresh_tokens`) vào [database.md](database.md).
+| Ghép pipeline: `AddRequestPipeline()` / `UseRequestPipeline()` | `JPCenter.Api.Common/RequestPipelineExtensions.cs` |
+| `CorrelationIdMiddleware`, `SecurityHeadersMiddleware` | `JPCenter.Api.Common/Middleware/` |
+| `GlobalExceptionHandler`, `ProblemFactory` | `JPCenter.Api.Common/Errors/` |
+| JWT (`AddJpAuthentication`, `AccessTokenIssuer`), `CurrentUserMiddleware`, `UserAccessCache`, `RequirePermission()` / `RequireSignedIn()` / `RequirePortal()` | `JPCenter.Api.Common/Security/` |
+| `AddJpRateLimiting`, `RateLimitPolicies`, `PenaltyBox`, `PenaltyMiddleware` | `JPCenter.Api.Common/RateLimiting/` |
+| `.Idempotent()` | `JPCenter.Api.Common/Idempotency/` |
+| `.Audited()` | `JPCenter.Api.Common/Auditing/` |
+| `NormalizedStringConverter`, `BodySizeMiddleware`, `.WithBodyLimit()` | `JPCenter.Api.Common/Validation/` |
+| `ICurrentUser`, `UserAccess`, `IUserAccessProvider`, `IAuditTrail`, `IIdempotencyStore` | `JPCenter.Application.Common` |
+| `AuditCategory`, `AuditSeverity`, `PermissionScope` | `JPCenter.SharedKernel/Primitives` (mọi module dùng) |
+| `ChannelAuditWriter` + `AuditBackgroundWriter`, `DataChangeAuditInterceptor`, `InMemoryIdempotencyStore` | `JPCenter.Infrastructure.Common` |
+| Lưu nhật ký vào `audit_logs` (`IAuditSink`), nạp quyền (`IUserAccessProvider`), Idempotency trong PostgreSQL | Module **System** (giai đoạn 3) |
 
 ---
 
@@ -416,7 +410,10 @@ Khi bắt đầu code: thêm các dòng tương ứng vào [shared-helpers.md](s
 - Body có trường lạ / quá lớn / sai Content-Type → 400 / 413 / 415.
 - Thao tác có `.Audited()` → có đúng 1 dòng `audit_logs`, không chứa mật khẩu / token.
 - Lỗi 500 ở production không lộ stack trace, có `traceId`.
-- Test kiến trúc: mọi endpoint phải có `RequirePermission` hoặc `AllowAnonymous`.
+- Test kiến trúc: mọi endpoint phải có `RequirePermission`, `RequireSignedIn`, `RequirePortal` hoặc `AllowAnonymous`.
+
+Đã có: `tests/JPCenter.IntegrationTests/Middleware/RequestPipelineTests.cs` (20 test — token, quyền, rate limit, phạt,
+Idempotency, audit, trường lạ, chuẩn hóa chuỗi, 413, 500, mã truy vết, header, CORS).
 
 ---
 

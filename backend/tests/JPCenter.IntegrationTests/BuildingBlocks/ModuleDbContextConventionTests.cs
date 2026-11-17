@@ -105,5 +105,7 @@ public sealed class ModuleDbContextConventionTests(PostgresFixture pg) : IAsyncL
     {
         public bool IsAuthenticated => true;
         public Guid? AccountId => Actor;
+        public Guid? SessionId => null;
+        public UserAccess? Access => null;
     }
 }

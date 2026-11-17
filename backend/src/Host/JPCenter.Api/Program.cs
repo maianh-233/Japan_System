@@ -20,17 +20,17 @@ builder.Host.UseSerilog((ctx, log) =>
 
 builder.Services
     .AddApiCommon()
+    .AddRequestPipeline(builder.Configuration)
     .AddMessaging()
     .AddInfrastructureCommon()
     .AddModules(builder.Configuration /* các module đăng ký ở giai đoạn 3 */);
 
 var app = builder.Build();
 
-app.UseExceptionHandler();
-app.UseStatusCodePages();
+app.UseRequestPipeline();
 app.UseSerilogRequestLogging();
 
-app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
+app.MapGet("/health", () => Results.Ok(new { status = "ok" })).AllowAnonymous();
 app.MapModules();
 
 if (app.Environment.IsDevelopment()) await app.Services.InitializeDatabaseAsync();

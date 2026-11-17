@@ -1,4 +1,3 @@
-using JPCenter.Api.Common.Errors;
 using JPCenter.SharedKernel.Primitives;
 using Microsoft.AspNetCore.Http;
 using HttpResults = Microsoft.AspNetCore.Http.Results;
@@ -20,9 +19,5 @@ public static class ResultExtensions
     public static IResult ToCreatedResult<T>(this Result<T> result, Func<T, string> location) =>
         result.IsSuccess ? HttpResults.Created(location(result.Value), result.Value) : result.Error.ToProblem();
 
-    public static IResult ToProblem(this Error error)
-    {
-        var problem = ProblemFactory.From(error);
-        return HttpResults.Problem(problem);
-    }
+    public static IResult ToProblem(this Error error) => new ErrorHttpResult(error);
 }

@@ -1,4 +1,4 @@
-namespace JPCenter.Modules.System.Domain.AuditLogs;
+namespace JPCenter.SharedKernel.Primitives;
 
 /// <summary>Mức độ</summary>
 public enum AuditSeverity
