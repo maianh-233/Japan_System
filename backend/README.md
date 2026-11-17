@@ -3,7 +3,8 @@
 .NET 10 (LTS) · ASP.NET Core Minimal API · EF Core + PostgreSQL · **Modular Monolith**
 
 > Trạng thái: middleware xử lý request xong ([docs/request-pipeline.md](docs/request-pipeline.md)); module System + Hr (nhân viên)
-> có bảng, migration, dữ liệu mẫu. Đang làm: API đăng nhập (user story 01) và phân quyền (02).
+> có bảng, migration, dữ liệu mẫu; API đăng nhập & bảo mật xong ([user story 01](docs/user-stories/01-dang-nhap-bao-mat.md#đã-làm-backend-2026-11-17)).
+> Đang làm: phân quyền (user story 02).
 
 ## Chạy local
 

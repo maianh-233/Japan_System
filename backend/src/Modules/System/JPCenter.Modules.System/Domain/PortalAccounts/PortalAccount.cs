@@ -2,11 +2,12 @@ using JPCenter.SharedKernel.Domain;
 using JPCenter.SharedKernel.Primitives;
 
 using JPCenter.Modules.System.Domain.Common;
+using JPCenter.Modules.System.Domain.Sessions;
 
 namespace JPCenter.Modules.System.Domain.PortalAccounts;
 
 /// <summary>Tài khoản Cổng học viên / phụ huynh. Bảng: system.portal_accounts</summary>
-public sealed class PortalAccount : AggregateRoot<PortalAccountId>, IAuditable
+public sealed class PortalAccount : AggregateRoot<PortalAccountId>, IAuditable, ISignInAccount
 {
     private PortalAccount() { }
 
@@ -82,6 +83,18 @@ public sealed class PortalAccount : AggregateRoot<PortalAccountId>, IAuditable
     public void Activate() => Status = PortalAccountStatus.Active;
     public void RecordLogin(DateTimeOffset at) => (LastLoginAt, Throttle) = (at, LoginThrottle.None);
     public void Rename(string displayName) => DisplayName = displayName.Trim();
+
+    // ---- ISignInAccount ----
+    Guid ISignInAccount.AccountGuid => Id.Value;
+    AccountKind ISignInAccount.Kind => AccountKind.Portal;
+    string ISignInAccount.LoginName => Username;
+    Result ISignInAccount.CheckThrottle(DateTimeOffset now) => Throttle.EnsureNotLocked(now);
+    Result ISignInAccount.CheckStatus() => Status switch
+    {
+        PortalAccountStatus.Locked => Error.Forbidden("auth.account_locked", "Tài khoản đã bị khóa. Vui lòng liên hệ trung tâm."),
+        PortalAccountStatus.Inactive => Error.Forbidden("auth.account_inactive", "Tài khoản đã ngừng hoạt động."),
+        _ => Result.Success(),
+    };
 
     /// <summary>Thu hồi mọi access token đang lưu hành.</summary>
     public void RevokeTokens() => TokenVersion++;

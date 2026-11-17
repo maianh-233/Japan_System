@@ -9,7 +9,7 @@ namespace JPCenter.Api.Common.Security;
 /// M8 — Sau khi token hợp lệ: nạp quyền của tài khoản (cache), kiểm tra token chưa bị thu hồi.
 /// Token hợp lệ về chữ ký nhưng tài khoản đã khóa / đổi mật khẩu / đổi quyền (lệch <c>tv</c>) → 401 ngay.
 /// </summary>
-public sealed class CurrentUserMiddleware(RequestDelegate next, IUserAccessCache cache)
+public sealed class CurrentUserMiddleware(RequestDelegate next, IUserAccessCache cache, ISessionRevocationList revoked)
 {
     public async Task InvokeAsync(HttpContext http)
     {
@@ -43,8 +43,18 @@ public sealed class CurrentUserMiddleware(RequestDelegate next, IUserAccessCache
             return;
         }
 
+        if (Guid.TryParse(principal.FindFirst(JwtClaims.SessionId)?.Value, out var sid))
+        {
+            // Thiết bị này vừa đăng xuất / bị đăng xuất từ xa → token còn hạn cũng không dùng được nữa
+            if (revoked.IsRevoked(sid))
+            {
+                await Reject(http, "auth.session_revoked", "Phiên đăng nhập trên thiết bị này đã bị đăng xuất.");
+                return;
+            }
+            http.Items[HttpCurrentUser.SessionKey] = sid;
+        }
+
         http.Items[HttpCurrentUser.AccessKey] = access;
-        if (Guid.TryParse(principal.FindFirst(JwtClaims.SessionId)?.Value, out var sid)) http.Items[HttpCurrentUser.SessionKey] = sid;
         await next(http);
     }
 

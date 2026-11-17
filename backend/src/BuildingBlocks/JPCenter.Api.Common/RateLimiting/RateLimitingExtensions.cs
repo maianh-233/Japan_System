@@ -29,7 +29,13 @@ public static class RateLimitingExtensions
         {
             limiter.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
             limiter.OnRejected = OnRejected;
-            if (!o.Enabled) return;
+            if (!o.Enabled)
+            {
+                // Tắt giới hạn: vẫn phải có đủ policy có tên — endpoint đã gắn .RequireRateLimiting(...)
+                foreach (var name in new[] { RateLimitPolicies.Anonymous, RateLimitPolicies.WriteSensitive, RateLimitPolicies.Export, RateLimitPolicies.Import })
+                    limiter.AddPolicy(name, _ => RateLimitPartition.GetNoLimiter("off"));
+                return;
+            }
 
             // Mọi request: lưới an toàn theo người · Ghi (POST/PUT/PATCH/DELETE): theo người + endpoint, cho phép "nhanh từng đợt"
             limiter.GlobalLimiter = PartitionedRateLimiter.CreateChained(

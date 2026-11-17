@@ -252,3 +252,36 @@ Giới hạn thêm theo IP: 20 lần sai / 15 phút / IP.
 | Khóa tạm khi nhập sai | Thêm `failed_login_count`, `locked_until` vào `user_accounts` + `portal_accounts` | AUTH-11 |
 | Bắt đổi mật khẩu lần đầu | Thêm `must_change_password` vào `portal_accounts` (+ `user_accounts`) | AUTH-10 |
 | Link mời / OTP | Bảng `system.one_time_tokens` (purpose: invite / reset, token_hash, expires_at, attempts, used_at) — hoặc cache | AUTH-04, 05 |
+
+---
+
+## Đã làm (backend, 2026-11-17)
+
+Code: `src/Modules/System/JPCenter.Modules.System/Application/{Auth,Sessions,PortalAccounts}/` · Test: `tests/JPCenter.IntegrationTests/System/AuthFlowTests.cs`.
+
+| Story | API (`/api/v1/system/...`) | Quyền |
+|---|---|---|
+| AUTH-01 | `POST auth/login` `{ identifier, password, remember }` → `{ accessToken, accessTokenExpiresAt, user }` + cookie `jp_refresh` (HttpOnly) | Công khai, giới hạn theo IP |
+| AUTH-02 | `POST auth/refresh` (đọc cookie) → như login, refresh token xoay vòng | Công khai |
+| AUTH-03 | `POST auth/logout` | Công khai |
+| — | `GET auth/me` → `SessionUser` | Đăng nhập |
+| AUTH-04 | `POST auth/password/forgot` `{ email }` → `POST auth/password/verify-otp` `{ email, otp }` → `{ resetToken }` → `POST auth/password/reset` `{ resetToken, newPassword }` | Công khai |
+| AUTH-05 | `GET auth/invitations/{token}` → `POST auth/invitations/accept` `{ token, password }` (tự đăng nhập) | Công khai |
+| AUTH-06 | `POST auth/password/change` `{ currentPassword, newPassword, logoutOtherDevices }` → access token mới | Đăng nhập |
+| AUTH-08 | `GET me/sessions` · `DELETE me/sessions/{id}` · `POST me/sessions/revoke-others` | Đăng nhập |
+| AUTH-09 | `GET me/login-history` → `{ items, recentFailures }` | Đăng nhập |
+| AUTH-10 | `GET portal-accounts?ownerType=&ownerId=` · `POST portal-accounts` · `POST portal-accounts/{id}/reset-password` · `.../lock` · `.../unlock` | `students.profiles` (+ `students.contacts.update` khi cấp cho phụ huynh) |
+| AUTH-11 | Trong `auth/login` | — |
+
+**Chốt khi code (khác / chi tiết hơn tài liệu):**
+- AUTH-01.E5 mâu thuẫn PQ-05.E7 → theo **PQ-05.E7**: không có tài khoản → "sai thông tin đăng nhập"; có tài khoản nhưng 0 role → vẫn đăng nhập (chỉ thấy mục Cá nhân).
+- AUTH-01.E3: tài khoản đã mời chưa có mật khẩu → báo `auth.account_invited` ngay (không thể "nhập đúng mật khẩu").
+- `SessionUser` thêm: `accountId`, `grants` (mã quyền đầy đủ → phạm vi), `availablePortals` (GV kiêm nhân viên — E8), `mustChangePassword`. `id` của nhân viên = Id hồ sơ Hr (frontend đang tra quyền theo Id nhân viên).
+- AUTH-02: 2 tab làm mới cùng lúc (dùng lại token cũ trong **30 giây**) → `auth.refresh_conflict`, chỉ cần thử lại; quá 30 giây mới coi là bị đánh cắp → thu hồi mọi phiên + nhật ký `security/critical`.
+- Không "Ghi nhớ": refresh token sống 12 giờ ở server, cookie phiên trình duyệt.
+- AUTH-03, AUTH-08: đăng xuất / đăng xuất từ xa có hiệu lực **ngay** với access token còn hạn (danh sách phiên thu hồi trong bộ nhớ).
+- AUTH-04.E6: gửi lại sớm → `auth.otp_resend_too_soon`; quá 5 lần / giờ → `auth.otp_rate_limited` (áp dụng cho mọi email nên không lộ email nào tồn tại).
+- AUTH-04.E10 (OTP qua Zalo / SMS) **chưa làm** — chưa có tích hợp; hiện chỉ email.
+- AUTH-10: chưa có Zalo / SMS → có email thì gửi mật khẩu tạm qua email, không có email thì trả mật khẩu tạm **1 lần** trong response để giáo vụ đưa tận tay. Tên chủ tài khoản do frontend gửi kèm (module Học viên / CRM chưa có API).
+- AUTH-10.E4, E6 (tự `inactive` khi HV nghỉ học, gỡ liên kết PH) — chờ module Học viên / CRM phát event.
+- Mật khẩu mới không được trùng email / tên đăng nhập (`auth.password_like_login`).

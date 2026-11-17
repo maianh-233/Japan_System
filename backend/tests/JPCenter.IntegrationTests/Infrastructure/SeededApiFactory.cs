@@ -1,7 +1,11 @@
+using System.Collections.Concurrent;
 using JPCenter.Infrastructure.Common.Persistence;
+using JPCenter.Modules.System.Application.Abstractions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace JPCenter.IntegrationTests.Infrastructure;
 
@@ -36,9 +40,27 @@ public sealed class SeededApiFactory : WebApplicationFactory<Program>, IAsyncLif
         builder.UseSetting("Seed:Enabled", "true");
         builder.UseSetting("Seed:DefaultPassword", Password);
         builder.UseSetting("RateLimit:Enabled", "false");
+        builder.ConfigureTestServices(services =>
+            services.Replace(ServiceDescriptor.Singleton<IEmailSender>(Emails)));
     }
 
+    /// <summary>Email "đã gửi" (OTP, link mời...) — test đọc lại thay cho Mailpit.</summary>
+    public CapturingEmailSender Emails { get; } = new();
+
     public AsyncServiceScope Scope() => Services.CreateAsyncScope();
+}
+
+public sealed class CapturingEmailSender : IEmailSender
+{
+    public ConcurrentQueue<(string To, string Subject, string Html)> Sent { get; } = new();
+
+    public Task SendAsync(string to, string subject, string htmlBody, CancellationToken ct)
+    {
+        Sent.Enqueue((to, subject, htmlBody));
+        return Task.CompletedTask;
+    }
+
+    public (string To, string Subject, string Html) Last(string to) => Sent.Last(m => m.To == to);
 }
 
 [CollectionDefinition(Name)]

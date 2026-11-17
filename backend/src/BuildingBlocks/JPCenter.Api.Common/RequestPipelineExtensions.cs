@@ -33,6 +33,7 @@ public static class RequestPipelineExtensions
         services.Replace(ServiceDescriptor.Scoped<ICurrentUser, HttpCurrentUser>());
         services.Replace(ServiceDescriptor.Scoped<IRequestInfo, HttpRequestInfo>());
         services.TryAddSingleton<IUserAccessCache, UserAccessCache>();
+        services.TryAddSingleton<ISessionRevocationList, SessionRevocationList>();
 
         services.Configure<ForwardedHeadersOptions>(o => o.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
         services.Configure<KestrelServerOptions>(o => o.Limits.MaxRequestBodySize = DefaultBodyLimit);

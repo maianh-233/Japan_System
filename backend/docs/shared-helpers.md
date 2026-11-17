@@ -34,6 +34,7 @@
 | `PermissionAction`, `Portal` (`Security/`); `PermissionScope` (SharedKernel) | Mã quyền `module.page.action`, cổng staff/teacher/student/parent | ✅ |
 | `IUserAccessProvider` (module System hiện thực), `IUserAccessCache` (`Invalidate` / `InvalidateAll` khi đổi quyền) | Nạp + cache quyền theo tài khoản | ✅ |
 | `IRequestInfo` (IP, thiết bị, traceId) | Ghi phiên đăng nhập / nhật ký | ✅ |
+| `ISessionRevocationList` (`Revoke(sessionId)`) | Đăng xuất / thu hồi phiên → access token của phiên đó bị chặn NGAY (middleware kiểm tra claim `sid`) | ✅ |
 | `IAuditTrail.Record(category, severity, action, target, ...)` (`Auditing/`) | Ghi nhật ký từ handler (vd đăng nhập sai); tự điền người, IP, thiết bị, thay đổi dữ liệu | ✅ |
 | `IAuditSink` (module System ghi `audit_logs`), `IAuditWriter` (hàng đợi) | Hạ tầng nhật ký | ✅ |
 | `IIdempotencyStore` (`Idempotency/`) | Lưu kết quả theo Idempotency-Key | ✅ |

@@ -2,6 +2,7 @@ using JPCenter.SharedKernel.Primitives;
 using JPCenter.SharedKernel.Domain;
 using JPCenter.Modules.System.Domain.Common;
 using JPCenter.Modules.System.Domain.Roles;
+using JPCenter.Modules.System.Domain.Sessions;
 
 namespace JPCenter.Modules.System.Domain.Users;
 
@@ -11,7 +12,7 @@ namespace JPCenter.Modules.System.Domain.Users;
 /// Quyền hiệu lực = hợp các role (phạm vi rộng nhất) + cấp lẻ − chặn lẻ — xem <see cref="EffectivePermissions"/>.
 /// Mọi thay đổi ảnh hưởng đăng nhập / quyền đều tăng <see cref="TokenVersion"/> → access token cũ hết hiệu lực ngay.
 /// </summary>
-public sealed class UserAccount : AggregateRoot<UserAccountId>, IAuditable
+public sealed class UserAccount : AggregateRoot<UserAccountId>, IAuditable, ISignInAccount
 {
     private readonly List<UserRoleAssignment> _roles = [];
     private readonly List<PermissionOverride> _overrides = [];
@@ -109,6 +110,19 @@ public sealed class UserAccount : AggregateRoot<UserAccountId>, IAuditable
     public void Unlock() => (Status, LockedReason) = (UserAccountStatus.Active, null);
 
     public void RecordLogin(DateTimeOffset at) => (LastLoginAt, Throttle) = (at, LoginThrottle.None);
+
+    // ---- ISignInAccount ----
+    Guid ISignInAccount.AccountGuid => Id.Value;
+    AccountKind ISignInAccount.Kind => AccountKind.Staff;
+    string ISignInAccount.LoginName => Email;
+    string? ISignInAccount.Email => Email;
+    Result ISignInAccount.CheckThrottle(DateTimeOffset now) => Throttle.EnsureNotLocked(now);
+    Result ISignInAccount.CheckStatus() => Status switch
+    {
+        UserAccountStatus.Locked => UserAccountErrors.AccountLocked,
+        UserAccountStatus.Invited => UserAccountErrors.AccountInvited,
+        _ => Result.Success(),
+    };
 
     /// <summary>Thu hồi mọi access token đang lưu hành (đăng xuất mọi thiết bị, đổi quyền...).</summary>
     public void RevokeTokens() => TokenVersion++;

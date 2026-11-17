@@ -4,7 +4,10 @@ using JPCenter.Application.Common.Idempotency;
 using JPCenter.Application.Common.Messaging;
 using JPCenter.Application.Common.Security;
 using JPCenter.Infrastructure.Common.Persistence;
+using JPCenter.Modules.System.Api;
 using JPCenter.Modules.System.Application.Abstractions;
+using JPCenter.Modules.System.Application.Auth.Common;
+using JPCenter.Modules.System.Application.PortalAccounts.Common;
 using JPCenter.Modules.System.Infrastructure.Persistence;
 using JPCenter.Modules.System.Infrastructure.Persistence.Seed;
 using JPCenter.Modules.System.Infrastructure.Services;
@@ -27,17 +30,30 @@ public sealed class SystemModule : IModule
     public void AddServices(IServiceCollection services, IConfiguration configuration)
     {
         services.AddModuleDbContext<SystemDbContext>(configuration, SystemDbContext.SchemaName);
+        services.AddScoped<ISystemDbContext>(sp => sp.GetRequiredService<SystemDbContext>());
         services.AddHandlersFromAssembly(typeof(SystemModule).Assembly);
 
-        services.AddSingleton<IPasswordHasher, PasswordHasher>();
+        // Hạ tầng cho middleware chung
         services.Replace(ServiceDescriptor.Scoped<IUserAccessProvider, UserAccessProvider>());
         services.Replace(ServiceDescriptor.Scoped<IAuditSink, AuditLogSink>());
         services.Replace(ServiceDescriptor.Scoped<IIdempotencyStore, PostgresIdempotencyStore>());
+
+        // Hạ tầng riêng của module
+        services.AddSingleton<IPasswordHasher, PasswordHasher>();
+        services.AddSingleton<ITokenService, TokenService>();
+        services.AddSingleton<IEmailSender, SmtpEmailSender>();
+        services.AddSingleton<IFrontendLinks, FrontendLinks>();
+
+        // Dịch vụ dùng chung giữa các use case (Application/*/Common)
+        services.AddScoped<SignInAccounts>();
+        services.AddScoped<SessionIssuer>();
+        services.AddScoped<SessionRevoker>();
+        services.AddScoped<InvitationMailer>();
+        services.AddScoped<InvitationLookup>();
+        services.AddScoped<PortalCredentialSender>();
+
         services.AddScoped<IDataSeeder, SystemSeeder>();
     }
 
-    public void MapEndpoints(IEndpointRouteBuilder group)
-    {
-        // Endpoint đăng nhập / phân quyền: giai đoạn 4, 5
-    }
+    public void MapEndpoints(IEndpointRouteBuilder group) => SystemEndpoints.Map(group);
 }
