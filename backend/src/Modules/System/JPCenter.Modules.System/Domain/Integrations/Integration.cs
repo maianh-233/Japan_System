@@ -37,4 +37,5 @@ public sealed class Integration : AggregateRoot<IntegrationId>, IAuditable
     public void MarkError(string error) => (Status, LastError) = (IntegrationStatus.Error, error);
     public void MarkSynced(DateTimeOffset at) => LastSyncAt = at;
     public void ToggleEvent(string eventKey, bool on) => Events[eventKey] = on;
+    public void SetWebhook(string? url) => WebhookUrl = url;
 }

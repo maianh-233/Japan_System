@@ -3,6 +3,8 @@ using System.Net.Http.Headers;
 using JPCenter.Api.Common.Modules;
 using JPCenter.Api.Common.Security;
 using JPCenter.Application.Common.Auditing;
+using JPCenter.Application.Common.Idempotency;
+using JPCenter.Infrastructure.Common.Idempotency;
 using JPCenter.Application.Common.Security;
 using JPCenter.SharedKernel.Primitives;
 using Microsoft.AspNetCore.Hosting;
@@ -30,11 +32,14 @@ public sealed class TestApiFactory : WebApplicationFactory<Program>
         builder.UseSetting("Jwt:Issuer", "jpcenter-api");
         builder.UseSetting("Jwt:Audience", "jpcenter-web");
         builder.UseSetting("Cors:AllowedOrigins", "http://localhost:5173");
+        // Bộ test middleware KHÔNG dùng DB: chuỗi kết nối giả (không bao giờ mở), mọi thứ cần lưu trữ thay bằng bản trong bộ nhớ
+        builder.UseSetting("ConnectionStrings:Database", "Host=127.0.0.1;Port=1;Database=unused");
         builder.ConfigureTestServices(services =>
         {
             services.AddSingleton<IModule>(new TestModule());
             services.Replace(ServiceDescriptor.Singleton<IUserAccessProvider>(Accounts));
             services.Replace(ServiceDescriptor.Singleton<IAuditSink>(Audit));
+            services.Replace(ServiceDescriptor.Singleton<IIdempotencyStore, InMemoryIdempotencyStore>());
         });
     }
 

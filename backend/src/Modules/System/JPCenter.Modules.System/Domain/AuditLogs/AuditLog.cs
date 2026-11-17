@@ -24,13 +24,15 @@ public sealed class AuditLog : Entity<AuditLogId>
     public List<AuditChange> Changes { get; private set; } = [];
     public string Ip { get; private set; } = null!;
     public string Device { get; private set; } = null!;
+    /// <summary>Mã truy vết request (X-Request-Id) — nối với log kỹ thuật</summary>
+    public string? TraceId { get; private set; }
 
     public static AuditLog Create(DateTimeOffset at, Guid? actorId, string actorName, string actorRole, BranchId? branchId,
         AuditCategory category, AuditSeverity severity, string action, string target, string? detail,
-        List<AuditChange> changes, string ip, string device) =>
+        List<AuditChange> changes, string ip, string device, string? traceId = null) =>
         new()
         {
             Id = AuditLogId.New(), At = at, ActorId = actorId, ActorName = actorName, ActorRole = actorRole, BranchId = branchId,
-            Category = category, Severity = severity, Action = action, Target = target, Detail = detail, Changes = changes, Ip = ip, Device = device,
+            Category = category, Severity = severity, Action = action, Target = target, Detail = detail, Changes = changes, Ip = ip, Device = device, TraceId = traceId,
         };
 }

@@ -3,6 +3,8 @@ using JPCenter.Api.Common;
 using JPCenter.Api.Common.Modules;
 using JPCenter.Application.Common.Messaging;
 using JPCenter.Infrastructure.Common.Persistence;
+using JPCenter.Modules.Hr;
+using JPCenter.Modules.System;
 using Serilog;
 
 // Đọc .env TRƯỚC khi tạo builder để cấu hình nhận được các biến
@@ -23,7 +25,9 @@ builder.Services
     .AddRequestPipeline(builder.Configuration)
     .AddMessaging()
     .AddInfrastructureCommon()
-    .AddModules(builder.Configuration /* các module đăng ký ở giai đoạn 3 */);
+    .AddModules(builder.Configuration,
+        new HrModule(),
+        new SystemModule());
 
 var app = builder.Build();
 

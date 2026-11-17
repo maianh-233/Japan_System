@@ -1,0 +1,1215 @@
+{
+  "generatedAt": "2026-11-17T04:40:34.447Z",
+  "employees": [
+    {
+      "id": "e-huy",
+      "code": "NV0101",
+      "fullName": "Đỗ Quang Huy",
+      "gender": "male",
+      "dob": "1985-03-10",
+      "phone": "0981234567",
+      "email": "huy.huy@jpcenter.vn",
+      "branchId": "cg",
+      "kind": "staff",
+      "department": "board",
+      "position": "Giám đốc",
+      "shiftBased": false,
+      "status": "active",
+      "joinedAt": "2022-10-09",
+      "contract": {
+        "type": "indefinite",
+        "no": "HĐ-2022/001",
+        "start": "2022-10-09",
+        "baseSalary": 45000000
+      },
+      "leaveBalance": 12,
+      "hasAccount": true
+    },
+    {
+      "id": "e-trang",
+      "code": "NV0102",
+      "fullName": "Phạm Thu Trang",
+      "gender": "female",
+      "dob": "1986-04-11",
+      "phone": "0981248146",
+      "email": "trang.trang@jpcenter.vn",
+      "branchId": "cg",
+      "kind": "staff",
+      "department": "board",
+      "position": "Phó giám đốc vận hành",
+      "shiftBased": false,
+      "status": "active",
+      "joinedAt": "2023-11-13",
+      "managerId": "e-huy",
+      "contract": {
+        "type": "indefinite",
+        "no": "HĐ-2023/002",
+        "start": "2023-11-13",
+        "baseSalary": 32000000
+      },
+      "leaveBalance": 11,
+      "hasAccount": true
+    },
+    {
+      "id": "e-nam",
+      "code": "NV0103",
+      "fullName": "Lê Hoàng Nam",
+      "gender": "male",
+      "dob": "1987-05-13",
+      "phone": "0981261725",
+      "email": "nam.nam@jpcenter.vn",
+      "branchId": "cg",
+      "kind": "staff",
+      "department": "board",
+      "position": "Quản lý chi nhánh Cầu Giấy",
+      "shiftBased": false,
+      "status": "active",
+      "joinedAt": "2024-09-08",
+      "managerId": "e-trang",
+      "contract": {
+        "type": "indefinite",
+        "no": "HĐ-2024/003",
+        "start": "2024-09-08",
+        "baseSalary": 22000000,
+        "allowance": 2000000
+      },
+      "leaveBalance": 10,
+      "hasAccount": true
+    },
+    {
+      "id": "e-q1m",
+      "code": "NV0104",
+      "fullName": "Châu Minh Đức",
+      "gender": "male",
+      "dob": "1988-06-13",
+      "phone": "0981275304",
+      "email": "duc.q1m@jpcenter.vn",
+      "branchId": "q1",
+      "kind": "staff",
+      "department": "board",
+      "position": "Quản lý chi nhánh Quận 1",
+      "shiftBased": false,
+      "status": "active",
+      "joinedAt": "2024-12-17",
+      "managerId": "e-trang",
+      "contract": {
+        "type": "indefinite",
+        "no": "HĐ-2024/004",
+        "start": "2024-12-17",
+        "baseSalary": 22000000,
+        "allowance": 2000000
+      },
+      "leaveBalance": 9,
+      "hasAccount": true
+    },
+    {
+      "id": "e-hcm",
+      "code": "NV0105",
+      "fullName": "Lâm Thị Hiền",
+      "gender": "female",
+      "dob": "1989-07-15",
+      "phone": "0981288883",
+      "email": "hien.hcm@jpcenter.vn",
+      "branchId": "hc",
+      "kind": "staff",
+      "department": "board",
+      "position": "Quản lý chi nhánh Hải Châu",
+      "shiftBased": false,
+      "status": "active",
+      "joinedAt": "2025-06-15",
+      "managerId": "e-trang",
+      "contract": {
+        "type": "fixed",
+        "no": "HĐ-2025/005",
+        "start": "2025-06-15",
+        "end": "2028-06-15",
+        "baseSalary": 18000000,
+        "allowance": 1500000
+      },
+      "leaveBalance": 8,
+      "hasAccount": true
+    },
+    {
+      "id": "e-mai",
+      "code": "NV0106",
+      "fullName": "Vũ Ngọc Mai",
+      "gender": "female",
+      "dob": "1990-08-16",
+      "phone": "0981302462",
+      "email": "mai.mai@jpcenter.vn",
+      "branchId": "cg",
+      "kind": "staff",
+      "department": "academic",
+      "position": "Giáo vụ",
+      "shiftBased": false,
+      "status": "active",
+      "joinedAt": "2025-03-27",
+      "managerId": "e-nam",
+      "contract": {
+        "type": "fixed",
+        "no": "HĐ-2025/006",
+        "start": "2025-03-27",
+        "end": "2027-03-27",
+        "baseSalary": 11000000,
+        "allowance": 800000
+      },
+      "leaveBalance": 7,
+      "hasAccount": true
+    },
+    {
+      "id": "e-hong",
+      "code": "NV0107",
+      "fullName": "Phạm Thị Hồng",
+      "gender": "female",
+      "dob": "1991-09-17",
+      "phone": "0981316041",
+      "email": "hong.hong@jpcenter.vn",
+      "branchId": "cg",
+      "kind": "staff",
+      "department": "academic",
+      "position": "Giáo vụ",
+      "shiftBased": false,
+      "status": "active",
+      "joinedAt": "2024-12-17",
+      "managerId": "e-nam",
+      "contract": {
+        "type": "fixed",
+        "no": "HĐ-2024/007",
+        "start": "2024-12-17",
+        "end": "2026-12-17",
+        "baseSalary": 11500000,
+        "allowance": 800000
+      },
+      "leaveBalance": 4,
+      "hasAccount": true,
+      "note": "Hợp đồng sắp hết — cân nhắc ký không thời hạn."
+    },
+    {
+      "id": "e-chau",
+      "code": "NV0108",
+      "fullName": "Phan Minh Châu",
+      "gender": "female",
+      "dob": "1992-10-18",
+      "phone": "0981329620",
+      "email": "chau.chau@jpcenter.vn",
+      "branchId": "q1",
+      "kind": "staff",
+      "department": "academic",
+      "position": "Giáo vụ",
+      "shiftBased": false,
+      "status": "active",
+      "joinedAt": "2026-01-21",
+      "managerId": "e-q1m",
+      "contract": {
+        "type": "fixed",
+        "no": "HĐ-2026/008",
+        "start": "2026-01-21",
+        "end": "2027-01-21",
+        "baseSalary": 10500000,
+        "allowance": 0
+      },
+      "leaveBalance": 11,
+      "hasAccount": true
+    },
+    {
+      "id": "e-duyen",
+      "code": "NV0109",
+      "fullName": "Trương Mỹ Duyên",
+      "gender": "female",
+      "dob": "1993-11-19",
+      "phone": "0981343199",
+      "email": "duyen.duyen@jpcenter.vn",
+      "branchId": "hc",
+      "kind": "staff",
+      "department": "academic",
+      "position": "Giáo vụ",
+      "shiftBased": false,
+      "status": "active",
+      "joinedAt": "2025-10-13",
+      "managerId": "e-hcm",
+      "contract": {
+        "type": "fixed",
+        "no": "HĐ-2025/009",
+        "start": "2025-10-13",
+        "end": "2027-10-13",
+        "baseSalary": 9500000,
+        "allowance": 0
+      },
+      "leaveBalance": 10,
+      "hasAccount": true
+    },
+    {
+      "id": "e-lan",
+      "code": "NV0110",
+      "fullName": "Hoàng Thị Lan",
+      "gender": "female",
+      "dob": "1994-12-21",
+      "phone": "0981356778",
+      "email": "lan.lan@jpcenter.vn",
+      "branchId": "cg",
+      "kind": "staff",
+      "department": "finance",
+      "position": "Kế toán trưởng",
+      "shiftBased": false,
+      "status": "active",
+      "joinedAt": "2024-05-31",
+      "managerId": "e-huy",
+      "contract": {
+        "type": "indefinite",
+        "no": "HĐ-2024/010",
+        "start": "2024-05-31",
+        "baseSalary": 18000000
+      },
+      "leaveBalance": 9,
+      "hasAccount": true
+    },
+    {
+      "id": "e-lan2",
+      "code": "NV0111",
+      "fullName": "Ngô Thị Lan",
+      "gender": "female",
+      "dob": "1996-01-22",
+      "phone": "0981370357",
+      "email": "lan.lan2@jpcenter.vn",
+      "branchId": "cg",
+      "kind": "staff",
+      "department": "finance",
+      "position": "Kế toán thu ngân",
+      "shiftBased": false,
+      "status": "active",
+      "joinedAt": "2025-12-02",
+      "managerId": "e-lan",
+      "contract": {
+        "type": "fixed",
+        "no": "HĐ-2025/011",
+        "start": "2025-12-02",
+        "end": "2026-12-02",
+        "baseSalary": 10000000,
+        "allowance": 0
+      },
+      "leaveBalance": 8,
+      "hasAccount": true
+    },
+    {
+      "id": "e-baoanh",
+      "code": "NV0112",
+      "fullName": "Ngô Bảo Anh",
+      "gender": "female",
+      "dob": "1997-02-22",
+      "phone": "0981383936",
+      "email": "anh.baoanh@jpcenter.vn",
+      "branchId": "cg",
+      "kind": "staff",
+      "department": "marketing",
+      "position": "Trưởng nhóm Marketing",
+      "shiftBased": false,
+      "status": "active",
+      "joinedAt": "2025-08-24",
+      "managerId": "e-trang",
+      "contract": {
+        "type": "fixed",
+        "no": "HĐ-2025/012",
+        "start": "2025-08-24",
+        "end": "2027-08-24",
+        "baseSalary": 16000000,
+        "allowance": 0
+      },
+      "leaveBalance": 7,
+      "hasAccount": true
+    },
+    {
+      "id": "e-tuan",
+      "code": "NV0113",
+      "fullName": "Phạm Anh Tuấn",
+      "gender": "male",
+      "dob": "1998-03-26",
+      "phone": "0981397515",
+      "email": "tuan.tuan@jpcenter.vn",
+      "branchId": "cg",
+      "kind": "staff",
+      "department": "it",
+      "position": "IT nội bộ / cơ sở vật chất",
+      "shiftBased": false,
+      "status": "active",
+      "joinedAt": "2026-03-12",
+      "managerId": "e-nam",
+      "contract": {
+        "type": "fixed",
+        "no": "HĐ-2026/013",
+        "start": "2026-03-12",
+        "end": "2027-03-12",
+        "baseSalary": 12000000,
+        "allowance": 0
+      },
+      "leaveBalance": 12,
+      "hasAccount": false
+    },
+    {
+      "id": "e-bao",
+      "code": "NV0114",
+      "fullName": "Đinh Quốc Bảo",
+      "gender": "male",
+      "dob": "1999-04-27",
+      "phone": "0981411094",
+      "email": "bao.bao@jpcenter.vn",
+      "branchId": "cg",
+      "kind": "staff",
+      "department": "sales",
+      "position": "Tư vấn tuyển sinh",
+      "shiftBased": true,
+      "status": "active",
+      "joinedAt": "2025-11-02",
+      "managerId": "e-nam",
+      "contract": {
+        "type": "fixed",
+        "no": "HĐ-2025/014",
+        "start": "2025-11-02",
+        "end": "2026-11-02",
+        "baseSalary": 8000000,
+        "allowance": 0
+      },
+      "leaveBalance": 9,
+      "hasAccount": true
+    },
+    {
+      "id": "e-tung",
+      "code": "NV0115",
+      "fullName": "Nguyễn Thanh Tùng",
+      "gender": "male",
+      "dob": "2000-05-28",
+      "phone": "0981424673",
+      "email": "tung.tung@jpcenter.vn",
+      "branchId": "cg",
+      "kind": "staff",
+      "department": "sales",
+      "position": "Tư vấn tuyển sinh",
+      "shiftBased": true,
+      "status": "active",
+      "joinedAt": "2026-05-01",
+      "managerId": "e-nam",
+      "contract": {
+        "type": "fixed",
+        "no": "HĐ-2026/015",
+        "start": "2026-05-01",
+        "end": "2027-05-01",
+        "baseSalary": 8000000,
+        "allowance": 0
+      },
+      "leaveBalance": 10,
+      "hasAccount": true
+    },
+    {
+      "id": "e-nhu",
+      "code": "NV0116",
+      "fullName": "Hồ Quỳnh Như",
+      "gender": "female",
+      "dob": "2001-06-29",
+      "phone": "0981438252",
+      "email": "nhu.nhu@jpcenter.vn",
+      "branchId": "cg",
+      "kind": "staff",
+      "department": "sales",
+      "position": "Tư vấn tuyển sinh",
+      "shiftBased": true,
+      "status": "probation",
+      "joinedAt": "2026-10-13",
+      "managerId": "e-nam",
+      "contract": {
+        "type": "probation",
+        "no": "HĐ-2026/016",
+        "start": "2026-10-13",
+        "end": "2026-12-12",
+        "baseSalary": 6800000
+      },
+      "leaveBalance": 0,
+      "hasAccount": true
+    },
+    {
+      "id": "e-hang",
+      "code": "NV0117",
+      "fullName": "Đặng Thu Hằng",
+      "gender": "female",
+      "dob": "2002-07-31",
+      "phone": "0981451831",
+      "email": "hang.hang@jpcenter.vn",
+      "branchId": "cg",
+      "kind": "staff",
+      "department": "reception",
+      "position": "Lễ tân",
+      "shiftBased": true,
+      "status": "active",
+      "joinedAt": "2025-07-05",
+      "managerId": "e-nam",
+      "contract": {
+        "type": "fixed",
+        "no": "HĐ-2025/017",
+        "start": "2025-07-05",
+        "end": "2027-07-05",
+        "baseSalary": 7500000,
+        "allowance": 0
+      },
+      "leaveBalance": 8,
+      "hasAccount": true
+    },
+    {
+      "id": "e-khoa",
+      "code": "NV0118",
+      "fullName": "Trần Minh Khoa",
+      "gender": "male",
+      "dob": "2003-09-01",
+      "phone": "0981465410",
+      "email": "khoa.khoa@jpcenter.vn",
+      "branchId": "q1",
+      "kind": "staff",
+      "department": "sales",
+      "position": "Tư vấn tuyển sinh",
+      "shiftBased": true,
+      "status": "active",
+      "joinedAt": "2025-09-23",
+      "managerId": "e-q1m",
+      "contract": {
+        "type": "fixed",
+        "no": "HĐ-2025/018",
+        "start": "2025-09-23",
+        "end": "2026-09-23",
+        "baseSalary": 8500000,
+        "allowance": 0
+      },
+      "leaveBalance": 7,
+      "hasAccount": true
+    },
+    {
+      "id": "e-han",
+      "code": "NV0119",
+      "fullName": "Bùi Ngọc Hân",
+      "gender": "female",
+      "dob": "2004-10-02",
+      "phone": "0981478989",
+      "email": "han.han@jpcenter.vn",
+      "branchId": "q1",
+      "kind": "staff",
+      "department": "sales",
+      "position": "Tư vấn tuyển sinh",
+      "shiftBased": true,
+      "status": "active",
+      "joinedAt": "2026-06-10",
+      "managerId": "e-q1m",
+      "contract": {
+        "type": "fixed",
+        "no": "HĐ-2026/019",
+        "start": "2026-06-10",
+        "end": "2027-06-10",
+        "baseSalary": 8000000,
+        "allowance": 0
+      },
+      "leaveBalance": 12,
+      "hasAccount": true
+    },
+    {
+      "id": "e-linh",
+      "code": "NV0120",
+      "fullName": "Lưu Gia Linh",
+      "gender": "female",
+      "dob": "2005-11-03",
+      "phone": "0981492568",
+      "email": "linh.linh@jpcenter.vn",
+      "branchId": "q1",
+      "kind": "staff",
+      "department": "reception",
+      "position": "Lễ tân",
+      "shiftBased": true,
+      "status": "leave",
+      "joinedAt": "2025-03-27",
+      "managerId": "e-q1m",
+      "contract": {
+        "type": "fixed",
+        "no": "HĐ-2025/020",
+        "start": "2025-03-27",
+        "end": "2027-03-27",
+        "baseSalary": 7500000,
+        "allowance": 0
+      },
+      "leaveBalance": 11,
+      "hasAccount": true,
+      "note": "Nghỉ thai sản đến hết tháng 2."
+    },
+    {
+      "id": "e-vy",
+      "code": "NV0121",
+      "fullName": "Lý Thanh Vy",
+      "gender": "female",
+      "dob": "2006-12-05",
+      "phone": "0981506147",
+      "email": "vy.vy@jpcenter.vn",
+      "branchId": "hc",
+      "kind": "staff",
+      "department": "sales",
+      "position": "Tư vấn tuyển sinh & du học",
+      "shiftBased": true,
+      "status": "active",
+      "joinedAt": "2025-12-22",
+      "managerId": "e-hcm",
+      "contract": {
+        "type": "fixed",
+        "no": "HĐ-2025/021",
+        "start": "2025-12-22",
+        "end": "2026-12-22",
+        "baseSalary": 8500000,
+        "allowance": 0
+      },
+      "leaveBalance": 10,
+      "hasAccount": true
+    },
+    {
+      "id": "e-dat",
+      "code": "NV0122",
+      "fullName": "Mai Văn Đạt",
+      "gender": "male",
+      "dob": "2008-01-06",
+      "phone": "0981519726",
+      "email": "dat.dat@jpcenter.vn",
+      "branchId": "q1",
+      "kind": "staff",
+      "department": "sales",
+      "position": "Tư vấn tuyển sinh",
+      "shiftBased": false,
+      "status": "quit",
+      "joinedAt": "2025-07-05",
+      "quitAt": "2026-10-28",
+      "managerId": "e-q1m",
+      "contract": {
+        "type": "fixed",
+        "no": "HĐ-2025/022",
+        "start": "2025-07-05",
+        "end": "2026-07-05",
+        "baseSalary": 8000000,
+        "allowance": 0
+      },
+      "leaveBalance": 9,
+      "hasAccount": false,
+      "note": "Nghỉ việc — đã bàn giao lead cho Bùi Ngọc Hân."
+    },
+    {
+      "id": "t-ha",
+      "code": "GV0123",
+      "fullName": "Nguyễn Thu Hà",
+      "gender": "female",
+      "dob": "2009-02-06",
+      "phone": "0981533305",
+      "email": "ha.t.ha@jpcenter.vn",
+      "branchId": "cg",
+      "kind": "teacher",
+      "department": "teaching",
+      "position": "Giáo viên — Tổ trưởng chuyên môn",
+      "shiftBased": false,
+      "status": "active",
+      "joinedAt": "2024-02-21",
+      "contract": {
+        "type": "indefinite",
+        "no": "HĐ-2024/023",
+        "start": "2024-02-21",
+        "baseSalary": 6000000
+      },
+      "leaveBalance": 8,
+      "hasAccount": true,
+      "teacher": {
+        "type": "vn",
+        "levels": [
+          "N5",
+          "N4",
+          "N3",
+          "N2"
+        ],
+        "certificates": [
+          "JLPT N1 (2016)",
+          "Thạc sĩ Ngôn ngữ Nhật"
+        ],
+        "rate": {
+          "offline": 300000,
+          "online": 270000
+        },
+        "extraBranchIds": [
+          "q1"
+        ],
+        "availability": {
+          "1": [
+            "evening"
+          ],
+          "2": [
+            "morning",
+            "evening"
+          ],
+          "3": [
+            "evening"
+          ],
+          "4": [
+            "morning",
+            "evening"
+          ],
+          "5": [
+            "evening"
+          ],
+          "6": [
+            "morning",
+            "afternoon"
+          ],
+          "7": []
+        }
+      }
+    },
+    {
+      "id": "t-anh",
+      "code": "GV0124",
+      "fullName": "Trần Mai Anh",
+      "gender": "female",
+      "dob": "2010-03-10",
+      "phone": "0981546884",
+      "email": "anh.t.anh@jpcenter.vn",
+      "branchId": "cg",
+      "kind": "teacher",
+      "department": "teaching",
+      "position": "Giáo viên",
+      "shiftBased": false,
+      "status": "active",
+      "joinedAt": "2024-12-17",
+      "contract": {
+        "type": "fixed",
+        "no": "HĐ-2024/024",
+        "start": "2024-12-17",
+        "end": "2026-12-17",
+        "baseSalary": 0,
+        "allowance": 0
+      },
+      "leaveBalance": 7,
+      "hasAccount": true,
+      "teacher": {
+        "type": "vn",
+        "levels": [
+          "N5",
+          "N4"
+        ],
+        "certificates": [
+          "JLPT N2 (2019)",
+          "Chứng chỉ sư phạm"
+        ],
+        "rate": {
+          "offline": 220000,
+          "online": 200000
+        },
+        "availability": {
+          "1": [
+            "morning"
+          ],
+          "2": [],
+          "3": [
+            "morning"
+          ],
+          "4": [],
+          "5": [
+            "morning"
+          ],
+          "6": [
+            "morning"
+          ],
+          "7": [
+            "morning",
+            "afternoon"
+          ]
+        }
+      }
+    },
+    {
+      "id": "t-long",
+      "code": "GV0125",
+      "fullName": "Phạm Đức Long",
+      "gender": "male",
+      "dob": "2011-04-11",
+      "phone": "0981560463",
+      "email": "long.t.long@jpcenter.vn",
+      "branchId": "cg",
+      "kind": "teacher",
+      "department": "teaching",
+      "position": "Giáo viên",
+      "shiftBased": false,
+      "status": "active",
+      "joinedAt": "2025-02-05",
+      "contract": {
+        "type": "fixed",
+        "no": "HĐ-2025/025",
+        "start": "2025-02-05",
+        "end": "2027-02-05",
+        "baseSalary": 0,
+        "allowance": 0
+      },
+      "leaveBalance": 12,
+      "hasAccount": true,
+      "teacher": {
+        "type": "vn",
+        "levels": [
+          "N5",
+          "N4",
+          "N3"
+        ],
+        "certificates": [
+          "JLPT N1 (2020)"
+        ],
+        "rate": {
+          "offline": 250000,
+          "online": 230000
+        },
+        "extraBranchIds": [
+          "hc"
+        ],
+        "availability": {
+          "1": [
+            "evening"
+          ],
+          "2": [
+            "evening"
+          ],
+          "3": [
+            "evening"
+          ],
+          "4": [
+            "evening"
+          ],
+          "5": [
+            "evening"
+          ],
+          "6": [],
+          "7": []
+        }
+      }
+    },
+    {
+      "id": "t-thu",
+      "code": "GV0126",
+      "fullName": "Lê Minh Thư",
+      "gender": "female",
+      "dob": "2012-05-12",
+      "phone": "0981574042",
+      "email": "thu.t.thu@jpcenter.vn",
+      "branchId": "q1",
+      "kind": "teacher",
+      "department": "teaching",
+      "position": "Giáo viên",
+      "shiftBased": false,
+      "status": "active",
+      "joinedAt": "2025-07-05",
+      "contract": {
+        "type": "fixed",
+        "no": "HĐ-2025/026",
+        "start": "2025-07-05",
+        "end": "2027-07-05",
+        "baseSalary": 0,
+        "allowance": 0
+      },
+      "leaveBalance": 11,
+      "hasAccount": true,
+      "teacher": {
+        "type": "vn",
+        "levels": [
+          "N5",
+          "N4",
+          "N3"
+        ],
+        "certificates": [
+          "JLPT N2 (2018)",
+          "Chứng chỉ sư phạm"
+        ],
+        "rate": {
+          "offline": 230000,
+          "online": 210000
+        },
+        "availability": {
+          "1": [
+            "evening"
+          ],
+          "2": [
+            "evening"
+          ],
+          "3": [
+            "evening"
+          ],
+          "4": [
+            "evening"
+          ],
+          "5": [
+            "evening"
+          ],
+          "6": [
+            "morning"
+          ],
+          "7": []
+        }
+      }
+    },
+    {
+      "id": "t-hanh",
+      "code": "GV0127",
+      "fullName": "Võ Thị Hạnh",
+      "gender": "female",
+      "dob": "2013-06-13",
+      "phone": "0981587621",
+      "email": "hanh.t.hanh@jpcenter.vn",
+      "branchId": "hc",
+      "kind": "teacher",
+      "department": "teaching",
+      "position": "Giáo viên — phụ trách XKLĐ",
+      "shiftBased": false,
+      "status": "active",
+      "joinedAt": "2025-03-27",
+      "contract": {
+        "type": "fixed",
+        "no": "HĐ-2025/027",
+        "start": "2025-03-27",
+        "end": "2027-03-27",
+        "baseSalary": 4000000,
+        "allowance": 0
+      },
+      "leaveBalance": 10,
+      "hasAccount": true,
+      "teacher": {
+        "type": "vn",
+        "levels": [
+          "N5",
+          "N4"
+        ],
+        "certificates": [
+          "JLPT N2 (2017)",
+          "Kinh nghiệm 3 năm tại Nhật"
+        ],
+        "rate": {
+          "offline": 220000,
+          "online": 200000
+        },
+        "availability": {
+          "1": [
+            "morning",
+            "afternoon"
+          ],
+          "2": [
+            "morning",
+            "afternoon"
+          ],
+          "3": [
+            "morning",
+            "afternoon"
+          ],
+          "4": [
+            "morning",
+            "afternoon"
+          ],
+          "5": [
+            "morning",
+            "afternoon"
+          ],
+          "6": [],
+          "7": []
+        }
+      }
+    },
+    {
+      "id": "t-sato",
+      "code": "GV0128",
+      "fullName": "Sato Yuki",
+      "gender": "female",
+      "dob": "2014-07-15",
+      "phone": "0981601200",
+      "email": "yuki.t.sato@jpcenter.vn",
+      "branchId": "q1",
+      "kind": "teacher",
+      "department": "teaching",
+      "position": "Giáo viên người Nhật",
+      "shiftBased": false,
+      "status": "active",
+      "joinedAt": "2025-10-13",
+      "contract": {
+        "type": "fixed",
+        "no": "HĐ-2025/028",
+        "start": "2025-10-13",
+        "end": "2026-10-13",
+        "baseSalary": 0,
+        "allowance": 0
+      },
+      "leaveBalance": 9,
+      "hasAccount": true,
+      "teacher": {
+        "type": "jp",
+        "levels": [
+          "N4",
+          "N3",
+          "N2",
+          "N1"
+        ],
+        "certificates": [
+          "Chứng chỉ giáo viên tiếng Nhật 420 giờ",
+          "Đại học Waseda"
+        ],
+        "rate": {
+          "offline": 450000,
+          "online": 420000
+        },
+        "extraBranchIds": [
+          "cg"
+        ],
+        "availability": {
+          "1": [],
+          "2": [
+            "afternoon",
+            "evening"
+          ],
+          "3": [],
+          "4": [
+            "afternoon",
+            "evening"
+          ],
+          "5": [],
+          "6": [
+            "morning"
+          ],
+          "7": [
+            "morning"
+          ]
+        },
+        "bio": "Sống tại Việt Nam 4 năm, chuyên Kaiwa và tiếng Nhật thương mại."
+      }
+    },
+    {
+      "id": "t-tanaka",
+      "code": "GV0129",
+      "fullName": "Tanaka Ken",
+      "gender": "male",
+      "dob": "2015-08-16",
+      "phone": "0981614779",
+      "email": "ken.t.tanaka@jpcenter.vn",
+      "branchId": "cg",
+      "kind": "teacher",
+      "department": "teaching",
+      "position": "Giáo viên người Nhật",
+      "shiftBased": false,
+      "status": "active",
+      "joinedAt": "2026-07-20",
+      "contract": {
+        "type": "freelance",
+        "no": "HĐ-2026/029",
+        "start": "2026-07-20",
+        "end": "2026-12-05"
+      },
+      "leaveBalance": 8,
+      "hasAccount": true,
+      "teacher": {
+        "type": "jp",
+        "levels": [
+          "N3",
+          "N2",
+          "N1"
+        ],
+        "certificates": [
+          "Kentei giáo viên tiếng Nhật"
+        ],
+        "rate": {
+          "offline": 420000,
+          "online": 400000
+        },
+        "extraBranchIds": [
+          "hc"
+        ],
+        "availability": {
+          "1": [
+            "evening"
+          ],
+          "2": [
+            "evening"
+          ],
+          "3": [
+            "evening"
+          ],
+          "4": [
+            "evening"
+          ],
+          "5": [
+            "evening"
+          ],
+          "6": [
+            "afternoon"
+          ],
+          "7": []
+        }
+      },
+      "note": "Hợp đồng CTV hết hạn cuối tháng — đang đàm phán gia hạn."
+    },
+    {
+      "id": "ta-linh",
+      "code": "TG0130",
+      "fullName": "Đỗ Thùy Linh",
+      "gender": "female",
+      "dob": "2016-09-16",
+      "phone": "0981628358",
+      "email": "linh.ta.linh@jpcenter.vn",
+      "branchId": "cg",
+      "kind": "assistant",
+      "department": "teaching",
+      "position": "Trợ giảng",
+      "shiftBased": false,
+      "status": "active",
+      "joinedAt": "2026-05-21",
+      "contract": {
+        "type": "part_time",
+        "no": "HĐ-2026/030",
+        "start": "2026-05-21",
+        "end": "2027-05-21"
+      },
+      "leaveBalance": 7,
+      "hasAccount": true,
+      "teacher": {
+        "type": "vn",
+        "levels": [
+          "N5",
+          "N4"
+        ],
+        "certificates": [
+          "JLPT N3"
+        ],
+        "rate": {
+          "offline": 90000,
+          "online": 80000
+        },
+        "availability": {
+          "1": [
+            "evening"
+          ],
+          "2": [],
+          "3": [
+            "evening"
+          ],
+          "4": [],
+          "5": [
+            "evening"
+          ],
+          "6": [
+            "morning"
+          ],
+          "7": [
+            "morning"
+          ]
+        }
+      }
+    },
+    {
+      "id": "ta-quan",
+      "code": "TG0131",
+      "fullName": "Hà Minh Quân",
+      "gender": "male",
+      "dob": "2017-10-18",
+      "phone": "0981641937",
+      "email": "quan.ta.quan@jpcenter.vn",
+      "branchId": "hc",
+      "kind": "assistant",
+      "department": "teaching",
+      "position": "Trợ giảng",
+      "shiftBased": false,
+      "status": "active",
+      "joinedAt": "2026-06-30",
+      "contract": {
+        "type": "part_time",
+        "no": "HĐ-2026/031",
+        "start": "2026-06-30",
+        "end": "2027-06-25"
+      },
+      "leaveBalance": 12,
+      "hasAccount": true,
+      "teacher": {
+        "type": "vn",
+        "levels": [
+          "N5"
+        ],
+        "certificates": [
+          "JLPT N3"
+        ],
+        "rate": {
+          "offline": 90000,
+          "online": 80000
+        },
+        "availability": {
+          "1": [
+            "morning"
+          ],
+          "2": [
+            "morning"
+          ],
+          "3": [
+            "morning"
+          ],
+          "4": [
+            "morning"
+          ],
+          "5": [
+            "morning"
+          ],
+          "6": [],
+          "7": []
+        }
+      }
+    },
+    {
+      "id": "ta-mai",
+      "code": "TG0132",
+      "fullName": "Lâm Ngọc Mai",
+      "gender": "female",
+      "dob": "2018-11-19",
+      "phone": "0981655516",
+      "email": "mai.ta.mai@jpcenter.vn",
+      "branchId": "q1",
+      "kind": "assistant",
+      "department": "teaching",
+      "position": "Trợ giảng",
+      "shiftBased": false,
+      "status": "active",
+      "joinedAt": "2026-08-19",
+      "contract": {
+        "type": "part_time",
+        "no": "HĐ-2026/032",
+        "start": "2026-08-19",
+        "end": "2027-08-14"
+      },
+      "leaveBalance": 11,
+      "hasAccount": true,
+      "teacher": {
+        "type": "vn",
+        "levels": [
+          "N5",
+          "N4",
+          "N3"
+        ],
+        "certificates": [
+          "JLPT N2"
+        ],
+        "rate": {
+          "offline": 100000,
+          "online": 90000
+        },
+        "extraBranchIds": [
+          "cg"
+        ],
+        "availability": {
+          "1": [
+            "evening"
+          ],
+          "2": [],
+          "3": [
+            "evening"
+          ],
+          "4": [],
+          "5": [
+            "evening"
+          ],
+          "6": [
+            "morning"
+          ],
+          "7": []
+        }
+      }
+    }
+  ]
+}

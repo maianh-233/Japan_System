@@ -2,8 +2,8 @@
 
 .NET 10 (LTS) · ASP.NET Core Minimal API · EF Core + PostgreSQL · **Modular Monolith**
 
-> Trạng thái: solution build được, có Domain cho 10 module, Docker local, test kiến trúc.
-> Đang làm: đăng nhập & phân quyền (module System) + middleware ([docs/request-pipeline.md](docs/request-pipeline.md)).
+> Trạng thái: middleware xử lý request xong ([docs/request-pipeline.md](docs/request-pipeline.md)); module System + Hr (nhân viên)
+> có bảng, migration, dữ liệu mẫu. Đang làm: API đăng nhập (user story 01) và phân quyền (02).
 
 ## Chạy local
 
@@ -27,6 +27,38 @@ dotnet test --project tests/JPCenter.ArchitectureTests            # test kiến 
 
 Dữ liệu DB nằm trong volume Docker `jpcenter_pgdata` — tắt máy / `docker compose down` vẫn còn.
 Xóa sạch làm lại: `docker compose -f deploy/docker-compose.yml down -v`.
+
+### Dữ liệu mẫu
+
+Lần chạy đầu (môi trường Development), API tự tạo bảng (migration) và nạp dữ liệu mẫu **giống mock của frontend**:
+4 chi nhánh, 10 vai trò, 32 nhân viên / GV, ~30 tài khoản nhân viên, ~36 tài khoản cổng HV / PH, tích hợp, nhật ký.
+Dữ liệu chỉ nạp khi bảng còn trống và **được giữ lại** (không tự xóa).
+
+Mật khẩu mọi tài khoản mẫu: giá trị `Seed__DefaultPassword` trong `.env` (mặc định `Jpcenter@123`).
+
+| Email đăng nhập | Vai trò | Ghi chú |
+|---|---|---|
+| superadmin@jpcenter.vn | Super Admin | Toàn quyền |
+| admin@jpcenter.vn | Admin | Toàn hệ thống, không phân quyền |
+| quanly.caugiay@jpcenter.vn | Quản lý chi nhánh | Cầu Giấy |
+| giaovu@jpcenter.vn | Giáo vụ | Cầu Giấy + Hải Châu, có quyền lẻ xem công nợ 7 ngày |
+| sale@jpcenter.vn | Sale | Quận 1, bị chặn xuất file lead |
+| marketing@jpcenter.vn | Marketing | |
+| ketoan@jpcenter.vn | Kế toán | |
+| giaovien@jpcenter.vn | Giáo viên | Vào Cổng giáo viên |
+| hocvien@jpcenter.vn | Học viên | Cổng học viên |
+| phuhuynh@jpcenter.vn | Phụ huynh | Cổng phụ huynh |
+
+Mock frontend đổi → chạy lại `npm run export-seed` (trong `frontend/`) để cập nhật file `*.seed.json`; DB đã có dữ liệu
+thì phải xóa schema (hoặc `down -v`) mới nạp lại.
+
+### Migration
+
+```bash
+dotnet tool restore                                               # cài dotnet-ef (khai báo trong dotnet-tools.json)
+dotnet ef migrations add <Ten> --project src/Modules/System/JPCenter.Modules.System \
+  --startup-project src/Host/JPCenter.Api --context SystemDbContext --output-dir Infrastructure/Persistence/Migrations
+```
 
 - Quy tắc bắt buộc: [CLAUDE.md](CLAUDE.md)
 - Nghiệp vụ & chức năng (đọc từ frontend): [docs/nghiep-vu.md](docs/nghiep-vu.md)

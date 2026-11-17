@@ -89,7 +89,8 @@ export const MOCK_EMPLOYEES: Employee[] = seeds.map((s, i) => {
     gender: s.gender,
     dob: dayjs('1985-03-10').add(i * 397, 'day').format('YYYY-MM-DD'),
     phone: `09${String(81234567 + i * 13579).slice(0, 8)}`,
-    email: `${s.name.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd').toLowerCase().split(' ').slice(-1)[0]}.${s.id.replace(/^[a-z]+-/, '')}@jpcenter.vn`,
+    // Email phải duy nhất: NV "e-mai" → mai.mai@; GV / trợ giảng giữ tiền tố id ("ta-mai" → mai.ta.mai@) để không trùng NV cùng tên
+    email: `${s.name.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd').toLowerCase().split(' ').slice(-1)[0]}.${s.id.replace(/^e-/, '').replace(/-/g, '.')}@jpcenter.vn`,
     branchId: s.branchId,
     kind,
     department: s.department,

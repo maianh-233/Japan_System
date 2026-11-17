@@ -2,8 +2,13 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="..\JPCenter.Modules.System.Contracts\JPCenter.Modules.System.Contracts.csproj" />
+    <ProjectReference Include="..\..\Hr\JPCenter.Modules.Hr.Contracts\JPCenter.Modules.Hr.Contracts.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\JPCenter.Application.Common\JPCenter.Application.Common.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\JPCenter.Infrastructure.Common\JPCenter.Infrastructure.Common.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\JPCenter.Api.Common\JPCenter.Api.Common.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Dữ liệu mẫu xuất từ mock frontend (npm run export-seed) -->
+    <EmbeddedResource Include="Infrastructure\Persistence\Seed\*.seed.json" />
   </ItemGroup>
 </Project>

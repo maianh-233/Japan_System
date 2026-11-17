@@ -28,7 +28,7 @@ Ký hiệu cột **Kiểu**: `?` = được để trống · `PK` khóa chính �
 
 | Module (schema) | Bảng |
 |---|---|
-| [System](#module-system--schema-system) | 1 – 13b · chi nhánh, role & quyền, tài khoản, phiên đăng nhập, mã OTP, tích hợp, nhật ký, duyệt 2 người, thùng rác, cài đặt |
+| [System](#module-system--schema-system) | 1 – 13c · chi nhánh, role & quyền, tài khoản, phiên đăng nhập, mã OTP, tích hợp, nhật ký, duyệt 2 người, thùng rác, cài đặt |
 | [Crm](#module-crm--schema-crm) | 14 – 24 · lead, tư vấn, liên kết phụ huynh, chia lead, test xếp lớp, lịch hẹn, chiến dịch, tin nhắn |
 | [Students](#module-students--schema-students) | 25 – 34 · học viên, ghi danh, chứng nhận, cảnh báo bỏ học, JLPT, du học |
 | [Academic](#module-academic--schema-academic) | 35 – 63 · khóa, lộ trình, câu hỏi, phòng, lớp, buổi học, điểm danh, bài tập, thi, đơn từ, lên lớp, flashcard |
@@ -99,6 +99,7 @@ thêm / đổi / xóa thuộc tính → sửa dòng trong bảng + ghi 1 dòng �
 | failed_login_count | int | Số lần nhập sai mật khẩu liên tiếp (về 0 khi đăng nhập đúng / đặt lại mật khẩu) |
 | locked_until | timestamptz? | Khóa tạm đến lúc này — sai 5 lần → khóa 15 phút (khác khóa bởi quản trị) |
 | must_change_password | bool | Buộc đổi mật khẩu ở lần đăng nhập kế tiếp (mật khẩu tạm) |
+| token_version | int | Phiên bản token — tăng khi đổi mật khẩu / khóa / đổi role / quyền lẻ → access token cũ hết hiệu lực ngay |
 
 ### 5. user_role_assignments
 **Chức năng:** Gán role cho người dùng theo chi nhánh (1 người có thể là Giáo vụ ở CN A, Sale ở CN B). Entity con `UserRoleAssignment`. Khóa chính (user_account_id, role_id).
@@ -132,6 +133,7 @@ thêm / đổi / xóa thuộc tính → sửa dòng trong bảng + ghi 1 dòng �
 | id | uuid PK | |
 | owner_type | text | `student` học viên · `guardian` phụ huynh |
 | owner_id | uuid | → students.students hoặc crm.leads |
+| display_name | text | Tên chủ tài khoản (lưu cứng) — hiển thị ở cổng khi chưa tra được hồ sơ gốc |
 | username | text UQ | Tên đăng nhập |
 | email | text? | Email |
 | password_hash | text? | Mật khẩu đã băm |
@@ -140,6 +142,7 @@ thêm / đổi / xóa thuộc tính → sửa dòng trong bảng + ghi 1 dòng �
 | failed_login_count | int | Số lần nhập sai mật khẩu liên tiếp (về 0 khi đăng nhập đúng / đặt lại mật khẩu) |
 | locked_until | timestamptz? | Khóa tạm đến lúc này — sai 5 lần → khóa 15 phút (khác khóa bởi quản trị) |
 | must_change_password | bool | Buộc đổi mật khẩu ở lần đăng nhập kế tiếp (mật khẩu tạm) |
+| token_version | int | Phiên bản token (như user_accounts) |
 
 ### 8. integrations
 **Chức năng:** Kết nối dịch vụ ngoài: Zalo OA, VietQR, Zoom / Meet, email, nguồn lead. Entity `Integration`.
@@ -183,7 +186,7 @@ thêm / đổi / xóa thuộc tính → sửa dòng trong bảng + ghi 1 dòng �
 | actor_name | text | Tên người thao tác (lưu cứng) |
 | actor_role | text | Vai trò lúc thao tác |
 | branch_id | uuid? | Chi nhánh liên quan |
-| category | text | `auth` · `permission` · `data` · `export` · `finance` · `setting` |
+| category | text | `auth` · `permission` · `data` · `export` · `finance` · `setting` · `security` (spam bị tạm khóa, token bị dùng lại) |
 | severity | text | `info` · `warning` · `critical` |
 | action | text | Hành động ngắn: "Cấp quyền", "Xóa học viên" |
 | target | text | Đối tượng bị tác động |
@@ -191,6 +194,7 @@ thêm / đổi / xóa thuộc tính → sửa dòng trong bảng + ghi 1 dòng �
 | changes | jsonb | Danh sách `{field, before, after}` |
 | ip | text | IP |
 | device | text | Thiết bị / trình duyệt |
+| trace_id | text? | Mã truy vết request (header X-Request-Id) — nối với log kỹ thuật trong Seq |
 
 ### 11. approval_requests
 **Chức năng:** Duyệt 2 người (maker–checker) cho hoàn tiền, hủy hóa đơn, cấp quyền tài chính. Người tạo không tự duyệt. Entity `ApprovalRequest`.
@@ -271,6 +275,22 @@ thêm / đổi / xóa thuộc tính → sửa dòng trong bảng + ghi 1 dòng �
 | max_attempts | int | Tối đa (mặc định 5) |
 | used_at | timestamptz? | Đã dùng |
 | invalidated_at | timestamptz? | Bị thay bởi mã mới / hủy |
+
+### 13c. idempotency_keys
+**Chức năng:** Chống gửi trùng (docs/request-pipeline.md mục 5): lưu kết quả request theo header `Idempotency-Key` 24 giờ —
+gửi lại cùng key thì trả response cũ, không chạy lại. Dữ liệu kỹ thuật (lớp `IdempotencyRecord` ở Infrastructure, không có Domain).
+Khóa chính (scope, key).
+
+| Thuộc tính | Kiểu | Giải thích |
+|---|---|---|
+| scope | text | Người gửi: `user:{id tài khoản}` hoặc `ip:{ip}` |
+| key | text | Giá trị header Idempotency-Key |
+| request_hash | text | SHA-256 nội dung request — cùng key khác nội dung → 422 |
+| status_code | int? | Mã HTTP đã trả — trống = đang xử lý |
+| body | text? | Nội dung response đã trả |
+| content_type | text? | Content-Type response |
+| created_at | timestamptz | Lúc nhận |
+| expires_at | timestamptz | Hết hạn (24 giờ) — job dọn |
 
 ---
 
@@ -1765,3 +1785,4 @@ sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đ�
 | 2026-11-17 | Tạo tài liệu: 98 bảng / 9 schema, dựng song song với entity Domain |
 | 2026-11-17 | Đăng nhập & bảo mật (user story 01): thêm bảng `user_sessions` (13a), `one_time_tokens` (13b); `user_accounts` + `failed_login_count`, `locked_until`, `must_change_password`; `portal_accounts` + `failed_login_count`, `locked_until`, `must_change_password` |
 | 2026-11-17 | Bỏ đăng nhập 2 lớp (2FA) — không làm: xóa `user_accounts.two_factor_enabled`, `two_factor_secret`, `two_factor_required`; `user_sessions.trusted_until`; `one_time_tokens.purpose` bỏ `two_factor`, `two_factor_setup` |
+| 2026-11-17 | Code giai đoạn 3: `user_accounts` + `token_version`; `portal_accounts` + `display_name`, `token_version`; `audit_logs` + `trace_id`, category thêm `security`; thêm bảng `idempotency_keys` (13c). Migration đầu tiên của schema `system`, `hr` (hr mới có `employees`, `teacher_profiles`) |

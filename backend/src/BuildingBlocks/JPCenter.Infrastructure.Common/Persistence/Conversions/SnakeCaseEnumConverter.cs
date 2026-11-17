@@ -10,6 +10,15 @@ public sealed class SnakeCaseEnumConverter<TEnum>() : ValueConverter<TEnum, stri
     private static readonly Dictionary<TEnum, string> ToDb = Enum.GetValues<TEnum>().ToDictionary(v => v, v => ToSnakeCase(v.ToString()));
     private static readonly Dictionary<string, TEnum> FromDb = ToDb.ToDictionary(kv => kv.Value, kv => kv.Key);
 
+    /// <summary>Giá trị lưu DB của 1 enum.</summary>
+    public static string ToText(TEnum value) => ToDb[value];
+
+    /// <summary>Đọc chuỗi snake_case (không phân biệt hoa thường, vd "N5", "part_time") thành enum.</summary>
+    public static TEnum Parse(string text) =>
+        FromDb.TryGetValue(ToSnakeCase(text.Replace("-", "_", StringComparison.Ordinal)).ToLowerInvariant(), out var v)
+            ? v
+            : throw new FormatException($"'{text}' không phải giá trị hợp lệ của {typeof(TEnum).Name}");
+
     public static string ToSnakeCase(string name)
     {
         var sb = new StringBuilder(name.Length + 4);
@@ -22,3 +31,9 @@ public sealed class SnakeCaseEnumConverter<TEnum>() : ValueConverter<TEnum, stri
         return sb.ToString();
     }
 }
+
+/// <summary>Danh sách enum (vd <c>List&lt;JlptLevel&gt;</c>) ↔ cột <c>text[]</c> giá trị snake_case.</summary>
+public sealed class EnumListConverter<TEnum>() : ValueConverter<List<TEnum>, string[]>(
+    v => v.Select(SnakeCaseEnumConverter<TEnum>.ToText).ToArray(),
+    v => v.Select(SnakeCaseEnumConverter<TEnum>.Parse).ToList())
+    where TEnum : struct, Enum;

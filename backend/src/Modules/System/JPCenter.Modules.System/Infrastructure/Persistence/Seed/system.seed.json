@@ -1,0 +1,2523 @@
+{
+  "generatedAt": "2026-11-17T04:40:34.450Z",
+  "branches": [
+    {
+      "id": "cg",
+      "code": "CG",
+      "name": "Cầu Giấy",
+      "address": "120 Xuân Thủy, Cầu Giấy, Hà Nội",
+      "phone": "024 3765 8899",
+      "email": "caugiay@jpcenter.vn",
+      "managerId": "e-nam",
+      "openHours": "T2–T7 08:00–21:30 · CN 08:00–17:00",
+      "status": "active",
+      "openedAt": "2021-03-15",
+      "invoicePrefix": "CG",
+      "bank": {
+        "bank": "Vietcombank",
+        "account": "0011004455667",
+        "holder": "CONG TY TNHH JP CENTER"
+      }
+    },
+    {
+      "id": "q1",
+      "code": "Q1",
+      "name": "Quận 1",
+      "address": "45 Lê Thánh Tôn, Quận 1, TP.HCM",
+      "phone": "028 3822 6677",
+      "email": "quan1@jpcenter.vn",
+      "managerId": "e-q1m",
+      "openHours": "T2–T7 08:00–21:30 · CN 08:00–12:00",
+      "status": "active",
+      "openedAt": "2022-08-01",
+      "invoicePrefix": "Q1",
+      "bank": {
+        "bank": "Techcombank",
+        "account": "19036677889900",
+        "holder": "CONG TY TNHH JP CENTER CN HCM"
+      }
+    },
+    {
+      "id": "hc",
+      "code": "HC",
+      "name": "Hải Châu",
+      "address": "88 Bạch Đằng, Hải Châu, Đà Nẵng",
+      "phone": "0236 3889 112",
+      "email": "haichau@jpcenter.vn",
+      "managerId": "e-hcm",
+      "openHours": "T2–T7 08:00–21:00",
+      "status": "active",
+      "openedAt": "2023-09-10",
+      "invoicePrefix": "HC",
+      "bank": {
+        "bank": "BIDV",
+        "account": "56010001122334",
+        "holder": "CONG TY TNHH JP CENTER CN DA NANG"
+      }
+    },
+    {
+      "id": "td",
+      "code": "TD",
+      "name": "Thủ Đức",
+      "address": "25 Võ Văn Ngân, TP. Thủ Đức, TP.HCM",
+      "phone": "028 3896 5544",
+      "email": "thuduc@jpcenter.vn",
+      "openHours": "T2–T7 08:00–21:30",
+      "status": "preparing",
+      "openedAt": "2027-01-01",
+      "invoicePrefix": "TD",
+      "note": "Đang hoàn thiện phòng học, dự kiến khai trương sau 1,5 tháng. Chưa nhận lead / ghi danh."
+    }
+  ],
+  "roles": [
+    {
+      "id": "R-SA",
+      "name": "Super Admin",
+      "description": "Toàn quyền mọi chi nhánh, kể cả phân quyền và tích hợp.",
+      "system": true,
+      "superAdmin": true,
+      "grants": {},
+      "updatedAt": "2026-10-18T04:40:34.444Z",
+      "updatedBy": "Đỗ Quang Huy"
+    },
+    {
+      "id": "R-AD",
+      "name": "Admin",
+      "description": "Vận hành toàn hệ thống. Không phân quyền, không sửa tích hợp.",
+      "system": true,
+      "updatedAt": "2026-10-18T04:40:34.444Z",
+      "updatedBy": "Đỗ Quang Huy",
+      "grants": {
+        "dashboard.overview.view": "all",
+        "dashboard.overview.export": "all",
+        "dashboard.reports.view": "all",
+        "dashboard.reports.export": "all",
+        "crm.leads.view": "all",
+        "crm.leads.create": "all",
+        "crm.leads.update": "all",
+        "crm.leads.delete": "all",
+        "crm.leads.export": "all",
+        "crm.lead-rules.view": "all",
+        "crm.lead-rules.create": "all",
+        "crm.lead-rules.update": "all",
+        "crm.lead-rules.delete": "all",
+        "crm.lead-rules.export": "all",
+        "crm.placement-tests.view": "all",
+        "crm.placement-tests.create": "all",
+        "crm.placement-tests.update": "all",
+        "crm.placement-tests.delete": "all",
+        "crm.placement-tests.export": "all",
+        "crm.appointments.view": "all",
+        "crm.appointments.create": "all",
+        "crm.appointments.update": "all",
+        "crm.appointments.delete": "all",
+        "crm.appointments.export": "all",
+        "crm.promotions.view": "all",
+        "crm.promotions.create": "all",
+        "crm.promotions.update": "all",
+        "crm.promotions.delete": "all",
+        "crm.promotions.export": "all",
+        "crm.funnel.view": "all",
+        "crm.funnel.create": "all",
+        "crm.funnel.update": "all",
+        "crm.funnel.delete": "all",
+        "crm.funnel.export": "all",
+        "crm.message-templates.view": "all",
+        "crm.message-templates.create": "all",
+        "crm.message-templates.update": "all",
+        "crm.message-templates.delete": "all",
+        "crm.message-templates.export": "all",
+        "crm.campaigns.view": "all",
+        "crm.campaigns.create": "all",
+        "crm.campaigns.update": "all",
+        "crm.campaigns.delete": "all",
+        "crm.campaigns.export": "all",
+        "students.profiles.view": "all",
+        "students.profiles.create": "all",
+        "students.profiles.update": "all",
+        "students.profiles.delete": "all",
+        "students.profiles.export": "all",
+        "students.contacts.view": "all",
+        "students.contacts.create": "all",
+        "students.contacts.update": "all",
+        "students.contacts.delete": "all",
+        "students.contacts.export": "all",
+        "students.at-risk.view": "all",
+        "students.at-risk.create": "all",
+        "students.at-risk.update": "all",
+        "students.at-risk.delete": "all",
+        "students.at-risk.export": "all",
+        "students.jlpt.view": "all",
+        "students.jlpt.create": "all",
+        "students.jlpt.update": "all",
+        "students.jlpt.delete": "all",
+        "students.jlpt.export": "all",
+        "students.certificates.view": "all",
+        "students.certificates.create": "all",
+        "students.certificates.update": "all",
+        "students.certificates.delete": "all",
+        "students.certificates.export": "all",
+        "students.study-abroad.view": "all",
+        "students.study-abroad.create": "all",
+        "students.study-abroad.update": "all",
+        "students.study-abroad.delete": "all",
+        "students.study-abroad.export": "all",
+        "academic.courses.view": "all",
+        "academic.courses.create": "all",
+        "academic.courses.update": "all",
+        "academic.courses.delete": "all",
+        "academic.courses.export": "all",
+        "academic.curriculum.view": "all",
+        "academic.curriculum.create": "all",
+        "academic.curriculum.update": "all",
+        "academic.curriculum.delete": "all",
+        "academic.curriculum.export": "all",
+        "academic.questions.view": "all",
+        "academic.questions.create": "all",
+        "academic.questions.update": "all",
+        "academic.questions.delete": "all",
+        "academic.questions.export": "all",
+        "academic.questions.approve": "all",
+        "academic.classes.view": "all",
+        "academic.classes.create": "all",
+        "academic.classes.update": "all",
+        "academic.classes.delete": "all",
+        "academic.classes.export": "all",
+        "academic.sessions.view": "all",
+        "academic.sessions.create": "all",
+        "academic.sessions.update": "all",
+        "academic.sessions.delete": "all",
+        "academic.sessions.export": "all",
+        "academic.sessions.approve": "all",
+        "academic.requests.view": "all",
+        "academic.requests.create": "all",
+        "academic.requests.update": "all",
+        "academic.requests.delete": "all",
+        "academic.requests.export": "all",
+        "academic.requests.approve": "all",
+        "academic.rooms.view": "all",
+        "academic.rooms.create": "all",
+        "academic.rooms.update": "all",
+        "academic.rooms.delete": "all",
+        "academic.rooms.export": "all",
+        "library.documents.view": "all",
+        "library.documents.create": "all",
+        "library.documents.update": "all",
+        "library.documents.delete": "all",
+        "library.documents.export": "all",
+        "library.documents.approve": "all",
+        "finance.tuition.view": "all",
+        "finance.tuition.create": "all",
+        "finance.tuition.update": "all",
+        "finance.tuition.delete": "all",
+        "finance.tuition.export": "all",
+        "finance.invoices.view": "all",
+        "finance.invoices.create": "all",
+        "finance.invoices.update": "all",
+        "finance.invoices.delete": "all",
+        "finance.invoices.export": "all",
+        "finance.invoices.approve": "all",
+        "finance.reconciliation.view": "all",
+        "finance.reconciliation.create": "all",
+        "finance.reconciliation.update": "all",
+        "finance.reconciliation.delete": "all",
+        "finance.reconciliation.export": "all",
+        "finance.reconciliation.approve": "all",
+        "finance.debts.view": "all",
+        "finance.debts.create": "all",
+        "finance.debts.update": "all",
+        "finance.debts.delete": "all",
+        "finance.debts.export": "all",
+        "finance.teacher-payroll.view": "all",
+        "finance.teacher-payroll.create": "all",
+        "finance.teacher-payroll.update": "all",
+        "finance.teacher-payroll.delete": "all",
+        "finance.teacher-payroll.export": "all",
+        "finance.teacher-payroll.approve": "all",
+        "finance.staff-payroll.view": "all",
+        "finance.staff-payroll.create": "all",
+        "finance.staff-payroll.update": "all",
+        "finance.staff-payroll.delete": "all",
+        "finance.staff-payroll.export": "all",
+        "finance.staff-payroll.approve": "all",
+        "finance.commissions.view": "all",
+        "finance.commissions.create": "all",
+        "finance.commissions.update": "all",
+        "finance.commissions.delete": "all",
+        "finance.commissions.export": "all",
+        "finance.commissions.approve": "all",
+        "hr.recruitment.view": "all",
+        "hr.recruitment.create": "all",
+        "hr.recruitment.update": "all",
+        "hr.recruitment.delete": "all",
+        "hr.recruitment.export": "all",
+        "hr.recruitment.approve": "all",
+        "hr.onboarding.view": "all",
+        "hr.onboarding.create": "all",
+        "hr.onboarding.update": "all",
+        "hr.onboarding.delete": "all",
+        "hr.onboarding.export": "all",
+        "hr.employees.view": "all",
+        "hr.employees.create": "all",
+        "hr.employees.update": "all",
+        "hr.employees.delete": "all",
+        "hr.employees.export": "all",
+        "hr.teachers.view": "all",
+        "hr.teachers.create": "all",
+        "hr.teachers.update": "all",
+        "hr.teachers.delete": "all",
+        "hr.teachers.export": "all",
+        "hr.timesheets.view": "all",
+        "hr.timesheets.create": "all",
+        "hr.timesheets.update": "all",
+        "hr.timesheets.delete": "all",
+        "hr.timesheets.export": "all",
+        "hr.timesheets.approve": "all",
+        "hr.requests.view": "all",
+        "hr.requests.create": "all",
+        "hr.requests.update": "all",
+        "hr.requests.delete": "all",
+        "hr.requests.export": "all",
+        "hr.requests.approve": "all",
+        "work.tasks.view": "all",
+        "work.tasks.create": "all",
+        "work.tasks.update": "all",
+        "work.tasks.delete": "all",
+        "work.tasks.export": "all",
+        "work.shifts.view": "all",
+        "work.shifts.create": "all",
+        "work.shifts.update": "all",
+        "work.shifts.delete": "all",
+        "work.shifts.export": "all",
+        "work.shifts.approve": "all",
+        "work.handover.view": "all",
+        "work.handover.create": "all",
+        "work.handover.update": "all",
+        "work.handover.delete": "all",
+        "work.handover.export": "all",
+        "work.handover.approve": "all",
+        "system.branches.view": "all",
+        "system.branches.update": "all",
+        "system.audit.view": "all",
+        "system.audit.export": "all",
+        "system.approvals.view": "all",
+        "system.trash.view": "all",
+        "system.trash.create": "all",
+        "system.trash.update": "all",
+        "system.trash.delete": "all",
+        "system.trash.export": "all",
+        "system.settings.view": "all",
+        "system.settings.update": "all"
+      }
+    },
+    {
+      "id": "R-BM",
+      "name": "Quản lý chi nhánh",
+      "description": "Toàn quyền nghiệp vụ trong chi nhánh được gán.",
+      "system": true,
+      "updatedAt": "2026-10-18T04:40:34.444Z",
+      "updatedBy": "Đỗ Quang Huy",
+      "grants": {
+        "dashboard.overview.view": "branch",
+        "dashboard.overview.export": "branch",
+        "dashboard.reports.view": "branch",
+        "dashboard.reports.export": "branch",
+        "crm.leads.view": "branch",
+        "crm.leads.create": "branch",
+        "crm.leads.update": "branch",
+        "crm.leads.delete": "branch",
+        "crm.leads.export": "branch",
+        "crm.lead-rules.view": "branch",
+        "crm.lead-rules.create": "branch",
+        "crm.lead-rules.update": "branch",
+        "crm.lead-rules.delete": "branch",
+        "crm.lead-rules.export": "branch",
+        "crm.placement-tests.view": "branch",
+        "crm.placement-tests.create": "branch",
+        "crm.placement-tests.update": "branch",
+        "crm.placement-tests.delete": "branch",
+        "crm.placement-tests.export": "branch",
+        "crm.appointments.view": "branch",
+        "crm.appointments.create": "branch",
+        "crm.appointments.update": "branch",
+        "crm.appointments.delete": "branch",
+        "crm.appointments.export": "branch",
+        "crm.promotions.view": "branch",
+        "crm.promotions.create": "branch",
+        "crm.promotions.update": "branch",
+        "crm.promotions.delete": "branch",
+        "crm.promotions.export": "branch",
+        "crm.funnel.view": "branch",
+        "crm.funnel.create": "branch",
+        "crm.funnel.update": "branch",
+        "crm.funnel.delete": "branch",
+        "crm.funnel.export": "branch",
+        "crm.message-templates.view": "branch",
+        "crm.message-templates.create": "branch",
+        "crm.message-templates.update": "branch",
+        "crm.message-templates.delete": "branch",
+        "crm.message-templates.export": "branch",
+        "crm.campaigns.view": "branch",
+        "crm.campaigns.create": "branch",
+        "crm.campaigns.update": "branch",
+        "crm.campaigns.delete": "branch",
+        "crm.campaigns.export": "branch",
+        "students.profiles.view": "branch",
+        "students.profiles.create": "branch",
+        "students.profiles.update": "branch",
+        "students.profiles.delete": "branch",
+        "students.profiles.export": "branch",
+        "students.contacts.view": "branch",
+        "students.contacts.create": "branch",
+        "students.contacts.update": "branch",
+        "students.contacts.delete": "branch",
+        "students.contacts.export": "branch",
+        "students.at-risk.view": "branch",
+        "students.at-risk.create": "branch",
+        "students.at-risk.update": "branch",
+        "students.at-risk.delete": "branch",
+        "students.at-risk.export": "branch",
+        "students.jlpt.view": "branch",
+        "students.jlpt.create": "branch",
+        "students.jlpt.update": "branch",
+        "students.jlpt.delete": "branch",
+        "students.jlpt.export": "branch",
+        "students.certificates.view": "branch",
+        "students.certificates.create": "branch",
+        "students.certificates.update": "branch",
+        "students.certificates.delete": "branch",
+        "students.certificates.export": "branch",
+        "students.study-abroad.view": "branch",
+        "students.study-abroad.create": "branch",
+        "students.study-abroad.update": "branch",
+        "students.study-abroad.delete": "branch",
+        "students.study-abroad.export": "branch",
+        "academic.courses.view": "branch",
+        "academic.courses.create": "branch",
+        "academic.courses.update": "branch",
+        "academic.courses.delete": "branch",
+        "academic.courses.export": "branch",
+        "academic.curriculum.view": "branch",
+        "academic.curriculum.create": "branch",
+        "academic.curriculum.update": "branch",
+        "academic.curriculum.delete": "branch",
+        "academic.curriculum.export": "branch",
+        "academic.questions.view": "branch",
+        "academic.questions.create": "branch",
+        "academic.questions.update": "branch",
+        "academic.questions.delete": "branch",
+        "academic.questions.export": "branch",
+        "academic.questions.approve": "branch",
+        "academic.classes.view": "branch",
+        "academic.classes.create": "branch",
+        "academic.classes.update": "branch",
+        "academic.classes.delete": "branch",
+        "academic.classes.export": "branch",
+        "academic.sessions.view": "branch",
+        "academic.sessions.create": "branch",
+        "academic.sessions.update": "branch",
+        "academic.sessions.delete": "branch",
+        "academic.sessions.export": "branch",
+        "academic.sessions.approve": "branch",
+        "academic.requests.view": "branch",
+        "academic.requests.create": "branch",
+        "academic.requests.update": "branch",
+        "academic.requests.delete": "branch",
+        "academic.requests.export": "branch",
+        "academic.requests.approve": "branch",
+        "academic.rooms.view": "branch",
+        "academic.rooms.create": "branch",
+        "academic.rooms.update": "branch",
+        "academic.rooms.delete": "branch",
+        "academic.rooms.export": "branch",
+        "library.documents.view": "branch",
+        "library.documents.create": "branch",
+        "library.documents.update": "branch",
+        "library.documents.delete": "branch",
+        "library.documents.export": "branch",
+        "library.documents.approve": "branch",
+        "finance.tuition.view": "branch",
+        "finance.tuition.create": "branch",
+        "finance.tuition.update": "branch",
+        "finance.tuition.export": "branch",
+        "finance.invoices.view": "branch",
+        "finance.invoices.create": "branch",
+        "finance.invoices.update": "branch",
+        "finance.invoices.export": "branch",
+        "finance.invoices.approve": "branch",
+        "finance.reconciliation.view": "branch",
+        "finance.reconciliation.create": "branch",
+        "finance.reconciliation.update": "branch",
+        "finance.reconciliation.export": "branch",
+        "finance.reconciliation.approve": "branch",
+        "finance.debts.view": "branch",
+        "finance.debts.create": "branch",
+        "finance.debts.update": "branch",
+        "finance.debts.export": "branch",
+        "finance.teacher-payroll.view": "branch",
+        "finance.teacher-payroll.create": "branch",
+        "finance.teacher-payroll.update": "branch",
+        "finance.teacher-payroll.export": "branch",
+        "finance.teacher-payroll.approve": "branch",
+        "finance.staff-payroll.view": "branch",
+        "finance.staff-payroll.create": "branch",
+        "finance.staff-payroll.update": "branch",
+        "finance.staff-payroll.export": "branch",
+        "finance.staff-payroll.approve": "branch",
+        "finance.commissions.view": "branch",
+        "finance.commissions.create": "branch",
+        "finance.commissions.update": "branch",
+        "finance.commissions.export": "branch",
+        "finance.commissions.approve": "branch",
+        "hr.recruitment.view": "branch",
+        "hr.recruitment.create": "branch",
+        "hr.recruitment.update": "branch",
+        "hr.recruitment.delete": "branch",
+        "hr.recruitment.export": "branch",
+        "hr.recruitment.approve": "branch",
+        "hr.onboarding.view": "branch",
+        "hr.onboarding.create": "branch",
+        "hr.onboarding.update": "branch",
+        "hr.onboarding.delete": "branch",
+        "hr.onboarding.export": "branch",
+        "hr.employees.view": "branch",
+        "hr.employees.create": "branch",
+        "hr.employees.update": "branch",
+        "hr.employees.delete": "branch",
+        "hr.employees.export": "branch",
+        "hr.teachers.view": "branch",
+        "hr.teachers.create": "branch",
+        "hr.teachers.update": "branch",
+        "hr.teachers.delete": "branch",
+        "hr.teachers.export": "branch",
+        "hr.timesheets.view": "branch",
+        "hr.timesheets.create": "branch",
+        "hr.timesheets.update": "branch",
+        "hr.timesheets.delete": "branch",
+        "hr.timesheets.export": "branch",
+        "hr.timesheets.approve": "branch",
+        "hr.requests.view": "branch",
+        "hr.requests.create": "branch",
+        "hr.requests.update": "branch",
+        "hr.requests.delete": "branch",
+        "hr.requests.export": "branch",
+        "hr.requests.approve": "branch",
+        "work.tasks.view": "branch",
+        "work.tasks.create": "branch",
+        "work.tasks.update": "branch",
+        "work.tasks.delete": "branch",
+        "work.tasks.export": "branch",
+        "work.shifts.view": "branch",
+        "work.shifts.create": "branch",
+        "work.shifts.update": "branch",
+        "work.shifts.delete": "branch",
+        "work.shifts.export": "branch",
+        "work.shifts.approve": "branch",
+        "work.handover.view": "branch",
+        "work.handover.create": "branch",
+        "work.handover.update": "branch",
+        "work.handover.delete": "branch",
+        "work.handover.export": "branch",
+        "work.handover.approve": "branch",
+        "system.approvals.view": "branch"
+      }
+    },
+    {
+      "id": "R-GV",
+      "name": "Giáo vụ",
+      "description": "Học viên, lớp, buổi học, điểm danh; tạo hóa đơn khi ghi danh.",
+      "system": true,
+      "updatedAt": "2026-10-18T04:40:34.444Z",
+      "updatedBy": "Đỗ Quang Huy",
+      "grants": {
+        "dashboard.overview.view": "branch",
+        "students.profiles.view": "branch",
+        "students.profiles.create": "branch",
+        "students.profiles.update": "branch",
+        "students.profiles.export": "branch",
+        "students.contacts.view": "branch",
+        "students.contacts.create": "branch",
+        "students.contacts.update": "branch",
+        "students.contacts.export": "branch",
+        "students.at-risk.view": "branch",
+        "students.at-risk.create": "branch",
+        "students.at-risk.update": "branch",
+        "students.at-risk.export": "branch",
+        "students.jlpt.view": "branch",
+        "students.jlpt.create": "branch",
+        "students.jlpt.update": "branch",
+        "students.jlpt.export": "branch",
+        "students.certificates.view": "branch",
+        "students.certificates.create": "branch",
+        "students.certificates.update": "branch",
+        "students.certificates.export": "branch",
+        "students.study-abroad.view": "branch",
+        "students.study-abroad.create": "branch",
+        "students.study-abroad.update": "branch",
+        "students.study-abroad.export": "branch",
+        "academic.courses.view": "branch",
+        "academic.courses.create": "branch",
+        "academic.courses.update": "branch",
+        "academic.courses.export": "branch",
+        "academic.curriculum.view": "branch",
+        "academic.curriculum.create": "branch",
+        "academic.curriculum.update": "branch",
+        "academic.curriculum.export": "branch",
+        "academic.questions.view": "own",
+        "academic.questions.create": "own",
+        "academic.questions.update": "own",
+        "academic.questions.export": "branch",
+        "academic.classes.view": "branch",
+        "academic.classes.create": "branch",
+        "academic.classes.update": "branch",
+        "academic.classes.export": "branch",
+        "academic.sessions.view": "branch",
+        "academic.sessions.create": "branch",
+        "academic.sessions.update": "branch",
+        "academic.sessions.export": "branch",
+        "academic.requests.view": "branch",
+        "academic.requests.create": "branch",
+        "academic.requests.update": "branch",
+        "academic.requests.export": "branch",
+        "academic.rooms.view": "branch",
+        "academic.rooms.create": "branch",
+        "academic.rooms.update": "branch",
+        "academic.rooms.export": "branch",
+        "crm.promotions.view": "branch",
+        "library.documents.view": "branch",
+        "library.documents.create": "branch",
+        "finance.invoices.view": "branch",
+        "finance.invoices.create": "branch",
+        "hr.requests.view": "own",
+        "hr.requests.create": "own",
+        "work.tasks.view": "own",
+        "work.tasks.update": "own"
+      }
+    },
+    {
+      "id": "R-KT",
+      "name": "Kế toán",
+      "description": "Học phí, hóa đơn, đối soát, công nợ, lương toàn hệ thống.",
+      "system": true,
+      "updatedAt": "2026-10-18T04:40:34.444Z",
+      "updatedBy": "Đỗ Quang Huy",
+      "grants": {
+        "dashboard.overview.view": "all",
+        "dashboard.overview.export": "all",
+        "dashboard.reports.view": "all",
+        "dashboard.reports.export": "all",
+        "finance.tuition.view": "all",
+        "finance.tuition.create": "all",
+        "finance.tuition.update": "all",
+        "finance.tuition.delete": "all",
+        "finance.tuition.export": "all",
+        "finance.invoices.view": "all",
+        "finance.invoices.create": "all",
+        "finance.invoices.update": "all",
+        "finance.invoices.delete": "all",
+        "finance.invoices.export": "all",
+        "finance.invoices.approve": "all",
+        "finance.reconciliation.view": "all",
+        "finance.reconciliation.create": "all",
+        "finance.reconciliation.update": "all",
+        "finance.reconciliation.delete": "all",
+        "finance.reconciliation.export": "all",
+        "finance.reconciliation.approve": "all",
+        "finance.debts.view": "all",
+        "finance.debts.create": "all",
+        "finance.debts.update": "all",
+        "finance.debts.delete": "all",
+        "finance.debts.export": "all",
+        "finance.teacher-payroll.view": "all",
+        "finance.teacher-payroll.create": "all",
+        "finance.teacher-payroll.update": "all",
+        "finance.teacher-payroll.delete": "all",
+        "finance.teacher-payroll.export": "all",
+        "finance.teacher-payroll.approve": "all",
+        "finance.staff-payroll.view": "all",
+        "finance.staff-payroll.create": "all",
+        "finance.staff-payroll.update": "all",
+        "finance.staff-payroll.delete": "all",
+        "finance.staff-payroll.export": "all",
+        "finance.staff-payroll.approve": "all",
+        "finance.commissions.view": "all",
+        "finance.commissions.create": "all",
+        "finance.commissions.update": "all",
+        "finance.commissions.delete": "all",
+        "finance.commissions.export": "all",
+        "finance.commissions.approve": "all",
+        "system.approvals.view": "all",
+        "students.profiles.view": "all",
+        "hr.timesheets.view": "all",
+        "hr.timesheets.export": "all",
+        "hr.requests.view": "own",
+        "hr.requests.create": "own",
+        "work.tasks.view": "own",
+        "work.tasks.update": "own"
+      }
+    },
+    {
+      "id": "R-SALE",
+      "name": "Sale",
+      "description": "Tư vấn lead được giao, gửi test xếp lớp.",
+      "system": true,
+      "updatedAt": "2026-10-18T04:40:34.444Z",
+      "updatedBy": "Đỗ Quang Huy",
+      "grants": {
+        "dashboard.overview.view": "own",
+        "crm.leads.view": "own",
+        "crm.leads.create": "own",
+        "crm.leads.update": "own",
+        "crm.placement-tests.view": "branch",
+        "crm.placement-tests.create": "branch",
+        "crm.campaigns.view": "all",
+        "crm.appointments.view": "branch",
+        "crm.appointments.create": "branch",
+        "crm.appointments.update": "branch",
+        "crm.funnel.view": "own",
+        "crm.message-templates.view": "all",
+        "crm.promotions.view": "own",
+        "crm.promotions.update": "own",
+        "students.profiles.view": "branch",
+        "work.shifts.view": "own",
+        "work.handover.view": "own",
+        "work.handover.create": "own",
+        "hr.requests.view": "own",
+        "hr.requests.create": "own",
+        "work.tasks.view": "own",
+        "work.tasks.update": "own"
+      }
+    },
+    {
+      "id": "R-MKT",
+      "name": "Marketing",
+      "description": "Chiến dịch, nguồn lead, báo cáo chuyển đổi.",
+      "system": true,
+      "updatedAt": "2026-10-18T04:40:34.444Z",
+      "updatedBy": "Đỗ Quang Huy",
+      "grants": {
+        "dashboard.overview.view": "all",
+        "dashboard.overview.export": "all",
+        "dashboard.reports.view": "all",
+        "dashboard.reports.export": "all",
+        "crm.leads.view": "all",
+        "crm.leads.create": "all",
+        "crm.leads.update": "all",
+        "crm.leads.delete": "all",
+        "crm.leads.export": "all",
+        "crm.lead-rules.view": "all",
+        "crm.lead-rules.create": "all",
+        "crm.lead-rules.update": "all",
+        "crm.lead-rules.delete": "all",
+        "crm.lead-rules.export": "all",
+        "crm.placement-tests.view": "all",
+        "crm.placement-tests.create": "all",
+        "crm.placement-tests.update": "all",
+        "crm.placement-tests.delete": "all",
+        "crm.placement-tests.export": "all",
+        "crm.appointments.view": "all",
+        "crm.appointments.create": "all",
+        "crm.appointments.update": "all",
+        "crm.appointments.delete": "all",
+        "crm.appointments.export": "all",
+        "crm.promotions.view": "all",
+        "crm.promotions.create": "all",
+        "crm.promotions.update": "all",
+        "crm.promotions.delete": "all",
+        "crm.promotions.export": "all",
+        "crm.funnel.view": "all",
+        "crm.funnel.create": "all",
+        "crm.funnel.update": "all",
+        "crm.funnel.delete": "all",
+        "crm.funnel.export": "all",
+        "crm.message-templates.view": "all",
+        "crm.message-templates.create": "all",
+        "crm.message-templates.update": "all",
+        "crm.message-templates.delete": "all",
+        "crm.message-templates.export": "all",
+        "crm.campaigns.view": "all",
+        "crm.campaigns.create": "all",
+        "crm.campaigns.update": "all",
+        "crm.campaigns.delete": "all",
+        "crm.campaigns.export": "all",
+        "hr.requests.view": "own",
+        "hr.requests.create": "own",
+        "work.tasks.view": "own",
+        "work.tasks.update": "own"
+      }
+    },
+    {
+      "id": "R-TEACHER",
+      "name": "Giáo viên",
+      "description": "Chỉ dùng Cổng giáo viên — không có quyền trong cổng nhân viên.",
+      "system": true,
+      "grants": {},
+      "updatedAt": "2026-10-18T04:40:34.444Z",
+      "updatedBy": "Đỗ Quang Huy"
+    },
+    {
+      "id": "R-LT",
+      "name": "Lễ tân",
+      "description": "Tiếp khách, nhập lead đến trực tiếp, thu tiền tại quầy.",
+      "system": false,
+      "updatedAt": "2026-11-05T04:40:34.445Z",
+      "updatedBy": "Phạm Thu Trang",
+      "grants": {
+        "crm.leads.view": "branch",
+        "crm.leads.create": "branch",
+        "crm.appointments.view": "branch",
+        "crm.appointments.create": "branch",
+        "crm.appointments.update": "branch",
+        "crm.appointments.delete": "branch",
+        "crm.appointments.export": "branch",
+        "students.profiles.view": "branch",
+        "academic.sessions.view": "branch",
+        "academic.rooms.view": "branch",
+        "finance.invoices.view": "branch",
+        "finance.invoices.create": "branch",
+        "work.shifts.view": "own",
+        "work.handover.view": "own",
+        "work.handover.create": "own",
+        "hr.requests.view": "own",
+        "hr.requests.create": "own",
+        "work.tasks.view": "own",
+        "work.tasks.update": "own"
+      }
+    },
+    {
+      "id": "R-TL",
+      "name": "Trưởng nhóm Sale",
+      "description": "Như Sale + xem lead cả chi nhánh, chia lead, xem hoa hồng nhóm.",
+      "system": false,
+      "updatedAt": "2026-11-12T04:40:34.445Z",
+      "updatedBy": "Lê Hoàng Nam",
+      "grants": {
+        "dashboard.overview.view": "branch",
+        "dashboard.reports.view": "branch",
+        "crm.leads.view": "branch",
+        "crm.leads.create": "branch",
+        "crm.leads.update": "branch",
+        "crm.leads.delete": "branch",
+        "crm.leads.export": "branch",
+        "crm.lead-rules.view": "branch",
+        "crm.lead-rules.update": "branch",
+        "crm.placement-tests.view": "branch",
+        "crm.placement-tests.create": "branch",
+        "crm.placement-tests.update": "branch",
+        "crm.placement-tests.delete": "branch",
+        "crm.placement-tests.export": "branch",
+        "crm.campaigns.view": "all",
+        "crm.appointments.view": "branch",
+        "crm.appointments.create": "branch",
+        "crm.appointments.update": "branch",
+        "crm.appointments.delete": "branch",
+        "crm.appointments.export": "branch",
+        "crm.funnel.view": "branch",
+        "crm.message-templates.view": "branch",
+        "crm.message-templates.create": "branch",
+        "crm.message-templates.update": "branch",
+        "crm.message-templates.delete": "branch",
+        "crm.message-templates.export": "branch",
+        "crm.promotions.view": "branch",
+        "crm.promotions.create": "branch",
+        "crm.promotions.update": "branch",
+        "crm.promotions.delete": "branch",
+        "crm.promotions.export": "branch",
+        "students.profiles.view": "branch",
+        "finance.commissions.view": "branch",
+        "work.shifts.view": "branch",
+        "work.shifts.approve": "branch",
+        "work.handover.view": "branch",
+        "work.handover.create": "branch",
+        "work.handover.update": "branch",
+        "work.handover.delete": "branch",
+        "work.handover.export": "branch",
+        "work.handover.approve": "branch",
+        "hr.requests.view": "own",
+        "hr.requests.create": "own",
+        "work.tasks.view": "own",
+        "work.tasks.update": "own"
+      }
+    }
+  ],
+  "staffAccounts": [
+    {
+      "userId": "e-huy",
+      "email": "superadmin@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-SA",
+          "branchIds": []
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-17T04:10:34.445Z",
+      "fullName": "Đỗ Quang Huy"
+    },
+    {
+      "userId": "e-trang",
+      "email": "admin@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-AD",
+          "branchIds": []
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-16T21:33:34.445Z",
+      "fullName": "Phạm Thu Trang"
+    },
+    {
+      "userId": "e-nam",
+      "email": "quanly.caugiay@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-BM",
+          "branchIds": [
+            "cg"
+          ]
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-16T14:56:34.445Z",
+      "fullName": "Lê Hoàng Nam"
+    },
+    {
+      "userId": "e-q1m",
+      "email": "duc.q1m@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-BM",
+          "branchIds": [
+            "q1"
+          ]
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-16T08:19:34.445Z",
+      "fullName": "Châu Minh Đức"
+    },
+    {
+      "userId": "e-hcm",
+      "email": "hien.hcm@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-BM",
+          "branchIds": [
+            "hc"
+          ]
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-16T01:42:34.445Z",
+      "fullName": "Lâm Thị Hiền"
+    },
+    {
+      "userId": "e-mai",
+      "email": "giaovu@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-GV",
+          "branchIds": [
+            "cg",
+            "hc"
+          ]
+        }
+      ],
+      "overrides": [
+        {
+          "id": "OV-1",
+          "perm": "finance.debts.view",
+          "effect": "grant",
+          "scope": "branch",
+          "until": "2026-11-24T16:59:59.999Z",
+          "reason": "Hỗ trợ nhắc nợ đợt khai giảng tháng 11",
+          "by": "Lê Hoàng Nam",
+          "at": "2026-11-15T04:40:34.446Z"
+        }
+      ],
+      "lastLoginAt": "2026-11-15T19:05:34.445Z",
+      "fullName": "Vũ Ngọc Mai"
+    },
+    {
+      "userId": "e-hong",
+      "email": "hong.hong@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-GV",
+          "branchIds": [
+            "cg"
+          ]
+        }
+      ],
+      "overrides": [
+        {
+          "id": "OV-3",
+          "perm": "finance.reconciliation.view",
+          "effect": "grant",
+          "scope": "branch",
+          "until": "2026-11-14T04:40:34.446Z",
+          "reason": "Thay kế toán nghỉ phép",
+          "by": "Hoàng Thị Lan",
+          "at": "2026-11-07T04:40:34.446Z"
+        }
+      ],
+      "lastLoginAt": "2026-11-15T12:28:34.445Z",
+      "fullName": "Phạm Thị Hồng"
+    },
+    {
+      "userId": "e-chau",
+      "email": "chau.chau@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-GV",
+          "branchIds": [
+            "q1"
+          ]
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-15T05:51:34.445Z",
+      "fullName": "Phan Minh Châu"
+    },
+    {
+      "userId": "e-duyen",
+      "email": "duyen.duyen@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-GV",
+          "branchIds": [
+            "hc"
+          ]
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-16T23:14:34.445Z",
+      "fullName": "Trương Mỹ Duyên"
+    },
+    {
+      "userId": "e-lan",
+      "email": "ketoan@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-KT",
+          "branchIds": []
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-16T16:37:34.445Z",
+      "fullName": "Hoàng Thị Lan"
+    },
+    {
+      "userId": "e-lan2",
+      "email": "lan.lan2@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-KT",
+          "branchIds": []
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-16T10:00:34.445Z",
+      "fullName": "Ngô Thị Lan"
+    },
+    {
+      "userId": "e-baoanh",
+      "email": "marketing@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-MKT",
+          "branchIds": []
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-16T03:23:34.445Z",
+      "fullName": "Ngô Bảo Anh"
+    },
+    {
+      "userId": "e-bao",
+      "email": "bao.bao@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-TL",
+          "branchIds": [
+            "cg"
+          ]
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-15T20:46:34.445Z",
+      "fullName": "Đinh Quốc Bảo"
+    },
+    {
+      "userId": "e-tung",
+      "email": "tung.tung@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-SALE",
+          "branchIds": [
+            "cg"
+          ]
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-15T14:09:34.445Z",
+      "fullName": "Nguyễn Thanh Tùng"
+    },
+    {
+      "userId": "e-nhu",
+      "email": "nhu.nhu@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-SALE",
+          "branchIds": [
+            "cg"
+          ]
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-15T07:32:34.445Z",
+      "fullName": "Hồ Quỳnh Như"
+    },
+    {
+      "userId": "e-hang",
+      "email": "hang.hang@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-LT",
+          "branchIds": [
+            "cg"
+          ]
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-17T00:55:34.445Z",
+      "fullName": "Đặng Thu Hằng"
+    },
+    {
+      "userId": "e-khoa",
+      "email": "sale@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-SALE",
+          "branchIds": [
+            "q1"
+          ]
+        }
+      ],
+      "overrides": [
+        {
+          "id": "OV-2",
+          "perm": "crm.leads.export",
+          "effect": "deny",
+          "reason": "Chính sách bảo mật dữ liệu khách hàng — Sale không xuất file lead",
+          "by": "Phạm Thu Trang",
+          "at": "2026-10-28T04:40:34.446Z"
+        }
+      ],
+      "lastLoginAt": "2026-11-16T18:18:34.445Z",
+      "fullName": "Trần Minh Khoa"
+    },
+    {
+      "userId": "e-han",
+      "email": "han.han@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-SALE",
+          "branchIds": [
+            "q1"
+          ]
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-16T11:41:34.445Z",
+      "fullName": "Bùi Ngọc Hân"
+    },
+    {
+      "userId": "e-linh",
+      "email": "linh.linh@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-LT",
+          "branchIds": [
+            "q1"
+          ]
+        },
+        {
+          "roleId": "R-SALE",
+          "branchIds": [
+            "q1"
+          ]
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-16T05:04:34.445Z",
+      "fullName": "Lưu Gia Linh"
+    },
+    {
+      "userId": "e-vy",
+      "email": "vy.vy@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-SALE",
+          "branchIds": [
+            "hc"
+          ]
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-15T22:27:34.445Z",
+      "fullName": "Lý Thanh Vy"
+    },
+    {
+      "userId": "e-dat",
+      "email": "dat.dat@jpcenter.vn",
+      "status": "locked",
+      "roles": [
+        {
+          "roleId": "R-SALE",
+          "branchIds": [
+            "q1"
+          ]
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-10-08T04:40:34.446Z",
+      "lockedReason": "Nghỉ việc — khóa tự động khi chấm dứt hợp đồng",
+      "fullName": "Mai Văn Đạt"
+    },
+    {
+      "userId": "t-ha",
+      "email": "giaovien@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-TEACHER",
+          "branchIds": [
+            "cg"
+          ]
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-15T09:13:34.446Z",
+      "fullName": "Nguyễn Thu Hà"
+    },
+    {
+      "userId": "t-anh",
+      "email": "anh.t.anh@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-TEACHER",
+          "branchIds": [
+            "cg"
+          ]
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-17T02:36:34.446Z",
+      "fullName": "Trần Mai Anh"
+    },
+    {
+      "userId": "t-long",
+      "email": "long.t.long@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-TEACHER",
+          "branchIds": [
+            "cg"
+          ]
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-16T19:59:34.446Z",
+      "fullName": "Phạm Đức Long"
+    },
+    {
+      "userId": "t-thu",
+      "email": "thu.t.thu@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-TEACHER",
+          "branchIds": [
+            "q1"
+          ]
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-16T13:22:34.446Z",
+      "fullName": "Lê Minh Thư"
+    },
+    {
+      "userId": "t-hanh",
+      "email": "hanh.t.hanh@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-TEACHER",
+          "branchIds": [
+            "hc"
+          ]
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-16T06:45:34.446Z",
+      "fullName": "Võ Thị Hạnh"
+    },
+    {
+      "userId": "t-sato",
+      "email": "yuki.t.sato@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-TEACHER",
+          "branchIds": [
+            "q1"
+          ]
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-16T00:08:34.446Z",
+      "fullName": "Sato Yuki"
+    },
+    {
+      "userId": "t-tanaka",
+      "email": "ken.t.tanaka@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-TEACHER",
+          "branchIds": [
+            "cg"
+          ]
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-15T17:31:34.446Z",
+      "fullName": "Tanaka Ken"
+    },
+    {
+      "userId": "ta-linh",
+      "email": "linh.ta.linh@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-TEACHER",
+          "branchIds": [
+            "cg"
+          ]
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-15T10:54:34.446Z",
+      "fullName": "Đỗ Thùy Linh"
+    },
+    {
+      "userId": "ta-quan",
+      "email": "quan.ta.quan@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-TEACHER",
+          "branchIds": [
+            "hc"
+          ]
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-15T04:17:34.446Z",
+      "fullName": "Hà Minh Quân"
+    },
+    {
+      "userId": "ta-mai",
+      "email": "mai.ta.mai@jpcenter.vn",
+      "status": "active",
+      "roles": [
+        {
+          "roleId": "R-TEACHER",
+          "branchIds": [
+            "q1"
+          ]
+        }
+      ],
+      "overrides": [],
+      "lastLoginAt": "2026-11-16T21:40:34.446Z",
+      "fullName": "Lâm Ngọc Mai"
+    }
+  ],
+  "portalAccounts": [
+    {
+      "id": "ACC-S-ST-1",
+      "ownerType": "student",
+      "ownerId": "ST-1",
+      "username": "hv1000",
+      "email": "hocvien@jpcenter.vn",
+      "status": "active",
+      "createdAt": "2026-01-01T02:00:00.437Z",
+      "lastLoginAt": "2026-11-17T02:40:34.441Z",
+      "displayName": "Nguyễn Văn An"
+    },
+    {
+      "id": "ACC-S-ST-2",
+      "ownerType": "student",
+      "ownerId": "ST-2",
+      "username": "hv1001",
+      "status": "active",
+      "createdAt": "2026-10-03T02:00:00.437Z",
+      "lastLoginAt": "2026-11-16T19:40:34.441Z",
+      "displayName": "Nguyễn Gia Bảo"
+    },
+    {
+      "id": "ACC-S-ST-3",
+      "ownerType": "student",
+      "ownerId": "ST-3",
+      "username": "hv1002",
+      "email": "phuc.le@outlook.com",
+      "status": "active",
+      "createdAt": "2026-01-31T02:00:00.437Z",
+      "lastLoginAt": "2026-11-16T12:40:34.441Z",
+      "displayName": "Lê Hoàng Phúc"
+    },
+    {
+      "id": "ACC-S-ST-4",
+      "ownerType": "student",
+      "ownerId": "ST-4",
+      "username": "hv1003",
+      "status": "active",
+      "createdAt": "2026-08-29T02:00:00.437Z",
+      "displayName": "Đỗ Minh Tuấn"
+    },
+    {
+      "id": "ACC-S-ST-5",
+      "ownerType": "student",
+      "ownerId": "ST-5",
+      "username": "hv1004",
+      "email": "giang.ht@gmail.com",
+      "status": "active",
+      "createdAt": "2026-02-20T02:00:00.437Z",
+      "lastLoginAt": "2026-11-15T22:40:34.441Z",
+      "displayName": "Hoàng Thu Giang"
+    },
+    {
+      "id": "ACC-S-ST-6",
+      "ownerType": "student",
+      "ownerId": "ST-6",
+      "username": "hv1005",
+      "email": "hocvien5@gmail.com",
+      "status": "active",
+      "createdAt": "2026-10-28T02:00:00.437Z",
+      "lastLoginAt": "2026-11-15T15:40:34.441Z",
+      "displayName": "Nguyễn Văn Anh"
+    },
+    {
+      "id": "ACC-S-ST-7",
+      "ownerType": "student",
+      "ownerId": "ST-7",
+      "username": "hv1006",
+      "status": "locked",
+      "createdAt": "2026-10-17T02:00:00.437Z",
+      "lastLoginAt": "2026-11-15T08:40:34.441Z",
+      "displayName": "Bùi Đức Hiếu"
+    },
+    {
+      "id": "ACC-S-ST-8",
+      "ownerType": "student",
+      "ownerId": "ST-8",
+      "username": "hv1007",
+      "status": "active",
+      "createdAt": "2026-10-06T02:00:00.437Z",
+      "displayName": "Hoàng Hải Sơn"
+    },
+    {
+      "id": "ACC-S-ST-9",
+      "ownerType": "student",
+      "ownerId": "ST-9",
+      "username": "hv1008",
+      "email": "hocvien8@gmail.com",
+      "status": "active",
+      "createdAt": "2026-09-25T02:00:00.437Z",
+      "lastLoginAt": "2026-11-14T18:40:34.441Z",
+      "displayName": "Trần Thị Bích"
+    },
+    {
+      "id": "ACC-S-ST-10",
+      "ownerType": "student",
+      "ownerId": "ST-10",
+      "username": "hv1009",
+      "status": "active",
+      "createdAt": "2026-09-14T02:00:00.437Z",
+      "lastLoginAt": "2026-11-14T11:40:34.441Z",
+      "displayName": "Đỗ Thu Lan"
+    },
+    {
+      "id": "ACC-S-ST-11",
+      "ownerType": "student",
+      "ownerId": "ST-11",
+      "username": "hv1010",
+      "status": "active",
+      "createdAt": "2026-09-03T02:00:00.437Z",
+      "lastLoginAt": "2026-11-14T04:40:34.441Z",
+      "displayName": "Vũ Quang Thảo"
+    },
+    {
+      "id": "ACC-S-ST-12",
+      "ownerType": "student",
+      "ownerId": "ST-12",
+      "username": "hv1011",
+      "email": "hocvien11@gmail.com",
+      "status": "active",
+      "createdAt": "2026-08-23T02:00:00.437Z",
+      "displayName": "Lê Minh Cường"
+    },
+    {
+      "id": "ACC-S-ST-13",
+      "ownerType": "student",
+      "ownerId": "ST-13",
+      "username": "hv1012",
+      "status": "active",
+      "createdAt": "2026-08-12T02:00:00.437Z",
+      "lastLoginAt": "2026-11-13T14:40:34.441Z",
+      "displayName": "Ngô Ngọc Long"
+    },
+    {
+      "id": "ACC-S-ST-14",
+      "ownerType": "student",
+      "ownerId": "ST-14",
+      "username": "hv1013",
+      "status": "active",
+      "createdAt": "2026-08-01T02:00:00.437Z",
+      "lastLoginAt": "2026-11-13T07:40:34.441Z",
+      "displayName": "Đặng Văn Vinh"
+    },
+    {
+      "id": "ACC-S-ST-15",
+      "ownerType": "student",
+      "ownerId": "ST-15",
+      "username": "hv1014",
+      "email": "hocvien14@gmail.com",
+      "status": "inactive",
+      "createdAt": "2026-07-21T02:00:00.437Z",
+      "lastLoginAt": "2026-11-13T00:40:34.441Z",
+      "displayName": "Phạm Đức Duy"
+    },
+    {
+      "id": "ACC-S-ST-16",
+      "ownerType": "student",
+      "ownerId": "ST-16",
+      "username": "hv1015",
+      "status": "active",
+      "createdAt": "2026-07-10T02:00:00.437Z",
+      "displayName": "Nguyễn Hải My"
+    },
+    {
+      "id": "ACC-S-ST-18",
+      "ownerType": "student",
+      "ownerId": "ST-18",
+      "username": "hv1017",
+      "email": "hocvien17@gmail.com",
+      "status": "active",
+      "createdAt": "2026-06-18T02:00:00.437Z",
+      "lastLoginAt": "2026-11-12T10:40:34.441Z",
+      "displayName": "Hoàng Thu Hạnh"
+    },
+    {
+      "id": "ACC-S-ST-19",
+      "ownerType": "student",
+      "ownerId": "ST-19",
+      "username": "hv1018",
+      "status": "inactive",
+      "createdAt": "2026-06-07T02:00:00.437Z",
+      "lastLoginAt": "2026-11-12T03:40:34.441Z",
+      "displayName": "Trần Quang Nhung"
+    },
+    {
+      "id": "ACC-S-ST-20",
+      "ownerType": "student",
+      "ownerId": "ST-20",
+      "username": "hv1019",
+      "status": "active",
+      "createdAt": "2026-05-27T02:00:00.437Z",
+      "lastLoginAt": "2026-11-11T20:40:34.441Z",
+      "displayName": "Đỗ Minh Anh"
+    },
+    {
+      "id": "ACC-S-ST-21",
+      "ownerType": "student",
+      "ownerId": "ST-21",
+      "username": "hv1020",
+      "email": "hocvien20@gmail.com",
+      "status": "active",
+      "createdAt": "2026-05-16T02:00:00.437Z",
+      "displayName": "Vũ Ngọc Hiếu"
+    },
+    {
+      "id": "ACC-S-ST-22",
+      "ownerType": "student",
+      "ownerId": "ST-22",
+      "username": "hv1021",
+      "status": "active",
+      "createdAt": "2026-05-05T02:00:00.437Z",
+      "lastLoginAt": "2026-11-11T06:40:34.441Z",
+      "displayName": "Lê Văn Sơn"
+    },
+    {
+      "id": "ACC-S-ST-23",
+      "ownerType": "student",
+      "ownerId": "ST-23",
+      "username": "hv1022",
+      "status": "active",
+      "createdAt": "2026-04-24T02:00:00.437Z",
+      "lastLoginAt": "2026-11-10T23:40:34.441Z",
+      "displayName": "Ngô Đức Bích"
+    },
+    {
+      "id": "ACC-S-ST-24",
+      "ownerType": "student",
+      "ownerId": "ST-24",
+      "username": "hv1023",
+      "email": "hocvien23@gmail.com",
+      "status": "active",
+      "createdAt": "2026-04-13T02:00:00.437Z",
+      "lastLoginAt": "2026-11-10T16:40:34.441Z",
+      "displayName": "Đặng Hải Lan"
+    },
+    {
+      "id": "ACC-S-ST-26",
+      "ownerType": "student",
+      "ownerId": "ST-26",
+      "username": "hv1025",
+      "status": "active",
+      "createdAt": "2026-03-22T02:00:00.437Z",
+      "displayName": "Nguyễn Thu Cường"
+    },
+    {
+      "id": "ACC-S-ST-27",
+      "ownerType": "student",
+      "ownerId": "ST-27",
+      "username": "hv1026",
+      "email": "hocvien26@gmail.com",
+      "status": "active",
+      "createdAt": "2026-03-11T02:00:00.437Z",
+      "lastLoginAt": "2026-11-10T02:40:34.441Z",
+      "displayName": "Bùi Quang Long"
+    },
+    {
+      "id": "ACC-S-ST-28",
+      "ownerType": "student",
+      "ownerId": "ST-28",
+      "username": "hv1027",
+      "status": "active",
+      "createdAt": "2026-02-28T02:00:00.437Z",
+      "lastLoginAt": "2026-11-09T19:40:34.441Z",
+      "displayName": "Hoàng Minh Vinh"
+    },
+    {
+      "id": "ACC-S-ST-29",
+      "ownerType": "student",
+      "ownerId": "ST-29",
+      "username": "hv1028",
+      "status": "active",
+      "createdAt": "2026-02-17T02:00:00.437Z",
+      "lastLoginAt": "2026-11-09T12:40:34.441Z",
+      "displayName": "Trần Ngọc Duy"
+    },
+    {
+      "id": "ACC-S-ST-30",
+      "ownerType": "student",
+      "ownerId": "ST-30",
+      "username": "hv1029",
+      "email": "hocvien29@gmail.com",
+      "status": "active",
+      "createdAt": "2026-02-06T02:00:00.437Z",
+      "displayName": "Đỗ Văn My"
+    },
+    {
+      "id": "ACC-S-ST-31",
+      "ownerType": "student",
+      "ownerId": "ST-31",
+      "username": "hv1030",
+      "status": "inactive",
+      "createdAt": "2026-01-26T02:00:00.437Z",
+      "lastLoginAt": "2026-11-08T22:40:34.441Z",
+      "displayName": "Vũ Đức Xuân"
+    },
+    {
+      "id": "ACC-S-ST-32",
+      "ownerType": "student",
+      "ownerId": "ST-32",
+      "username": "hv1031",
+      "status": "active",
+      "createdAt": "2026-01-15T02:00:00.437Z",
+      "lastLoginAt": "2026-11-08T15:40:34.441Z",
+      "displayName": "Lê Hải Hạnh"
+    },
+    {
+      "id": "ACC-S-ST-34",
+      "ownerType": "student",
+      "ownerId": "ST-34",
+      "username": "hv1033",
+      "status": "active",
+      "createdAt": "2025-12-24T02:00:00.437Z",
+      "lastLoginAt": "2026-11-08T08:40:34.441Z",
+      "displayName": "Đặng Thu Anh"
+    },
+    {
+      "id": "ACC-S-ST-35",
+      "ownerType": "student",
+      "ownerId": "ST-35",
+      "username": "hv1034",
+      "status": "inactive",
+      "createdAt": "2025-12-13T02:00:00.437Z",
+      "displayName": "Phạm Quang Hiếu"
+    },
+    {
+      "id": "ACC-S-ST-36",
+      "ownerType": "student",
+      "ownerId": "ST-36",
+      "username": "hv1035",
+      "email": "hocvien35@gmail.com",
+      "status": "active",
+      "createdAt": "2025-12-02T02:00:00.437Z",
+      "lastLoginAt": "2026-11-07T18:40:34.441Z",
+      "displayName": "Nguyễn Minh Sơn"
+    },
+    {
+      "id": "ACC-G-1",
+      "ownerType": "guardian",
+      "ownerId": "L-0001",
+      "username": "ph.0912345678",
+      "email": "phuhuynh@jpcenter.vn",
+      "status": "active",
+      "createdAt": "2026-10-04T02:00:00.441Z",
+      "lastLoginAt": "2026-11-16T04:40:34.441Z",
+      "displayName": "Nguyễn Văn Bình"
+    },
+    {
+      "id": "ACC-G-2",
+      "ownerType": "guardian",
+      "ownerId": "L-0018",
+      "username": "ph.lead0018",
+      "status": "active",
+      "createdAt": "2026-08-24T02:00:00.441Z",
+      "lastLoginAt": "2026-11-11T04:40:34.441Z",
+      "displayName": "Trần Thị Yến"
+    },
+    {
+      "id": "ACC-G-3",
+      "ownerType": "guardian",
+      "ownerId": "L-0039",
+      "username": "ph.lead0039",
+      "status": "locked",
+      "createdAt": "2026-10-20T02:00:00.441Z",
+      "displayName": "Lê Văn Khánh"
+    }
+  ],
+  "integrations": [
+    {
+      "id": "zalo-oa",
+      "name": "Zalo OA",
+      "category": "notify",
+      "description": "Gửi thông báo ZNS cho phụ huynh, học viên: điểm danh, nhắc học phí, lịch học.",
+      "status": "connected",
+      "account": "JP Center – Tiếng Nhật",
+      "connectedAt": "2026-05-01T04:40:34.446Z",
+      "connectedBy": "Đỗ Quang Huy",
+      "lastSyncAt": "2026-11-17T04:36:34.446Z",
+      "fields": [
+        {
+          "key": "oaId",
+          "label": "OA ID"
+        },
+        {
+          "key": "appId",
+          "label": "App ID"
+        },
+        {
+          "key": "secret",
+          "label": "Secret key",
+          "secret": true
+        }
+      ],
+      "config": {
+        "oaId": "4318826621947740",
+        "appId": "1290556631",
+        "secret": "zx9K2mPq7vL0aB4n"
+      },
+      "events": [
+        {
+          "key": "attendance",
+          "label": "Báo vắng học cho phụ huynh",
+          "on": true
+        },
+        {
+          "key": "tuition",
+          "label": "Nhắc học phí sắp đến hạn / quá hạn",
+          "on": true
+        },
+        {
+          "key": "schedule",
+          "label": "Đổi lịch / hủy buổi học",
+          "on": true
+        },
+        {
+          "key": "result",
+          "label": "Kết quả kiểm tra",
+          "on": false
+        }
+      ],
+      "usage": {
+        "label": "tin ZNS đã gửi",
+        "value": 1842,
+        "failed": 37
+      }
+    },
+    {
+      "id": "sms",
+      "name": "SMS Brandname",
+      "category": "notify",
+      "description": "Dự phòng khi Zalo không gửi được; gửi OTP đăng nhập.",
+      "status": "connected",
+      "account": "JPCENTER",
+      "connectedAt": "2026-01-21T04:40:34.446Z",
+      "connectedBy": "Đỗ Quang Huy",
+      "lastSyncAt": "2026-11-17T03:45:34.446Z",
+      "fields": [
+        {
+          "key": "brandname",
+          "label": "Brandname"
+        },
+        {
+          "key": "apiKey",
+          "label": "API key",
+          "secret": true
+        }
+      ],
+      "config": {
+        "brandname": "JPCENTER",
+        "apiKey": "sk_live_88f1c0a2d9"
+      },
+      "events": [
+        {
+          "key": "otp",
+          "label": "OTP đăng nhập / quên mật khẩu",
+          "on": true
+        },
+        {
+          "key": "fallback",
+          "label": "Gửi thay khi Zalo lỗi",
+          "on": true
+        }
+      ],
+      "usage": {
+        "label": "SMS đã gửi",
+        "value": 312,
+        "failed": 2
+      }
+    },
+    {
+      "id": "email",
+      "name": "Email (SMTP)",
+      "category": "notify",
+      "description": "Gửi hóa đơn, phiếu thu, link test xếp lớp, thư mời tài khoản.",
+      "status": "connected",
+      "account": "no-reply@jpcenter.vn",
+      "connectedAt": "2025-10-13T04:40:34.446Z",
+      "connectedBy": "Phạm Anh Tuấn",
+      "lastSyncAt": "2026-11-17T04:28:34.446Z",
+      "fields": [
+        {
+          "key": "host",
+          "label": "SMTP host"
+        },
+        {
+          "key": "port",
+          "label": "Cổng"
+        },
+        {
+          "key": "user",
+          "label": "Tài khoản"
+        },
+        {
+          "key": "pass",
+          "label": "Mật khẩu",
+          "secret": true
+        }
+      ],
+      "config": {
+        "host": "smtp.gmail.com",
+        "port": "587",
+        "user": "no-reply@jpcenter.vn",
+        "pass": "app-password-xyz"
+      },
+      "events": [
+        {
+          "key": "invoice",
+          "label": "Hóa đơn & phiếu thu",
+          "on": true
+        },
+        {
+          "key": "invite",
+          "label": "Mời tạo tài khoản",
+          "on": true
+        },
+        {
+          "key": "test",
+          "label": "Link test xếp lớp",
+          "on": true
+        }
+      ],
+      "usage": {
+        "label": "email đã gửi",
+        "value": 964,
+        "failed": 5
+      }
+    },
+    {
+      "id": "vietqr",
+      "name": "VietQR + Webhook ngân hàng",
+      "category": "payment",
+      "description": "Sinh mã QR theo hóa đơn, nhận biến động số dư để tự đối soát.",
+      "status": "connected",
+      "account": "3 tài khoản chi nhánh",
+      "connectedAt": "2026-06-20T04:40:34.446Z",
+      "connectedBy": "Hoàng Thị Lan",
+      "lastSyncAt": "2026-11-17T04:38:34.446Z",
+      "fields": [
+        {
+          "key": "clientId",
+          "label": "Client ID"
+        },
+        {
+          "key": "apiKey",
+          "label": "API key",
+          "secret": true
+        },
+        {
+          "key": "checksum",
+          "label": "Checksum key",
+          "secret": true
+        }
+      ],
+      "config": {
+        "clientId": "jpc-2291",
+        "apiKey": "qr_live_7d1e9a",
+        "checksum": "cs_31be77"
+      },
+      "events": [
+        {
+          "key": "qr",
+          "label": "In mã QR trên hóa đơn",
+          "on": true
+        },
+        {
+          "key": "autoMatch",
+          "label": "Tự khớp giao dịch theo nội dung chuyển khoản",
+          "on": true
+        }
+      ],
+      "usage": {
+        "label": "giao dịch nhận",
+        "value": 428,
+        "failed": 9
+      },
+      "webhook": "https://api.jpcenter.vn/webhooks/bank/7f3a9c"
+    },
+    {
+      "id": "zoom",
+      "name": "Zoom",
+      "category": "meeting",
+      "description": "Tự tạo phòng họp cho buổi học online, gửi link vào lịch học viên.",
+      "status": "error",
+      "account": "zoom@jpcenter.vn",
+      "connectedAt": "2026-08-19T04:40:34.446Z",
+      "connectedBy": "Phạm Anh Tuấn",
+      "lastSyncAt": "2026-11-16T02:40:34.446Z",
+      "error": "Token hết hạn (401 Unauthorized) — cần kết nối lại. 3 buổi học online sắp tới chưa có link.",
+      "fields": [
+        {
+          "key": "accountId",
+          "label": "Account ID"
+        },
+        {
+          "key": "clientId",
+          "label": "Client ID"
+        },
+        {
+          "key": "clientSecret",
+          "label": "Client secret",
+          "secret": true
+        }
+      ],
+      "config": {
+        "accountId": "aZk2-91pQ",
+        "clientId": "Zm_8812",
+        "clientSecret": "zs_old_secret"
+      },
+      "events": [
+        {
+          "key": "autoRoom",
+          "label": "Tự tạo phòng khi lên lịch buổi online",
+          "on": true
+        },
+        {
+          "key": "record",
+          "label": "Lưu bản ghi vào tài liệu lớp",
+          "on": false
+        }
+      ],
+      "usage": {
+        "label": "phòng đã tạo",
+        "value": 64,
+        "failed": 3
+      }
+    },
+    {
+      "id": "meet",
+      "name": "Google Meet",
+      "category": "meeting",
+      "description": "Thay thế Zoom cho lớp nhỏ / học thử.",
+      "status": "disconnected",
+      "fields": [
+        {
+          "key": "domain",
+          "label": "Google Workspace domain"
+        }
+      ],
+      "config": {},
+      "events": [
+        {
+          "key": "autoRoom",
+          "label": "Tự tạo phòng khi lên lịch buổi online",
+          "on": false
+        }
+      ]
+    },
+    {
+      "id": "fb-lead",
+      "name": "Facebook Lead Ads",
+      "category": "lead",
+      "description": "Lead từ form quảng cáo Facebook tự vào CRM, gắn chiến dịch theo UTM, chia theo quy tắc.",
+      "status": "connected",
+      "account": "Fanpage: JP Center – Học tiếng Nhật",
+      "connectedAt": "2026-07-20T04:40:34.446Z",
+      "connectedBy": "Ngô Bảo Anh",
+      "lastSyncAt": "2026-11-17T03:52:34.446Z",
+      "fields": [
+        {
+          "key": "pageId",
+          "label": "Page ID"
+        },
+        {
+          "key": "token",
+          "label": "Page access token",
+          "secret": true
+        }
+      ],
+      "config": {
+        "pageId": "102938475610",
+        "token": "EAAG_page_token"
+      },
+      "events": [
+        {
+          "key": "import",
+          "label": "Tạo lead tự động",
+          "on": true
+        },
+        {
+          "key": "dedupe",
+          "label": "Bỏ qua nếu trùng SĐT (ghi chú vào lead cũ)",
+          "on": true
+        }
+      ],
+      "usage": {
+        "label": "lead nhận về",
+        "value": 86,
+        "failed": 1
+      }
+    },
+    {
+      "id": "web-form",
+      "name": "Form website",
+      "category": "lead",
+      "description": "Form đăng ký tư vấn / học thử trên jpcenter.vn gửi thẳng vào CRM.",
+      "status": "connected",
+      "account": "jpcenter.vn",
+      "connectedAt": "2025-11-02T04:40:34.446Z",
+      "connectedBy": "Phạm Anh Tuấn",
+      "lastSyncAt": "2026-11-17T04:34:34.446Z",
+      "fields": [
+        {
+          "key": "domain",
+          "label": "Tên miền cho phép"
+        }
+      ],
+      "config": {
+        "domain": "jpcenter.vn"
+      },
+      "events": [
+        {
+          "key": "import",
+          "label": "Tạo lead tự động",
+          "on": true
+        },
+        {
+          "key": "captcha",
+          "label": "Bắt buộc captcha",
+          "on": true
+        }
+      ],
+      "usage": {
+        "label": "lead nhận về",
+        "value": 54,
+        "failed": 0
+      },
+      "webhook": "https://api.jpcenter.vn/webhooks/lead/web-4c21"
+    },
+    {
+      "id": "tiktok-lead",
+      "name": "TikTok Lead Generation",
+      "category": "lead",
+      "description": "Lead từ form Instant Form trên TikTok.",
+      "status": "disconnected",
+      "fields": [
+        {
+          "key": "advertiserId",
+          "label": "Advertiser ID"
+        },
+        {
+          "key": "token",
+          "label": "Access token",
+          "secret": true
+        }
+      ],
+      "config": {},
+      "events": [
+        {
+          "key": "import",
+          "label": "Tạo lead tự động",
+          "on": false
+        }
+      ]
+    }
+  ],
+  "integrationLogs": [
+    {
+      "id": "IL-1",
+      "integrationId": "zalo-oa",
+      "at": "2026-11-17T04:36:34.446Z",
+      "ok": true,
+      "message": "Gửi ZNS \"Báo vắng\" cho PH Nguyễn Văn Bình (HV Nguyễn Văn An)"
+    },
+    {
+      "id": "IL-2",
+      "integrationId": "zalo-oa",
+      "at": "2026-11-17T04:05:34.446Z",
+      "ok": false,
+      "message": "Gửi ZNS thất bại: người nhận chưa quan tâm OA → chuyển SMS"
+    },
+    {
+      "id": "IL-3",
+      "integrationId": "zalo-oa",
+      "at": "2026-11-17T03:10:34.446Z",
+      "ok": true,
+      "message": "Gửi 42 ZNS \"Nhắc học phí\" (lô tự động 9:00)"
+    },
+    {
+      "id": "IL-4",
+      "integrationId": "sms",
+      "at": "2026-11-17T04:05:34.446Z",
+      "ok": true,
+      "message": "Gửi SMS thay thế cho 0987654321"
+    },
+    {
+      "id": "IL-5",
+      "integrationId": "vietqr",
+      "at": "2026-11-17T04:38:34.446Z",
+      "ok": true,
+      "message": "Nhận +4.500.000₫ \"HD CG2611 NGUYEN VAN AN\" → khớp hóa đơn tự động"
+    },
+    {
+      "id": "IL-6",
+      "integrationId": "vietqr",
+      "at": "2026-11-17T03:30:34.446Z",
+      "ok": false,
+      "message": "Nhận +1.200.000₫ nội dung \"chuyen tien hoc\" → không khớp, chờ đối soát tay"
+    },
+    {
+      "id": "IL-7",
+      "integrationId": "zoom",
+      "at": "2026-11-16T02:40:34.446Z",
+      "ok": false,
+      "message": "401 Unauthorized khi tạo phòng cho buổi N3-K12 #18"
+    },
+    {
+      "id": "IL-8",
+      "integrationId": "zoom",
+      "at": "2026-11-16T01:40:34.446Z",
+      "ok": true,
+      "message": "Tạo phòng cho buổi KAIWA-ON #6"
+    },
+    {
+      "id": "IL-9",
+      "integrationId": "fb-lead",
+      "at": "2026-11-17T03:52:34.446Z",
+      "ok": true,
+      "message": "Lead mới Phạm Gia Huy (form \"Khai giảng N5\") → chia cho Trần Minh Khoa"
+    },
+    {
+      "id": "IL-10",
+      "integrationId": "fb-lead",
+      "at": "2026-11-16T23:40:34.446Z",
+      "ok": false,
+      "message": "Lead trùng SĐT 0912345678 → ghi chú vào LD0001"
+    },
+    {
+      "id": "IL-11",
+      "integrationId": "web-form",
+      "at": "2026-11-17T04:34:34.446Z",
+      "ok": true,
+      "message": "Lead mới Võ Thanh Tâm (form \"Học thử Kaiwa\")"
+    },
+    {
+      "id": "IL-12",
+      "integrationId": "email",
+      "at": "2026-11-17T04:28:34.446Z",
+      "ok": true,
+      "message": "Gửi hóa đơn HD-CG-0192 tới binh.nguyen@gmail.com"
+    }
+  ],
+  "auditLogs": [
+    {
+      "id": "AU-1",
+      "at": "2026-11-17T04:37:34.446Z",
+      "actor": "Trần Minh Khoa",
+      "actorRole": "Sale",
+      "ip": "113.190.37.91",
+      "device": "Safari · iPhone",
+      "branchId": "q1",
+      "category": "auth",
+      "severity": "info",
+      "action": "Đăng nhập",
+      "target": "sale@jpcenter.vn"
+    },
+    {
+      "id": "AU-2",
+      "at": "2026-11-17T04:31:34.446Z",
+      "actor": "Hoàng Thị Lan",
+      "actorRole": "Kế toán",
+      "ip": "113.190.74.182",
+      "device": "Edge · Windows",
+      "branchId": "cg",
+      "category": "finance",
+      "severity": "warning",
+      "action": "Hoàn tiền",
+      "target": "Hóa đơn HD-CG-0174",
+      "detail": "Hoàn 2.000.000₫ do học viên chuyển lớp.",
+      "changes": [
+        {
+          "field": "Đã thu",
+          "before": "6.000.000₫",
+          "after": "4.000.000₫"
+        }
+      ]
+    },
+    {
+      "id": "AU-3",
+      "at": "2026-11-17T04:18:34.446Z",
+      "actor": "Lê Hoàng Nam",
+      "actorRole": "Quản lý chi nhánh",
+      "ip": "113.190.111.18",
+      "device": "Chrome · macOS",
+      "branchId": "cg",
+      "category": "permission",
+      "severity": "warning",
+      "action": "Cấp quyền lẻ",
+      "target": "Vũ Ngọc Mai",
+      "detail": "Tài chính › Công nợ › Xem (chi nhánh) đến hết 7 ngày tới.",
+      "changes": [
+        {
+          "field": "finance.debts.view",
+          "before": "—",
+          "after": "Chi nhánh"
+        }
+      ]
+    },
+    {
+      "id": "AU-4",
+      "at": "2026-11-17T03:59:34.446Z",
+      "actor": "Ngô Bảo Anh",
+      "actorRole": "Marketing",
+      "ip": "113.190.148.109",
+      "device": "Chrome · Android",
+      "category": "export",
+      "severity": "warning",
+      "action": "Xuất Excel",
+      "target": "Danh sách lead (186 dòng)",
+      "detail": "Lọc: nguồn Facebook, 30 ngày."
+    },
+    {
+      "id": "AU-5",
+      "at": "2026-11-17T03:35:34.446Z",
+      "actor": "không xác định",
+      "actorRole": "—",
+      "ip": "113.190.185.200",
+      "device": "Chrome · Windows",
+      "category": "auth",
+      "severity": "critical",
+      "action": "Đăng nhập thất bại 5 lần",
+      "target": "admin@jpcenter.vn",
+      "detail": "Tài khoản tạm khóa 15 phút do sai mật khẩu liên tiếp."
+    },
+    {
+      "id": "AU-6",
+      "at": "2026-11-17T02:40:34.446Z",
+      "actor": "Vũ Ngọc Mai",
+      "actorRole": "Giáo vụ",
+      "ip": "113.190.222.36",
+      "device": "Safari · iPhone",
+      "branchId": "cg",
+      "category": "data",
+      "severity": "info",
+      "action": "Chuyển lớp",
+      "target": "HV Nguyễn Văn An",
+      "changes": [
+        {
+          "field": "Lớp",
+          "before": "N4-K08",
+          "after": "N3-K12"
+        }
+      ]
+    },
+    {
+      "id": "AU-7",
+      "at": "2026-11-17T01:40:34.447Z",
+      "actor": "Phạm Thu Trang",
+      "actorRole": "Admin",
+      "ip": "113.190.4.127",
+      "device": "Edge · Windows",
+      "category": "setting",
+      "severity": "info",
+      "action": "Sửa bảng giá",
+      "target": "Khóa JLPT N3 — Cầu Giấy",
+      "changes": [
+        {
+          "field": "Học phí",
+          "before": "5.800.000₫",
+          "after": "6.200.000₫"
+        }
+      ]
+    },
+    {
+      "id": "AU-8",
+      "at": "2026-11-17T00:40:34.447Z",
+      "actor": "Đỗ Quang Huy",
+      "actorRole": "Super Admin",
+      "ip": "113.190.41.218",
+      "device": "Chrome · macOS",
+      "category": "permission",
+      "severity": "warning",
+      "action": "Sửa role",
+      "target": "Trưởng nhóm Sale",
+      "changes": [
+        {
+          "field": "crm.lead-rules.update",
+          "before": "—",
+          "after": "Chi nhánh"
+        }
+      ]
+    },
+    {
+      "id": "AU-9",
+      "at": "2026-11-16T22:40:34.447Z",
+      "actor": "Lê Hoàng Nam",
+      "actorRole": "Quản lý chi nhánh",
+      "ip": "113.190.78.54",
+      "device": "Chrome · Android",
+      "branchId": "cg",
+      "category": "data",
+      "severity": "critical",
+      "action": "Hủy lớp",
+      "target": "Lớp KIDS-K03",
+      "detail": "Không đủ sĩ số. 4 học viên được chuyển / bảo lưu, 2 hóa đơn hoàn tiền."
+    },
+    {
+      "id": "AU-10",
+      "at": "2026-11-16T20:40:34.447Z",
+      "actor": "Hoàng Thị Lan",
+      "actorRole": "Kế toán",
+      "ip": "113.190.115.145",
+      "device": "Chrome · Windows",
+      "category": "export",
+      "severity": "warning",
+      "action": "Xuất Excel",
+      "target": "Bảng lương nhân viên tháng 10"
+    },
+    {
+      "id": "AU-11",
+      "at": "2026-11-16T17:40:34.447Z",
+      "actor": "Phạm Anh Tuấn",
+      "actorRole": "Admin",
+      "ip": "113.190.152.236",
+      "device": "Safari · iPhone",
+      "category": "setting",
+      "severity": "warning",
+      "action": "Sửa tích hợp",
+      "target": "Email (SMTP)",
+      "changes": [
+        {
+          "field": "Mật khẩu",
+          "before": "••••",
+          "after": "•••• (mới)"
+        }
+      ]
+    },
+    {
+      "id": "AU-12",
+      "at": "2026-11-16T08:40:34.447Z",
+      "actor": "Đinh Quốc Bảo",
+      "actorRole": "Trưởng nhóm Sale",
+      "ip": "113.190.189.72",
+      "device": "Edge · Windows",
+      "branchId": "cg",
+      "category": "data",
+      "severity": "info",
+      "action": "Giao lead hàng loạt",
+      "target": "12 lead",
+      "detail": "Giao cho Hồ Quỳnh Như."
+    },
+    {
+      "id": "AU-13",
+      "at": "2026-11-16T02:40:34.447Z",
+      "actor": "Hệ thống",
+      "actorRole": "Tự động",
+      "ip": "113.190.226.163",
+      "device": "Chrome · macOS",
+      "category": "setting",
+      "severity": "critical",
+      "action": "Tích hợp lỗi",
+      "target": "Zoom",
+      "detail": "401 Unauthorized — token hết hạn."
+    },
+    {
+      "id": "AU-14",
+      "at": "2026-11-15T22:40:34.447Z",
+      "actor": "Lâm Thị Hiền",
+      "actorRole": "Quản lý chi nhánh",
+      "ip": "113.190.8.254",
+      "device": "Chrome · Android",
+      "branchId": "hc",
+      "category": "data",
+      "severity": "warning",
+      "action": "Ẩn học viên",
+      "target": "HV Đỗ Minh Tuấn",
+      "detail": "Đã hoàn thành khóa, không còn học lớp nào."
+    },
+    {
+      "id": "AU-15",
+      "at": "2026-11-15T16:40:34.447Z",
+      "actor": "Phạm Thu Trang",
+      "actorRole": "Admin",
+      "ip": "113.190.45.90",
+      "device": "Chrome · Windows",
+      "category": "permission",
+      "severity": "warning",
+      "action": "Chặn quyền",
+      "target": "Trần Minh Khoa",
+      "detail": "Tuyển sinh › Lead › Xuất file."
+    },
+    {
+      "id": "AU-16",
+      "at": "2026-11-15T04:40:34.447Z",
+      "actor": "Hoàng Thị Lan",
+      "actorRole": "Kế toán",
+      "ip": "113.190.82.181",
+      "device": "Safari · iPhone",
+      "category": "finance",
+      "severity": "warning",
+      "action": "Chốt lương",
+      "target": "Lương giáo viên tháng 10",
+      "detail": "Khóa sổ — không sửa được công / buổi dạy tháng 10."
+    },
+    {
+      "id": "AU-17",
+      "at": "2026-11-15T02:40:34.447Z",
+      "actor": "Đỗ Quang Huy",
+      "actorRole": "Super Admin",
+      "ip": "113.190.119.17",
+      "device": "Edge · Windows",
+      "category": "permission",
+      "severity": "critical",
+      "action": "Khóa tài khoản",
+      "target": "Mai Văn Đạt",
+      "detail": "Nghỉ việc. Đã bàn giao 23 lead cho Bùi Ngọc Hân."
+    },
+    {
+      "id": "AU-18",
+      "at": "2026-11-14T04:40:34.447Z",
+      "actor": "Vũ Ngọc Mai",
+      "actorRole": "Giáo vụ",
+      "ip": "113.190.156.108",
+      "device": "Chrome · macOS",
+      "branchId": "hc",
+      "category": "export",
+      "severity": "info",
+      "action": "In danh sách",
+      "target": "Danh sách lớp N5-K21"
+    },
+    {
+      "id": "AU-19",
+      "at": "2026-11-13T04:40:34.447Z",
+      "actor": "Châu Minh Đức",
+      "actorRole": "Quản lý chi nhánh",
+      "ip": "113.190.193.199",
+      "device": "Chrome · Android",
+      "branchId": "q1",
+      "category": "finance",
+      "severity": "info",
+      "action": "Duyệt giảm giá",
+      "target": "Hóa đơn HD-Q1-0088",
+      "changes": [
+        {
+          "field": "Giảm giá",
+          "before": "0₫",
+          "after": "500.000₫"
+        }
+      ]
+    },
+    {
+      "id": "AU-20",
+      "at": "2026-11-12T04:40:34.447Z",
+      "actor": "Đỗ Quang Huy",
+      "actorRole": "Super Admin",
+      "ip": "113.190.230.35",
+      "device": "Chrome · Windows",
+      "category": "setting",
+      "severity": "info",
+      "action": "Thêm chi nhánh",
+      "target": "Thủ Đức",
+      "detail": "Trạng thái: Đang chuẩn bị."
+    }
+  ]
+}

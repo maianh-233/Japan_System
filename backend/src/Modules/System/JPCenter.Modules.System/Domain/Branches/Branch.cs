@@ -44,6 +44,8 @@ public sealed class Branch : AggregateRoot<BranchId>, IAuditable, ISoftDeletable
 
     public void AssignManager(Guid? employeeId) => ManagerId = employeeId;
 
+    public void SetDetails(string openHours, string? note) => (OpenHours, Note) = (openHours, note);
+
     public Result Activate()
     {
         if (Status == BranchStatus.Active) return BranchErrors.InvalidStatus;

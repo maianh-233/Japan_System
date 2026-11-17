@@ -38,6 +38,9 @@ public abstract class ModuleDbContextBase(DbContextOptions options) : DbContext(
                 else if (type.IsEnum && type.IsPublic)
                 {
                     builder.Properties(type).HaveConversion(typeof(SnakeCaseEnumConverter<>).MakeGenericType(type));
+                    builder.Properties(typeof(List<>).MakeGenericType(type)).HaveConversion(
+                        typeof(EnumListConverter<>).MakeGenericType(type),
+                        typeof(ListValueComparer<>).MakeGenericType(type));
                 }
             }
         }
@@ -51,7 +54,9 @@ public abstract class ModuleDbContextBase(DbContextOptions options) : DbContext(
         modelBuilder.HasDefaultSchema(Schema);
         modelBuilder.ApplyConfigurationsFromAssembly(ModuleAssembly, t => t.Namespace?.Contains(".Infrastructure.") == true);
 
-        foreach (var entity in modelBuilder.Model.GetEntityTypes().Where(e => !e.IsOwned()).ToList())
+        // Chỉ entity thật (kế thừa Entity<>) — KHÔNG đụng tới kiểu EF tự phát hiện tạm thời (record lồng sẽ thành cột / jsonb),
+        // gọi modelBuilder.Entity() lên chúng sẽ vô tình biến chúng thành bảng.
+        foreach (var entity in modelBuilder.Model.GetEntityTypes().Where(e => !e.IsOwned() && IsDomainEntity(e.ClrType)).ToList())
         {
             var clr = entity.ClrType;
             var b = modelBuilder.Entity(clr);
@@ -89,6 +94,13 @@ public abstract class ModuleDbContextBase(DbContextOptions options) : DbContext(
         && t.Name.EndsWith("Id", StringComparison.Ordinal)
         && t.GetProperty("Value")?.PropertyType == typeof(Guid)
         && t.GetConstructor([typeof(Guid)]) is not null;
+
+    private static bool IsDomainEntity(Type t)
+    {
+        for (var cur = t.BaseType; cur is not null; cur = cur.BaseType)
+            if (cur.IsGenericType && cur.GetGenericTypeDefinition() == typeof(Entity<>)) return true;
+        return false;
+    }
 
     private static bool IsAggregateRoot(Type t)
     {
