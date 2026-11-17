@@ -198,8 +198,10 @@ public sealed partial class S3FileStorage : IFileStorage, IDisposable
         return name[..(200 - ext.Length)] + ext;
     }
 
+    /// <summary>Bản không dấu cho trình duyệt cũ: "Bài đọc.pdf" → "Bai doc.pdf" (đ không tách dấu được → đổi tay)</summary>
     private static string AsciiName(string name) =>
-        new(name.Normalize(System.Text.NormalizationForm.FormD).Where(c => c is >= ' ' and <= '~').ToArray());
+        new(name.Replace('đ', 'd').Replace('Đ', 'D').Normalize(System.Text.NormalizationForm.FormD)
+            .Where(c => c is >= ' ' and <= '~').ToArray());
 
     /// <summary>Thư mục: chữ thường, số, gạch ngang, ngăn bằng "/" — vd <c>academic/materials</c></summary>
     [GeneratedRegex("^[a-z0-9-]+(/[a-z0-9-]+)*$")]

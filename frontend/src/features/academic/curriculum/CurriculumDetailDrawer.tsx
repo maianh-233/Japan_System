@@ -14,6 +14,8 @@ import { CURRICULUM_STATUS, TIERS } from './constants';
 import { CurriculumContent } from './CurriculumContent';
 import { CurriculumFormFields, type CurriculumFormValues } from './CurriculumFormFields';
 import { curriculumStats, nextVersion, useCurriculumStore } from './curriculumStore';
+import * as curriculumApi from './curriculumApi';
+import { USE_API } from '@/lib/api/config';
 import type { Curriculum } from './types';
 
 export type CurriculumTab = 'content' | 'info' | 'courses';
@@ -62,13 +64,15 @@ export function CurriculumDetailDrawer({ curriculumId, initialTab = 'content', o
       tone: 'success',
       confirmAction: 'approve',
       confirmText: 'Phát hành',
+      onConfirm: USE_API ? () => curriculumApi.publishCurriculum(c.id) : undefined,
     });
     if (!ok) return;
-    setStatus(c.id, 'published');
+    if (!USE_API) setStatus(c.id, 'published');
     notify.success({ title: 'Đã phát hành lộ trình', description: `${c.name} ${c.version}` });
   };
 
   const newVersion = async (c: Curriculum) => {
+    let created: Curriculum | undefined;
     const ok = await confirm({
       title: `Tạo phiên bản mới từ ${c.version}?`,
       description: 'Sao chép toàn bộ bài học, chapter, tài liệu, mốc thi sang một bản nháp để chỉnh sửa. Bản hiện tại giữ nguyên cho các lớp đang học.',
@@ -76,16 +80,28 @@ export function CurriculumDetailDrawer({ curriculumId, initialTab = 'content', o
       tone: 'primary',
       confirmAction: 'create',
       confirmText: 'Tạo phiên bản mới',
+      onConfirm: USE_API
+        ? async () => {
+            created = await curriculumApi.newCurriculumVersion(c.id);
+          }
+        : undefined,
     });
     if (!ok) return;
-    const copy = clone(c.id, { version: nextVersion(c.version) }, user?.fullName ?? 'Nhân viên');
+    const copy = created ?? clone(c.id, { version: nextVersion(c.version) }, user?.fullName ?? 'Nhân viên');
     notify.success({ title: `Đã tạo bản nháp ${copy.version}`, description: 'Sửa nội dung rồi bấm Phát hành.' });
     onOpen?.(copy.id);
   };
 
   const archive = async (c: Curriculum) => {
     if (c.status === 'archived') {
-      setStatus(c.id, 'published');
+      if (USE_API) {
+        try {
+          await curriculumApi.restoreCurriculum(c.id);
+        } catch (e) {
+          notify.error({ title: 'Chưa khôi phục được', description: (e as Error).message });
+          return;
+        }
+      } else setStatus(c.id, 'published');
       notify.toast.success('Đã khôi phục lộ trình');
       return;
     }
@@ -103,9 +119,10 @@ export function CurriculumDetailDrawer({ curriculumId, initialTab = 'content', o
       tone: 'warning',
       confirmAction: 'save',
       confirmText: 'Lưu trữ',
+      onConfirm: USE_API ? async () => void (await curriculumApi.archiveCurriculum(c.id)) : undefined,
     });
     if (!ok) return;
-    setStatus(c.id, 'archived');
+    if (!USE_API) setStatus(c.id, 'archived');
     notify.success({ title: 'Đã lưu trữ lộ trình', description: `${c.name} ${c.version}` });
   };
 
@@ -242,9 +259,18 @@ function InfoTab({ cur, editable, onArchive }: { cur: Curriculum; editable: bool
       onValuesChange={() => setDirty(true)}
       onFinish={async (v) => {
         setSaving(true);
-        await new Promise((r) => setTimeout(r, 500));
-        update(cur.id, { ...v, name: v.name.trim(), entryRequirement: v.tier === 'advanced' ? v.entryRequirement?.trim() : undefined, tags: v.tags ?? [] });
-        setSaving(false);
+        try {
+          if (USE_API) await curriculumApi.updateCurriculumInfo(cur.id, { ...cur, ...v });
+          else {
+            await new Promise((r) => setTimeout(r, 500));
+            update(cur.id, { ...v, name: v.name.trim(), entryRequirement: v.tier === 'advanced' ? v.entryRequirement?.trim() : undefined, tags: v.tags ?? [] });
+          }
+        } catch (e) {
+          notify.error({ title: 'Chưa lưu được lộ trình', description: (e as Error).message });
+          return;
+        } finally {
+          setSaving(false);
+        }
         setDirty(false);
         notify.success({ title: 'Đã cập nhật lộ trình', description: `${v.name} ${v.version}` });
       }}

@@ -12,6 +12,8 @@ import { curriculumStats, useCurriculumStore } from '../curriculum/curriculumSto
 import type { Curriculum } from '../curriculum/types';
 import { LEVELS } from './constants';
 import { useCourseStore } from './courseStore';
+import * as courseApi from './courseApi';
+import { USE_API } from '@/lib/api/config';
 import type { Course } from './types';
 
 interface LinkValues {
@@ -72,9 +74,10 @@ export function CourseCurriculumTab({ course, editable }: { course: Course; edit
       tone: 'primary',
       confirmAction: 'save',
       confirmText: 'Đặt mặc định',
+      onConfirm: USE_API ? () => courseApi.setDefaultCurriculum(course.id, cur.id) : undefined,
     });
     if (!ok) return;
-    setDefault(course.id, cur.id);
+    if (!USE_API) setDefault(course.id, cur.id);
     notify.success({ title: 'Đã đổi lộ trình mặc định', description: `${cur.name} ${cur.version}` });
   };
 
@@ -85,9 +88,10 @@ export function CourseCurriculumTab({ course, editable }: { course: Course; edit
       tone: 'warning',
       confirmAction: 'reject',
       confirmText: 'Gỡ lộ trình',
+      onConfirm: USE_API ? () => courseApi.unlinkCurriculum(course.id, cur.id) : undefined,
     });
     if (!ok) return;
-    unlink(course.id, cur.id);
+    if (!USE_API) unlink(course.id, cur.id);
     notify.toast.success('Đã gỡ lộ trình');
   };
 
@@ -148,8 +152,11 @@ export function CourseCurriculumTab({ course, editable }: { course: Course; edit
         submitText="Gắn lộ trình"
         successMessage="Đã gắn lộ trình"
         onSubmit={async (v) => {
-          await new Promise((r) => setTimeout(r, 400));
-          link(course.id, v.curriculumId, Boolean(v.asDefault));
+          if (USE_API) await courseApi.linkCurriculum(course.id, v.curriculumId, Boolean(v.asDefault));
+          else {
+            await new Promise((r) => setTimeout(r, 400));
+            link(course.id, v.curriculumId, Boolean(v.asDefault));
+          }
         }}
       >
         <Form.Item name="curriculumId" label="Lộ trình" rules={[{ required: true, message: 'Chọn lộ trình' }]}>

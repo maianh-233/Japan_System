@@ -8,6 +8,8 @@ import { COURSE_STATUS, FORMATS } from './constants';
 import { CourseCurriculumTab } from './CourseCurriculumTab';
 import { CourseFormFields, type CourseFormValues } from './CourseFormFields';
 import { useCourseStore } from './courseStore';
+import * as courseApi from './courseApi';
+import { USE_API } from '@/lib/api/config';
 import type { Course } from './types';
 
 export type CourseTab = 'info' | 'curriculum';
@@ -99,14 +101,24 @@ function InfoTab({ course, editable, hasOpenClasses }: { course: Course; editabl
 
   const save = async (v: CourseFormValues) => {
     setSaving(true);
-    await new Promise((r) => setTimeout(r, 600)); // giả lập gọi API
-    updateCourse(course.id, {
+    const patch = {
       ...v,
       name: v.name.trim(),
       maxStudents: v.format === 'private' ? undefined : v.maxStudents,
       description: v.description?.trim() || undefined,
-    });
-    setSaving(false);
+    };
+    try {
+      if (USE_API) await courseApi.updateCourse(course.id, { ...course, ...patch });
+      else {
+        await new Promise((r) => setTimeout(r, 600)); // giả lập gọi API
+        updateCourse(course.id, patch);
+      }
+    } catch (e) {
+      notify.error({ title: 'Chưa lưu được khóa học', description: (e as Error).message });
+      return;
+    } finally {
+      setSaving(false);
+    }
     setDirty(false);
     notify.success({ title: 'Đã cập nhật khóa học', description: `${v.code} — ${v.name}` });
   };

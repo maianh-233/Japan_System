@@ -3,6 +3,8 @@ import { USE_API } from '@/lib/api/config';
 import { onExpired } from '@/lib/api/http';
 import { useAuthStore } from '@/stores/authStore';
 import type { SessionUser } from '@/types/auth';
+import { loadCourses } from '@/features/academic/courses/courseApi';
+import { loadCurricula } from '@/features/academic/curriculum/curriculumApi';
 import { loadEmployees } from '@/features/hr/hrApi';
 import { loadBranches } from '@/features/system/branchApi';
 import { loadSystem, rememberAccount } from '@/features/system/systemApi';
@@ -15,7 +17,7 @@ export async function onSignedIn(user: SessionUser & { accountId?: string }) {
   if (user.portal !== 'staff') return;
   // Lỗi tải dữ liệu không chặn việc vào hệ thống — trang tương ứng sẽ báo / dùng dữ liệu cũ
   const quiet = (p: Promise<unknown>) => p.catch(() => undefined);
-  await Promise.all([quiet(loadSystem()), quiet(loadBranches()), quiet(loadEmployees())]);
+  await Promise.all([quiet(loadSystem()), quiet(loadBranches()), quiet(loadEmployees()), quiet(loadCourses()), quiet(loadCurricula())]);
 }
 
 /**

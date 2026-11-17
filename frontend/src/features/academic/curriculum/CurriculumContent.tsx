@@ -25,13 +25,19 @@ import {
   StatusTag,
   TextInput,
   useConfirm,
+  useNotify,
   type UploadItem,
 } from '@/components/common';
+import { USE_API } from '@/lib/api/config';
+import * as curriculumApi from './curriculumApi';
 import { cn } from '@/lib/cn';
 import { formatFileSize } from '@/lib/format';
 import { EXAM_KINDS, MATERIAL_TYPE_OPTIONS, MATERIAL_TYPES, materialTypeOf } from './constants';
 import { examScope, useCurriculumStore } from './curriculumStore';
 import type { Chapter, Curriculum, Exam, ExamKind, Lesson, Material, MaterialType } from './types';
+
+/** Chapter tạo sẵn khi thêm bài học (sửa sau được) */
+const DEFAULT_CHAPTERS = ['Từ vựng', 'Ngữ pháp', 'Luyện nói'];
 
 const uid = (p: string) => `${p}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 
@@ -73,6 +79,7 @@ interface ExamValues {
 export function CurriculumContent({ curriculum, editable }: { curriculum: Curriculum; editable: boolean }) {
   const update = useCurriculumStore((s) => s.updateCurriculum);
   const { confirm, confirmDialog } = useConfirm();
+  const notify = useNotify();
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [dialog, setDialog] = useState<Dialog>(null);
 
@@ -91,10 +98,20 @@ export function CurriculumContent({ curriculum, editable }: { curriculum: Curric
     });
 
   // ---------- thao tác ----------
+  /** Chế độ API: chạy thao tác, lỗi thì báo (thao tác không có hộp xác nhận) */
+  const run = async (fn: () => Promise<unknown>, failTitle: string) => {
+    try {
+      await fn();
+    } catch (e) {
+      notify.error({ title: failTitle, description: (e as Error).message });
+    }
+  };
+
   const moveLesson = (idx: number, dir: -1 | 1) => {
     const next = [...lessons];
     [next[idx], next[idx + dir]] = [next[idx + dir], next[idx]];
-    setLessons(next);
+    if (USE_API) void run(() => curriculumApi.reorderLessons(curriculum.id, next.map((l) => l.id)), 'Chưa đổi được thứ tự');
+    else setLessons(next);
   };
 
   const removeLesson = async (l: Lesson, no: number) => {
@@ -108,8 +125,9 @@ export function CurriculumContent({ curriculum, editable }: { curriculum: Curric
       tone: 'danger',
       confirmAction: 'delete',
       confirmText: 'Xóa bài học',
+      onConfirm: USE_API ? async () => void (await curriculumApi.removeLesson(curriculum.id, l.id)) : undefined,
     });
-    if (!ok) return;
+    if (!ok || USE_API) return;
     const idx = lessons.findIndex((x) => x.id === l.id);
     const fallback = lessons[idx - 1]?.id ?? lessons[idx + 1]?.id ?? '';
     update(curriculum.id, {
@@ -125,11 +143,13 @@ export function CurriculumContent({ curriculum, editable }: { curriculum: Curric
       tone: 'danger',
       confirmAction: 'delete',
       confirmText: 'Xóa chapter',
+      onConfirm: USE_API ? async () => void (await curriculumApi.removeChapter(curriculum.id, lessonId, ch.id)) : undefined,
     });
-    if (ok) mapLesson(lessonId, (l) => ({ ...l, chapters: l.chapters.filter((c) => c.id !== ch.id) }));
+    if (ok && !USE_API) mapLesson(lessonId, (l) => ({ ...l, chapters: l.chapters.filter((c) => c.id !== ch.id) }));
   };
 
   const removeMaterial = (target: MaterialTarget, materialId: string) => {
+    if (USE_API) return void run(() => curriculumApi.removeMaterial(curriculum.id, materialId), 'Chưa xóa được tài liệu');
     mapLesson(target.lessonId, (l) => ({
         ...l,
         chapters: l.chapters.map((c) => (c.id === target.chapterId ? { ...c, materials: c.materials.filter((m) => m.id !== materialId) } : c)),
@@ -137,8 +157,8 @@ export function CurriculumContent({ curriculum, editable }: { curriculum: Curric
   };
 
   const removeExam = async (e: Exam) => {
-    const ok = await confirm({ title: `Xóa "${e.title}"?`, description: 'Chỉ xóa mốc thi khỏi lộ trình. Các kỳ thi đã tổ chức không bị ảnh hưởng.', tone: 'danger', confirmAction: 'delete', confirmText: 'Xóa mốc thi' });
-    if (ok) setExams(exams.filter((x) => x.id !== e.id));
+    const ok = await confirm({ title: `Xóa "${e.title}"?`, description: 'Chỉ xóa mốc thi khỏi lộ trình. Các kỳ thi đã tổ chức không bị ảnh hưởng.', tone: 'danger', confirmAction: 'delete', confirmText: 'Xóa mốc thi', onConfirm: USE_API ? async () => void (await curriculumApi.removeExam(curriculum.id, e.id)) : undefined });
+    if (ok && !USE_API) setExams(exams.filter((x) => x.id !== e.id));
   };
 
   // ---------- giao diện ----------
@@ -247,7 +267,12 @@ export function CurriculumContent({ curriculum, editable }: { curriculum: Curric
                                 </span>
                               )}
                             </div>
-                            <MaterialList materials={ch.materials} editable={editable} onRemove={(id) => removeMaterial(target, id)} />
+                            <MaterialList
+                              materials={ch.materials}
+                              editable={editable}
+                              onRemove={(id) => removeMaterial(target, id)}
+                              onOpen={(m) => run(() => curriculumApi.openMaterial(curriculum.id, m.id), 'Chưa mở được tài liệu')}
+                            />
                           </li>
                         );
                       })}
@@ -328,14 +353,22 @@ export function CurriculumContent({ curriculum, editable }: { curriculum: Curric
         submitAction={dialog?.kind === 'lesson' && dialog.lesson ? 'save' : 'create'}
         successMessage={dialog?.kind === 'lesson' && dialog.lesson ? 'Đã cập nhật bài học' : 'Đã thêm bài học'}
         initialValues={dialog?.kind === 'lesson' && dialog.lesson ? { title: dialog.lesson.title, hasQuiz: dialog.lesson.hasQuiz } : { hasQuiz: false }}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           if (dialog?.kind !== 'lesson') return;
+          if (USE_API) {
+            if (dialog.lesson) await curriculumApi.updateLesson(curriculum.id, dialog.lesson.id, v.title.trim(), Boolean(v.hasQuiz));
+            else {
+              const id = await curriculumApi.addLesson(curriculum.id, v.title.trim(), Boolean(v.hasQuiz), DEFAULT_CHAPTERS);
+              setExpanded((s) => new Set(s).add(id));
+            }
+            return;
+          }
           if (dialog.lesson) mapLesson(dialog.lesson.id, (l) => ({ ...l, title: v.title.trim(), hasQuiz: v.hasQuiz }));
           else {
             const id = uid('L');
             setLessons([
               ...lessons,
-              { id, title: v.title.trim(), hasQuiz: v.hasQuiz, chapters: ['Từ vựng', 'Ngữ pháp', 'Luyện nói'].map((t) => ({ id: uid('C'), title: t, materials: [] })) },
+              { id, title: v.title.trim(), hasQuiz: v.hasQuiz, chapters: DEFAULT_CHAPTERS.map((t) => ({ id: uid('C'), title: t, materials: [] })) },
             ]);
             setExpanded((s) => new Set(s).add(id));
           }
@@ -358,9 +391,14 @@ export function CurriculumContent({ curriculum, editable }: { curriculum: Curric
         submitAction={dialog?.kind === 'chapter' && dialog.chapter ? 'save' : 'create'}
         successMessage="Đã lưu chapter"
         initialValues={dialog?.kind === 'chapter' && dialog.chapter ? { title: dialog.chapter.title } : undefined}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           if (dialog?.kind !== 'chapter') return;
           const { lessonId, chapter } = dialog;
+          if (USE_API) {
+            if (chapter) await curriculumApi.renameChapter(curriculum.id, lessonId, chapter.id, v.title.trim());
+            else await curriculumApi.addChapter(curriculum.id, lessonId, v.title.trim());
+            return;
+          }
           mapLesson(lessonId, (l) => ({
             ...l,
             chapters: chapter
@@ -387,8 +425,35 @@ export function CurriculumContent({ curriculum, editable }: { curriculum: Curric
         initialValues={{ type: 'pdf', sharedWithStudents: true }}
         onSubmit={async (v) => {
           if (dialog?.kind !== 'material') return;
-          await new Promise((r) => setTimeout(r, 500)); // giả lập tải lên
           const isFile = MATERIAL_TYPES[v.type].kind === 'file';
+          if (USE_API) {
+            const { lessonId, chapterId } = dialog.target;
+            if (!isFile) {
+              await curriculumApi.addLinkMaterial(curriculum.id, lessonId, chapterId, {
+                name: v.name!.trim(),
+                type: v.type,
+                url: v.url!.trim(),
+                sharedWithStudents: v.sharedWithStudents,
+              });
+              return;
+            }
+            // Mỗi tệp 1 request — server kiểm đuôi + nội dung thật; tệp lỗi báo riêng, tệp khác vẫn lưu
+            const failed: string[] = [];
+            for (const f of v.files ?? []) {
+              if (!f.file) continue;
+              try {
+                await curriculumApi.uploadMaterial(curriculum.id, lessonId, chapterId, f.file, v.sharedWithStudents);
+              } catch (e) {
+                failed.push(`${f.name}: ${(e as Error).message}`);
+              }
+            }
+            const files = (v.files ?? []).filter((f) => f.file);
+            // Tất cả lỗi → giữ hộp thoại để chọn lại; một phần lỗi → đóng (tránh tải trùng tệp đã lưu) và báo tệp lỗi
+            if (failed.length === files.length) throw new Error(failed.join(' · '));
+            if (failed.length) notify.warning({ title: `${failed.length} tệp chưa tải lên được`, description: failed.join(' · ') });
+            return;
+          }
+          await new Promise((r) => setTimeout(r, 500)); // giả lập tải lên
           const added: Material[] = isFile
             ? (v.files ?? []).map((f) => ({ id: uid('M'), name: f.name, type: materialTypeOf(f.name), url: `/files/demo/${encodeURIComponent(f.name)}`, size: f.size, sharedWithStudents: v.sharedWithStudents }))
             : [{ id: uid('M'), name: v.name!.trim(), type: v.type, url: v.url!.trim(), sharedWithStudents: v.sharedWithStudents }];
@@ -457,9 +522,14 @@ export function CurriculumContent({ curriculum, editable }: { curriculum: Curric
             ? dialog.exam
             : { kind: exams.some((e) => e.kind === 'midterm') ? 'final' : 'midterm', title: exams.some((e) => e.kind === 'midterm') ? 'Thi cuối kỳ' : 'Kiểm tra giữa kỳ', afterLessonId: lessons[lessons.length - 1]?.id }
         }
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           if (dialog?.kind !== 'exam') return;
           const data = { ...v, title: v.title.trim() };
+          if (USE_API) {
+            if (dialog.exam) await curriculumApi.updateExam(curriculum.id, dialog.exam.id, data);
+            else await curriculumApi.addExam(curriculum.id, { ...data, note: data.note?.trim() || undefined });
+            return;
+          }
           if (dialog.exam) setExams(exams.map((e) => (e.id === dialog.exam!.id ? { ...e, ...data } : e)));
           else setExams([...exams, { ...data, note: data.note?.trim() || undefined, id: uid('EX') }]);
         }}
@@ -484,7 +554,18 @@ export function CurriculumContent({ curriculum, editable }: { curriculum: Curric
 }
 
 /** Danh sách tài liệu của 1 chapter */
-function MaterialList({ materials, editable, onRemove }: { materials: Material[]; editable: boolean; onRemove: (id: string) => void }) {
+function MaterialList({
+  materials,
+  editable,
+  onRemove,
+  onOpen,
+}: {
+  materials: Material[];
+  editable: boolean;
+  onRemove: (id: string) => void;
+  /** Tài liệu file ở kho riêng tư (chế độ API) — xin link tạm khi bấm */
+  onOpen: (m: Material) => void;
+}) {
   if (!materials.length) return <p className="border-t border-line px-3 py-2 text-xs text-warning-700">Chưa có tài liệu</p>;
   return (
     <ul className="divide-y divide-line border-t border-line">
@@ -494,9 +575,15 @@ function MaterialList({ materials, editable, onRemove }: { materials: Material[]
         return (
           <li key={m.id} className="flex items-center gap-2.5 px-3 py-1.5 text-[13px]">
             <Icon size={16} className={cn('shrink-0', t.color)} aria-hidden />
-            <a href={m.url} target="_blank" rel="noreferrer" className="min-w-0 flex-1 truncate text-ink hover:text-primary-700 hover:underline" title={m.name}>
-              {m.name}
-            </a>
+            {m.isFile ? (
+              <button type="button" onClick={() => onOpen(m)} className="min-w-0 flex-1 truncate text-left text-ink hover:text-primary-700 hover:underline" title={m.name}>
+                {m.name}
+              </button>
+            ) : (
+              <a href={m.url} target="_blank" rel="noreferrer" className="min-w-0 flex-1 truncate text-ink hover:text-primary-700 hover:underline" title={m.name}>
+                {m.name}
+              </a>
+            )}
             <span className="hidden shrink-0 text-xs text-ink-muted sm:inline">
               {t.label}
               {m.size ? ` · ${formatFileSize(m.size)}` : ''}

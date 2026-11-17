@@ -87,17 +87,19 @@ export interface RequestOptions {
 }
 
 export async function api<T = void>(path: string, opts: RequestOptions = {}): Promise<T> {
+  // FormData (tải file) → trình duyệt tự đặt Content-Type multipart kèm boundary
+  const isForm = opts.body instanceof FormData;
   const send = () =>
     fetch(`${API_BASE}${path}`, {
       method: opts.method ?? (opts.body === undefined ? 'GET' : 'POST'),
       credentials: 'include',
       headers: {
         Accept: 'application/json',
-        ...(opts.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+        ...(opts.body !== undefined && !isForm ? { 'Content-Type': 'application/json' } : {}),
         ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         ...opts.headers,
       },
-      body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+      body: opts.body === undefined ? undefined : isForm ? (opts.body as FormData) : JSON.stringify(opts.body),
     });
 
   let res: Response;

@@ -32,6 +32,8 @@ import {
 } from '@/features/academic/courses/constants';
 import { CourseFormFields, type CourseFormValues } from '@/features/academic/courses/CourseFormFields';
 import { useCourseStore } from '@/features/academic/courses/courseStore';
+import * as courseApi from '@/features/academic/courses/courseApi';
+import { USE_API } from '@/lib/api/config';
 import { CourseDetailDrawer, type CourseTab } from '@/features/academic/courses/CourseDetailDrawer';
 import { useCurriculumStore } from '@/features/academic/curriculum/curriculumStore';
 import type { Course, CourseFormat } from '@/features/academic/courses/types';
@@ -125,7 +127,14 @@ export default function CoursesPage() {
 
   const toggleStatus = async (c: Row) => {
     if (c.status !== 'active') {
-      setStatus(c.id, 'active');
+      if (USE_API) {
+        try {
+          await courseApi.activateCourse(c.id);
+        } catch (e) {
+          notify.error({ title: 'Chưa mở tuyển sinh được', description: (e as Error).message });
+          return;
+        }
+      } else setStatus(c.id, 'active');
       notify.success({ title: 'Đã mở tuyển sinh', description: `${c.code} — ${c.name}` });
       return;
     }
@@ -140,9 +149,10 @@ export default function CoursesPage() {
       tone: 'warning',
       confirmAction: 'save',
       confirmText: 'Ngừng tuyển sinh',
+      onConfirm: USE_API ? () => courseApi.pauseCourse(c.id) : undefined,
     });
     if (!ok) return;
-    setStatus(c.id, 'paused');
+    if (!USE_API) setStatus(c.id, 'paused');
     notify.success({ title: 'Đã ngừng tuyển sinh', description: `${c.code} — ${c.name}` });
   };
 
@@ -404,6 +414,12 @@ export default function CoursesPage() {
         successMessage="Đã tạo khóa học"
         initialValues={initialValues}
         onSubmit={async (v) => {
+          if (USE_API) {
+            // Nhân bản: server tự gắn các lộ trình (chưa lưu trữ) của khóa gốc, giữ mặc định
+            const created = await courseApi.createCourse(toInput(v), dialog?.kind === 'duplicate' ? dialog.course.id : undefined);
+            setTimeout(() => open(created.id, 'curriculum'), 300);
+            return;
+          }
           await new Promise((r) => setTimeout(r, 600)); // giả lập gọi API
           const created = addCourse(toInput(v));
           // Nhân bản: gắn luôn các lộ trình của khóa gốc (giữ mặc định)

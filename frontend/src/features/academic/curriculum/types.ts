@@ -37,6 +37,8 @@ export interface Material {
   size?: number;
   /** true = học viên xem được trên cổng; false = chỉ giáo viên (giáo án, đáp án) */
   sharedWithStudents: boolean;
+  /** Chế độ API: tệp nằm ở kho riêng tư — `url` rỗng, mở bằng link tạm (curriculumApi.openMaterial) */
+  isFile?: boolean;
 }
 
 export interface Chapter {

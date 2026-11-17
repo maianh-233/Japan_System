@@ -9,6 +9,8 @@ import { CURRICULUM_STATUS, CURRICULUM_STATUS_OPTIONS, TIER_OPTIONS, TIERS } fro
 import { CurriculumDetailDrawer, type CurriculumTab } from '@/features/academic/curriculum/CurriculumDetailDrawer';
 import { CurriculumFormFields, type CurriculumFormValues } from '@/features/academic/curriculum/CurriculumFormFields';
 import { curriculumStats, nextVersion, useCurriculumStore } from '@/features/academic/curriculum/curriculumStore';
+import * as curriculumApi from '@/features/academic/curriculum/curriculumApi';
+import { USE_API } from '@/lib/api/config';
 import type { Curriculum, CurriculumStatus } from '@/features/academic/curriculum/types';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/cn';
@@ -346,11 +348,14 @@ export default function CurriculumPage() {
             : { tier: 'standard', version: 'v1.0', level: 'N5', tags: [], status: 'draft' }
         }
         onSubmit={async (v) => {
-          await new Promise((r) => setTimeout(r, 500)); // giả lập gọi API
           const values = { ...v, name: v.name.trim(), tags: v.tags ?? [], entryRequirement: v.tier === 'advanced' ? v.entryRequirement?.trim() : undefined };
           const author = user?.fullName ?? 'Nhân viên';
-          const created =
-            dialog?.kind === 'clone' ? clone(dialog.source.id, values, author) : addCurriculum({ ...values, status: 'draft', author }, author);
+          let created;
+          if (USE_API) created = await curriculumApi.createCurriculum(values, dialog?.kind === 'clone' ? dialog.source.id : undefined);
+          else {
+            await new Promise((r) => setTimeout(r, 500)); // giả lập gọi API
+            created = dialog?.kind === 'clone' ? clone(dialog.source.id, values, author) : addCurriculum({ ...values, status: 'draft', author }, author);
+          }
           setStatus('all');
           setTimeout(() => {
             open(created.id, 'content');
