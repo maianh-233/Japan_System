@@ -39,7 +39,8 @@
 | `IAuditSink` (module System ghi `audit_logs`), `IAuditWriter` (hàng đợi) | Hạ tầng nhật ký | ✅ |
 | `IIdempotencyStore` (`Idempotency/`) | Lưu kết quả theo Idempotency-Key | ✅ |
 | `IEmailSender.SendAsync(to, EmailContent)` + `EmailContent` (`Email/`) | Gửi email giao dịch từ **mọi module**. Chỉ mô tả nội dung: `EmailContent.Create(subject, heading, preheader).Hello(name).Text("…**đậm**…").Code(otp).Button(label, url).Details((nhãn, giá trị)).Items(list).Notice(text, tone).Footnote(text)` — khuôn thương hiệu áp khi gửi. Test: thay bằng bản ghi giả, đọc `content.ToPlainText()` | ✅ |
-| `IIntegrationEventPublisher` | Phát event cho module khác (đi qua Outbox) | 📝 |
+| `IIntegrationEventPublisher.Publish(event)` (`IntegrationEvents/`) | Phát sự kiện cho module khác: gọi **trước** `SaveChangesAsync` của module mình → ghi `outbox_messages` cùng giao dịch, gửi nền. Kiểu sự kiện: `sealed record` trong `<Module>.Contracts/IntegrationEvents`, implement `IIntegrationEvent` (SharedKernel `Events/`) | ✅ |
+| `IIntegrationEventHandler<TEvent>` (`IntegrationEvents/`) | Module nhận xử lý sự kiện — đặt ở `Application/<Feature>/EventHandlers/`, tự đăng ký bởi `AddHandlersFromAssembly`. Chạy nền, scope riêng, **phải chịu được chạy lại** | ✅ |
 | `ICodeGenerator` (sinh mã HV1000, HD2400, LD0001 theo dãy số trong DB) | Mã hiển thị tăng dần, không trùng | 📝 |
 | `IFileStorage` (upload, link tạm có hạn, xóa) | Tài liệu, đề bài, bài nộp, ảnh hồ sơ | 📝 |
 | `INotificationSender` (in-app / Zalo / email / SMS) | Gửi thông báo từ mọi module | 📝 |
@@ -64,9 +65,8 @@
 | `LoggingAuditSink`, `InMemoryIdempotencyStore` | Mặc định khi chưa có module System (System thay bằng bản PostgreSQL) | ✅ |
 | `SmtpEmailSender` + `EmailRenderer` + `EmailOptions` (`Email/`, đăng ký sẵn trong `AddInfrastructureCommon()`) | Khuôn email chung: logo + thẻ nội dung + chân trang (hotline, email hỗ trợ, địa chỉ — `App:*`), bảng + CSS inline chuẩn email, thu lề trên điện thoại; gửi multipart chữ thuần + HTML, `Reply-To` hộp thư hỗ trợ, `Auto-Submitted`. Cấu hình `Email:*` (SMTP, SSL, tài khoản) | ✅ |
 | `AddScheduledJobs(config)` + `JobServiceCollectionExtensions.IsEnabled(config)` (`Jobs/`) | Bật Quartz (Host gọi 1 lần); module khai báo job bằng `services.AddQuartz(q => q.ScheduleJob<TJob>(...))` khi `IsEnabled`. Tắt bằng `Jobs:Enabled=false` (test tích hợp) | ✅ |
-| `DomainEventOutboxInterceptor` | Sau này | 📝 |
-| `OutboxMessage`, `OutboxProcessor` (BackgroundService) | Gửi integration event chắc chắn | 📝 |
-| `InboxMessage` (chống xử lý event 2 lần) | Handler integration event | 📝 |
+| `OutboxMessage`, `OutboxCollector`, `OutboxInterceptor`, `OutboxProcessor<TContext>`, `OutboxSignal`, `OutboxOptions` (`Outbox/`) | Hạ tầng Outbox — tự gắn qua `AddInfrastructureCommon()` + `AddModuleDbContext()`: bảng `outbox_messages` mỗi schema, gửi ngay sau khi lưu (kiểm tra dự phòng 5 giây), thử lại lùi dần, chỉ chạy lại handler lỗi (`handled_by` — thay cho bảng Inbox), quá 8 lần → `failed_at` + log lỗi, xóa bản đã gửi sau 7 ngày. Cấu hình `Outbox:*` | ✅ |
+| ~~`InboxMessage`~~ | **Không làm**: `handled_by` trong outbox + handler chịu được chạy lại là đủ cho 1 instance | — |
 | `S3FileStorage` (MinIO / S3) | Hiện thực `IFileStorage` | 📝 |
 | `SequenceCodeGenerator` (PostgreSQL sequence) | Hiện thực `ICodeGenerator` | 📝 |
 

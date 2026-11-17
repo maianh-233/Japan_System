@@ -1,6 +1,8 @@
 using System.Collections.Concurrent;
 using JPCenter.Infrastructure.Common.Persistence;
 using JPCenter.Application.Common.Email;
+using JPCenter.Application.Common.IntegrationEvents;
+using JPCenter.IntegrationTests.BuildingBlocks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -16,6 +18,7 @@ namespace JPCenter.IntegrationTests.Infrastructure;
 public sealed class SeededApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     public const string Password = "Test@12345";
+    public const int OutboxMaxAttempts = 3;
     private readonly PostgresFixture _pg = new();
 
     static SeededApiFactory() => Environment.SetEnvironmentVariable("JPCENTER_SKIP_DOTENV", "1");
@@ -41,8 +44,17 @@ public sealed class SeededApiFactory : WebApplicationFactory<Program>, IAsyncLif
         builder.UseSetting("Seed:Enabled", "true");
         builder.UseSetting("Seed:DefaultPassword", Password);
         builder.UseSetting("RateLimit:Enabled", "false");
+        // Outbox chạy nhanh để test không phải chờ lâu
+        builder.UseSetting("Outbox:PollMilliseconds", "200");
+        builder.UseSetting("Outbox:RetryBaseMilliseconds", "50");
+        builder.UseSetting("Outbox:MaxAttempts", OutboxMaxAttempts.ToString());
         builder.ConfigureTestServices(services =>
-            services.Replace(ServiceDescriptor.Singleton<IEmailSender>(Emails)));
+        {
+            services.Replace(ServiceDescriptor.Singleton<IEmailSender>(Emails));
+            // Handler sự kiện chỉ có trong test (BuildingBlocks/OutboxTests.cs)
+            services.AddScoped<IIntegrationEventHandler<OutboxPing>, OutboxPingOkHandler>();
+            services.AddScoped<IIntegrationEventHandler<OutboxPing>, OutboxPingFlakyHandler>();
+        });
     }
 
     /// <summary>Email "đã gửi" (OTP, link mời...) — test đọc lại thay cho Mailpit.</summary>

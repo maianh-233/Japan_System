@@ -1,3 +1,4 @@
+using JPCenter.Application.Common.IntegrationEvents;
 using System.Reflection;
 using FluentValidation;
 using JPCenter.Application.Common.Behaviors;
@@ -17,13 +18,16 @@ public static class MessagingServiceCollectionExtensions
         return services;
     }
 
-    /// <summary>Quét assembly của module: đăng ký mọi handler + validator. Mỗi module gọi cho chính assembly của mình.</summary>
+    /// <summary>
+    /// Quét assembly của module: đăng ký mọi handler (command / query, integration event) + validator.
+    /// Mỗi module gọi cho chính assembly của mình.
+    /// </summary>
     public static IServiceCollection AddHandlersFromAssembly(this IServiceCollection services, Assembly assembly)
     {
-        var handlerInterface = typeof(IRequestHandler<,>);
+        Type[] handlerInterfaces = [typeof(IRequestHandler<,>), typeof(IIntegrationEventHandler<>)];
         foreach (var type in assembly.GetTypes().Where(t => t is { IsAbstract: false, IsInterface: false, IsGenericTypeDefinition: false }))
         {
-            foreach (var itf in type.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerInterface))
+            foreach (var itf in type.GetInterfaces().Where(i => i.IsGenericType && handlerInterfaces.Contains(i.GetGenericTypeDefinition())))
                 services.AddScoped(itf, type);
         }
         services.AddValidatorsFromAssembly(assembly, ServiceLifetime.Scoped, includeInternalTypes: true);

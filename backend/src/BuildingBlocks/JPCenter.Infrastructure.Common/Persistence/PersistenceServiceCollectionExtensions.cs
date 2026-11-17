@@ -1,5 +1,7 @@
 using JPCenter.Application.Common.Email;
 using JPCenter.Infrastructure.Common.Email;
+using JPCenter.Infrastructure.Common.Outbox;
+using JPCenter.Application.Common.IntegrationEvents;
 using JPCenter.Application.Common.Auditing;
 using JPCenter.Application.Common.Idempotency;
 using JPCenter.Application.Common.Security;
@@ -42,6 +44,13 @@ public static class PersistenceServiceCollectionExtensions
         services.TryAddSingleton(sp => EmailOptions.Load(sp.GetRequiredService<IConfiguration>()));
         services.TryAddSingleton<EmailRenderer>();
         services.TryAddSingleton<IEmailSender, SmtpEmailSender>();
+
+        // Outbox: phát sự kiện cho module khác (ghi cùng giao dịch, gửi nền)
+        services.TryAddSingleton(sp => OutboxOptions.Load(sp.GetRequiredService<IConfiguration>()));
+        services.TryAddSingleton<OutboxSignal>();
+        services.TryAddScoped<OutboxCollector>();
+        services.TryAddScoped<IIntegrationEventPublisher>(sp => sp.GetRequiredService<OutboxCollector>());
+        services.TryAddScoped<OutboxInterceptor>();
         return services;
     }
 
@@ -59,9 +68,12 @@ public static class PersistenceServiceCollectionExtensions
             .UseNpgsql(connectionString, npgsql => npgsql.MigrationsHistoryTable("__ef_migrations_history", schema))
             .UseSnakeCaseNamingConvention()
             // Thứ tự quan trọng: đổi xóa → xóa mềm TRƯỚC, rồi mới ghi nhận thay đổi
-            .AddInterceptors(sp.GetRequiredService<AuditFieldsInterceptor>(), sp.GetRequiredService<DataChangeAuditInterceptor>()));
+            .AddInterceptors(sp.GetRequiredService<AuditFieldsInterceptor>(), sp.GetRequiredService<DataChangeAuditInterceptor>(),
+                sp.GetRequiredService<OutboxInterceptor>()));
 
         services.AddSingleton(new ModuleDbContextRegistration(typeof(TContext)));
+        // Tiến trình gửi sự kiện của module (tắt bằng Outbox:Enabled=false — sự kiện vẫn được ghi)
+        if (configuration.GetValue("Outbox:Enabled", true)) services.AddHostedService<OutboxProcessor<TContext>>();
         return services;
     }
 

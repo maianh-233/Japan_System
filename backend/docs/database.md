@@ -24,6 +24,27 @@
 
 Ký hiệu cột **Kiểu**: `?` = được để trống · `PK` khóa chính · `FK` khóa ngoại (cùng schema) · `UQ` duy nhất.
 
+**Bảng chung — mỗi schema module đều có** (ModuleDbContextBase tự thêm, không lặp lại trong từng module):
+
+#### `<schema>.outbox_messages`
+**Chức năng:** Sự kiện module gửi cho module khác (Outbox — [shared-helpers.md](shared-helpers.md)). Ghi trong CÙNG giao dịch với dữ liệu
+nghiệp vụ; tiến trình nền của module đọc và gửi tới các handler, thử lại khi lỗi. Dữ liệu kỹ thuật (lớp `OutboxMessage` ở Infrastructure.Common).
+
+| Thuộc tính | Kiểu | Giải thích |
+|---|---|---|
+| id | uuid PK | Id sự kiện |
+| type | varchar(300) | Tên đầy đủ kiểu sự kiện (vd `JPCenter.Modules.Hr.Contracts.IntegrationEvents.EmployeeQuit`) |
+| payload | jsonb | Nội dung sự kiện |
+| occurred_at | timestamptz | Lúc phát |
+| processed_at | timestamptz? | Đã gửi xong cho mọi handler — xóa sau 7 ngày |
+| attempts | int | Số lần gửi lỗi |
+| next_attempt_at | timestamptz | Lần thử kế tiếp (lùi dần: 10 giây × 2^(lần−1), tối đa 1 giờ) |
+| last_error | varchar(2000)? | Lỗi gần nhất (handler nào, thông điệp) |
+| handled_by | text[] | Handler đã xử lý xong — thử lại chỉ chạy handler còn lỗi |
+| failed_at | timestamptz? | Hết số lần thử (mặc định 8) — ngưng gửi, cần người xem log |
+
+Chỉ mục: `next_attempt_at` (lọc `processed_at IS NULL AND failed_at IS NULL`).
+
 ## Mục lục
 
 | Module (schema) | Bảng |
@@ -1786,3 +1807,4 @@ sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đ�
 | 2026-11-17 | Đăng nhập & bảo mật (user story 01): thêm bảng `user_sessions` (13a), `one_time_tokens` (13b); `user_accounts` + `failed_login_count`, `locked_until`, `must_change_password`; `portal_accounts` + `failed_login_count`, `locked_until`, `must_change_password` |
 | 2026-11-17 | Bỏ đăng nhập 2 lớp (2FA) — không làm: xóa `user_accounts.two_factor_enabled`, `two_factor_secret`, `two_factor_required`; `user_sessions.trusted_until`; `one_time_tokens.purpose` bỏ `two_factor`, `two_factor_setup` |
 | 2026-11-17 | Code giai đoạn 3: `user_accounts` + `token_version`; `portal_accounts` + `display_name`, `token_version`; `audit_logs` + `trace_id`, category thêm `security`; thêm bảng `idempotency_keys` (13c). Migration đầu tiên của schema `system`, `hr` (hr mới có `employees`, `teacher_profiles`) |
+| 2026-11-17 | Giai đoạn 8: thêm bảng chung `outbox_messages` vào mọi schema module (migration `AddOutbox` cho `system`, `hr`) |

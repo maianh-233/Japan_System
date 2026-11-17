@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using System.Reflection;
+using JPCenter.Infrastructure.Common.Outbox;
 using JPCenter.Infrastructure.Common.Persistence.Conversions;
 using JPCenter.SharedKernel.Domain;
 using JPCenter.SharedKernel.Primitives;
@@ -53,6 +54,17 @@ public abstract class ModuleDbContextBase(DbContextOptions options) : DbContext(
     {
         modelBuilder.HasDefaultSchema(Schema);
         modelBuilder.ApplyConfigurationsFromAssembly(ModuleAssembly, t => t.Namespace?.Contains(".Infrastructure.") == true);
+
+        // Outbox: sự kiện chờ gửi cho module khác — mỗi module 1 bảng trong schema của mình
+        modelBuilder.Entity<OutboxMessage>(b =>
+        {
+            b.ToTable("outbox_messages");
+            b.HasKey(m => m.Id);
+            b.Property(m => m.Type).HasMaxLength(300);
+            b.Property(m => m.Payload).HasColumnType("jsonb");
+            b.Property(m => m.LastError).HasMaxLength(2000);
+            b.HasIndex(m => m.NextAttemptAt).HasFilter("processed_at IS NULL AND failed_at IS NULL");
+        });
 
         // Chỉ entity thật (kế thừa Entity<>) — KHÔNG đụng tới kiểu EF tự phát hiện tạm thời (record lồng sẽ thành cột / jsonb),
         // gọi modelBuilder.Entity() lên chúng sẽ vô tình biến chúng thành bảng.

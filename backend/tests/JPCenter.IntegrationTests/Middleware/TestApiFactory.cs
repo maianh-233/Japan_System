@@ -29,6 +29,7 @@ public sealed class TestApiFactory : WebApplicationFactory<Program>
     {
         builder.UseEnvironment("Testing");
         builder.UseSetting("Jobs:Enabled", "false");
+        builder.UseSetting("Outbox:Enabled", "false"); // không có DB thật
         builder.UseSetting("Jwt:SigningKey", SigningKey);
         builder.UseSetting("Jwt:Issuer", "jpcenter-api");
         builder.UseSetting("Jwt:Audience", "jpcenter-web");
