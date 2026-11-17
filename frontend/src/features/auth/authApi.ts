@@ -1,6 +1,6 @@
 /**
- * API xác thực GIẢ LẬP — chạy trên trình duyệt, có độ trễ như gọi mạng thật.
- * Khi có backend: giữ nguyên chữ ký hàm, thay phần thân bằng gọi HTTP.
+ * API xác thực. Chế độ "api" (mặc định) → gọi backend thật qua realAuth.ts; chế độ "mock" → giả lập trên trình duyệt
+ * (có độ trễ như gọi mạng thật). Chữ ký hàm giống nhau ở 2 chế độ.
  */
 import type { SessionUser } from '@/types/auth';
 import { DEMO_OTP, DEMO_PASSWORD, MOCK_ACCOUNTS } from '@/mocks/data/users';
@@ -11,6 +11,11 @@ import { useCrmStore } from '@/features/crm/crmStore';
 import { useSystemStore } from '@/features/system/systemStore';
 import { recordActivity } from '@/features/system/activity';
 import type { PortalAccount } from '@/features/student/types';
+import { USE_API } from '@/lib/api/config';
+import { ApiError } from '@/lib/api/http';
+import * as real from './realAuth';
+
+export { ApiError };
 
 const delay = (ms = 700) => new Promise((r) => setTimeout(r, ms));
 const normalize = (email: string) => email.trim().toLowerCase();
@@ -18,15 +23,6 @@ const DEMO_PORTAL_OWNERS: Record<string, { ownerType: 'student' | 'guardian'; ow
   'u-student': { ownerType: 'student', ownerId: 'ST-1' },
   'u-parent': { ownerType: 'guardian', ownerId: 'L-0001' },
 };
-
-export class ApiError extends Error {
-  constructor(
-    message: string,
-    public code: string,
-  ) {
-    super(message);
-  }
-}
 
 function portalUser(account: PortalAccount): SessionUser {
   const { ownerId, ownerType } = account;
@@ -96,7 +92,8 @@ function completeLogin(user: SessionUser): SessionUser {
 }
 
 /** Đăng nhập bằng email hoặc tên đăng nhập + mật khẩu */
-export async function login(identifier: string, password: string): Promise<SessionUser> {
+export async function login(identifier: string, password: string, remember = false): Promise<SessionUser> {
+  if (USE_API) return real.login(identifier, password, remember);
   await delay(800);
   const loginId = normalize(identifier);
   const demo = MOCK_ACCOUNTS.find((a) => normalize(a.email) === loginId);
@@ -147,6 +144,7 @@ const MAX_OTP_ATTEMPTS = 5;
  * (user story AUTH-04.E1 / E2) — người ngoài không dò được email nào có trong hệ thống.
  */
 export async function requestPasswordReset(email: string): Promise<{ maskedEmail: string; resendAfter: number }> {
+  if (USE_API) return real.requestPasswordReset(email);
   await delay(900);
   const key = normalize(email);
   const acc = MOCK_ACCOUNTS.find((a) => a.email === key);
@@ -158,6 +156,7 @@ export async function requestPasswordReset(email: string): Promise<{ maskedEmail
 
 /** Bước 2: xác thực mã OTP */
 export async function verifyOtp(email: string, otp: string): Promise<void> {
+  if (USE_API) return real.verifyOtp(email, otp);
   await delay(700);
   const st = otpState.get(normalize(email));
   if (!st) throw new ApiError('Phiên đặt lại mật khẩu đã hết hạn, vui lòng gửi lại mã.', 'OTP_EXPIRED');
@@ -174,6 +173,7 @@ export async function verifyOtp(email: string, otp: string): Promise<void> {
 
 /** Bước 3: đặt mật khẩu mới (chỉ sau khi OTP hợp lệ) */
 export async function resetPassword(email: string, newPassword: string): Promise<void> {
+  if (USE_API) return real.resetPassword(email, newPassword);
   await delay(800);
   const key = normalize(email);
   const st = otpState.get(key);
@@ -186,6 +186,10 @@ export async function resetPassword(email: string, newPassword: string): Promise
 // ---------------- Đổi mật khẩu (đang đăng nhập) ----------------
 /** Đổi mật khẩu: kiểm tra mật khẩu hiện tại. Backend: đổi xong thu hồi phiên ở thiết bị khác nếu được yêu cầu. */
 export async function changePassword(email: string, current: string, next: string): Promise<void> {
+  if (USE_API) {
+    await real.changePassword(current, next, false);
+    return;
+  }
   await delay(800);
   const acc = MOCK_ACCOUNTS.find((a) => a.email === normalize(email));
   if (!acc) throw new ApiError('Không tìm thấy tài khoản.', 'NOT_FOUND');

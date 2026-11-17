@@ -7,6 +7,7 @@ import { useHrStore } from '@/features/hr/hrStore';
 import { meOf } from '@/features/hr/hrUtils';
 import { useStudentStore } from '@/features/student/studentStore';
 import { useSystemStore } from '@/features/system/systemStore';
+import { USE_API } from '@/lib/api/config';
 
 const LEGACY_PORTAL_OWNERS: Record<string, { ownerType: 'student' | 'guardian'; ownerId: string }> = {
   'u-student': { ownerType: 'student', ownerId: 'ST-1' },
@@ -37,7 +38,8 @@ export function RequirePortal({ portal, children }: { portal: Portal; children: 
     user && (user.portal === 'student' || user.portal === 'parent') &&
     (((user.portalAccountId || legacyPortalAccount) && !portalAccount) || (portalAccount && portalAccount.status !== 'active')),
   );
-  const sessionInvalid = staffAccountInvalid || portalAccountInvalid;
+  // API thật: server là nơi quyết định (tài khoản khóa / phiên thu hồi → 401 → tự đăng xuất) — không đối chiếu dữ liệu giả
+  const sessionInvalid = !USE_API && (staffAccountInvalid || portalAccountInvalid);
 
   useEffect(() => {
     if (sessionInvalid) signOut();

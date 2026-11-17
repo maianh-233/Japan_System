@@ -15,6 +15,9 @@ import type { PermAction, PermOverride, PermScope, RoleAssignment } from './type
 import { useActor } from './useActor';
 import { useAuth } from '@/hooks/useAuth';
 import { isFinancePerm, useApprovalStore } from './approvals';
+import { USE_API } from '@/lib/api/config';
+import { requestPasswordReset } from '@/features/auth/authApi';
+import * as systemApi from './systemApi';
 
 const branchNames = (ids: string[]) => (ids.length ? ids.map((id) => getBranches(false).find((b) => b.id === id)?.name ?? id).join(', ') : 'Mọi chi nhánh');
 const SCOPE_TONE: Record<PermScope, string> = { own: 'bg-warning-100 text-warning-700', branch: 'bg-primary-100 text-primary-700', all: 'bg-success-100 text-success-700' };
@@ -58,10 +61,22 @@ export function UserAccessDrawer({ userId, editable, onClose }: Props) {
   if (!access || !emp) return null;
   const S = ACCOUNT_STATUS[access.status];
 
-  const saveRoles = () => {
+  const saveRoles = async () => {
     const list = assignments.filter((a) => a.roleId);
     if (!list.length) {
       notify.toast.error('Cần ít nhất 1 vai trò');
+      return;
+    }
+    if (USE_API) {
+      // Server kiểm quy tắc cấp quyền, chi nhánh, Super Admin cuối cùng; thêm quyền tài chính → yêu cầu duyệt
+      try {
+        const r = await systemApi.setUserRoles(access.userId, list);
+        setDraft(null);
+        if (r.pendingApprovalId) notify.info({ title: 'Đã gửi yêu cầu duyệt', description: r.message });
+        else notify.toast.success('Đã lưu vai trò');
+      } catch (e) {
+        notify.error({ title: 'Chưa lưu được vai trò', description: (e as Error).message });
+      }
       return;
     }
     const fmt = (l: RoleAssignment[]) => l.map((a) => `${roles.find((r) => r.id === a.roleId)?.name} @ ${branchNames(a.branchIds)}`).join('; ');
@@ -84,6 +99,15 @@ export function UserAccessDrawer({ userId, editable, onClose }: Props) {
 
   const toggleLock = async () => {
     if (access.status === 'locked') {
+      if (USE_API) {
+        try {
+          await systemApi.unlockUser(access.userId);
+          notify.toast.success('Đã mở khóa tài khoản');
+        } catch (e) {
+          notify.error({ title: 'Chưa mở khóa được', description: (e as Error).message });
+        }
+        return;
+      }
       updateAccess(access.userId, { status: 'active', lockedReason: undefined }, actor, { severity: 'warning', action: 'Mở khóa tài khoản' });
       notify.toast.success('Đã mở khóa tài khoản');
       return;
@@ -94,8 +118,10 @@ export function UserAccessDrawer({ userId, editable, onClose }: Props) {
       consequences: ['Đăng xuất khỏi mọi thiết bị ngay lập tức.', 'Lead / task đang giao vẫn giữ nguyên — nhớ bàn giao.'],
       requireReason: { label: 'Lý do khóa', placeholder: 'Nghỉ việc, nghi lộ mật khẩu...' },
       confirmText: 'Khóa tài khoản',
+      onConfirm: USE_API ? ({ reason }) => systemApi.lockUser(access.userId, reason ?? '') : undefined,
     });
-    if (res) {
+    if (res && USE_API) notify.toast.success('Đã khóa tài khoản — mọi phiên đăng nhập bị thu hồi');
+    else if (res) {
       updateAccess(access.userId, { status: 'locked', lockedReason: res.reason }, actor, { severity: 'critical', action: 'Khóa tài khoản', detail: res.reason });
       notify.toast.success('Đã khóa tài khoản');
     }
@@ -130,7 +156,17 @@ export function UserAccessDrawer({ userId, editable, onClose }: Props) {
             size="sm"
             variant="ghost"
             tone="neutral"
-            onClick={() => {
+            onClick={async () => {
+              if (USE_API) {
+                // Gửi mã OTP đặt lại mật khẩu tới email của người dùng (giống "Quên mật khẩu")
+                try {
+                  await requestPasswordReset(access.email);
+                  notify.toast.success(`Đã gửi mã đặt lại mật khẩu tới ${access.email}`);
+                } catch (e) {
+                  notify.error({ title: 'Chưa gửi được', description: (e as Error).message });
+                }
+                return;
+              }
               useSystemStore.getState().audit(actor, { category: 'auth', severity: 'warning', action: 'Đặt lại mật khẩu', target: emp.fullName });
               notify.toast.success(`Đã gửi link đặt lại mật khẩu tới ${access.email}`);
             }}
@@ -138,7 +174,20 @@ export function UserAccessDrawer({ userId, editable, onClose }: Props) {
             Đặt lại mật khẩu
           </Button>
           {access.status === 'invited' && (
-            <Button icon={Mail} size="sm" variant="ghost" tone="neutral" onClick={() => notify.toast.success('Đã gửi lại thư mời')}>
+            <Button
+              icon={Mail}
+              size="sm"
+              variant="ghost"
+              tone="neutral"
+              onClick={async () => {
+                try {
+                  if (USE_API) await systemApi.resendInvite(access.userId);
+                  notify.toast.success('Đã gửi lại thư mời — link cũ hết hiệu lực');
+                } catch (e) {
+                  notify.error({ title: 'Chưa gửi được', description: (e as Error).message });
+                }
+              }}
+            >
               Gửi lại thư mời
             </Button>
           )}
@@ -218,7 +267,21 @@ export function UserAccessDrawer({ userId, editable, onClose }: Props) {
                             {o.by} · {fmtDate(o.at)} · {o.until ? (active ? `hết hạn ${fromNow(o.until)} (${fmtDate(o.until)})` : `đã hết hạn ${fmtDate(o.until)}`) : 'vô thời hạn'}
                           </p>
                         </div>
-                        {canEdit && <Button icon={Trash2} iconOnly size="sm" variant="ghost" tone="danger" aria-label="Thu hồi" onClick={() => removeOverride(access.userId, o.id, actor)} />}
+                        {canEdit && (
+                          <Button
+                            icon={Trash2}
+                            iconOnly
+                            size="sm"
+                            variant="ghost"
+                            tone="danger"
+                            aria-label="Thu hồi"
+                            onClick={() =>
+                              USE_API
+                                ? systemApi.removeOverride(access.userId, o.id).catch((e: Error) => notify.error({ title: 'Chưa thu hồi được', description: e.message }))
+                                : removeOverride(access.userId, o.id, actor)
+                            }
+                          />
+                        )}
                       </div>
                     </div>
                   );
@@ -281,9 +344,16 @@ export function UserAccessDrawer({ userId, editable, onClose }: Props) {
         submitAction="save"
         successMessage="Đã ghi nhận"
         initialValues={{ effect: 'grant', scope: 'branch', until: dayjs().add(7, 'day') }}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           if (v.effect === 'grant' && !canGrant(granter, v.perm, v.scope ?? 'own')) throw new Error('Bạn chỉ cấp được quyền mình đang có, với phạm vi không rộng hơn của mình');
           const ov = { perm: v.perm, effect: v.effect, scope: v.effect === 'grant' ? v.scope : undefined, until: v.until?.endOf('day').toISOString(), reason: v.reason };
+          if (USE_API) {
+            const r = await systemApi.addOverride(access.userId, ov);
+            if (r.pendingApprovalId) notify.info({ title: 'Đã gửi yêu cầu duyệt', description: r.message });
+            else if (r.warnings?.length) notify.info({ title: 'Đã ghi nhận', description: r.warnings.join(' ') });
+            setTab('overrides');
+            return;
+          }
           if (v.effect === 'grant' && isFinancePerm(v.perm)) {
             requestApproval({ kind: 'finance_perm', title: `Cấp quyền ${v.perm} cho ${emp.fullName}`, detail: v.reason, payload: { kind: 'finance_perm', userId: access.userId, userName: emp.fullName, change: { type: 'override', override: ov } } }, me);
             notify.info({ title: 'Đã gửi yêu cầu duyệt', description: 'Quyền tài chính chỉ có hiệu lực khi một người khác duyệt.' });

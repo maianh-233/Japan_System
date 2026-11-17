@@ -15,6 +15,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { fmtDateTime, fromNow } from '@/lib/date';
 import { getBranches } from '@/features/system/useBranches';
 import { ALL_BRANCHES } from '@/types/auth';
+import { USE_API } from '@/lib/api/config';
+import * as systemApi from '@/features/system/systemApi';
 
 const branchCode = (id: string) => getBranches(false).find((b) => b.id === id)?.code ?? id;
 
@@ -199,8 +201,13 @@ export default function UserPermissionsPage() {
         submitText="Gửi lời mời"
         successMessage="Đã gửi lời mời"
         initialValues={{ branchIds: branchId === ALL_BRANCHES ? [] : [branchId] }}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           const emp = employees.find((e) => e.id === v.userId)!;
+          if (USE_API) {
+            // Server tạo tài khoản "đã mời" + gửi email kích hoạt; vai trò có quyền tài chính → chờ duyệt 2 người
+            await systemApi.inviteUser(emp.id, v.roleId, v.branchIds ?? []);
+            return;
+          }
           addAccess({ userId: emp.id, email: emp.email, status: 'invited', roles: [{ roleId: v.roleId, branchIds: v.branchIds ?? [] }], overrides: [] }, actor);
         }}
       >

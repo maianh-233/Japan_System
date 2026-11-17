@@ -5,6 +5,7 @@ import { Button, TextInput } from '@/components/common';
 import { cn } from '@/lib/cn';
 import { requestPasswordReset, resetPassword, verifyOtp } from '@/features/auth/authApi';
 import { DEMO_OTP } from '@/mocks/data/users';
+import { USE_API } from '@/lib/api/config';
 
 type Step = 'email' | 'otp' | 'reset' | 'done';
 
@@ -198,7 +199,18 @@ export function ForgotPasswordDialog({ open, initialEmail, onClose, onDone }: Fo
                 {error}
               </p>
             )}
-            <p className="rounded-md bg-warning-50 px-2 py-1 text-xs text-warning-700">Dữ liệu giả: mã OTP là {DEMO_OTP}</p>
+            <p className="rounded-md bg-warning-50 px-2 py-1 text-xs text-warning-700">
+              {USE_API ? (
+                <>
+                  Môi trường dev: email OTP xem ở{' '}
+                  <a href="http://localhost:8025" target="_blank" rel="noreferrer" className="underline">
+                    Mailpit (localhost:8025)
+                  </a>
+                </>
+              ) : (
+                <>Dữ liệu giả: mã OTP là {DEMO_OTP}</>
+              )}
+            </p>
           </div>
           <Button icon={ShieldCheck} loading={loading} block size="lg" onClick={() => submitOtp()}>
             Xác nhận

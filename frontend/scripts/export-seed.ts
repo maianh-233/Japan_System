@@ -6,6 +6,7 @@
  * Kết quả: backend/src/Modules/{System,Hr}/.../Infrastructure/Persistence/Seed/*.seed.json
  * Thời gian tương đối (dayjs "x ngày trước") được chốt tại lúc chạy script.
  */
+import { createHash } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { MOCK_EMPLOYEES } from '@/mocks/data/employees';
@@ -68,3 +69,32 @@ write(resolve(backend, 'System', 'JPCenter.Modules.System', 'Infrastructure', 'P
   integrationLogs: MOCK_INTEGRATION_LOGS,
   auditLogs: MOCK_AUDIT_LOGS,
 });
+
+// Bảng đổi Id mock ↔ GUID backend (giống SeedData.IdOf: MD5 "jpcenter-seed:" + id, đánh dấu UUID v3) — frontend dùng khi nối API thật
+function idOf(mockId: string): string {
+  const h = createHash('md5').update('jpcenter-seed:' + mockId, 'utf8').digest();
+  h[6] = (h[6] & 0x0f) | 0x30;
+  h[8] = (h[8] & 0x3f) | 0x80;
+  const x = h.toString('hex');
+  return `${x.slice(0, 8)}-${x.slice(8, 12)}-${x.slice(12, 16)}-${x.slice(16, 20)}-${x.slice(20)}`;
+}
+const seedIds = [
+  ...MOCK_BRANCH_PROFILES.map((b) => b.id),
+  ...MOCK_ROLES.map((r) => r.id),
+  ...MOCK_EMPLOYEES.map((e) => e.id),
+  ...MOCK_STUDENTS.map((x) => x.id),
+  ...MOCK_LEADS.map((x) => x.id),
+  ...PORTAL_ACCOUNTS.map((a) => a.id),
+];
+const idPath = resolve(process.cwd(), 'src', 'lib', 'api', 'seedIds.generated.ts');
+mkdirSync(dirname(idPath), { recursive: true });
+writeFileSync(
+  idPath,
+  `// TỰ SINH bởi \`npm run export-seed\` — không sửa tay. Id mock → GUID dữ liệu mẫu backend.
+` +
+    `export const SEED_IDS: Record<string, string> = ${JSON.stringify(Object.fromEntries([...new Set(seedIds)].map((id) => [id, idOf(id)])), null, 2)};
+`,
+  'utf8',
+);
+console.log('✓', idPath);
+

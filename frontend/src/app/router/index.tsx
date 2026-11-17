@@ -3,6 +3,7 @@ import { RequirePortal, RootRedirect } from '@/app/guards/RequirePortal';
 import StaffLayout from '@/layouts/StaffLayout';
 import { ParentLayout, StudentLayout, TeacherLayout } from '@/layouts/PortalLayouts';
 import LoginPage from '@/pages/auth/login/LoginPage';
+import ActivatePage from '@/pages/auth/activate/ActivatePage';
 import ComingSoon from '@/pages/common/ComingSoon';
 import NotFound from '@/pages/errors/NotFound';
 import StaffDashboard from '@/pages/staff/dashboard/StaffDashboard';
@@ -102,6 +103,7 @@ import { STAFF_MODULES } from '@/config/navigation';
 export const router = createBrowserRouter([
   { path: '/', element: <RootRedirect /> },
   { path: '/login', element: <LoginPage /> },
+  { path: '/activate', element: <ActivatePage /> },
   {
     path: '/admin',
     element: (

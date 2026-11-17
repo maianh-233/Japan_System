@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Form, Progress } from 'antd';
 import { Check, KeyRound, Laptop, LogOut, Smartphone, X } from 'lucide-react';
 import { Button, PageHeader, StatusTag, TextInput, useConfirm, useNotify } from '@/components/common';
 import { changePassword } from '@/features/auth/authApi';
+import * as realAuth from '@/features/auth/realAuth';
+import { USE_API } from '@/lib/api/config';
 import { useSystemStore } from '@/features/system/systemStore';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/cn';
@@ -32,16 +34,39 @@ export default function SecurityPage() {
   const [form] = Form.useForm<Values>();
   const next = Form.useWatch('next', form) ?? '';
   const [saving, setSaving] = useState(false);
-  const [devices, setDevices] = useState([
+  const [devices, setDevices] = useState(USE_API ? [] : [
     { id: 'd1', name: 'Chrome · Windows', place: 'Hà Nội', at: new Date().toISOString(), current: true, icon: Laptop },
     { id: 'd2', name: 'Safari · iPhone', place: 'Hà Nội', at: new Date(Date.now() - 3 * 3600_000).toISOString(), current: false, icon: Smartphone },
     { id: 'd3', name: 'Edge · Windows', place: 'TP.HCM', at: new Date(Date.now() - 4 * 86400_000).toISOString(), current: false, icon: Laptop },
   ]);
 
+  // API thật: thiết bị đang đăng nhập + lịch sử đăng nhập lấy từ server (AUTH-08, AUTH-09)
+  const [apiLogins, setApiLogins] = useState<{ id: string; action: string; severity: string; at: string; device: string }[]>([]);
+  const reload = useCallback(async () => {
+    if (!USE_API) return;
+    try {
+      const [sessions, history] = await Promise.all([realAuth.mySessions(), realAuth.loginHistory()]);
+      setDevices(sessions.map((s) => ({ id: s.id, name: s.device, place: s.ip, at: s.lastSeenAt, current: s.current, icon: /iphone|android|mobile/i.test(s.device) ? Smartphone : Laptop })));
+      setApiLogins(history.items.slice(0, 8).map((h, i) => ({ id: String(i), action: h.action, severity: h.success ? 'info' : 'critical', at: h.at, device: `${h.device} · ${h.ip}` })));
+    } catch {
+      /* không tải được thì để trống */
+    }
+  }, []);
+  useEffect(() => {
+    void reload();
+  }, [reload]);
+
+  const revokeOthers = async () => {
+    if (USE_API) {
+      await realAuth.revokeOtherSessions();
+      await reload();
+    } else setDevices((d) => d.filter((x) => x.current));
+  };
+
   if (!user) return null;
   const actor = { name: user.fullName, role: user.roleName };
   const passed = RULES.filter((r) => r.test(next)).length;
-  const logins = audits.filter((a) => a.category === 'auth' && (a.actor === user.fullName || a.target === user.email)).slice(0, 8);
+  const logins = USE_API ? apiLogins : audits.filter((a) => a.category === 'auth' && (a.actor === user.fullName || a.target === user.email)).slice(0, 8);
 
   const submit = async (v: Values) => {
     setSaving(true);
@@ -51,7 +76,7 @@ export default function SecurityPage() {
       form.resetFields();
       notify.success({ title: 'Đã đổi mật khẩu', description: 'Lần đăng nhập sau dùng mật khẩu mới.' });
       const out = await confirm({ title: 'Đăng xuất các thiết bị khác?', description: 'Nên làm nếu bạn nghi mật khẩu cũ bị lộ.', tone: 'primary', confirmText: 'Đăng xuất thiết bị khác', cancelText: 'Để sau' });
-      if (out) setDevices((d) => d.filter((x) => x.current));
+      if (out) await revokeOthers();
     } catch (e) {
       form.setFields([{ name: (e as Error).message.includes('hiện tại') ? 'current' : 'next', errors: [(e as Error).message] }]);
     } finally {
@@ -116,7 +141,7 @@ export default function SecurityPage() {
                   tone="danger"
                   onClick={async () => {
                     if (await confirm({ title: 'Đăng xuất mọi thiết bị khác?', tone: 'warning' })) {
-                      setDevices((d) => d.filter((x) => x.current));
+                      await revokeOthers();
                       audit(actor, { category: 'auth', severity: 'info', action: 'Đăng xuất thiết bị khác', target: user.email });
                       notify.toast.success('Đã đăng xuất các thiết bị khác');
                     }
@@ -141,7 +166,12 @@ export default function SecurityPage() {
                       Thiết bị này
                     </StatusTag>
                   ) : (
-                    <Button icon={LogOut} iconOnly size="sm" variant="ghost" tone="neutral" aria-label="Đăng xuất thiết bị" onClick={() => setDevices((x) => x.filter((y) => y.id !== d.id))} />
+                    <Button icon={LogOut} iconOnly size="sm" variant="ghost" tone="neutral" aria-label="Đăng xuất thiết bị" onClick={async () => {
+                        if (USE_API) {
+                          await realAuth.revokeSession(d.id);
+                          await reload();
+                        } else setDevices((x) => x.filter((y) => y.id !== d.id));
+                      }} />
                   )}
                 </li>
               ))}

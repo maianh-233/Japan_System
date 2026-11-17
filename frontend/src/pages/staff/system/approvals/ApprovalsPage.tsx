@@ -6,6 +6,8 @@ import { APPROVAL_KIND, APPROVAL_STATUS, canApproveKind, useApprovalStore, type 
 import { useAuth } from '@/hooks/useAuth';
 import { fmtDateTime, fromNow } from '@/lib/date';
 import { ALL_BRANCHES } from '@/types/auth';
+import { USE_API } from '@/lib/api/config';
+import * as systemApi from '@/features/system/systemApi';
 
 type Tab = 'todo' | 'mine' | 'history';
 const STATUS_ICON = { pending: Clock, approved: CheckCircle2, rejected: XCircle, withdrawn: Undo2 } as const;
@@ -27,6 +29,7 @@ export default function ApprovalsPage() {
   const data = tab === 'todo' ? todo : tab === 'mine' ? own : inScope.filter((r) => r.status !== 'pending');
 
   const doApprove = async (r: ApprovalRequest) => {
+    let warnings: string[] = [];
     const res = await confirm({
       title: `Duyệt ${r.code}: ${APPROVAL_KIND[r.kind]}?`,
       description: r.title,
@@ -37,12 +40,16 @@ export default function ApprovalsPage() {
       tone: 'warning',
       confirmAction: 'approve',
       confirmText: 'Duyệt & thực hiện',
-      onConfirm: () => approve(r.id, me),
+      // Cấp quyền tài chính: server áp dụng + kiểm lại quyền người đề nghị. Hoàn tiền / hủy hóa đơn: vẫn giả lập (chưa có API Tài chính)
+      onConfirm: async () => {
+        if (USE_API && r.kind === 'finance_perm') warnings = await systemApi.approveRequest(r.id);
+        else approve(r.id, me);
+      },
     });
-    if (res) notify.success({ title: `Đã duyệt ${r.code}`, description: r.title });
+    if (res) notify.success({ title: `Đã duyệt ${r.code}`, description: [r.title, ...warnings].join(' — ') });
   };
   const doReject = async (r: ApprovalRequest) => {
-    const res = await confirm({ title: `Từ chối ${r.code}?`, description: r.title, tone: 'danger', confirmAction: 'reject', confirmText: 'Từ chối', requireReason: { label: 'Lý do', placeholder: 'VD: Số tiền hoàn chưa đúng số buổi đã học' }, onConfirm: ({ reason }) => reject(r.id, me, reason ?? '') });
+    const res = await confirm({ title: `Từ chối ${r.code}?`, description: r.title, tone: 'danger', confirmAction: 'reject', confirmText: 'Từ chối', requireReason: { label: 'Lý do', placeholder: 'VD: Số tiền hoàn chưa đúng số buổi đã học' }, onConfirm: ({ reason }) => (USE_API && r.kind === 'finance_perm' ? systemApi.rejectRequest(r.id, reason ?? '') : reject(r.id, me, reason ?? '')) });
     if (res) notify.toast.info(`Đã từ chối ${r.code}`);
   };
 
@@ -124,7 +131,12 @@ export default function ApprovalsPage() {
         searchKeys={['title', 'code']}
         rowActions={(r) =>
           r.status !== 'pending' ? null : mine(r) ? (
-            <Button icon={Undo2} size="sm" variant="ghost" tone="neutral" onClick={() => withdraw(r.id, me)}>
+            <Button icon={Undo2} size="sm" variant="ghost" tone="neutral" onClick={() =>
+                USE_API && r.kind === 'finance_perm'
+                  ? systemApi.withdrawRequest(r.id).catch((e: Error) => notify.error({ title: 'Chưa rút lại được', description: e.message }))
+                  : withdraw(r.id, me)
+              }
+            >
               Rút lại
             </Button>
           ) : canApproveKind(r.kind as ApprovalKind, can) ? (

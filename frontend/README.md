@@ -3,6 +3,28 @@
 React + TypeScript + Vite · Ant Design · Tailwind CSS v4 · lucide-react / @ant-design/icons ·
 TanStack Query · Zustand · React Router · MSW (mock API khi chưa có backend)
 
+## Chạy cùng backend thật (mặc định)
+
+```bash
+# 1. Backend: Docker + API (xem backend/README.md)
+cd backend && docker compose -f deploy/docker-compose.yml --env-file .env up -d && dotnet run --project src/Host/JPCenter.Api
+# 2. Frontend
+cd frontend && npm install && npm run dev   # http://localhost:5173 — /api được chuyển tới http://localhost:5080
+```
+
+Đăng nhập bằng tài khoản mẫu (vd `superadmin@jpcenter.vn`), mật khẩu `Jpcenter@123` (= `Seed__DefaultPassword` của backend).
+Email (OTP quên mật khẩu, link mời kích hoạt `/activate?token=`) xem ở Mailpit: http://localhost:8025.
+
+| Phần | Nguồn dữ liệu |
+|---|---|
+| Đăng nhập / đăng xuất / làm mới phiên, quên & đổi mật khẩu, kích hoạt tài khoản, thiết bị & lịch sử đăng nhập | **API thật** |
+| Vai trò & quyền, Phân quyền người dùng, Duyệt cấp quyền tài chính | **API thật** |
+| Các trang khác (CRM, Học viên, Đào tạo, Tài chính, Nhân sự...) | Dữ liệu giả — chờ backend từng module |
+
+- Access token chỉ nằm trong bộ nhớ; refresh token là cookie HttpOnly. Tải lại trang → tự xin phiên mới (`src/features/auth/session.ts`).
+- Id backend (GUID) ↔ Id mock (`cg`, `e-huy`, `R-SA`): `src/lib/api/ids.ts`, bảng sinh bởi `npm run export-seed`.
+- Chạy không cần backend: tạo `.env.local` với `VITE_API_MODE=mock` (xem `.env.example`).
+
 ## Cấu trúc thư mục
 
 ```

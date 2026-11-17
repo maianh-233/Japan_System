@@ -1,7 +1,7 @@
 import type { SessionUser } from '@/types/auth';
 
-/** Mật khẩu chung cho mọi tài khoản demo */
-export const DEMO_PASSWORD = '123456';
+/** Mật khẩu chung cho mọi tài khoản demo — trùng Seed__DefaultPassword của backend (.env.example) */
+export const DEMO_PASSWORD = 'Jpcenter@123';
 /** Mã OTP giả cho chức năng quên mật khẩu */
 export const DEMO_OTP = '123456';
 

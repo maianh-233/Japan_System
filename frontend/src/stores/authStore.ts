@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist, type StateStorage } from 'zustand/middleware';
 import { ALL_BRANCHES, type SessionUser } from '@/types/auth';
+import { USE_API } from '@/lib/api/config';
+import { api, setAccessToken } from '@/lib/api/http';
 
 interface AuthState {
   user: SessionUser | null;
@@ -55,7 +57,11 @@ export const useAuthStore = create<AuthState>()(
       branchId: ALL_BRANCHES,
       remember: true,
       signIn: (user, remember) => set({ user, remember, branchId: defaultBranchOf(user) }),
-      signOut: () => set({ user: null, branchId: ALL_BRANCHES }),
+      signOut: () => {
+        // API thật: thu hồi phiên trên server + xóa cookie refresh; lỗi mạng thì vẫn đăng xuất ở trình duyệt
+        if (USE_API) void api('/system/auth/logout', { method: 'POST', noRefresh: true }).catch(() => undefined).finally(() => setAccessToken(null));
+        set({ user: null, branchId: ALL_BRANCHES });
+      },
       setBranch: (branchId) => set({ branchId }),
     }),
     {

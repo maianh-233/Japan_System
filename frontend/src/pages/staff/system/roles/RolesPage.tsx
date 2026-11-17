@@ -10,6 +10,8 @@ import { useActor } from '@/features/system/useActor';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/cn';
 import { fromNow } from '@/lib/date';
+import { USE_API } from '@/lib/api/config';
+import * as systemApi from '@/features/system/systemApi';
 
 const SCOPE_STYLE: Record<PermScope, string> = {
   own: 'bg-warning-100 text-warning-700',
@@ -76,7 +78,19 @@ export default function RolesPage() {
     if (blocked) notify.toast.warning(`${blocked} quyền vượt quá quyền của bạn — giữ nguyên`);
   };
 
-  const save = () => {
+  const save = async () => {
+    if (USE_API) {
+      // Server kiểm từng ô (vượt quyền → giữ nguyên), tách phần thêm quyền tài chính thành yêu cầu duyệt 2 người
+      try {
+        const r = await systemApi.saveRoleGrants(role.id, draft!);
+        setDraft(null);
+        if (r.pendingApprovalId || r.keptCells?.length) notify.info({ title: `Đã lưu role ${role.name}`, description: r.message });
+        else notify.success({ title: `Đã lưu role ${role.name}`, description: `${diff.length} quyền thay đổi · có hiệu lực ngay.` });
+      } catch (e) {
+        notify.error({ title: 'Chưa lưu được', description: (e as Error).message });
+      }
+      return;
+    }
     saveRole({ ...role, grants: draft! }, actor, diff.slice(0, 30));
     setDraft(null);
     notify.success({ title: `Đã lưu role ${role.name}`, description: `${diff.length} quyền thay đổi · áp dụng cho ${userCount(role.id)} người ngay lần thao tác tới.` });
@@ -88,9 +102,14 @@ export default function RolesPage() {
       notify.error({ title: 'Không xóa được role đang dùng', description: `${n} người đang được gán "${role.name}". Đổi role cho họ trước.` });
       return;
     }
-    const ok = await confirm({ title: `Xóa role "${role.name}"?`, tone: 'danger', confirmAction: 'delete' });
+    const ok = await confirm({
+      title: `Xóa role "${role.name}"?`,
+      tone: 'danger',
+      confirmAction: 'delete',
+      onConfirm: USE_API ? () => systemApi.deleteRole(role.id) : undefined,
+    });
     if (ok) {
-      removeRole(role.id, actor);
+      if (!USE_API) removeRole(role.id, actor);
       setSelectedId(roles[0].id);
       setDraft(null);
     }
@@ -309,8 +328,15 @@ export default function RolesPage() {
         description="Nên sao chép từ role gần giống rồi chỉnh — nhanh và ít sót quyền."
         submitAction="create"
         successMessage="Đã tạo role"
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           if (roles.some((r) => r.name.toLowerCase() === v.name.trim().toLowerCase())) throw new Error('Tên role đã tồn tại');
+          if (USE_API) {
+            const r = await systemApi.createRole(v.name.trim(), v.description ?? '', v.copyFrom);
+            if (r.message) notify.info({ title: 'Đã tạo role', description: r.message });
+            setSelectedId(r.id);
+            setDraft(null);
+            return;
+          }
           const src = roles.find((r) => r.id === v.copyFrom);
           // Chỉ chép những quyền người tạo được phép cấp
           const grants = Object.fromEntries(Object.entries(src ? roleGrants(src) : {}).filter(([p, sc]) => canGrant(granter, p, sc)));

@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { Checkbox, Form } from 'antd';
-import { CircleAlert, ChevronDown, Lock, LogIn, Mail } from 'lucide-react';
+import { CircleAlert, Lock, LogIn, Mail } from 'lucide-react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Button, TextInput } from '@/components/common';
 import { Logo, SYSTEM_TAGLINE } from '@/components/layout/Logo';
 import { PORTAL_HOME } from '@/config/navigation';
 import { login } from '@/features/auth/authApi';
+import { onSignedIn } from '@/features/auth/session';
 import { useAuthStore } from '@/stores/authStore';
-import { DEMO_PASSWORD, MOCK_ACCOUNTS } from '@/mocks/data/users';
-import { cn } from '@/lib/cn';
 import illustration from '@/assets/images/login-illustration.svg';
 import { ForgotPasswordDialog } from './ForgotPasswordDialog';
 
@@ -29,7 +28,6 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [forgotOpen, setForgotOpen] = useState(false);
   const [forgotEmail, setForgotEmail] = useState<string>();
-  const [demoOpen, setDemoOpen] = useState(false);
 
   // Đã đăng nhập → về trang chủ của cổng
   if (user) return <Navigate to={PORTAL_HOME[user.portal]} replace />;
@@ -38,7 +36,8 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     try {
-      const u = await login(v.identifier, v.password);
+      const u = await login(v.identifier, v.password, v.remember);
+      await onSignedIn(u);
       signIn(u, v.remember);
       // quay lại trang định vào trước khi bị chuyển sang đăng nhập (nếu cùng cổng)
       const from = (location.state as { from?: string } | null)?.from;
@@ -131,38 +130,6 @@ export default function LoginPage() {
                 Đăng nhập
               </Button>
             </Form>
-
-            {/* ===== Tài khoản demo (dữ liệu giả) ===== */}
-            <div className="mt-8 rounded-[var(--radius-card)] border border-dashed border-line-strong">
-              <button
-                type="button"
-                onClick={() => setDemoOpen((o) => !o)}
-                aria-expanded={demoOpen}
-                className="flex w-full items-center justify-between px-4 py-3 text-left text-[13px] font-medium text-ink-secondary"
-              >
-                Tài khoản dùng thử (mật khẩu: {DEMO_PASSWORD})
-                <ChevronDown size={16} className={cn('transition-transform', demoOpen && 'rotate-180')} aria-hidden />
-              </button>
-              {demoOpen && (
-                <ul className="grid grid-cols-1 gap-1 border-t border-line p-2 sm:grid-cols-2">
-                  {MOCK_ACCOUNTS.map((a) => (
-                    <li key={a.id}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          form.setFieldsValue({ identifier: a.email, password: DEMO_PASSWORD });
-                          setError(null);
-                        }}
-                        className="flex w-full flex-col rounded-md px-2 py-1.5 text-left hover:bg-primary-50"
-                      >
-                        <span className="text-[13px] font-medium text-ink">{a.roleName}{a.locked ? ' (bị khóa)' : ''}</span>
-                        <span className="truncate text-xs text-ink-muted">{a.email}</span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
 
             <p className="mt-8 text-center text-xs text-ink-muted">© {new Date().getFullYear()} JP Center · Hỗ trợ: 1900 0000</p>
           </div>
