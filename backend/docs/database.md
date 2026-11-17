@@ -94,14 +94,11 @@ thêm / đổi / xóa thuộc tính → sửa dòng trong bảng + ghi 1 dòng �
 | email | text UQ | Email đăng nhập (chữ thường) |
 | password_hash | text? | Mật khẩu đã băm (null khi mới mời) |
 | status | text | `invited` đã mời · `active` · `locked` bị khóa |
-| two_factor_enabled | bool | Bật 2FA |
-| two_factor_secret | text? | Khóa TOTP (mã hóa) |
 | last_login_at | timestamptz? | Lần đăng nhập cuối |
 | locked_reason | text? | Lý do khóa |
 | failed_login_count | int | Số lần nhập sai mật khẩu liên tiếp (về 0 khi đăng nhập đúng / đặt lại mật khẩu) |
 | locked_until | timestamptz? | Khóa tạm đến lúc này — sai 5 lần → khóa 15 phút (khác khóa bởi quản trị) |
 | must_change_password | bool | Buộc đổi mật khẩu ở lần đăng nhập kế tiếp (mật khẩu tạm) |
-| two_factor_required | bool | Bắt buộc 2FA (quản lý, kế toán) — chưa bật thì phải thiết lập trước khi vào |
 
 ### 5. user_role_assignments
 **Chức năng:** Gán role cho người dùng theo chi nhánh (1 người có thể là Giáo vụ ở CN A, Sale ở CN B). Entity con `UserRoleAssignment`. Khóa chính (user_account_id, role_id).
@@ -239,7 +236,7 @@ thêm / đổi / xóa thuộc tính → sửa dòng trong bảng + ghi 1 dòng �
 | value | jsonb | Giá trị (số / chuỗi / bool) |
 
 ### 13a. user_sessions
-**Chức năng:** Phiên đăng nhập trên từng thiết bị: giữ refresh token (băm, xoay vòng mỗi lần làm mới), ghi nhớ đăng nhập, danh sách thiết bị, đăng xuất từ xa, thiết bị tin cậy 2FA. Token cũ bị dùng lại → thu hồi mọi phiên của tài khoản. Entity `UserSession`. User story AUTH-02, 03, 07, 08.
+**Chức năng:** Phiên đăng nhập trên từng thiết bị: giữ refresh token (băm, xoay vòng mỗi lần làm mới), ghi nhớ đăng nhập, danh sách thiết bị, đăng xuất từ xa. Token cũ bị dùng lại → thu hồi mọi phiên của tài khoản. Entity `UserSession`. User story AUTH-02, 03, 08.
 
 | Thuộc tính | Kiểu | Giải thích |
 |---|---|---|
@@ -254,17 +251,16 @@ thêm / đổi / xóa thuộc tính → sửa dòng trong bảng + ghi 1 dòng �
 | created_at | timestamptz | Lúc đăng nhập |
 | last_seen_at | timestamptz | Lần làm mới cuối |
 | expires_at | timestamptz | Hết hạn refresh token |
-| trusted_until | timestamptz? | Thiết bị tin cậy — bỏ qua 2FA đến lúc này |
 | revoked_at | timestamptz? | Lúc thu hồi |
 | revoke_reason | text? | `logout` · `logout_others` · `password_changed` · `account_locked` · `token_reuse` · `admin` |
 
 ### 13b. one_time_tokens
-**Chức năng:** Mã / link dùng 1 lần, chỉ lưu bản băm: link mời kích hoạt, OTP quên mật khẩu, vé đặt mật khẩu mới, mã 2FA. Email không tồn tại vẫn tạo bản ghi giả (account_id trống) để phản hồi giống hệt — chống dò email. Entity `OneTimeToken`. User story AUTH-04, 05, 07.
+**Chức năng:** Mã / link dùng 1 lần, chỉ lưu bản băm: link mời kích hoạt, OTP quên mật khẩu, vé đặt mật khẩu mới. Email không tồn tại vẫn tạo bản ghi giả (account_id trống) để phản hồi giống hệt — chống dò email. Entity `OneTimeToken`. User story AUTH-04, 05.
 
 | Thuộc tính | Kiểu | Giải thích |
 |---|---|---|
 | id | uuid PK | |
-| purpose | text | `invite` (72 giờ) · `password_reset_otp` (5 phút) · `password_reset_grant` (vé đặt mật khẩu, 10 phút) · `two_factor` · `two_factor_setup` |
+| purpose | text | `invite` (72 giờ) · `password_reset_otp` (5 phút) · `password_reset_grant` (vé đặt mật khẩu, 10 phút) |
 | account_kind | text | `staff` · `portal` |
 | account_id | uuid? | Tài khoản sở hữu — trống khi email / SĐT không tồn tại |
 | recipient | text | Email / SĐT đã nhập (chuẩn hóa) — giới hạn 5 lần gửi / giờ |
@@ -1767,4 +1763,5 @@ sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đ�
 | Ngày | Thay đổi |
 |---|---|
 | 2026-11-17 | Tạo tài liệu: 98 bảng / 9 schema, dựng song song với entity Domain |
-| 2026-11-17 | Đăng nhập & bảo mật (user story 01): thêm bảng `user_sessions` (13a), `one_time_tokens` (13b); `user_accounts` + `failed_login_count`, `locked_until`, `must_change_password`, `two_factor_required`; `portal_accounts` + `failed_login_count`, `locked_until`, `must_change_password` |
+| 2026-11-17 | Đăng nhập & bảo mật (user story 01): thêm bảng `user_sessions` (13a), `one_time_tokens` (13b); `user_accounts` + `failed_login_count`, `locked_until`, `must_change_password`; `portal_accounts` + `failed_login_count`, `locked_until`, `must_change_password` |
+| 2026-11-17 | Bỏ đăng nhập 2 lớp (2FA) — không làm: xóa `user_accounts.two_factor_enabled`, `two_factor_secret`, `two_factor_required`; `user_sessions.trusted_until`; `one_time_tokens.purpose` bỏ `two_factor`, `two_factor_setup` |

@@ -20,7 +20,7 @@ Frontend: `pages/auth/login/*`, `pages/common/account/SecurityPage.tsx`, `featur
 | AUTH-04 | Quên mật khẩu (OTP qua email) | Mọi người dùng | Cao |
 | AUTH-05 | Kích hoạt tài khoản được mời | Nhân viên mới | Cao |
 | AUTH-06 | Đổi mật khẩu | Mọi người dùng | TB |
-| AUTH-07 | Xác thực 2 lớp (2FA) | Nhân viên | TB |
+| ~~AUTH-07~~ | ~~Xác thực 2 lớp (2FA)~~ — **đã bỏ 2026-11-17**, không làm (giữ mã để không đổi số các story khác) | — | — |
 | AUTH-08 | Thiết bị đang đăng nhập & đăng xuất từ xa | Mọi người dùng | TB |
 | AUTH-09 | Lịch sử đăng nhập | Mọi người dùng | Thấp |
 | AUTH-10 | Cấp tài khoản Cổng học viên / phụ huynh | Giáo vụ | Cao |
@@ -44,9 +44,8 @@ Frontend: `pages/auth/login/*`, `pages/common/account/SecurityPage.tsx`, `featur
 5. Kiểm tra trạng thái tài khoản (xem bảng dưới).
 6. *Nhân viên:* tính **quyền hiệu lực** ([PQ-07](02-phan-quyen.md#pq-07--xem-quyền-hiệu-lực-của-người-dùng)), chi nhánh được gán, phạm vi (toàn hệ thống nếu có role gán "mọi chi nhánh").
    *Cổng:* lấy hồ sơ chủ tài khoản (học viên / phụ huynh), chi nhánh theo học viên.
-7. Nếu tài khoản bật 2FA và đăng nhập từ **thiết bị mới** → sang [AUTH-07](#auth-07--xác-thực-2-lớp-2fa).
-8. Cấp phiên (access token ngắn hạn + refresh token), ghi `last_login_at`, ghi nhật ký `audit_logs` (`category = auth`, "Đăng nhập").
-9. Chuyển về trang chủ của cổng: `/admin/dashboard/overview` · `/teacher/dashboard` · `/student/dashboard` · `/parent/dashboard`
+7. Cấp phiên (access token ngắn hạn + refresh token), ghi `last_login_at`, ghi nhật ký `audit_logs` (`category = auth`, "Đăng nhập").
+8. Chuyển về trang chủ của cổng: `/admin/dashboard/overview` · `/teacher/dashboard` · `/student/dashboard` · `/parent/dashboard`
    (nếu trước đó bị chuyển về login từ 1 trang cụ thể → quay lại trang đó, miễn là thuộc cổng của mình).
 
 **Trường hợp đặc biệt:**
@@ -137,7 +136,6 @@ Frontend: `pages/auth/login/*`, `pages/common/account/SecurityPage.tsx`, `featur
 | AUTH-04.E9 | Học viên nhỏ không có email | Không tự đặt lại được → phụ huynh / giáo vụ đặt lại giúp ([AUTH-10.E3](#auth-10--cấp-tài-khoản-cổng-học-viên--phụ-huynh)) |
 | AUTH-04.E10 | 🆕 Tài khoản cổng chỉ có SĐT (phụ huynh) | Cho nhập **tên đăng nhập hoặc SĐT** thay email → gửi OTP qua Zalo ZNS, lỗi thì SMS; các bước sau giống email |
 | AUTH-04.E11 | Đặt lại mật khẩu thành công | Xóa khóa tạm do nhập sai ([AUTH-11](#auth-11--khóa-tạm-khi-nhập-sai-mật-khẩu-nhiều-lần-)), bỏ cờ bắt đổi mật khẩu lần đầu |
-| AUTH-04.E12 | Tài khoản bật 2FA | Sau khi đặt lại vẫn phải qua 2FA ở lần đăng nhập kế tiếp (quên mật khẩu không bỏ qua 2FA) |
 | AUTH-04.E13 | Tài khoản `invited` chưa kích hoạt | Không gửi OTP; gửi lại email mời thay thế ([AUTH-05](#auth-05--kích-hoạt-tài-khoản-được-mời)) |
 
 **API:** `POST /auth/password/forgot` → `POST /auth/password/verify-otp` (trả `resetToken` ngắn hạn) → `POST /auth/password/reset { resetToken, newPassword }`.
@@ -178,24 +176,6 @@ OTP lưu băm, có hạn (cache / bảng tạm) — không lưu OTP dạng rõ.
 | AUTH-06.E1 | Mật khẩu hiện tại sai | "Mật khẩu hiện tại không đúng." (`auth.wrong_password`); tính vào bộ đếm sai |
 | AUTH-06.E2 | Mật khẩu mới trùng mật khẩu cũ | "Mật khẩu mới phải khác mật khẩu hiện tại." (`auth.same_password`) |
 | AUTH-06.E3 | Chọn đăng xuất thiết bị khác | Thu hồi mọi refresh token trừ thiết bị hiện tại |
-
----
-
-## AUTH-07 · Xác thực 2 lớp (2FA)
-
-> Là **nhân viên (đặc biệt quản lý, kế toán)**, tôi muốn **nhập thêm mã khi đăng nhập trên thiết bị mới** để **mất mật khẩu cũng không bị chiếm tài khoản**.
-
-**Các bước:**
-1. Bật ở Mật khẩu & bảo mật → xác nhận bằng mã gửi qua SMS (số điện thoại trong hồ sơ nhân viên) → bật.
-2. Lần sau đăng nhập ở **thiết bị chưa tin cậy**: sau bước mật khẩu, hệ thống gửi mã SMS 6 số → nhập đúng → vào; có ô "Tin cậy thiết bị này 30 ngày".
-
-| Mã | Tình huống | Hệ thống xử lý |
-|---|---|---|
-| AUTH-07.E1 | Tài khoản có role quản lý / quyền `finance.*` chưa bật 2FA | Trang Phân quyền đếm "Chưa bật 2FA"; 🆕 có thể bật cờ bắt buộc → lần đăng nhập sau buộc thiết lập 2FA trước khi vào |
-| AUTH-07.E2 | Tắt 2FA | Phải nhập mật khẩu hiện tại; ghi nhật ký mức `warning` |
-| AUTH-07.E3 | Mất điện thoại | Quản trị tắt 2FA hộ (ghi nhật ký `critical`) |
-| AUTH-07.E4 | Nhập sai mã 5 lần | Hủy lượt đăng nhập, quay về bước mật khẩu |
-| AUTH-07.E5 | SMS gửi lỗi | Gửi qua email dự phòng (tích hợp SMS Brandname / Email) |
 
 ---
 
@@ -268,8 +248,7 @@ Giới hạn thêm theo IP: 20 lần sai / 15 phút / IP.
 
 | Nhu cầu | Đề xuất | Story |
 |---|---|---|
-| Phiên / refresh token, danh sách thiết bị | Bảng mới `system.user_sessions` (account_type, account_id, refresh_token_hash, device, ip, trusted_until, created_at, last_seen_at, revoked_at) | AUTH-02, 03, 07, 08 |
+| Phiên / refresh token, danh sách thiết bị | Bảng mới `system.user_sessions` (account_type, account_id, refresh_token_hash, device, ip, created_at, last_seen_at, revoked_at) | AUTH-02, 03, 08 |
 | Khóa tạm khi nhập sai | Thêm `failed_login_count`, `locked_until` vào `user_accounts` + `portal_accounts` | AUTH-11 |
 | Bắt đổi mật khẩu lần đầu | Thêm `must_change_password` vào `portal_accounts` (+ `user_accounts`) | AUTH-10 |
-| Bắt buộc 2FA | Thêm `two_factor_required` vào `user_accounts` | AUTH-07.E1 |
-| Link mời / OTP | Bảng `system.one_time_tokens` (purpose: invite / reset / 2fa, token_hash, expires_at, attempts, used_at) — hoặc cache | AUTH-04, 05, 07 |
+| Link mời / OTP | Bảng `system.one_time_tokens` (purpose: invite / reset, token_hash, expires_at, attempts, used_at) — hoặc cache | AUTH-04, 05 |

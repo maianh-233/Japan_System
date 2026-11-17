@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Drawer, Form, Switch, Tabs, Tooltip } from 'antd';
+import { Drawer, Form, Tabs, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { Ban, KeyRound, Lock, LockOpen, Mail, Plus, ShieldCheck, Trash2 } from 'lucide-react';
 import { Button, DateInput, ModalForm, Select, StatusTag, TextInput, UserCell, useConfirm, useNotify } from '@/components/common';
@@ -117,15 +117,6 @@ export function UserAccessDrawer({ userId, editable, onClose }: Props) {
     >
       <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-ink-secondary">
         <span>Đăng nhập gần nhất: {access.lastLoginAt ? fromNow(access.lastLoginAt) : 'chưa đăng nhập'}</span>
-        <span className="inline-flex items-center gap-1.5">
-          Bắt buộc 2 lớp (OTP)
-          <Switch
-            size="small"
-            checked={access.twoFA}
-            disabled={!canEdit}
-            onChange={(v) => updateAccess(access.userId, { twoFA: v }, actor, { severity: v ? 'info' : 'warning', action: v ? 'Bật xác thực 2 lớp' : 'Tắt xác thực 2 lớp' })}
-          />
-        </span>
       </div>
       {access.status === 'locked' && access.lockedReason && <p className="mb-3 rounded-lg bg-danger-50 px-3 py-2 text-[13px] text-danger-700">Đã khóa: {access.lockedReason}</p>}
       {isSelf && <p className="mb-3 rounded-lg bg-warning-50 px-3 py-2 text-[13px] text-warning-700">Đây là tài khoản của bạn — không tự sửa quyền của mình được.</p>}

@@ -9,8 +9,4 @@ public enum TokenPurpose
     PasswordResetOtp,
     /// <summary>Vé đặt mật khẩu mới (sau khi OTP đúng)</summary>
     PasswordResetGrant,
-    /// <summary>Mã 2FA khi đăng nhập thiết bị mới</summary>
-    TwoFactor,
-    /// <summary>Mã xác nhận khi bật 2FA</summary>
-    TwoFactorSetup,
 }

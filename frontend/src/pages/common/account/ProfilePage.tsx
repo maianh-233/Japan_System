@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Form, Switch } from 'antd';
 import dayjs from 'dayjs';
-import { Bell, Briefcase, KeyRound, Mail, Phone, ShieldCheck, UserRound } from 'lucide-react';
+import { Bell, Briefcase, KeyRound, Mail, Phone, UserRound } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Avatar, Button, DateInput, ImagePicker, PageHeader, StatusTag, TextInput, useNotify } from '@/components/common';
+import { Avatar, Button, DateInput, ImagePicker, PageHeader, TextInput, useNotify } from '@/components/common';
 import { useCrmStore } from '@/features/crm/crmStore';
 import { CONTRACT_TYPES, DEPARTMENTS } from '@/features/hr/constants';
 import { useHrStore } from '@/features/hr/hrStore';
@@ -91,14 +91,6 @@ export default function ProfilePage() {
               <p className="text-xs text-ink-muted">Đăng nhập gần nhất: {access.lastLoginAt ? fromNow(access.lastLoginAt) : '—'}</p>
             </div>
           )}
-          <div className="flex w-full items-center justify-between rounded-lg border border-line px-3 py-2 text-[13px]">
-            <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck size={14} className={access?.twoFA ? 'text-success-600' : 'text-ink-muted'} aria-hidden /> Xác thực 2 lớp
-            </span>
-            <StatusTag tone={access?.twoFA ? 'success' : 'neutral'} icon={ShieldCheck} size="sm">
-              {access?.twoFA ? 'Đang bật' : 'Chưa bật'}
-            </StatusTag>
-          </div>
           <Button icon={KeyRound} variant="outline" block onClick={() => navigate(`${PORTAL_BASE[user.portal]}/security`)}>
             Đổi mật khẩu
           </Button>

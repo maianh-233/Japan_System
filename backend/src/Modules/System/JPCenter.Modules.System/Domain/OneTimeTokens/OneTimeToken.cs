@@ -5,9 +5,9 @@ using JPCenter.Modules.System.Domain.Sessions;
 namespace JPCenter.Modules.System.Domain.OneTimeTokens;
 
 /// <summary>
-/// Mã / link dùng 1 lần: link mời, OTP quên mật khẩu, vé đặt mật khẩu mới, mã 2FA. Chỉ lưu bản băm.
+/// Mã / link dùng 1 lần: link mời, OTP quên mật khẩu, vé đặt mật khẩu mới. Chỉ lưu bản băm.
 /// Tạo mã mới cùng mục đích → mã cũ của tài khoản đó vô hiệu (Application gọi Invalidate).
-/// User story AUTH-04, 05, 07. Bảng: system.one_time_tokens
+/// User story AUTH-04, 05. Bảng: system.one_time_tokens
 /// </summary>
 public sealed class OneTimeToken : AggregateRoot<OneTimeTokenId>
 {

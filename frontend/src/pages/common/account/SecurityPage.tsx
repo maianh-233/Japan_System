@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { Form, Progress, Switch } from 'antd';
+import { Form, Progress } from 'antd';
 import { Check, KeyRound, Laptop, LogOut, Smartphone, X } from 'lucide-react';
 import { Button, PageHeader, StatusTag, TextInput, useConfirm, useNotify } from '@/components/common';
 import { changePassword } from '@/features/auth/authApi';
-import { useMe } from '@/features/me/useMe';
 import { useSystemStore } from '@/features/system/systemStore';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/cn';
@@ -23,19 +22,16 @@ interface Values {
   confirm: string;
 }
 
-/** Mật khẩu & bảo mật — dùng chung 4 cổng: đổi mật khẩu, xác thực 2 lớp, thiết bị đang đăng nhập, lịch sử đăng nhập */
+/** Mật khẩu & bảo mật — dùng chung 4 cổng: đổi mật khẩu, thiết bị đang đăng nhập, lịch sử đăng nhập */
 export default function SecurityPage() {
   const { user, signOut } = useAuth();
   const notify = useNotify();
   const { confirm, confirmDialog } = useConfirm();
-  const me = useMe();
-  const access = useSystemStore((s) => s.access.find((a) => a.userId === me?.id));
   const audits = useSystemStore((s) => s.audits);
-  const { updateAccess, audit } = useSystemStore();
+  const { audit } = useSystemStore();
   const [form] = Form.useForm<Values>();
   const next = Form.useWatch('next', form) ?? '';
   const [saving, setSaving] = useState(false);
-  const [twoFA, setTwoFA] = useState(access?.twoFA ?? false);
   const [devices, setDevices] = useState([
     { id: 'd1', name: 'Chrome · Windows', place: 'Hà Nội', at: new Date().toISOString(), current: true, icon: Laptop },
     { id: 'd2', name: 'Safari · iPhone', place: 'Hà Nội', at: new Date(Date.now() - 3 * 3600_000).toISOString(), current: false, icon: Smartphone },
@@ -61,12 +57,6 @@ export default function SecurityPage() {
     } finally {
       setSaving(false);
     }
-  };
-
-  const toggle2FA = (v: boolean) => {
-    setTwoFA(v);
-    if (access) updateAccess(access.userId, { twoFA: v }, actor, { severity: v ? 'info' : 'warning', action: v ? 'Bật xác thực 2 lớp' : 'Tắt xác thực 2 lớp' });
-    notify.toast.success(v ? 'Đã bật — lần đăng nhập sau cần mã OTP gửi qua SMS' : 'Đã tắt xác thực 2 lớp');
   };
 
   return (
@@ -115,16 +105,6 @@ export default function SecurityPage() {
         </section>
 
         <div className="flex flex-col gap-4">
-          <section className="rounded-xl border border-line bg-surface p-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h2 className="font-semibold text-ink">Xác thực 2 lớp (OTP)</h2>
-                <p className="text-[13px] text-ink-secondary">Đăng nhập trên thiết bị mới cần thêm mã gửi qua SMS. Bắt buộc với tài khoản quản lý, kế toán.</p>
-              </div>
-              <Switch checked={twoFA} onChange={toggle2FA} aria-label="Xác thực 2 lớp" />
-            </div>
-          </section>
-
           <section className="rounded-xl border border-line bg-surface p-4">
             <div className="mb-3 flex items-center justify-between gap-2">
               <h2 className="font-semibold text-ink">Thiết bị đang đăng nhập</h2>

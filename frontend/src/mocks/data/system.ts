@@ -136,7 +136,6 @@ export const MOCK_USER_ACCESS: UserAccess[] = MOCK_EMPLOYEES.filter((e) => e.has
     status: e.status === 'quit' ? 'locked' : e.status === 'probation' && i % 2 ? 'invited' : 'active',
     roles: [{ roleId, branchIds: GLOBAL_ROLES.has(roleId) ? [] : [e.branchId] }],
     overrides: [],
-    twoFA: ['R-SA', 'R-AD', 'R-KT', 'R-BM'].includes(roleId),
     lastLoginAt: e.status === 'quit' ? ago(60 * 24 * 40) : ago(30 + ((i * 397) % (60 * 48))),
     lockedReason: e.status === 'quit' ? 'Nghỉ việc — khóa tự động khi chấm dứt hợp đồng' : undefined,
   };

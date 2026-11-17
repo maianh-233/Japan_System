@@ -5,8 +5,8 @@ namespace JPCenter.Modules.System.Domain.Sessions;
 
 /// <summary>
 /// Phiên đăng nhập trên 1 thiết bị — giữ refresh token (băm), xoay vòng mỗi lần làm mới.
-/// Dùng cho: ghi nhớ đăng nhập, danh sách thiết bị, đăng xuất từ xa, thiết bị tin cậy 2FA.
-/// User story AUTH-02, 03, 07, 08. Bảng: system.user_sessions
+/// Dùng cho: ghi nhớ đăng nhập, danh sách thiết bị, đăng xuất từ xa.
+/// User story AUTH-02, 03, 08. Bảng: system.user_sessions
 /// </summary>
 public sealed class UserSession : AggregateRoot<UserSessionId>
 {
@@ -27,8 +27,6 @@ public sealed class UserSession : AggregateRoot<UserSessionId>
     public DateTimeOffset CreatedAt { get; private set; }
     public DateTimeOffset LastSeenAt { get; private set; }
     public DateTimeOffset ExpiresAt { get; private set; }
-    /// <summary>Thiết bị tin cậy — bỏ qua 2FA đến lúc này</summary>
-    public DateTimeOffset? TrustedUntil { get; private set; }
     public DateTimeOffset? RevokedAt { get; private set; }
     /// <summary>Lý do thu hồi: logout, logout_others, password_changed, account_locked, token_reuse, admin</summary>
     public string? RevokeReason { get; private set; }
@@ -50,10 +48,6 @@ public sealed class UserSession : AggregateRoot<UserSessionId>
         (PreviousTokenHash, RefreshTokenHash, Ip, LastSeenAt, ExpiresAt) = (RefreshTokenHash, newTokenHash, ip, now, expiresAt);
         return Result.Success();
     }
-
-    public void Trust(DateTimeOffset until) => TrustedUntil = until;
-
-    public bool IsTrusted(DateTimeOffset now) => TrustedUntil is { } t && t > now;
 
     public void Revoke(string reason, DateTimeOffset now)
     {

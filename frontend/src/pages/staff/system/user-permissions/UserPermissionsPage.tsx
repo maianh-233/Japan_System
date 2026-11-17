@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Form, Tooltip } from 'antd';
 import dayjs from 'dayjs';
-import { Ban, CalendarClock, KeyRound, ShieldCheck, ShieldOff, UserCheck, UserPlus, Users } from 'lucide-react';
+import { Ban, CalendarClock, KeyRound, UserCheck, UserPlus, Users, UserX } from 'lucide-react';
 import { Button, DataTable, ModalForm, PageHeader, Select, StatCard, StatusTag, UserCell, type DataColumn } from '@/components/common';
 import { useHrStore } from '@/features/hr/hrStore';
 import type { Employee } from '@/features/hr/types';
@@ -53,6 +53,7 @@ export default function UserPermissionsPage() {
 
   const inBranch = (r: Row) => branchId === ALL_BRANCHES || r.emp.branchId === branchId || r.roles.some((x) => !x.branchIds.length || x.branchIds.includes(branchId));
   const base = all.filter(inBranch);
+  const idle = (r: Row) => r.status === 'active' && (!r.lastLoginAt || dayjs().diff(dayjs(r.lastLoginAt), 'day') > 30);
   const soon = (r: Row) => r.overrides.some((o) => o.until && isActiveOverride(o.until) && dayjs(o.until).diff(dayjs(), 'day') <= 7);
   const rows = base.filter(
     (r) =>
@@ -61,8 +62,7 @@ export default function UserPermissionsPage() {
       (!special ||
         (special === 'override' && r.overrides.some((o) => isActiveOverride(o.until))) ||
         (special === 'multi' && r.roles.length > 1) ||
-        (special === 'no2fa' && !r.twoFA) ||
-        (special === 'idle' && r.status === 'active' && (!r.lastLoginAt || dayjs().diff(dayjs(r.lastLoginAt), 'day') > 30))),
+        (special === 'idle' && idle(r))),
   );
 
   const noAccount = employees.filter((e) => e.status !== 'quit' && !access.some((a) => a.userId === e.id));
@@ -113,20 +113,9 @@ export default function UserPermissionsPage() {
       width: 140,
       mobile: 'aside',
       render: (_, r) => (
-        <span className="inline-flex items-center gap-1.5">
-          <StatusTag tone={ACCOUNT_STATUS[r.status].tone} icon={ACCOUNT_STATUS[r.status].icon} size="sm">
-            {ACCOUNT_STATUS[r.status].label}
-          </StatusTag>
-          {r.twoFA ? (
-            <Tooltip title="Bắt buộc xác thực 2 lớp">
-              <ShieldCheck size={15} className="text-success-600" aria-label="Có 2FA" />
-            </Tooltip>
-          ) : (
-            <Tooltip title="Chưa bật xác thực 2 lớp">
-              <ShieldOff size={15} className="text-ink-muted" aria-label="Không 2FA" />
-            </Tooltip>
-          )}
-        </span>
+        <StatusTag tone={ACCOUNT_STATUS[r.status].tone} icon={ACCOUNT_STATUS[r.status].icon} size="sm">
+          {ACCOUNT_STATUS[r.status].label}
+        </StatusTag>
       ),
     },
     {
@@ -157,7 +146,7 @@ export default function UserPermissionsPage() {
         <StatCard label="Đang hoạt động" value={base.filter((r) => r.status === 'active').length} icon={UserCheck} tone="success" hint={`${base.filter((r) => r.status === 'invited').length} đã mời, chưa kích hoạt`} />
         <StatCard label="Đã khóa" value={base.filter((r) => r.status === 'locked').length} icon={Ban} tone="neutral" onClick={() => setStatus('locked')} />
         <StatCard label="Có quyền lẻ" value={base.filter((r) => r.overrides.some((o) => isActiveOverride(o.until))).length} icon={KeyRound} tone="warning" hint={`${base.filter(soon).length} sắp hết hạn`} onClick={() => setSpecial('override')} />
-        <StatCard label="Chưa bật 2FA" value={base.filter((r) => r.status !== 'locked' && !r.twoFA).length} icon={ShieldOff} tone="danger" hint={`${noAccount.length} nhân viên chưa có tài khoản`} onClick={() => setSpecial('no2fa')} />
+        <StatCard label="Không đăng nhập > 30 ngày" value={base.filter(idle).length} icon={UserX} tone="danger" hint={`${noAccount.length} nhân viên chưa có tài khoản`} onClick={() => setSpecial('idle')} />
       </div>
 
       <DataTable<Row>
@@ -184,7 +173,6 @@ export default function UserPermissionsPage() {
                 options={[
                   { value: 'override', label: 'Đang có quyền lẻ' },
                   { value: 'multi', label: 'Kiêm nhiều vai trò' },
-                  { value: 'no2fa', label: 'Chưa bật 2FA' },
                   { value: 'idle', label: 'Không đăng nhập > 30 ngày' },
                 ]}
               />
@@ -202,7 +190,7 @@ export default function UserPermissionsPage() {
       {openId && <UserAccessDrawer key={openId} userId={openId} editable={editable} onClose={() => setOpenId(null)} />}
 
       {/* ===== Cấp tài khoản cho nhân viên ===== */}
-      <ModalForm<{ userId: string; roleId: string; branchIds: string[]; twoFA: boolean }>
+      <ModalForm<{ userId: string; roleId: string; branchIds: string[] }>
         open={inviting}
         onClose={() => setInviting(false)}
         title="Cấp tài khoản"
@@ -213,7 +201,7 @@ export default function UserPermissionsPage() {
         initialValues={{ branchIds: branchId === ALL_BRANCHES ? [] : [branchId] }}
         onSubmit={(v) => {
           const emp = employees.find((e) => e.id === v.userId)!;
-          addAccess({ userId: emp.id, email: emp.email, status: 'invited', roles: [{ roleId: v.roleId, branchIds: v.branchIds ?? [] }], overrides: [], twoFA: false }, actor);
+          addAccess({ userId: emp.id, email: emp.email, status: 'invited', roles: [{ roleId: v.roleId, branchIds: v.branchIds ?? [] }], overrides: [] }, actor);
         }}
       >
         <Form.Item name="userId" label="Nhân viên" rules={[{ required: true, message: 'Chọn nhân viên' }]} extra={!noAccount.length ? 'Mọi nhân viên đều đã có tài khoản' : undefined}>

@@ -110,7 +110,7 @@ Chỉ **đọc** — dựng từ dữ liệu các module khác (module Reporting
 
 ## 9. Cá nhân (mọi nhân viên, không cần mã quyền)
 
-Chấm công của tôi · Việc của tôi · Lịch rảnh / bận · Thông tin cá nhân · Mật khẩu & bảo mật (2FA).
+Chấm công của tôi · Việc của tôi · Lịch rảnh / bận · Thông tin cá nhân · Mật khẩu & bảo mật.
 **Tách riêng** với trang quản lý của HR / quản lý.
 
 ## 10. Hệ thống
@@ -119,7 +119,7 @@ Chấm công của tôi · Việc của tôi · Lịch rảnh / bận · Thông 
 |---|---|
 | **Chi nhánh** | Mã, tên, địa chỉ, SĐT, email, quản lý, giờ mở cửa, tài khoản ngân hàng nhận học phí (VietQR), tiền tố hóa đơn, trạng thái (đang chuẩn bị / hoạt động / đóng) |
 | **Vai trò & quyền** | Role mặc định (không xóa) + role tự tạo. Ma trận: mã quyền `module.page.action` → phạm vi own / branch / all. Super Admin toàn quyền |
-| **Phân quyền người dùng** | Gán role theo chi nhánh (1 người có thể là Giáo vụ ở CN A và Sale ở CN B). Cấp / chặn quyền lẻ có thời hạn + lý do. Chỉ cấp được quyền mình đang có, phạm vi không rộng hơn. Khóa tài khoản, 2FA |
+| **Phân quyền người dùng** | Gán role theo chi nhánh (1 người có thể là Giáo vụ ở CN A và Sale ở CN B). Cấp / chặn quyền lẻ có thời hạn + lý do. Chỉ cấp được quyền mình đang có, phạm vi không rộng hơn. Khóa tài khoản |
 | Tài khoản cổng | Tài khoản đăng nhập cho học viên / phụ huynh (và GV qua tài khoản nhân viên) |
 | **Tích hợp** | Zalo OA, ngân hàng / VietQR, Zoom / Google Meet, email, nguồn lead (Facebook, form web). Cấu hình (khóa bí mật), sự kiện bật / tắt, webhook, nhật ký gọi |
 | **Nhật ký hệ thống** | Ai, lúc nào, vai trò, chi nhánh, nhóm (đăng nhập, quyền, dữ liệu, xuất file, tài chính, cài đặt), mức độ, trước → sau, IP, thiết bị |

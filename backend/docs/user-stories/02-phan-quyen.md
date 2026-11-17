@@ -136,7 +136,7 @@ Ví dụ vai trò tự tạo: Lễ tân, Trưởng nhóm Sale.
 **Nguồn:** Hệ thống › Phân quyền người dùng → mở 1 người · **Quyền cần:** `system.user-permissions.update`
 
 **Các bước:**
-1. Danh sách người dùng: vai trò @ chi nhánh, số quyền, quyền lẻ (biểu tượng đồng hồ nếu sắp hết hạn), trạng thái tài khoản, đăng nhập gần nhất. Lọc theo role, chi nhánh, trạng thái, "chưa bật 2FA".
+1. Danh sách người dùng: vai trò @ chi nhánh, số quyền, quyền lẻ (biểu tượng đồng hồ nếu sắp hết hạn), trạng thái tài khoản, đăng nhập gần nhất. Lọc theo role, chi nhánh, trạng thái.
 2. Mở 1 người → tab Vai trò → "Thêm vai trò": chọn role + chi nhánh (bỏ trống = mọi chi nhánh).
 3. Hệ thống xem trước **quyền hiệu lực sau khi đổi** (PQ-07) → Lưu.
 4. Ghi nhật ký "Gán vai trò".

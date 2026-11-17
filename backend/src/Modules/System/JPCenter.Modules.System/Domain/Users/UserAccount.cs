@@ -22,16 +22,12 @@ public sealed class UserAccount : AggregateRoot<UserAccountId>, IAuditable
     public string Email { get; private set; } = null!;
     public string? PasswordHash { get; private set; }
     public UserAccountStatus Status { get; private set; }
-    public bool TwoFactorEnabled { get; private set; }
-    public string? TwoFactorSecret { get; private set; }
     public DateTimeOffset? LastLoginAt { get; private set; }
     public string? LockedReason { get; private set; }
     /// <summary>Khóa tạm khi nhập sai nhiều lần (owned: failed_login_count, locked_until) — AUTH-11</summary>
     public LoginThrottle Throttle { get; private set; } = LoginThrottle.None;
     /// <summary>Buộc đổi mật khẩu ở lần đăng nhập kế tiếp (mật khẩu tạm do quản trị đặt)</summary>
     public bool MustChangePassword { get; private set; }
-    /// <summary>Bắt buộc 2FA (quản lý, kế toán) — chưa bật thì phải thiết lập trước khi vào — AUTH-07.E1</summary>
-    public bool TwoFactorRequired { get; private set; }
     public IReadOnlyList<UserRoleAssignment> Roles => _roles;
     public IReadOnlyList<PermissionOverride> Overrides => _overrides;
 
@@ -68,8 +64,6 @@ public sealed class UserAccount : AggregateRoot<UserAccountId>, IAuditable
         return Throttle.JustLocked(now);
     }
 
-    public void RequireTwoFactor(bool required) => TwoFactorRequired = required;
-
     public void AssignRole(RoleId roleId, IReadOnlyCollection<BranchId> branchIds)
     {
         _roles.RemoveAll(r => r.RoleId == roleId);
@@ -98,8 +92,4 @@ public sealed class UserAccount : AggregateRoot<UserAccountId>, IAuditable
     public void Unlock() => (Status, LockedReason) = (UserAccountStatus.Active, null);
 
     public void RecordLogin(DateTimeOffset at) => (LastLoginAt, Throttle) = (at, LoginThrottle.None);
-
-    public void EnableTwoFactor(string secret) => (TwoFactorEnabled, TwoFactorSecret) = (true, secret);
-
-    public void DisableTwoFactor() => (TwoFactorEnabled, TwoFactorSecret) = (false, null);
 }

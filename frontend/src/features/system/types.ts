@@ -57,7 +57,6 @@ export interface UserAccess {
   status: AccountStatus;
   roles: RoleAssignment[];
   overrides: PermOverride[];
-  twoFA: boolean;
   lastLoginAt?: string;
   lockedReason?: string;
 }
