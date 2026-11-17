@@ -17,3 +17,6 @@ appsettings.*.Local.json
 
 # Dữ liệu docker local
 deploy/data/
+
+# File môi trường local (mẫu: backend/.env.example)
+.env

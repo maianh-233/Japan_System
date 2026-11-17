@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <UserSecretsId>jpcenter-api</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\BuildingBlocks\JPCenter.Infrastructure.Common\JPCenter.Infrastructure.Common.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\JPCenter.Api.Common\JPCenter.Api.Common.csproj" />
+    <ProjectReference Include="..\..\Modules\Academic\JPCenter.Modules.Academic\JPCenter.Modules.Academic.csproj" />
+    <ProjectReference Include="..\..\Modules\Crm\JPCenter.Modules.Crm\JPCenter.Modules.Crm.csproj" />
+    <ProjectReference Include="..\..\Modules\Finance\JPCenter.Modules.Finance\JPCenter.Modules.Finance.csproj" />
+    <ProjectReference Include="..\..\Modules\Hr\JPCenter.Modules.Hr\JPCenter.Modules.Hr.csproj" />
+    <ProjectReference Include="..\..\Modules\Library\JPCenter.Modules.Library\JPCenter.Modules.Library.csproj" />
+    <ProjectReference Include="..\..\Modules\Notifications\JPCenter.Modules.Notifications\JPCenter.Modules.Notifications.csproj" />
+    <ProjectReference Include="..\..\Modules\Reporting\JPCenter.Modules.Reporting\JPCenter.Modules.Reporting.csproj" />
+    <ProjectReference Include="..\..\Modules\Students\JPCenter.Modules.Students\JPCenter.Modules.Students.csproj" />
+    <ProjectReference Include="..\..\Modules\System\JPCenter.Modules.System\JPCenter.Modules.System.csproj" />
+    <ProjectReference Include="..\..\Modules\Work\JPCenter.Modules.Work\JPCenter.Modules.Work.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Serilog.AspNetCore" />
+    <PackageReference Include="Serilog.Sinks.Seq" />
+  </ItemGroup>
+</Project>

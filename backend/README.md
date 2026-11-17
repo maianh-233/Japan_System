@@ -2,8 +2,31 @@
 
 .NET 10 (LTS) · ASP.NET Core Minimal API · EF Core + PostgreSQL · **Modular Monolith**
 
-> Trạng thái: **đã có Domain (entity) cho 9 module** + SharedKernel. Chưa có csproj / Application / Infrastructure / Api.
-> Bước tiếp theo: cài .NET 10, tạo csproj, cấu hình EF + migration theo [docs/database.md](docs/database.md).
+> Trạng thái: solution build được, có Domain cho 10 module, Docker local, test kiến trúc.
+> Đang làm: đăng nhập & phân quyền (module System) + middleware ([docs/request-pipeline.md](docs/request-pipeline.md)).
+
+## Chạy local
+
+Cần: .NET SDK 10, Docker Desktop.
+
+```bash
+cd backend
+cp .env.example .env                                              # 1 lần — sửa nếu cần
+docker compose -f deploy/docker-compose.yml --env-file .env up -d # PostgreSQL, Adminer, Mailpit, Seq
+dotnet run --project src/Host/JPCenter.Api                        # API: http://localhost:5080
+dotnet test --project tests/JPCenter.ArchitectureTests            # test kiến trúc
+```
+
+| Dịch vụ | Địa chỉ | Ghi chú |
+|---|---|---|
+| API | http://localhost:5080 | `/health` kiểm tra sống |
+| PostgreSQL | `localhost:5433` | user / mật khẩu / DB trong `.env` (5433 để tránh Postgres cài sẵn trên máy) |
+| Adminer (xem DB) | http://localhost:8081 | Hệ quản trị **PostgreSQL**, Server `postgres`, user / mật khẩu trong `.env` |
+| Mailpit (hộp thư giả) | http://localhost:8025 | Email OTP quên mật khẩu, email mời kích hoạt |
+| Seq (log) | http://localhost:5341 | |
+
+Dữ liệu DB nằm trong volume Docker `jpcenter_pgdata` — tắt máy / `docker compose down` vẫn còn.
+Xóa sạch làm lại: `docker compose -f deploy/docker-compose.yml down -v`.
 
 - Quy tắc bắt buộc: [CLAUDE.md](CLAUDE.md)
 - Nghiệp vụ & chức năng (đọc từ frontend): [docs/nghiep-vu.md](docs/nghiep-vu.md)
