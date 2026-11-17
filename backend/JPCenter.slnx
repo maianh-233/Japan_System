@@ -53,6 +53,7 @@
   <Folder Name="/tests/">
     <Project Path="tests/JPCenter.ArchitectureTests/JPCenter.ArchitectureTests.csproj" />
     <Project Path="tests/JPCenter.IntegrationTests/JPCenter.IntegrationTests.csproj" />
+    <Project Path="tests/Modules/Academic/JPCenter.Modules.Academic.Tests/JPCenter.Modules.Academic.Tests.csproj" />
     <Project Path="tests/Modules/Hr/JPCenter.Modules.Hr.Tests/JPCenter.Modules.Hr.Tests.csproj" />
     <Project Path="tests/Modules/System/JPCenter.Modules.System.Tests/JPCenter.Modules.System.Tests.csproj" />
   </Folder>

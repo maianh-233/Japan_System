@@ -16,4 +16,6 @@ public sealed class CourseCurriculum
     public DateTimeOffset LinkedAt { get; private set; }
 
     internal void UnsetDefault() => IsDefault = false;
+
+    internal void MarkDefault() => IsDefault = true;
 }

@@ -18,4 +18,9 @@ public sealed class ExamMilestone : Entity<ExamMilestoneId>
     public LessonId AfterLessonId { get; private set; }
     /// <summary>Ghi chú cho người tạo kỳ thi</summary>
     public string? Note { get; private set; }
+
+    internal void Update(ExamKind kind, string title, LessonId afterLessonId, string? note) =>
+        (Kind, Title, AfterLessonId, Note) = (kind, title, afterLessonId, note);
+
+    internal void MoveAfter(LessonId lessonId) => AfterLessonId = lessonId;
 }

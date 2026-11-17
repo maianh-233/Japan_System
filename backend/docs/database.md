@@ -731,7 +731,7 @@ Khóa chính (scope, key).
 | level | text | Trình độ |
 | tier | text | `standard` chuẩn · `advanced` nâng cao |
 | entry_requirement | text? | Điều kiện áp dụng (bậc nâng cao) |
-| version | text | Phiên bản "1.0", "1.1" |
+| version | text | Phiên bản dạng `v1.0`, `v1.1` (giống frontend) |
 | previous_version_id | uuid? FK | Bản trước → curricula |
 | textbook | text? | Giáo trình |
 | description | text? | Mô tả |
@@ -761,7 +761,7 @@ Khóa chính (scope, key).
 | order | int | Thứ tự |
 
 ### 40. materials
-**Chức năng:** Tài liệu giảng dạy của chapter (pdf, ppt, audio, video, Drive…). Entity con `Material`.
+**Chức năng:** Tài liệu giảng dạy của chapter: **file** trong kho (`IFileStorage` — ADR 0003: pdf, Word, ppt, Excel, audio) hoặc **link** (video, Drive, web). Entity con `Material`.
 
 | Thuộc tính | Kiểu | Giải thích |
 |---|---|---|
@@ -769,7 +769,10 @@ Khóa chính (scope, key).
 | chapter_id | uuid FK | → chapters |
 | name | text | Tên tài liệu |
 | type | text | `pdf` · `doc` · `ppt` · `xls` · `audio` · `video` · `drive` · `link` |
-| url | text | Khóa file đã tải lên hoặc link ngoài |
+| url | text? | Link ngoài — chỉ tài liệu dạng link (`video`, `drive`, `link`) |
+| file_key | text? | Khóa file trong kho — chỉ tài liệu dạng file; bản sao / phiên bản mới **dùng chung** key (xóa file khi không còn tài liệu nào trỏ tới) |
+| file_name | text? | Tên tệp gốc (tải về đúng tên) |
+| content_type | text? | Loại nội dung của file |
 | size | bigint? | Byte (file tải lên) |
 | shared_with_students | bool | HV xem được trên cổng; false = chỉ GV (giáo án, đáp án) |
 
@@ -1825,4 +1828,5 @@ sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đ�
 | 2026-11-17 | Giai đoạn 8: thêm bảng chung `outbox_messages` vào mọi schema module (migration `AddOutbox` cho `system`, `hr`) |
 | 2026-11-17 | Giai đoạn 9 (user story 03): `branches.invoice_prefix` thêm UQ (trong số chưa xóa) — migration `BranchInvoicePrefixUnique` |
 | 2026-11-17 | Giai đoạn 10 (user story 04): `employees` + `quit_reason`; thêm bảng `employment_contracts` (81a) lưu hợp đồng cũ — migration `HrEmployeeHistory` |
+| 2026-11-17 | Giai đoạn 12 (user story 09): `materials` + `file_key`, `file_name`, `content_type`, `url` thành tùy chọn (chỉ cho link); `curricula.version` dạng `v1.0` |
 | 2026-11-17 | Chốt thiết kế (user story 08): `invoices.status` chỉ lưu `open` / `cancelled` / `voided`, các trạng thái tiền tính khi đọc; `payments.method` dùng `vietqr` (không `viet_qr`). Domain `InvoiceStatus`, `PaymentMethod` sửa theo khi code module Tài chính |

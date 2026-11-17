@@ -15,17 +15,23 @@ public sealed class Chapter : Entity<ChapterId>
     public int Order { get; private set; }
     public IReadOnlyList<Material> Materials => _materials;
 
-    internal Material AddMaterial(string name, MaterialType type, string url, long? size, bool sharedWithStudents)
+    internal void Rename(string title) => Title = title;
+
+    internal void SetOrder(int order) => Order = order;
+
+    internal void Add(Material material) => _materials.Add(material);
+
+    internal Material? Remove(MaterialId id)
     {
-        var m = new Material(name, type, url, size, sharedWithStudents);
-        _materials.Add(m);
+        var m = _materials.FirstOrDefault(x => x.Id == id);
+        if (m is not null) _materials.Remove(m);
         return m;
     }
 
     internal Chapter CloneInto()
     {
         var c = new Chapter(Title, Order);
-        foreach (var m in _materials) c._materials.Add(new Material(m.Name, m.Type, m.Url, m.Size, m.SharedWithStudents));
+        foreach (var m in _materials) c._materials.Add(m.Clone());
         return c;
     }
 }
