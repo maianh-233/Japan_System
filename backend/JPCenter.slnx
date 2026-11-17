@@ -52,5 +52,6 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/JPCenter.ArchitectureTests/JPCenter.ArchitectureTests.csproj" />
+    <Project Path="tests/JPCenter.IntegrationTests/JPCenter.IntegrationTests.csproj" />
   </Folder>
 </Solution>

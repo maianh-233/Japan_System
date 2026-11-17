@@ -51,7 +51,7 @@ Thư mục đánh dấu **(tùy chọn)** chỉ tạo khi cần. Ngoài các th�
 HTTP  →  Api/Endpoints/LeadEndpoints.cs
           .RequirePermission("crm.leads", PermissionAction.Create)
           → ISender.Send(new CreateLeadCommand(...))
-      →  Pipeline chung (Application.Common): Log → Validate (FluentValidation) → Transaction
+      →  Pipeline chung (Application.Common): Log → Validate (FluentValidation)
       →  Application/Leads/CreateLead/CreateLeadHandler.cs
           → Lead.Create(...)              (Domain kiểm tra bất biến, trả Result)
           → db.Leads.Add(lead); SaveChanges   (interceptor: audit, outbox domain event)

@@ -24,10 +24,12 @@
 
 | Thành phần | Dùng khi | Trạng thái |
 |---|---|---|
-| `ICommand`, `ICommand<T>`, `IQuery<T>`, `ICommandHandler`, `IQueryHandler`, `ISender` | Mọi use case (thay MediatR) | 📝 |
-| Pipeline: `LoggingBehavior`, `ValidationBehavior`, `TransactionBehavior` | Tự chạy cho mọi command | 📝 |
-| `PagedQuery`, `PagedResult<T>`, `ToPagedResultAsync()` | Danh sách có phân trang | 📝 |
-| `ICurrentUser` (UserId, EmployeeId, Portal, BranchIds, Permissions, OwnerId cho cổng HV/PH/GV) | Lấy người đang gọi | 📝 |
+| `ICommand`, `ICommand<T>`, `IQuery<T>`, `ICommandHandler`, `IQueryHandler`, `ISender` (`Messaging/`) | Mọi use case (thay MediatR). Module gọi `services.AddHandlersFromAssembly(assembly)` để đăng ký handler + validator | ✅ |
+| Pipeline `LoggingBehavior` → `ValidationBehavior` (`Behaviors/`), `IPipelineBehavior` | Tự chạy cho mọi request; validate sai → `validation.failed` + lỗi từng trường (camelCase), không gọi handler | ✅ |
+| ~~`TransactionBehavior`~~ | **Không làm**: handler gọi `SaveChangesAsync` 1 lần = 1 transaction. Cần nhiều lần lưu trong 1 giao dịch → mở transaction ngay trong handler | — |
+| `ResultFactory.Failure<TResponse>(error)` | Tạo `Result`/`Result<T>` thất bại khi chỉ biết kiểu lúc chạy (viết behavior) | ✅ |
+| `PageRequest`, `PagedResult<T>`, `ToPagedResultAsync()`, `SortBy(sort, allowed, fallback)` (`Paging/`) | Danh sách có phân trang; `sort` chỉ nhận cột trong danh sách cho phép | ✅ |
+| `ICurrentUser` (`Security/`) — hiện có `IsAuthenticated`, `AccountId` | Lấy người đang gọi; giai đoạn 2 thêm cổng, chi nhánh, quyền hiệu lực, OwnerId | ✅ một phần |
 | `PermissionAction`, `PermissionScope` (own/branch/all), `IPermissionService` | Kiểm tra quyền trong handler khi cần chi tiết hơn endpoint | 📝 |
 | `IIntegrationEventPublisher` | Phát event cho module khác (đi qua Outbox) | 📝 |
 | `ICodeGenerator` (sinh mã HV1000, HD2400, LD0001 theo dãy số trong DB) | Mã hiển thị tăng dần, không trùng | 📝 |
@@ -39,20 +41,26 @@
 
 | Thành phần | Dùng khi | Trạng thái |
 |---|---|---|
-| `ModuleDbContextBase` (schema, snake_case, global filter chi nhánh + xóa mềm, xmin) | Base cho DbContext mọi module | 📝 |
-| `AuditInterceptor`, `SoftDeleteInterceptor`, `DomainEventOutboxInterceptor` | Tự gắn vào DbContext base | 📝 |
+| `ModuleDbContextBase` (`Persistence/`) | Base cho DbContext mọi module: schema, Id strongly-typed ↔ `uuid` (+ `List<XxxId>` ↔ `uuid[]`), enum ↔ chuỗi snake_case, `Money` ↔ `numeric(18,0)`, cột chung created/updated, xóa mềm + query filter tên `soft_delete`, `xmin` cho aggregate. Cấu hình EF đặt trong namespace `*.Infrastructure.*` của module được nạp tự động | ✅ |
+| `ShadowColumns` | Tên shadow property cột chung; `IgnoreQueryFilters([ShadowColumns.SoftDeleteFilter])` để xem Thùng rác | ✅ |
+| `AuditFieldsInterceptor` | Tự điền created/updated, đổi xóa → xóa mềm (gắn sẵn qua `AddModuleDbContext`) | ✅ |
+| `AddInfrastructureCommon()`, `AddModuleDbContext<T>(config, schema)` | Đăng ký đồng hồ, interceptor, DbContext module (PostgreSQL, snake_case, bảng migration riêng mỗi schema) | ✅ |
+| `IDataSeeder` + `InitializeDatabaseAsync()` | Development: tự chạy migration + nạp dữ liệu mẫu theo `Order`; seeder chỉ nạp khi bảng trống, **không xóa** | ✅ |
+| `SystemClock` (`Time/`) | Hiện thực `IClock` (Today theo giờ VN) | ✅ |
+| `AuditInterceptor` (ghi before → after vào audit_logs), `DomainEventOutboxInterceptor` | Giai đoạn 2 / sau này | 📝 |
 | `OutboxMessage`, `OutboxProcessor` (BackgroundService) | Gửi integration event chắc chắn | 📝 |
 | `InboxMessage` (chống xử lý event 2 lần) | Handler integration event | 📝 |
 | `S3FileStorage` (MinIO / S3) | Hiện thực `IFileStorage` | 📝 |
 | `SequenceCodeGenerator` (PostgreSQL sequence) | Hiện thực `ICodeGenerator` | 📝 |
-| `SystemClock` | Hiện thực `IClock` | 📝 |
 
 ## JPCenter.Api.Common
 
 | Thành phần | Dùng khi | Trạng thái |
 |---|---|---|
-| `IModuleEndpoints` + `app.MapModules()` | Mỗi module tự khai báo endpoint | 📝 |
-| `.RequirePermission(code, action)` | Gắn quyền cho endpoint | 📝 |
-| `ResultExtensions.ToHttpResult()` (Result → 200/201/204 hoặc ProblemDetails theo `Error.Type`) | Trả kết quả thống nhất | 📝 |
-| `GlobalExceptionHandler` → ProblemDetails | Lỗi hệ thống | 📝 |
-| `[AsParameters] PagingRequest` | Đọc `page`, `pageSize`, `sort` từ query | 📝 |
+| `IModule` + `AddModules(...)` / `MapModules()` (`Modules/`) | Mỗi module có `<Module>Module.cs` khai báo dịch vụ + endpoint trên group `/api/v1/<module>` | ✅ |
+| `AddApiCommon()` | JSON camelCase, enum snake_case, **trường lạ → 400**, ProblemDetails, bắt lỗi toàn cục | ✅ |
+| `ResultExtensions.ToHttpResult()` / `ToCreatedResult()` / `Error.ToProblem()` (`Results/`) | Result → 200/201/204 hoặc ProblemDetails theo `Error.Type` (400/401/403/404/409/500) | ✅ |
+| `ProblemFactory` (`Errors/`) | Dựng lỗi `{ code, title, status, errors?, traceId }` | ✅ |
+| `GlobalExceptionHandler` (`Errors/`) | JSON hỏng → 400, sửa đè (`DbUpdateConcurrencyException`) → 409, còn lại → 500 không lộ stack (trừ Development) | ✅ |
+| `[AsParameters] PagingRequest` (`Paging/`) | Đọc `page`, `pageSize`, `sort` từ query | ✅ |
+| `.RequirePermission(code, action)` | Gắn quyền cho endpoint | 📝 giai đoạn 2 |
