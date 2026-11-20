@@ -6,7 +6,7 @@ public sealed class NotificationTests
 {
     private static readonly DateTimeOffset At = new(2026, 11, 20, 8, 0, 0, TimeSpan.Zero);
 
-    private static Notification Create(string title = "Đơn hủy buổi mới", string? description = "GV Lan xin hủy buổi 12", string? link = "/admin/workflow/requests") =>
+    private static Notification Create(string title = "Đơn hủy buổi mới", string? description = "GV Lan xin hủy buổi 12", string? link = "/admin/academic/requests") =>
         Notification.Create(RecipientType.Staff, Guid.NewGuid(), title, description, NotificationTone.Warning, link, "academic.cancel_request.created", At).Value;
 
     [Fact]

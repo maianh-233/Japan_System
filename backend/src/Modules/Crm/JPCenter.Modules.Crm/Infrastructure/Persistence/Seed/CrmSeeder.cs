@@ -9,7 +9,7 @@ namespace JPCenter.Modules.Crm.Infrastructure.Persistence.Seed;
 
 /// <summary>
 /// Nạp lead + liên kết lead ↔ học viên mẫu từ <c>crm.seed.json</c> (xuất từ mock frontend) — chỉ khi bảng lead còn trống.
-/// Liên kết làm lead chuyển "Đã chốt" (domain) → đặt lại trạng thái theo mock sau khi liên kết. Lịch sử tư vấn mẫu nạp ở giai đoạn 16.
+/// Liên kết làm lead chuyển "Đã chốt" (domain) → đặt lại trạng thái theo mock sau khi liên kết. Lịch sử tư vấn mẫu nạp ở giai đoạn 18.
 /// </summary>
 internal sealed class CrmSeeder(CrmDbContext db, ILogger<CrmSeeder> logger) : IDataSeeder
 {

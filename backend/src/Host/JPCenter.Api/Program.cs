@@ -8,6 +8,7 @@ using JPCenter.Infrastructure.Common.Persistence;
 using JPCenter.Modules.Academic;
 using JPCenter.Modules.Crm;
 using JPCenter.Modules.Hr;
+using JPCenter.Modules.Notifications;
 using JPCenter.Modules.Students;
 using JPCenter.Modules.System;
 using Serilog;
@@ -35,6 +36,7 @@ builder.Services
         new AcademicModule(),
         new CrmModule(),
         new HrModule(),
+        new NotificationsModule(),
         new StudentsModule(),
         new SystemModule());
 

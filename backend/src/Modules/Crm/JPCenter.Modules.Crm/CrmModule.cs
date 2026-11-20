@@ -14,7 +14,7 @@ namespace JPCenter.Modules.Crm;
 
 /// <summary>
 /// Điểm vào module Crm (Tuyển sinh) — schema <c>crm</c>, API <c>/api/v1/crm</c>.
-/// Giai đoạn 15: lưu lead + liên kết học viên để cổng PH thấy con (<see cref="IGuardianDirectory"/>); màn hình Tuyển sinh làm ở giai đoạn 16.
+/// Giai đoạn 15: lưu lead + liên kết học viên để cổng PH thấy con (<see cref="IGuardianDirectory"/>); màn hình Tuyển sinh làm ở giai đoạn 18.
 /// </summary>
 public sealed class CrmModule : IModule
 {

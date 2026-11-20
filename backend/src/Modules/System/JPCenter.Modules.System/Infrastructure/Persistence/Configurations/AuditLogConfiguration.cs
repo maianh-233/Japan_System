@@ -21,6 +21,7 @@ internal sealed class AuditLogConfiguration : IEntityTypeConfiguration<AuditLog>
         b.HasIndex(x => x.At).IsDescending();
         b.HasIndex(x => new { x.ActorId, x.At });
         b.HasIndex(x => new { x.Category, x.At });
+        b.HasIndex(x => new { x.BranchId, x.At }); // NK-01 lọc theo chi nhánh (phạm vi branch)
         b.Property(x => x.Changes).HasJsonConversion();
     }
 }

@@ -6,7 +6,7 @@ namespace JPCenter.Modules.Crm.Infrastructure.Persistence.Configurations;
 
 /// <summary>
 /// crm.leads + consultations + lead_student_links — database.md bảng 14, 15, 16.
-/// <c>student_id</c> không ràng buộc FK (bảng của Students); <c>campaign_id</c> chưa ràng buộc tới khi có bảng campaigns (giai đoạn 16).
+/// <c>student_id</c> không ràng buộc FK (bảng của Students); <c>campaign_id</c> chưa ràng buộc tới khi có bảng campaigns (giai đoạn 18).
 /// </summary>
 internal sealed class LeadConfiguration : IEntityTypeConfiguration<Lead>
 {

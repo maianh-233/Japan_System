@@ -217,6 +217,8 @@ thêm / đổi / xóa thuộc tính → sửa dòng trong bảng + ghi 1 dòng �
 | device | text | Thiết bị / trình duyệt |
 | trace_id | text? | Mã truy vết request (header X-Request-Id) — nối với log kỹ thuật trong Seq |
 
+Chỉ mục: `at` giảm dần · (`actor_id`, `at`) · (`category`, `at`) · (`branch_id`, `at`) — lọc theo chi nhánh (NK-01).
+
 ### 11. approval_requests
 **Chức năng:** Duyệt 2 người (maker–checker) cho hoàn tiền, hủy hóa đơn, cấp quyền tài chính. Người tạo không tự duyệt. Entity `ApprovalRequest`.
 
@@ -1821,6 +1823,9 @@ Khóa chính (scope, key).
 | created_at | timestamptz | Lúc tạo |
 | read_at | timestamptz? | Lúc đọc |
 
+Không xóa mềm — job dọn xóa hẳn (TB-05). Chỉ mục: (`recipient_type`, `recipient_id`, `created_at` giảm dần) cho chuông ·
+(`recipient_type`, `recipient_id`) lọc `read_at IS NULL` đếm chưa đọc · `created_at` cho job dọn. `recipient_id` không ràng buộc FK (schema system).
+
 ---
 
 ## Module Reporting — schema `reporting`
@@ -1863,4 +1868,5 @@ sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đ�
 | 2026-11-20 | Giai đoạn 15 phase 4: tạo bảng `crm.leads`, `consultations`, `lead_student_links` — migration `CrmLeads` (cổng PH thấy con; `campaign_id` chưa ràng buộc FK tới khi có bảng `campaigns`). Dữ liệu: vai trò mẫu Giáo vụ thêm `academic.requests.approve` (migration `GrantAcademicStaffRequestsApprove`, không đổi cấu trúc) |
 | 2026-11-20 | Giai đoạn 15 phase 2: tạo bảng `session_cancel_requests`, `substitute_invites`, `leave_requests`, `promotion_candidates` (UQ lớp đang học × HV), `promotion_notes`, `student_evaluations` — migration `AcademicRequestsPromotions`; `care_cases`, `care_logs` — migration `StudentsCare`. `session_id` / `makeup_session_id` của đơn từ & lời mời không ràng buộc FK (buổi chưa dạy có thể bị xóa khi sinh lại lịch) |
 | 2026-11-20 | Giai đoạn 16 phase 1 (user story 10): `settings` liệt kê 23 khóa Cài đặt chung + khoảng hợp lệ (domain `CenterSettings`); `trash_items.purge_after` tính theo `safety.trashDays` lúc xóa (1 → 365); `notifications` cắt `title` ≤ 200, `description` ≤ 1000, `link` ≤ 500 và chỉ nhận đường dẫn nội bộ. Không đổi cấu trúc bảng |
+| 2026-11-20 | Giai đoạn 16 phase 2: tạo bảng `notifications.notifications` (title ≤ 200, description ≤ 1000, link ≤ 500, event_key ≤ 100 + chỉ mục chuông / chưa đọc / dọn) — migration `Initial` của schema `notifications`; `audit_logs` thêm chỉ mục (`branch_id`, `at`) — migration `AuditLogBranchIndex`. Dữ liệu: `settings` seed sẵn 23 mục mặc định (chỉ thêm mục còn thiếu), thông báo mẫu cho tài khoản demo |
 | 2026-11-17 | Chốt thiết kế (user story 08): `invoices.status` chỉ lưu `open` / `cancelled` / `voided`, các trạng thái tiền tính khi đọc; `payments.method` dùng `vietqr` (không `viet_qr`). Domain `InvoiceStatus`, `PaymentMethod` sửa theo khi code module Tài chính |

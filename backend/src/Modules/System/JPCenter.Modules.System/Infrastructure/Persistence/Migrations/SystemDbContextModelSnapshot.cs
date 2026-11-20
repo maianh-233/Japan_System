@@ -266,6 +266,9 @@ namespace JPCenter.Modules.System.Infrastructure.Persistence.Migrations
                     b.HasIndex("ActorId", "At")
                         .HasDatabaseName("ix_audit_logs_actor_id_at");
 
+                    b.HasIndex("BranchId", "At")
+                        .HasDatabaseName("ix_audit_logs_branch_id_at");
+
                     b.HasIndex("Category", "At")
                         .HasDatabaseName("ix_audit_logs_category_at");
 
