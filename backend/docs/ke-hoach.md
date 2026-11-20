@@ -13,16 +13,17 @@
 | Academic: khóa học, lộ trình, phòng, lớp, buổi, điểm danh, chấm công GV, đơn từ, dạy thay, lên lớp, nhận xét | ✅ | ✅ |
 | Students: hồ sơ, ghi danh (HV-01 → 11), chăm sóc bỏ học (HV-14), cổng GV / HV / PH | ✅ | ✅ |
 | Crm | Mới lưu lead + liên kết phụ huynh, chưa có API | ❌ |
-| Finance, Work, Library, Notifications | Chỉ có domain | ❌ |
+| Notifications (chuông) | ✅ | ✅ |
+| Finance, Work, Library | Chỉ có domain | ❌ |
 | Reporting | Chưa có | ❌ |
-| System: cài đặt chung, nhật ký, thùng rác, tích hợp | Có bảng, chưa API | ❌ |
+| System: cài đặt chung, nhật ký, thùng rác, tích hợp | ✅ (trừ tích hợp — GĐ 22) | ✅ |
 | Academic: ngân hàng câu hỏi, bài tập, bài thi, flashcard, thông báo lớp, đánh giá GV | Chỉ có domain | ❌ |
 
 ## Các giai đoạn
 
 | GĐ | Nội dung | Phụ thuộc | Trạng thái |
 |---|---|---|---|
-| 16 | **Nền chung**: Cài đặt chung (API + đọc từ module khác), Thông báo (chuông lưu DB + SignalR, sự kiện `NotificationRequested`), Nhật ký hệ thống (xem / lọc), Thùng rác (khôi phục / xóa hẳn, job dọn). Email / Zalo / SMS mới là interface. Story [10](user-stories/10-he-thong-chung.md) | — | 🚧 |
+| 16 | **Nền chung**: Cài đặt chung (API + đọc từ module khác), Thông báo (chuông lưu DB + SignalR, sự kiện `NotificationRequested`), Nhật ký hệ thống (xem / lọc), Thùng rác (khôi phục / xóa hẳn, job dọn). Email / Zalo / SMS mới là interface. Story [10](user-stories/10-he-thong-chung.md) | — | ✅ 2026-11-20 |
 | 17 | **Ngân hàng câu hỏi**: kỹ năng, dạng câu, cấp độ, furigana, audio; nháp → chờ duyệt → đã duyệt → ngừng dùng; thống kê | 16 | |
 | 18 | **Tuyển sinh / Crm** (story 05 + HV-12): lead, Kanban, trùng, lịch sử tư vấn, CRM-07 lead → HV, phụ huynh, chia lead + SLA, lịch hẹn, test xếp lớp, CRM-19 tư vấn lên lớp, chiến dịch, mẫu tin nhắn, phễu. Phạm vi `own` thật cho Students | 16, 17 | |
 | 19 | **Tài chính đợt 1** (story 08): bảng giá, ưu đãi, chính sách đóng; nghe `StudentEnrolled` / `EnrollmentEnded` sinh / hủy hóa đơn; thu tiền, hoàn / hủy (duyệt 2 người), đối soát VietQR, công nợ, nhắc phí; học phí ở cổng; dấu hiệu nợ quá hạn cho cảnh báo bỏ học | 16 (18 nếu cần ghi danh từ lead) | |

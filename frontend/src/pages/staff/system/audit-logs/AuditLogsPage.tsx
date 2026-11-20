@@ -1,9 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Drawer } from 'antd';
 import dayjs from 'dayjs';
 import { ArrowRight, Download, History, LogIn, ShieldAlert } from 'lucide-react';
 import { Button, DataTable, DateRangeInput, PageHeader, Select, StatCard, StatusTag, useNotify, type DataColumn, type DateRange } from '@/components/common';
 import { AUDIT_CATEGORIES, AUDIT_SEVERITY } from '@/features/system/constants';
+import { exportAuditLogs, fetchAuditActors, fetchAuditLogs, fetchAuditStats, MAX_ROWS, type AuditActor, type AuditStats } from '@/features/system/auditApi';
+import { USE_API } from '@/lib/api/config';
+import { ApiError } from '@/lib/api/http';
 import { useSystemStore } from '@/features/system/systemStore';
 import type { AuditLog } from '@/features/system/types';
 import { useActor } from '@/features/system/useActor';
@@ -15,9 +18,12 @@ import { ALL_BRANCHES } from '@/types/auth';
 
 const branchName = (id?: string) => (id ? (getBranches(false).find((b) => b.id === id)?.name ?? id) : 'Toàn hệ thống');
 
-/** Nhật ký hệ thống: ai làm gì, lúc nào, từ đâu. CHỈ ĐỌC — không sửa / xóa được. DỮ LIỆU GIẢ. */
+/**
+ * Nhật ký hệ thống: ai làm gì, lúc nào, từ đâu. CHỈ ĐỌC — không sửa / xóa được.
+ * Chế độ API: server lọc (phạm vi quyền, chi nhánh, loại, mức độ, người, khoảng ngày — mặc định 30 ngày), trang tìm trong tối đa 1000 dòng mới nhất.
+ */
 export default function AuditLogsPage() {
-  const { branchId, can } = useAuth();
+  const { branchId, canDo } = useAuth();
   const { isMobile } = useBreakpoint();
   const notify = useNotify();
   const { actor } = useActor();
@@ -30,9 +36,47 @@ export default function AuditLogsPage() {
   const [range, setRange] = useState<DateRange>(null);
   const [openId, setOpenId] = useState<string | null>(null);
 
+  // ----- Chế độ API -----
+  const [server, setServer] = useState<{ rows: AuditLog[]; total: number }>({ rows: [], total: 0 });
+  const [stats, setStats] = useState<AuditStats>();
+  const [people, setPeople] = useState<AuditActor[]>([]);
+  const [loading, setLoading] = useState(USE_API);
+  const filter = {
+    branchId,
+    category,
+    severity,
+    actorId: who,
+    from: range?.[0]?.format('YYYY-MM-DD'),
+    to: range?.[1]?.format('YYYY-MM-DD'),
+  };
+  const filterKey = JSON.stringify(filter);
+  useEffect(() => {
+    if (!USE_API) return;
+    let cancelled = false;
+    setLoading(true);
+    const t = setTimeout(() => {
+      fetchAuditLogs(JSON.parse(filterKey))
+        .then((r) => !cancelled && setServer(r))
+        .catch((e) => !cancelled && notify.toast.error(e instanceof ApiError ? e.message : 'Không tải được nhật ký'))
+        .finally(() => !cancelled && setLoading(false));
+    }, 250);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterKey]);
+  useEffect(() => {
+    if (!USE_API) return;
+    void fetchAuditStats(branchId).then(setStats).catch(() => undefined);
+  }, [branchId, server]);
+  useEffect(() => {
+    if (USE_API) void fetchAuditActors().then(setPeople).catch(() => undefined);
+  }, []);
+
   // Theo chi nhánh đang chọn: thấy log của chi nhánh đó + log toàn hệ thống
   const base = useMemo(() => audits.filter((a) => branchId === ALL_BRANCHES || !a.branchId || a.branchId === branchId), [audits, branchId]);
-  const rows = base.filter(
+  const localRows = base.filter(
     (a) =>
       (!category || a.category === category) &&
       (!severity || a.severity === severity) &&
@@ -40,9 +84,32 @@ export default function AuditLogsPage() {
       (!range?.[0] || !dayjs(a.at).isBefore(range[0].startOf('day'))) &&
       (!range?.[1] || !dayjs(a.at).isAfter(range[1].endOf('day'))),
   );
-  const open = audits.find((a) => a.id === openId);
+  const rows = USE_API ? server.rows : localRows;
+  const open = rows.find((a) => a.id === openId);
   const week = base.filter((a) => dayjs().diff(dayjs(a.at), 'day') < 7);
-  const actors = [...new Set(base.map((a) => a.actor))].sort((a, b) => a.localeCompare(b, 'vi'));
+  const counts: AuditStats = stats ?? {
+    today: base.filter((a) => dayjs(a.at).isSame(dayjs(), 'day')).length,
+    criticalWeek: week.filter((a) => a.severity === 'critical').length,
+    exportWeek: week.filter((a) => a.category === 'export').length,
+    failedLoginWeek: week.filter((a) => a.category === 'auth' && a.action.includes('thất bại')).length,
+  };
+  const actorOptions = USE_API
+    ? people.map((p) => ({ value: p.id, label: `${p.name} · ${p.role}` }))
+    : [...new Set(base.map((a) => a.actor))].sort((a, b) => a.localeCompare(b, 'vi')).map((a) => ({ value: a, label: a }));
+
+  const doExport = async () => {
+    if (!USE_API) {
+      // Xuất nhật ký cũng là một thao tác phải ghi nhật ký
+      audit(actor, { category: 'export', severity: 'warning', action: 'Xuất nhật ký hệ thống', target: `${rows.length} dòng` });
+      return notify.toast.info(`Xuất ${rows.length} dòng nhật ký (giả lập)`);
+    }
+    try {
+      const r = await exportAuditLogs(filter, branchName);
+      notify.toast.success(r.truncated ? `Đã xuất ${r.count} dòng mới nhất (giới hạn 10.000 dòng)` : `Đã xuất ${r.count} dòng nhật ký`);
+    } catch (e) {
+      notify.toast.error(e instanceof ApiError ? e.message : 'Không xuất được nhật ký');
+    }
+  };
 
   const columns: DataColumn<AuditLog>[] = [
     {
@@ -118,26 +185,15 @@ export default function AuditLogsPage() {
         subtitle="Ghi tự động mọi thao tác quan trọng: đăng nhập, phân quyền, xóa / ẩn dữ liệu, xuất file, tiền, cấu hình. Không ai sửa hoặc xóa được nhật ký."
         breadcrumb={[{ title: 'Hệ thống' }, { title: 'Nhật ký hệ thống' }]}
         actions={
-          can('system.audit') ? (
-            <Button
-              action="export"
-              variant="outline"
-              collapseOnMobile
-              onClick={() => {
-                // Xuất nhật ký cũng là một thao tác phải ghi nhật ký
-                audit(actor, { category: 'export', severity: 'warning', action: 'Xuất nhật ký hệ thống', target: `${rows.length} dòng` });
-                notify.toast.info(`Xuất ${rows.length} dòng nhật ký (giả lập)`);
-              }}
-            />
-          ) : undefined
+          canDo('system.audit', 'export') ? <Button action="export" variant="outline" collapseOnMobile onClick={() => void doExport()} /> : undefined
         }
       />
 
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="Thao tác hôm nay" value={base.filter((a) => dayjs(a.at).isSame(dayjs(), 'day')).length} icon={History} tone="primary" />
+        <StatCard label="Thao tác hôm nay" value={counts.today} icon={History} tone="primary" />
         <StatCard
           label="Nghiêm trọng (7 ngày)"
-          value={week.filter((a) => a.severity === 'critical').length}
+          value={counts.criticalWeek}
           icon={ShieldAlert}
           tone="danger"
           onClick={() => {
@@ -145,8 +201,8 @@ export default function AuditLogsPage() {
             setCategory(undefined);
           }}
         />
-        <StatCard label="Xuất file (7 ngày)" value={week.filter((a) => a.category === 'export').length} icon={Download} tone="warning" onClick={() => setCategory('export')} />
-        <StatCard label="Đăng nhập thất bại" value={week.filter((a) => a.category === 'auth' && a.action.includes('thất bại')).length} icon={LogIn} tone="neutral" hint="7 ngày" onClick={() => setCategory('auth')} />
+        <StatCard label="Xuất file (7 ngày)" value={counts.exportWeek} icon={Download} tone="warning" onClick={() => setCategory('export')} />
+        <StatCard label="Đăng nhập thất bại" value={counts.failedLoginWeek} icon={LogIn} tone="neutral" hint="7 ngày" onClick={() => setCategory('auth')} />
       </div>
 
       <DataTable<AuditLog>
@@ -154,6 +210,7 @@ export default function AuditLogsPage() {
         columns={columns}
         data={rows}
         rowKey="id"
+        loading={loading}
         unitLabel="dòng"
         searchKeys={['action', 'target', 'actor', 'detail', 'ip']}
         onRowClick={(r) => setOpenId(r.id)}
@@ -164,7 +221,7 @@ export default function AuditLogsPage() {
             <>
               <Select placeholder="Loại" value={category} onChange={setCategory} options={Object.entries(AUDIT_CATEGORIES).map(([value, v]) => ({ value, label: v.label }))} showSearch={false} className="lg:!w-36" />
               <Select placeholder="Mức độ" value={severity} onChange={setSeverity} options={Object.entries(AUDIT_SEVERITY).map(([value, v]) => ({ value, label: v.label }))} showSearch={false} className="lg:!w-36" />
-              <Select placeholder="Người thực hiện" value={who} onChange={setWho} options={actors.map((a) => ({ value: a, label: a }))} className="lg:!w-48" />
+              <Select placeholder="Người thực hiện" value={who} onChange={setWho} options={actorOptions} className="lg:!w-48" />
               <DateRangeInput value={range} onChange={setRange} className="lg:!w-64" />
             </>
           ),
@@ -175,8 +232,13 @@ export default function AuditLogsPage() {
             setRange(null);
           },
         }}
-        empty={{ icon: History, title: 'Không có nhật ký phù hợp' }}
+        empty={{ icon: History, title: 'Không có nhật ký phù hợp', description: USE_API && !range?.[0] ? 'Đang xem 30 ngày gần nhất — chọn khoảng ngày để xem cũ hơn (tối đa 1 năm).' : undefined }}
       />
+      {USE_API && server.total > server.rows.length && (
+        <p className="mt-2 text-xs text-ink-muted">
+          Có {server.total.toLocaleString('vi-VN')} dòng khớp — đang hiện {Math.min(server.rows.length, MAX_ROWS).toLocaleString('vi-VN')} dòng mới nhất. Thu hẹp bộ lọc / khoảng ngày, hoặc Xuất để lấy đủ.
+        </p>
+      )}
 
       <Drawer open={Boolean(open)} onClose={() => setOpenId(null)} width={isMobile ? '100%' : 520} destroyOnHidden title={open && `${open.action} · ${open.target}`}>
         {open && (

@@ -281,3 +281,15 @@ Test: `tests/JPCenter.IntegrationTests/System/FoundationFlowTests.cs` (+ kiểm 
   báo cáo buổi có vấn đề → `academic.sessions.update`; HV / PH bấm "Quan tâm" → Sale phụ trách (chưa giao → `academic.classes.update`).
 - Job: dọn thông báo cũ 03:30 hằng ngày; xóa hẳn mục thùng rác quá hạn trong job dọn hệ thống 02:00.
 - ⏳ GV và nhân viên dùng chung tài khoản nhân viên → chuông ở cổng nhân viên và cổng GV là 1 danh sách.
+
+### Frontend (giai đoạn 16 phase 4, 2026-11-20)
+- `features/system/settingsApi.ts`: tải Cài đặt chung sau đăng nhập (nhân viên, GV) đổ vào `useSettingsStore`; trang Cài đặt chung lưu qua API,
+  lỗi theo mục báo đúng ô trên form; phụ đề "sửa lần cuối … bởi …" lấy từ server.
+- `features/system/auditApi.ts` + `AuditLogsPage`: server lọc (chi nhánh, loại, mức độ, người theo Id, khoảng ngày — mặc định 30 ngày),
+  trang tải tối đa 1000 dòng mới nhất rồi tìm tại chỗ; thẻ thống kê và ô "Người thực hiện" từ server; Xuất → file .xlsx ghi ở trình duyệt.
+- `features/system/trashApi.ts` + `TrashPage`: mục đã xóa từ server (khôi phục / xóa vĩnh viễn theo quyền, tải lại dữ liệu loại đó sau khi khôi phục);
+  lead / HV bị ẩn vẫn ghép như cũ, bỏ ẩn HV gọi API.
+- `features/notifications/notificationApi.ts`: chuông lấy 50 thông báo + số chưa đọc từ server; đọc 1 / đọc hết gọi server;
+  SignalR `notification.created` thêm vào chuông ngay. Bỏ chuông tự tạo ở trình duyệt cho kết quả duyệt đơn (server đã gửi).
+- Kiểm tra tay (Playwright): chuông Giáo vụ đọc → lưu DB; sửa SLA → lưu + nhật ký; nhật ký 165 dòng thật + thống kê; khôi phục vai trò từ Thùng rác.
+- ⏳ Chuông vẫn có thông báo tạm tại chỗ của phần chưa có backend (Tuyển sinh — SLA lead), mất khi tải lại trang.

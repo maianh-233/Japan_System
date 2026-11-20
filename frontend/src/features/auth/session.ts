@@ -13,6 +13,8 @@ import { loadBranches } from '@/features/system/branchApi';
 import { loadSystem, rememberAccount } from '@/features/system/systemApi';
 import { loadLearningPortal, loadStaffRequests, loadTeacherPortal } from '@/features/portal/portalApi';
 import { startRealtime } from '@/features/portal/realtime';
+import { loadNotifications } from '@/features/notifications/notificationApi';
+import { loadSettings } from '@/features/system/settingsApi';
 import { restore } from './realAuth';
 
 /** Việc làm ngay sau khi có phiên (đăng nhập / kích hoạt / tải lại trang) — chế độ API */
@@ -22,6 +24,9 @@ export async function onSignedIn(user: SessionUser & { accountId?: string }) {
   // Lỗi tải dữ liệu không chặn việc vào hệ thống — trang tương ứng sẽ báo / dùng dữ liệu cũ
   const quiet = (p: Promise<unknown>) => p.catch(() => undefined);
   void startRealtime(user.portal, user.portalOwnerId);
+  void quiet(loadNotifications(user.portal));
+  // Cài đặt chung (SLA, giờ hành chính, mã hóa đơn, ngưỡng bỏ học…) — nhân viên & GV
+  if (user.portal === 'staff' || user.portal === 'teacher') void quiet(loadSettings());
   // Cổng GV / HV / PH: chỉ dữ liệu của chủ tài khoản (lớp mình dạy / lớp của mình / của con)
   if (user.portal === 'teacher') return void (await quiet(loadTeacherPortal()));
   if (user.portal === 'student' || user.portal === 'parent') return void (await quiet(loadLearningPortal(user.portalOwnerId, user.portal === 'parent')));

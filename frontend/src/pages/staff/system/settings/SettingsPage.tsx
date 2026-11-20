@@ -3,7 +3,10 @@ import { Form, Switch } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import { AlarmClock, Building, CalendarCheck, Receipt, RotateCcw, Send, ShieldCheck, TriangleAlert, Users } from 'lucide-react';
 import { Button, NumberInput, PageHeader, Select, TextInput, TimeInput, useConfirm, useNotify } from '@/components/common';
-import { DEFAULT_SETTINGS, diffSettings, formatInvoiceCode, useSettingsStore, type CenterSettings } from '@/features/system/settings';
+import { DEFAULT_SETTINGS, diffSettings, formatInvoiceCode, SETTING_LABELS, useSettingsStore, type CenterSettings } from '@/features/system/settings';
+import { saveSettings } from '@/features/system/settingsApi';
+import { USE_API } from '@/lib/api/config';
+import { ApiError } from '@/lib/api/http';
 import { runWeeklyReports } from '@/features/portal/parentAlerts';
 import { useAuth } from '@/hooks/useAuth';
 import { fmtDateTime } from '@/lib/date';
@@ -37,13 +40,13 @@ function Section({ icon: Icon, title, hint, children }: { icon: typeof Building;
 
 /** Cài đặt chung của trung tâm — gom các con số trước đây viết cứng trong code */
 export default function SettingsPage() {
-  const { user, can } = useAuth();
+  const { user, canDo } = useAuth();
   const notify = useNotify();
   const { confirm, confirmDialog } = useConfirm();
   const settings = useSettingsStore((s) => s.settings);
   const { save, updatedAt, updatedBy } = useSettingsStore();
   const [form] = Form.useForm<FormValues>();
-  const editable = can('system.settings');
+  const editable = canDo('system.settings', 'update');
   const values = Form.useWatch([], form) as FormValues | undefined;
   const [dirty, setDirty] = useState(false);
 
@@ -67,8 +70,21 @@ export default function SettingsPage() {
       confirmText: 'Lưu cài đặt',
     });
     if (!ok) return;
-    save(next, user?.fullName ?? 'Quản trị');
-    notify.toast.success('Đã lưu cài đặt chung');
+    if (!USE_API) {
+      save(next, user?.fullName ?? 'Quản trị');
+      return notify.toast.success('Đã lưu cài đặt chung');
+    }
+    try {
+      const changed = await saveSettings(next);
+      notify.toast.success(changed ? `Đã lưu ${changed} thay đổi` : 'Không có thay đổi');
+    } catch (e) {
+      if (e instanceof ApiError && e.fields) {
+        // Lỗi theo mục "nhóm.mục" → báo đúng ô trên form
+        form.setFields(Object.entries(e.fields).map(([key, errors]) => ({ name: key.split('.') as never, errors })));
+        return notify.toast.error(`Có ${Object.keys(e.fields).length} mục chưa hợp lệ: ${Object.keys(e.fields).map((k) => SETTING_LABELS[k] ?? k).join(', ')}`);
+      }
+      notify.toast.error(e instanceof ApiError ? e.message : 'Không lưu được cài đặt');
+    }
   };
 
   return (

@@ -27,7 +27,9 @@ export function NotificationBell({ portal }: { portal: Portal }) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { isMobile } = useBreakpoint();
-  const unread = items.filter((n) => !n.read).length;
+  // Chế độ API: server đếm (có thể nhiều hơn 50 thông báo đang hiện)
+  const serverUnread = useNotificationStore((s) => s.unread[portal]);
+  const unread = serverUnread ?? items.filter((n) => !n.read).length;
 
   const openItem = (n: AppNotification) => {
     markRead(portal, n.id);

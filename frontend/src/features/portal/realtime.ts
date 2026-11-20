@@ -7,6 +7,7 @@ import { HubConnectionBuilder, LogLevel, type HubConnection } from '@microsoft/s
 import { getAccessToken, refreshSession as refreshToken } from '@/lib/api/http';
 import { fromGuid } from '@/lib/api/ids';
 import { useNotificationStore } from '@/features/notifications/notificationStore';
+import { toNotification, type ServerNotification } from '@/features/notifications/notificationApi';
 import type { Portal } from '@/types/auth';
 import { loadLearningPortal, loadStaffRequests, loadTeacherPortal, refreshSession } from './portalApi';
 
@@ -64,15 +65,14 @@ export async function startRealtime(portal: Portal, ownerId?: string) {
     bell('Lời mời dạy thay quá hạn', `Chưa ai nhận lớp ${p.classCode}${when(p)} — chọn cách khác (mời GV khác / hủy & xếp bù).`, 'warning');
     reload();
   });
-  conn.on('cancel-request.decided', (p: { status: string; classCode: string; note?: string }) => {
-    bell(p.status === 'approved' ? 'Đơn hủy buổi đã được duyệt' : 'Đơn hủy buổi bị từ chối', `Lớp ${p.classCode}${p.note ? ` — ${p.note}` : ''}`,
-      p.status === 'approved' ? 'success' : 'warning');
-    reload();
-  });
-  conn.on('leave-request.decided', (p: { status: string; classCode: string; studentName: string; note?: string }) => {
-    bell(p.status === 'approved' ? 'Đơn xin nghỉ đã được duyệt' : 'Đơn xin nghỉ bị từ chối', `${p.studentName} · lớp ${p.classCode}${p.note ? ` — ${p.note}` : ''}`,
-      p.status === 'approved' ? 'success' : 'warning');
-    reload();
+  // Kết quả duyệt đơn: server đã gửi thông báo chuông lưu DB (notification.created) → ở đây chỉ làm mới dữ liệu
+  conn.on('cancel-request.decided', () => reload());
+  conn.on('leave-request.decided', () => reload());
+  // Chuông (user story 10, TB-03): thông báo lưu trên server — đơn mới, kết quả duyệt, vấn đề sau buổi, HV quan tâm lớp kỳ sau…
+  conn.on('notification.created', (n: ServerNotification) => {
+    useNotificationStore.getState().receive(portal, toNotification(n));
+    // Đơn mới / quan tâm lớp kỳ sau → tải lại danh sách đơn của nhân viên
+    if (portal === 'staff') reload();
   });
   // GV đang mở QR → điểm danh cập nhật ngay khi HV quét
   conn.on('attendance.scanned', (p: { sessionId: string }) => void refreshSession(fromGuid(p.sessionId), portal === 'teacher').catch(() => undefined));

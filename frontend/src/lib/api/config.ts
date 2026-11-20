@@ -2,7 +2,7 @@
  * Chế độ dữ liệu:
  *  - "api"  (mặc định): đăng nhập, phân quyền, duyệt cấp quyền, chi nhánh, nhân viên / giáo viên, khóa học, lộ trình, phòng học, lớp học, buổi học, học viên, ghi danh,
  *    điểm danh / chấm công / báo cáo buổi, đơn hủy buổi / xin nghỉ / dạy thay, lên lớp, nhận xét cuối khóa, chăm sóc HV có nguy cơ bỏ học,
- *    cổng GV / HV / PH (lớp, lịch, đơn, QR, Quan tâm) + realtime SignalR gọi backend thật
+ *    cổng GV / HV / PH (lớp, lịch, đơn, QR, Quan tâm), cài đặt chung, nhật ký hệ thống, thùng rác, chuông thông báo + realtime SignalR gọi backend thật
  *    (cần chạy API + Docker — xem backend/README.md).
  *  - "mock": toàn bộ chạy bằng dữ liệu giả trong trình duyệt như trước (không cần backend).
  * Đặt trong frontend/.env.local:  VITE_API_MODE=mock
