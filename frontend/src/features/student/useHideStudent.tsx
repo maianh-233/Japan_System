@@ -4,6 +4,8 @@ import { useCrmStore } from '@/features/crm/crmStore';
 import type { Student } from '@/features/crm/types';
 import { formatCurrency } from '@/lib/format';
 import { activeEnrollments, groupByStudent, summarizeTuition, useStudentStore } from './studentStore';
+import * as studentApi from './studentApi';
+import { USE_API } from '@/lib/api/config';
 
 /**
  * Ẩn / bỏ ẩn học viên.
@@ -28,7 +30,14 @@ export function useHideStudent() {
 
   const toggleHidden = async (student: Student) => {
     if (student.hidden) {
-      setStudentHidden(student.id, false);
+      if (USE_API) {
+        try {
+          await studentApi.unhideStudent(student.id);
+        } catch (e) {
+          notify.error({ title: 'Chưa bỏ ẩn được', description: (e as Error).message });
+          return;
+        }
+      } else setStudentHidden(student.id, false);
       notify.toast.success(`Đã bỏ ẩn ${student.fullName}`);
       return;
     }
@@ -50,9 +59,16 @@ export function useHideStudent() {
       tone: 'warning',
       confirmAction: 'save',
       confirmText: 'Ẩn học viên',
+      onConfirm: USE_API
+        ? async () => {
+            // Server kiểm lại "còn học lớp nào" — bị bỏ qua thì báo lý do
+            const r = await studentApi.hideStudents([student.id]);
+            if (r.skipped.length) throw new Error(r.skipped[0].reason);
+          }
+        : undefined,
     });
     if (!ok) return;
-    setStudentHidden(student.id, true);
+    if (!USE_API) setStudentHidden(student.id, true);
     notify.success({ title: 'Đã ẩn học viên', description: student.fullName });
   };
 

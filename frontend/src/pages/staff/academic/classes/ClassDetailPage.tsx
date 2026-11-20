@@ -7,6 +7,8 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Button, DateInput, EmptyState, ModalForm, PageHeader, StatusTag, useConfirm, useNotify } from '@/components/common';
 import { useClassStore } from '@/features/academic/classes/classStore';
 import * as classApi from '@/features/academic/classes/classApi';
+import * as studentApi from '@/features/student/studentApi';
+import { cancelMockInvoice } from '@/features/student/studentStore';
 import { USE_API } from '@/lib/api/config';
 import { CLASS_STATUS, effectiveStart, scheduleLabel, teacherNames, totalSessionsOf } from '@/features/academic/classes/constants';
 import { ClassAnnouncementsTab } from '@/features/academic/classes/detail/ClassAnnouncementsTab';
@@ -47,7 +49,10 @@ export default function ClassDetailPage() {
 
   // Chế độ API: tải đủ buổi của lớp (lúc đăng nhập chỉ tải ±45 ngày)
   useEffect(() => {
-    if (USE_API && id) void classApi.loadClassSessions(id).catch(() => undefined);
+    if (USE_API && id) {
+      void classApi.loadClassSessions(id).catch(() => undefined);
+      void studentApi.loadEnrollments(id).catch(() => undefined);
+    }
   }, [id]);
 
   if (!cls)
@@ -182,9 +187,12 @@ function StatusActions({ cls }: { cls: ClassInfo }) {
       onConfirm: USE_API ? async ({ reason }) => void (await classApi.cancelClass(cls.id, reason ?? '', cls.code)) : undefined,
     });
     if (!res) return;
-    // ⏳ Học viên / học phí còn dữ liệu giả (giai đoạn 14) → vẫn cập nhật ở trình duyệt
-    active.forEach((e) => dropEnrollment(e.id, `Lớp bị hủy: ${res.reason}`));
-    if (!USE_API) {
+    if (USE_API) {
+      // Server cho nghỉ mọi ghi danh (chạy nền) → tải lại; ⏳ hóa đơn còn giả → hủy công nợ ở trình duyệt
+      active.forEach((e) => cancelMockInvoice(e.id));
+      studentApi.reloadClassEnrollmentsSoon(cls.id);
+    } else {
+      active.forEach((e) => dropEnrollment(e.id, `Lớp bị hủy: ${res.reason}`));
       upcoming.forEach((s) => updateSession(s.id, { status: 'cancelled', note: 'Lớp bị hủy' }));
       updateClass(cls.id, { status: 'cancelled', cancelReason: res.reason });
     }
@@ -326,8 +334,9 @@ function StatusActions({ cls }: { cls: ClassInfo }) {
             upcoming.forEach((s) => updateSession(s.id, { status: 'cancelled', note: 'Lớp kết thúc sớm' }));
             updateClass(cls.id, { status: 'finished', actualEndDate: v.actualEndDate.format('YYYY-MM-DD') });
           }
-          // ⏳ Học viên + lên lớp còn dữ liệu giả → vẫn cập nhật ở trình duyệt
-          active.filter((e) => e.status === 'studying').forEach((e) => setEnrollmentStatus(e.id, 'completed'));
+          // Ghi danh: server chuyển "hoàn thành" (chạy nền) → tải lại. ⏳ Lên lớp còn dữ liệu giả
+          if (USE_API) studentApi.reloadClassEnrollmentsSoon(cls.id);
+          else active.filter((e) => e.status === 'studying').forEach((e) => setEnrollmentStatus(e.id, 'completed'));
           // Giao danh sách lên lớp cho Sale
           handOver(cls.id);
         }}

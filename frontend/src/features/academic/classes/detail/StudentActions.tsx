@@ -5,6 +5,8 @@ import { CheckCircle2, ChevronDown, CircleAlert, ChevronUp, CircleX, FileUser, P
 import { Button, DateInput, ModalForm, NumberInput, Select, StatusTag, TextArea, TextInput, useNotify } from '@/components/common';
 import { useCrmStore } from '@/features/crm/crmStore';
 import { summarizeInvoice, useStudentStore } from '@/features/student/studentStore';
+import * as studentApi from '@/features/student/studentApi';
+import { USE_API } from '@/lib/api/config';
 import type { Enrollment } from '@/features/student/types';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/cn';
@@ -34,7 +36,11 @@ export function ReserveModal({ enrollment, name, onClose }: { enrollment: Enroll
       submitText="Bảo lưu"
       successMessage="Đã bảo lưu"
       initialValues={{ until: dayjs().add(1, 'month') }}
-      onSubmit={(v) => void (enrollment && reserve(enrollment.id, v.until.format('YYYY-MM-DD'), v.reason.trim()))}
+      onSubmit={async (v) => {
+        if (!enrollment) return;
+        if (USE_API) await studentApi.reserveEnrollment(enrollment.id, v.until.format('YYYY-MM-DD'), v.reason.trim());
+        else reserve(enrollment.id, v.until.format('YYYY-MM-DD'), v.reason.trim());
+      }}
     >
       <Form.Item name="until" label="Bảo lưu đến ngày" rules={[{ required: true, message: 'Chọn ngày' }]} extra="Tối đa 6 tháng — quá hạn hệ thống sẽ nhắc Giáo vụ liên hệ">
         <DateInput disabledDate={(d) => d.isBefore(dayjs(), 'day') || d.isAfter(dayjs().add(6, 'month'))} />
@@ -91,9 +97,12 @@ export function TransferModal({ cls, enrollment, name, onClose }: { cls: ClassIn
       submitText="Chuyển lớp"
       successMessage="Đã chuyển lớp"
       initialValues={{ credit, dueDate: dayjs().add(7, 'day') }}
-      onSubmit={(v) => {
+      onSubmit={async (v) => {
         if (!enrollment) return;
-        transfer(enrollment.id, v.targetId, { amount: v.amount, credit: v.credit, dueDate: v.dueDate.format('YYYY-MM-DD'), reason: v.reason.trim() });
+        if (USE_API) {
+          const warnings = await studentApi.transferEnrollments(v.targetId, [{ enrollmentId: enrollment.id, amount: v.amount, credit: v.credit }], v.dueDate.format('YYYY-MM-DD'), v.reason.trim());
+          if (warnings.length) notify.warning({ title: 'Lưu ý khi chuyển lớp', description: warnings.join(' · ') });
+        } else transfer(enrollment.id, v.targetId, { amount: v.amount, credit: v.credit, dueDate: v.dueDate.format('YYYY-MM-DD'), reason: v.reason.trim() });
         const t = targets.find((x) => x.c.id === v.targetId);
         notify.info({ title: `Đã chuyển ${name} sang ${t?.c.code}`, description: `Hóa đơn mới: ${formatCurrency(Math.max(0, v.amount - v.credit)) || '0 ₫'} cần thu.` });
       }}
@@ -210,11 +219,15 @@ export function BulkTransferModal({ cls, items, onClose, onDone }: { cls: ClassI
       submitText={`Chuyển ${list.length} học viên`}
       successMessage={`Đã chuyển ${list.length} học viên`}
       initialValues={{ dueDate: dayjs().add(7, 'day') }}
-      onSubmit={(v) => {
+      onSubmit={async (v) => {
         const t = targets.find((x) => x.c.id === v.targetId);
         if (!t) return;
         if (t.seats < list.length) throw new Error(`Lớp ${t.c.code} chỉ còn ${t.seats} chỗ`);
-        plan.forEach((p) => transfer(p.enrollment.id, t.c.id, { amount: t.fee, credit: p.credit, dueDate: v.dueDate.format('YYYY-MM-DD'), reason: v.reason.trim() }));
+        if (USE_API) {
+          // 1 request cho cả nhóm — server chuyển trong 1 giao dịch, kiểm lại số chỗ
+          const warnings = await studentApi.transferEnrollments(t.c.id, plan.map((p) => ({ enrollmentId: p.enrollment.id, amount: t.fee, credit: p.credit })), v.dueDate.format('YYYY-MM-DD'), v.reason.trim());
+          if (warnings.length) notify.warning({ title: 'Lưu ý khi chuyển lớp', description: warnings.join(' · ') });
+        } else plan.forEach((p) => transfer(p.enrollment.id, t.c.id, { amount: t.fee, credit: p.credit, dueDate: v.dueDate.format('YYYY-MM-DD'), reason: v.reason.trim() }));
         notify.info({ title: `Đã chuyển ${list.length} học viên sang ${t.c.code}`, description: 'Mỗi học viên có hóa đơn mới tại lớp đích (đã trừ khoản khấu trừ).' });
         onDone();
       }}

@@ -8,6 +8,8 @@ import { RemindModal } from '@/features/finance/InvoiceDrawer';
 import { pendingRefundOf, refundNeedsApproval, refundTitle, useApprovalStore } from '@/features/system/approvals';
 import { ENROLLMENT_STATUS, PAYMENT_METHODS } from '@/features/student/constants';
 import { summarizeInvoice, useStudentStore, type InvoiceSummary } from '@/features/student/studentStore';
+import * as studentApi from '@/features/student/studentApi';
+import { USE_API } from '@/lib/api/config';
 import type { Enrollment, Invoice, PaymentMethod } from '@/features/student/types';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/cn';
@@ -111,9 +113,10 @@ export function ClassStudentsTab({ cls }: { cls: ClassInfo }) {
       confirmAction: 'reject',
       confirmText: 'Cho nghỉ học',
       requireReason: { label: 'Lý do nghỉ', placeholder: 'VD: Chuyển công tác, không sắp xếp được thời gian...' },
+      onConfirm: USE_API ? async ({ reason }) => void (await studentApi.dropEnrollment(r.enrollment.id, reason ?? '')) : undefined,
     });
     if (!res) return;
-    dropEnrollment(r.enrollment.id, res.reason ?? '');
+    if (!USE_API) dropEnrollment(r.enrollment.id, res.reason ?? '');
     notify.success({ title: 'Đã cho học viên nghỉ', description: `${r.fullName} — ${cls.code}` });
     if (r.sum && r.sum.paid > 0) setTimeout(() => setDialog({ kind: 'refund', row: r }), 300);
   };
@@ -124,9 +127,10 @@ export function ClassStudentsTab({ cls }: { cls: ClassInfo }) {
       description: r.enrollment.reservedUntil ? `Đang bảo lưu đến ${fmtDate(r.enrollment.reservedUntil)}.` : undefined,
       tone: 'success',
       confirmText: 'Học lại',
+      onConfirm: USE_API ? async () => void (await studentApi.resumeEnrollment(r.enrollment.id)) : undefined,
     });
     if (!ok) return;
-    resumeEnrollment(r.enrollment.id);
+    if (!USE_API) resumeEnrollment(r.enrollment.id);
     notify.toast.success(`${r.fullName} đã quay lại học`);
   };
 
@@ -422,7 +426,12 @@ export function ClassStudentsTab({ cls }: { cls: ClassInfo }) {
         open={dialog?.kind === 'add'}
         onClose={() => setDialog(null)}
         excludeIds={rows.filter((r) => r.enrollment.status !== 'dropped').map((r) => r.enrollment.studentId)}
-        onAdd={(studentId, discount, due) => enroll(studentId, cls.id, { discount, dueDate: due })}
+        onAdd={async (studentId, discount, due) => {
+          if (!USE_API) return void enroll(studentId, cls.id, { discount, dueDate: due });
+          // Server kiểm lớp còn chỗ / chưa trùng; HV đã ẩn được bỏ ẩn
+          const warnings = await studentApi.enroll(studentId, cls.id, { discount, dueDate: due });
+          if (warnings.length) notify.info({ title: 'Đã thêm học viên', description: warnings.join(' · ') });
+        }}
       />
       <ReserveModal enrollment={dialog?.kind === 'reserve' ? dialog.row.enrollment : null} name={dialog?.kind === 'reserve' ? dialog.row.fullName : undefined} onClose={() => setDialog(null)} />
       <TransferModal cls={cls} enrollment={dialog?.kind === 'transfer' ? dialog.row.enrollment : null} name={dialog?.kind === 'transfer' ? dialog.row.fullName : undefined} onClose={() => setDialog(null)} />
@@ -459,7 +468,7 @@ function AddStudentDialog({
   open: boolean;
   onClose: () => void;
   excludeIds: string[];
-  onAdd: (studentId: string, discount: number, due: string) => void;
+  onAdd: (studentId: string, discount: number, due: string) => void | Promise<void>;
 }) {
   const students = useCrmStore((s) => s.students);
   const options = students
@@ -478,8 +487,7 @@ function AddStudentDialog({
       successMessage="Đã ghi danh học viên"
       initialValues={{ discount: 0, dueDate: dayjs().add(7, 'day') }}
       onSubmit={async (v) => {
-        await new Promise((r) => setTimeout(r, 400));
-        onAdd(v.studentId, v.discount ?? 0, v.dueDate.format('YYYY-MM-DD'));
+        await onAdd(v.studentId, v.discount ?? 0, v.dueDate.format('YYYY-MM-DD'));
       }}
     >
       <Form.Item name="studentId" label="Học viên" rules={[{ required: true, message: 'Chọn học viên' }]} extra="Học viên mới chưa có hồ sơ → tạo từ Lead ở Tuyển sinh">

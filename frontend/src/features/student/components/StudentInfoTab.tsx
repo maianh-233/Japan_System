@@ -4,6 +4,8 @@ import dayjs, { type Dayjs } from 'dayjs';
 import { Mail, MapPin, Phone, User } from 'lucide-react';
 import { Button, DateInput, Select, TextArea, TextInput, useNotify } from '@/components/common';
 import { useCrmStore } from '@/features/crm/crmStore';
+import * as studentApi from '@/features/student/studentApi';
+import { USE_API } from '@/lib/api/config';
 import type { Student } from '@/features/crm/types';
 import { useAuth } from '@/hooks/useAuth';
 import { fmtDate, fmtDateTime } from '@/lib/date';
@@ -43,6 +45,29 @@ export function StudentInfoTab({ student }: { student: Student }) {
 
   const save = async (v: FormValues) => {
     setSaving(true);
+    if (USE_API) {
+      // Server chuẩn hóa SĐT / email, kiểm ngày sinh, chặn sửa đè
+      try {
+        await studentApi.updateStudent(student.id, {
+          fullName: v.fullName.trim(),
+          gender: v.gender,
+          dob: v.dob ? v.dob.format('YYYY-MM-DD') : undefined,
+          phone: v.phone || undefined,
+          email: v.email || undefined,
+          address: v.address || undefined,
+          note: v.note || undefined,
+          branchId: student.branchId,
+        });
+      } catch (e) {
+        setSaving(false);
+        notify.error({ title: 'Chưa lưu được hồ sơ', description: (e as Error).message });
+        return;
+      }
+      setSaving(false);
+      setDirty(false);
+      notify.success({ title: 'Đã cập nhật hồ sơ học viên', description: `${student.code} — ${v.fullName}` });
+      return;
+    }
     await new Promise((r) => setTimeout(r, 600)); // giả lập gọi API
     updateStudent(student.id, {
       fullName: v.fullName.trim(),

@@ -12,7 +12,7 @@ Mỗi file = 1 nhóm nghiệp vụ. Viết từ giao diện frontend đã dựng
 | 03 | [Quản lý chi nhánh](03-chi-nhanh.md) | `CN-xx` | ✍️ Đã viết |
 | 04 | [Quản lý nhân viên & giáo viên](04-nhan-su.md) | `NS-xx` | ✍️ Đã viết |
 | 05 | [Tuyển sinh (lead, chia lead, test xếp lớp, lịch hẹn, chiến dịch)](05-tuyen-sinh.md) | `CRM-xx` | ✍️ Đã viết |
-| 06 | [Học viên & ghi danh (phụ huynh, cảnh báo bỏ học, chứng nhận, JLPT, du học)](06-hoc-vien.md) | `HV-xx` | 🚧 Giai đoạn 14 (HV-01 → HV-11) |
+| 06 | [Học viên & ghi danh (phụ huynh, cảnh báo bỏ học, chứng nhận, JLPT, du học)](06-hoc-vien.md) | `HV-xx` | ✅ HV-01 → HV-11 (giai đoạn 14) · ⏳ HV-12 → HV-17 |
 | 07 | [Lớp học & buổi học (điểm danh, dạy thay, đơn từ, lên lớp)](07-lop-hoc.md) | `DT-xx` | 🚧 Backend đợt 1 (phòng, lớp, buổi) |
 | 08 | [Học phí, hóa đơn & tài chính (đối soát, công nợ, lương, hoa hồng)](08-tai-chinh.md) | `TC-xx` | ✍️ Đã viết |
 | 09 | [Khóa học & lộ trình (phiên bản, tài liệu giảng dạy, mốc thi)](09-khoa-hoc-lo-trinh.md) | `KH-xx`, `LT-xx` | ✍️ Đã viết |

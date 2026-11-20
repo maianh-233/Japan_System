@@ -451,3 +451,11 @@ Code: `src/Modules/Students/JPCenter.Modules.Students/Application/{Students,Enro
 - Phát `StudentEnrolled` (học phí, giảm trừ, hạn đóng, ghi danh gốc khi chuyển lớp) và `EnrollmentEnded` cho Finance — ⏳ chưa ai nghe (giai đoạn 17).
 - Mã HV mới = số lớn nhất + 1 (HV1036…); nhập Excel bỏ qua dòng lỗi, dòng trùng SĐT + họ tên trả về để người dùng chọn.
 - ⏳ Phạm vi `own` (HV có lead do mình phụ trách) tạm tính như `branch` cho tới khi có Crm.
+
+### Frontend (giai đoạn 14 phase 4)
+- `features/student/studentApi.ts`: tải lúc đăng nhập (hồ sơ HV kể cả đã ẩn → `useCrmStore.students`, ghi danh → `useStudentStore.enrollments`);
+  chi tiết lớp tải ghi danh của lớp.
+- Đã nối: sửa hồ sơ, nhập Excel (server tạo hồ sơ; lead phụ huynh + liên kết vẫn ghi ở Crm giả), ẩn / bỏ ẩn, thêm HV vào lớp, bảo lưu, học lại,
+  cho nghỉ, chuyển lớp (đơn + hàng loạt = 1 request). Hủy / kết thúc lớp: server cập nhật ghi danh (chạy nền) → trang tải lại sau ~2,5 giây.
+- ⏳ Hóa đơn còn giả: ghi danh / chuyển lớp tạo hóa đơn giả ở trình duyệt, cho nghỉ / chuyển / hủy lớp hủy công nợ hóa đơn giả (mất khi tải lại trang).
+- ⏳ Còn chạy dữ liệu giả: tạo HV từ lead (CRM-07), ghi danh từ lead, lên lớp (giai đoạn 15 / 16), chứng nhận, JLPT, du học.

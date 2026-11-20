@@ -1,6 +1,8 @@
 import { useCallback, useState } from 'react';
 import { FormField, ImportDialog, Select, useNotify, type ImportColumn, type ImportRow, type RowCheck } from '@/components/common';
 import { useCrmStore } from '@/features/crm/crmStore';
+import * as studentApi from '@/features/student/studentApi';
+import { USE_API } from '@/lib/api/config';
 import { normalizeText } from '@/lib/text';
 import { useAuth } from '@/hooks/useAuth';
 import { isValidEmail, isValidPhone, matchOption, normalizePhone, parseDateCell } from '@/lib/spreadsheet';
@@ -106,8 +108,38 @@ export function StudentImportDialog({ open, onClose }: { open: boolean; onClose:
       }
       notes="Mỗi học viên được tạo kèm người liên hệ: SĐT phụ huynh đã có trong Lead → gắn vào phụ huynh đó (anh chị em dùng chung 1 phụ huynh). Chỉ tạo hồ sơ — xếp lớp làm ở trang Lớp học."
       onImport={async (values) => {
-        await new Promise((r) => setTimeout(r, 500)); // giả lập gọi API
         const staff = user?.fullName ?? 'Nhập từ Excel';
+        if (USE_API) {
+          // Hồ sơ tạo trên server (1 request; dòng trùng đã được người dùng duyệt ở bước xem trước).
+          // ⏳ Phụ huynh còn ở Crm giả → tìm / tạo lead + liên kết ở trình duyệt cho từng HV vừa tạo.
+          const r = await studentApi.importStudents(
+            values.map((v) => ({ fullName: v.fullName, gender: v.gender, dob: v.dob, phone: v.phone, email: v.email, note: v.note, branchId: v.branchId })),
+            true,
+          );
+          // Giống server: bỏ ký tự không phải số, +84 → 0
+          const vnPhone = (p?: string) => (p ?? '').replace(/\D/g, '').replace(/^84(\d{9})$/, '0$1');
+          const used = new Set<string>();
+          values.forEach((v) => {
+            const st = r.created.find((c) => !used.has(c.id) && c.fullName === v.fullName.trim().replace(/\s+/g, ' ') && (c.phone ?? '') === vnPhone(v.phone));
+            if (!st) return;
+            used.add(st.id);
+            const crm = useCrmStore.getState();
+            const contactPhone = v.parentPhone ?? v.phone;
+            if (!contactPhone) return;
+            const lead =
+              crm.findDuplicate(contactPhone) ??
+              crm.addLead(
+                { fullName: v.parentPhone ? (v.parentName ?? `Phụ huynh ${v.fullName}`) : v.fullName, phone: contactPhone, source: 'walk_in', status: 'won', branchId: v.branchId, note: 'Tạo khi nhập học viên từ Excel' },
+                staff,
+              );
+            crm.linkStudent(lead.id, st.id, v.parentPhone ? 'child' : 'self', staff);
+          });
+          if (r.errors.length)
+            notify.warning({ title: `Đã nhập ${r.created.length} học viên · ${r.errors.length} dòng lỗi`, description: r.errors.slice(0, 3).map((e) => `Dòng ${e.row}: ${e.message}`).join(' · ') });
+          else notify.success({ title: `Đã nhập ${r.created.length} học viên`, description: 'Hồ sơ ở trạng thái chưa xếp lớp.' });
+          return;
+        }
+        await new Promise((r) => setTimeout(r, 500)); // giả lập gọi API
         values.forEach((v) => {
           const crm = useCrmStore.getState();
           const contactPhone = v.parentPhone ?? v.phone!;

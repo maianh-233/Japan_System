@@ -237,6 +237,32 @@ export const useStudentStore = create<StudentState>((set, get) => ({
   },
 }));
 
+/**
+ * ⏳ Hóa đơn còn là dữ liệu giả (Finance — giai đoạn 17). Chế độ API: ghi danh / chuyển lớp đi qua server rồi
+ * tạo / hủy hóa đơn giả ở trình duyệt để các màn hình học phí vẫn chạy.
+ */
+export function addMockInvoice(enrollmentId: string, branchId: string, amount: number, discount: number, dueDate?: string) {
+  const st = useStudentStore.getState();
+  if (st.invoices.some((i) => i.enrollmentId === enrollmentId)) return;
+  const inv: Invoice = {
+    id: `INV-${uid()}`,
+    code: invoiceCodeFor(branchId, st.invoices),
+    enrollmentId,
+    amount,
+    discount: Math.min(amount, discount),
+    issuedAt: now(),
+    dueDate: dueDate ?? dayjs().add(7, 'day').format('YYYY-MM-DD'),
+    payments: [],
+    refunds: [],
+  };
+  useStudentStore.setState((s) => ({ invoices: [...s.invoices, inv] }));
+}
+
+/** Hủy phần học phí còn lại của hóa đơn giả (cho nghỉ / chuyển lớp) */
+export function cancelMockInvoice(enrollmentId: string) {
+  useStudentStore.setState((s) => ({ invoices: s.invoices.map((i) => (i.enrollmentId === enrollmentId ? { ...i, cancelled: true } : i)) }));
+}
+
 // ---------------- Tính toán (thuần, dùng được ở mọi nơi) ----------------
 
 export interface InvoiceSummary {
