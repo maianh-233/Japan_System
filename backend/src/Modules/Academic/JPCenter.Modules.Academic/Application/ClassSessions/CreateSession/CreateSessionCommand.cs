@@ -18,10 +18,10 @@ namespace JPCenter.Modules.Academic.Application.ClassSessions.CreateSession;
 
 /// <summary>
 /// DT-10 — thêm buổi học bù (thay buổi đã hủy, tính vào số buổi khóa — mang bài / mốc thi của buổi gốc) hoặc học thêm
-/// (ngoài số buổi, không bị "Tạo lịch tự động" xóa). Trùng lịch chỉ cảnh báo.
+/// (ngoài số buổi, không bị "Tạo lịch tự động" xóa; <paramref name="LessonId"/> = bài dạy thêm). Trùng lịch chỉ cảnh báo.
 /// </summary>
 public sealed record CreateSessionCommand(Guid ClassId, SessionOrigin Origin, Guid? MakeupForId, DateOnly Date, TimeOnly StartTime,
-    TimeOnly EndTime, List<Guid>? TeacherIds, Guid? RoomId, string? Note) : ICommand<SessionResult>;
+    TimeOnly EndTime, List<Guid>? TeacherIds, Guid? RoomId, string? Note, Guid? LessonId = null) : ICommand<SessionResult>;
 
 public sealed class CreateSessionValidator : AbstractValidator<CreateSessionCommand>
 {
@@ -56,7 +56,7 @@ public sealed class CreateSessionHandler(IAcademicDbContext db, ClassReader clas
         if (room is { } r && await rules.RoomCapacityAsync(r.Value, cls.BranchId.Value, false, null, ct) is { IsFailure: true } bad) return bad.Error;
 
         var created = ClassSession.Create(cls.Id, cls.BranchId, original?.No ?? 0, cmd.Date, cmd.StartTime, cmd.EndTime,
-            original?.Kind ?? SessionKind.Lesson, original?.LessonId, original?.ExamId, cmd.Origin, original?.Id, SessionScheduler.NewQrToken());
+            original?.Kind ?? SessionKind.Lesson, original?.LessonId ?? (cmd.LessonId is { } l ? new Domain.Curricula.LessonId(l) : null), original?.ExamId, cmd.Origin, original?.Id, SessionScheduler.NewQrToken());
         if (created.IsFailure) return created.Error;
         var session = created.Value;
         if (teachers.Count > 0 || room is not null)

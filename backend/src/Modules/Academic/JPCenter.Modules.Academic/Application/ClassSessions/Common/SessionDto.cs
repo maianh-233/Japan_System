@@ -79,7 +79,8 @@ public sealed record TeacherAttendanceDto(
     Guid? SubstituteId,
     string? Note);
 
-public sealed record IncidentOutcomeDto(IncidentOutcome Kind, DateTimeOffset? At, Guid? TeacherId, string? By);
+/// <summary>Kết quả sau tạm dừng — <c>at</c> = giờ học tiếp / cho nghỉ "HH:mm"</summary>
+public sealed record IncidentOutcomeDto(IncidentOutcome Kind, string? At, Guid? TeacherId, string? By);
 
 public sealed record IncidentDto(
     string At,

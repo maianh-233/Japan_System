@@ -67,6 +67,8 @@ internal sealed class ClassSessionConfiguration : IEntityTypeConfiguration<Class
             a.WithOwner().HasForeignKey("ClassSessionId");
             a.Property<ClassSessionId>("ClassSessionId");
             a.HasKey("ClassSessionId", nameof(AttendanceRecord.StudentId));
+            // Khóa do nghiệp vụ đặt (Id học viên) — không để EF coi là "tự sinh" (dòng mới thêm vào buổi có sẵn sẽ bị UPDATE thay vì INSERT)
+            a.Property(x => x.StudentId).ValueGeneratedNever();
             a.HasIndex(x => x.StudentId);
             a.Property(x => x.Note).HasMaxLength(500);
             a.Property(x => x.LeaveReason).HasMaxLength(500);
@@ -80,6 +82,7 @@ internal sealed class ClassSessionConfiguration : IEntityTypeConfiguration<Class
             t.WithOwner().HasForeignKey("ClassSessionId");
             t.Property<ClassSessionId>("ClassSessionId");
             t.HasKey("ClassSessionId", nameof(TeacherAttendance.TeacherId));
+            t.Property(x => x.TeacherId).ValueGeneratedNever();
             t.HasIndex(x => x.TeacherId);
             t.Property(x => x.Note).HasMaxLength(500);
         });

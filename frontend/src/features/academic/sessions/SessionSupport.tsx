@@ -5,6 +5,8 @@ import { Headset, PauseCircle, Play, Plus, Square } from 'lucide-react';
 import { Button, Select, TextInput, TimeInput, useConfirm, useNotify } from '@/components/common';
 import { useAuth } from '@/hooks/useAuth';
 import { useClassStore } from '../classes/classStore';
+import * as classApi from '@/features/academic/classes/classApi';
+import { USE_API } from '@/lib/api/config';
 import { teacherName } from '../classes/constants';
 import type { ClassInfo, ClassSession, SupportEntry, SupportKind, TeacherAttendance } from '../classes/types';
 import { busyStaff, isPaused, staffOf, takeoverOptions } from './sessionOps';
@@ -41,12 +43,23 @@ export function PauseFollowUp({ cls, s, editable, onMakeup }: { cls: ClassInfo; 
   const inc = s.incident;
   const pausedMin = Math.max(0, dayjs().diff(dayjs(`${s.date}T${inc.at}`), 'minute'));
 
-  const resume = () => {
+  const resume = async () => {
     if (!time) return;
     const t = time.format('HH:mm');
     const stamp = new Date().toISOString();
     const nextId = who === 'same' ? leads[0] : teacherId;
     if (!nextId) return;
+    if (USE_API) {
+      try {
+        await classApi.resolveIncident(s.id, 'resumed', t, who === 'same' ? undefined : nextId);
+      } catch (e) {
+        notify.error({ title: 'Chưa ghi được', description: (e as Error).message });
+        return;
+      }
+      setOpen(false);
+      notify.toast.success(`Lớp học tiếp lúc ${t}`);
+      return;
+    }
     const rows: TeacherAttendance[] = [...(s.teacherAttendance ?? [])];
     if (who === 'same') {
       // GV cũ quay lại: mở lại giờ ra, ghi chú khoảng tạm dừng
@@ -75,8 +88,13 @@ export function PauseFollowUp({ cls, s, editable, onMakeup }: { cls: ClassInfo; 
       tone: 'warning',
       confirmAction: 'save',
       confirmText: 'Cho nghỉ',
+      onConfirm: USE_API ? async () => void (await classApi.resolveIncident(s.id, 'ended', dayjs().format('HH:mm'))) : undefined,
     });
     if (!ok) return;
+    if (USE_API) {
+      onMakeup(s);
+      return;
+    }
     const stamp = new Date().toISOString();
     updateSession(s.id, {
       incident: { ...inc, action: 'end_early', outcome: { kind: 'ended', at: dayjs().format('HH:mm'), by: by(user) } },
@@ -138,14 +156,26 @@ export function PauseFollowUp({ cls, s, editable, onMakeup }: { cls: ClassInfo; 
 /** Nhật ký hỗ trợ của nhân viên trong buổi + ghi thêm */
 export function SupportLogSection({ s, editable }: { s: ClassSession; editable: boolean }) {
   const { user } = useAuth();
+  const notify = useNotify();
   const updateSession = useClassStore((x) => x.updateSession);
   const [adding, setAdding] = useState(false);
   const [kind, setKind] = useState<SupportKind>('other');
   const [note, setNote] = useState('');
   const log = [...(s.supportLog ?? [])].sort((a, b) => a.at.localeCompare(b.at));
 
-  const add = () => {
+  const add = async () => {
     if (!note.trim()) return;
+    if (USE_API) {
+      try {
+        await classApi.addSupportEntry(s.id, kind, note.trim());
+      } catch (err) {
+        notify.error({ title: 'Chưa ghi được nhật ký', description: (err as Error).message });
+        return;
+      }
+      setNote('');
+      setAdding(false);
+      return;
+    }
     const e: SupportEntry = { id: `SL-${Date.now()}`, kind, note: note.trim(), by: by(user), at: new Date().toISOString() };
     updateSession(s.id, { supportLog: [...(s.supportLog ?? []), e] });
     setNote('');

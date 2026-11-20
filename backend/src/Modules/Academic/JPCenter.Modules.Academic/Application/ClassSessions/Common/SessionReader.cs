@@ -125,7 +125,7 @@ public sealed class SessionReader(IAcademicDbContext db, AcademicAccess access, 
                 s.ConfirmedAt is { } cat ? new ConfirmationDto(s.ConfirmedBy, Name(s.ConfirmedBy), cat, s.ConfirmNote) : null,
                 s.Incident is { } i
                     ? new IncidentDto(TimeText.Of(i.At), i.Reason, i.Detail, i.Action, i.TakeoverId, i.Notified,
-                        i.Outcome is { } oc ? new IncidentOutcomeDto(oc, i.OutcomeAt, i.OutcomeTeacherId, Name(i.OutcomeBy)) : null,
+                        i.Outcome is { } oc ? new IncidentOutcomeDto(oc, i.OutcomeAt is { } oat ? TimeText.Of(oat) : null, i.OutcomeTeacherId, Name(i.OutcomeBy)) : null,
                         i.ReportedBy, Name(i.ReportedBy), i.ReportedAt)
                     : null,
                 s.SupportLog.OrderBy(l => l.At).Select(l => new SupportEntryDto(l.Id, l.Kind, l.Note, l.By, Name(l.By), l.At)).ToList(),

@@ -6,6 +6,8 @@ import { AlertTriangle, MonitorPlay } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button, DataTable, ModalForm, PageHeader, Select, StatusTag, useNotify, type DataColumn } from '@/components/common';
 import { useClassStore } from '@/features/academic/classes/classStore';
+import * as classApi from '@/features/academic/classes/classApi';
+import { USE_API } from '@/lib/api/config';
 import { ClassFormFields, formToClass, type ClassFormValues } from '@/features/academic/classes/ClassFormFields';
 import {
   CLASS_STATUS,
@@ -317,9 +319,17 @@ export default function ClassesPage() {
         successMessage="Đã mở lớp"
         initialValues={{ branchId: currentBranch?.id ?? branches[0]?.id, weekdays: [1, 3, 5], startTime: dayjs().hour(18).minute(0), endTime: dayjs().hour(20).minute(0), plannedStartDate: dayjs().add(14, 'day') }}
         onSubmit={async (v) => {
-          await new Promise((r) => setTimeout(r, 600)); // giả lập gọi API
           const course = courses.find((c) => c.id === v.courseId)!;
-          const created = addClass(formToClass(v, CODE_PREFIX[course.teacherType], course.name, course.mode === 'online'));
+          const input = formToClass(v, CODE_PREFIX[course.teacherType], course.name, course.mode === 'online');
+          if (USE_API) {
+            // Server chặn trùng mã / trùng lịch GV, phòng; sinh lịch buổi học luôn
+            const { cls, warnings } = await classApi.createClass(input);
+            if (warnings.length) notify.info({ title: 'Lưu ý khi mở lớp', description: warnings.join(' · ') });
+            setTimeout(() => navigate(`/admin/academic/classes/${cls.id}?tab=sessions`), 200);
+            return;
+          }
+          await new Promise((r) => setTimeout(r, 600)); // giả lập gọi API
+          const created = addClass(input);
           setTimeout(() => navigate(`/admin/academic/classes/${created.id}?tab=sessions`), 200);
         }}
       >

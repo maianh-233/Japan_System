@@ -8,6 +8,7 @@ import { useClassStore } from '../classes/classStore';
 import { EQUIPMENT, ISSUE_SEVERITY, isOpenIssue } from './constants';
 import { bookingsByRoom, roomKey } from './roomUsage';
 import { useRoomStore } from './roomStore';
+import * as roomApi from './roomApi';
 import type { Equipment, IssueSeverity, RoomIssue } from './types';
 
 interface ReportForm {
@@ -51,11 +52,6 @@ export function useRoomIssues() {
   const { confirm, confirmDialog } = useConfirm();
   const rooms = useRoomStore((s) => s.rooms);
   const issues = useRoomStore((s) => s.issues);
-  const reportIssue = useRoomStore((s) => s.reportIssue);
-  const startIssue = useRoomStore((s) => s.startIssue);
-  const resolveIssue = useRoomStore((s) => s.resolveIssue);
-  const reopenIssue = useRoomStore((s) => s.reopenIssue);
-  const setStatus = useRoomStore((s) => s.setStatus);
   const classes = useClassStore((s) => s.classes);
   const sessions = useClassStore((s) => s.sessions);
   const [dialog, setDialog] = useState<Dialog>(null);
@@ -92,9 +88,9 @@ export function useRoomIssues() {
       tone: 'warning',
       confirmAction: 'save',
       confirmText: 'Mở lại',
+      onConfirm: () => roomApi.reopenIssue(issue.id),
     });
     if (!ok) return;
-    reopenIssue(issue.id);
     notify.toast.info('Đã mở lại báo hỏng');
   };
 
@@ -130,8 +126,7 @@ export function useRoomIssues() {
         successMessage="Đã gửi báo hỏng"
         initialValues={{ roomId: dialog?.kind === 'report' ? dialog.roomId : undefined, severity: 'medium', toMaintenance: true }}
         onSubmit={async (v) => {
-          await new Promise((r) => setTimeout(r, 400));
-          reportIssue({
+          await roomApi.reportIssue({
             roomId: v.roomId,
             equipment: v.equipment && v.equipment !== 'other' ? v.equipment : undefined,
             title: v.title.trim(),
@@ -141,7 +136,7 @@ export function useRoomIssues() {
           });
           const r = rooms.find((x) => x.id === v.roomId);
           if (v.severity === 'high' && v.toMaintenance && r?.status === 'active') {
-            setStatus(r.id, 'maintenance', { reason: v.title.trim() });
+            await roomApi.setRoomStatus(r.id, 'maintenance', { reason: v.title.trim() });
             notify.warning({ title: `${r.name} đã chuyển sang bảo trì`, description: 'Nhớ đổi phòng cho các buổi học sắp tới.' });
           }
         }}
@@ -212,8 +207,8 @@ export function useRoomIssues() {
         submitText="Nhận xử lý"
         successMessage="Đã chuyển sang Đang sửa"
         initialValues={{ assignee: current?.assignee }}
-        onSubmit={(v) => {
-          if (current) startIssue(current.id, { assignee: v.assignee.trim(), dueDate: v.dueDate?.format('YYYY-MM-DD') });
+        onSubmit={async (v) => {
+          if (current) await roomApi.startIssue(current.id, { assignee: v.assignee.trim(), dueDate: v.dueDate?.format('YYYY-MM-DD') });
         }}
       >
         <Form.Item name="assignee" label="Người / đơn vị sửa" rules={[{ required: true, whitespace: true, message: 'Nhập người sửa' }]}>
@@ -235,11 +230,11 @@ export function useRoomIssues() {
         submitText="Đã sửa xong"
         successMessage="Đã đóng báo hỏng"
         initialValues={{ reactivate: true }}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           if (!current) return;
-          resolveIssue(current.id, { resolution: v.resolution.trim(), cost: v.cost || undefined });
+          await roomApi.resolveIssue(current.id, { resolution: v.resolution.trim(), cost: v.cost || undefined });
           if (v.reactivate && currentRoom?.status === 'maintenance' && !otherSevere) {
-            setStatus(currentRoom.id, 'active');
+            await roomApi.setRoomStatus(currentRoom.id, 'active');
             notify.toast.success(`${currentRoom.name} đã dùng lại để xếp lớp`);
           }
         }}

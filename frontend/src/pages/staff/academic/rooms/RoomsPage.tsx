@@ -9,6 +9,7 @@ import { OccupancyBar, RoomDetailDrawer, type RoomTab } from '@/features/academi
 import { RoomFormFields, type RoomFormValues } from '@/features/academic/rooms/RoomFormFields';
 import { bookingsByRoom, occupancyOf, openClassesIn, roomConflicts, roomKey, weekStartOf, type Occupancy } from '@/features/academic/rooms/roomUsage';
 import { useRoomStore } from '@/features/academic/rooms/roomStore';
+import * as roomApi from '@/features/academic/rooms/roomApi';
 import type { Room, RoomStatus } from '@/features/academic/rooms/types';
 import { useRoomStatus } from '@/features/academic/rooms/useRoomStatus';
 import { useRoomIssues } from '@/features/academic/rooms/useRoomIssues';
@@ -42,8 +43,6 @@ export default function RoomsPage() {
   const { branchId, currentBranch, branches, can } = useAuth();
   const notify = useNotify();
   const rooms = useRoomStore((s) => s.rooms);
-  const addRoom = useRoomStore((s) => s.addRoom);
-  const updateRoom = useRoomStore((s) => s.updateRoom);
   const classes = useClassStore((s) => s.classes);
   const sessions = useClassStore((s) => s.sessions);
   const { change, dialog: statusDialog } = useRoomStatus();
@@ -453,10 +452,9 @@ export default function RoomsPage() {
         successMessage={editing ? 'Đã lưu phòng học' : 'Đã thêm phòng học'}
         initialValues={editing ?? { ...NEW_ROOM, branchId: currentBranch?.id ?? branches[0]?.id }}
         onSubmit={async (v) => {
-          await new Promise((r) => setTimeout(r, 400)); // giả lập gọi API
           const input = { ...v, name: v.name.trim(), floor: v.floor?.trim() || undefined, note: v.note?.trim() || undefined, equipment: v.equipment ?? [] };
-          if (editing) updateRoom(editing.id, input);
-          else addRoom({ ...input, status: 'active' });
+          if (editing) await roomApi.updateRoom(editing.id, { ...input, status: editing.status });
+          else await roomApi.createRoom({ ...input, status: 'active' });
         }}
       >
         <RoomFormFields editingId={editing?.id} lockBranch={Boolean(editingRow?.openClasses.length)} minCapacity={biggestClass} />

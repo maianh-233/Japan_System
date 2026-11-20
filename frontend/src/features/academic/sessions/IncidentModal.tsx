@@ -5,6 +5,8 @@ import { Info } from 'lucide-react';
 import { ModalForm, Select, TextArea, TimeInput, useNotify } from '@/components/common';
 import { useAuth } from '@/hooks/useAuth';
 import { useClassStore } from '../classes/classStore';
+import * as classApi from '@/features/academic/classes/classApi';
+import { USE_API } from '@/lib/api/config';
 import { teacherName } from '../classes/constants';
 import type { ClassInfo, ClassSession, IncidentAction, IncidentReason, TeacherAttendance } from '../classes/types';
 import { busyStaff, INCIDENT_ACTIONS, INCIDENT_REASONS, staffOf, takeoverOptions } from './sessionOps';
@@ -58,10 +60,17 @@ export function IncidentModal({ cls, session, onClose }: { cls: ClassInfo; sessi
   const end = atTime(s.date, s.endTime);
   const defaultAt = now.isAfter(start) && now.isBefore(end) ? now : start.add(Math.round(end.diff(start, 'minute') / 2), 'minute');
 
-  const submit = (v: Values) => {
+  const submit = async (v: Values) => {
     const takeoverId = v.action === 'substitute' ? v.substituteId : v.action === 'assistant' ? v.assistantId : undefined;
     const t = v.at.format('HH:mm');
     const taIn = (v.takeoverAt ?? v.at.add(10, 'minute')).format('HH:mm');
+    if (USE_API) {
+      // Server ghi sự cố + chỉnh chấm công GV (GV dừng dạy, người thay vào lớp) + nhật ký hỗ trợ
+      await classApi.reportIncident(s.id, { at: t, reason: v.reason, detail: v.detail?.trim() || undefined, action: v.action, takeoverId, notified: Boolean(v.notify), takeoverAt: taIn });
+      if (v.action === 'pause') notify.warning({ title: 'Lớp đang tạm dừng', description: 'Khi ổn định, mở chi tiết buổi để cho lớp học tiếp hoặc cho nghỉ.' });
+      if (v.action === 'end_early') notify.warning({ title: 'Đã ghi nhận lớp nghỉ sớm', description: 'Nhớ xếp buổi học bù cho phần còn lại ở Lớp học → Buổi học.' });
+      return;
+    }
     const reason = INCIDENT_REASONS[v.reason].label;
     const stamp = new Date().toISOString();
     // Chấm công hiện có (hoặc mặc định theo người đứng lớp)

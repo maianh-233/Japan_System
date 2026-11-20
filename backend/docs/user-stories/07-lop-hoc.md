@@ -524,3 +524,15 @@ Code: `src/Modules/Academic/JPCenter.Modules.Academic/Application/{Rooms,Classes
 - ⏳ Đợt 2 (giai đoạn 15): DT-09 điểm danh, DT-12 chấm công GV, DT-14 báo cáo buổi, DT-16 đơn hủy buổi / dạy thay, DT-17 lên lớp, DT-18 đơn xin nghỉ,
   DT-19 nhận xét cuối khóa, cổng GV / HV / PH, `IClassLookup` / `ISessionSchedule` / `IAttendanceStats`.
 - ⏳ DT-15.E5 (bảng lương đã chốt) làm cùng Tài chính (giai đoạn 17).
+- Bổ sung khi nối frontend (giai đoạn 13 phase 4): báo sự cố / ghi kết quả tự chỉnh chấm công GV giống giao diện cũ
+  (GV dừng dạy lúc sự cố, người thay vào lớp lúc `takeoverAt`; học tiếp lúc `at` → mở lại giờ ra hoặc thêm người đứng lớp);
+  `incident.outcome.at` trả "HH:mm"; buổi học thêm nhận `lessonId`.
+
+### Frontend (giai đoạn 13 phase 4)
+- `features/academic/rooms/roomApi.ts`, `features/academic/classes/classApi.ts`: tải lúc đăng nhập (phòng → lớp → buổi ±45 ngày), đổ vào store cũ
+  (Id mock nhờ `seedIds`); chi tiết lớp tải đủ buổi của lớp; trang Buổi học tải ±45 ngày quanh tuần đang xem.
+- Đã nối: Phòng học (thêm / sửa / bảo trì / ngừng / báo hỏng), mở lớp, sửa lớp, khai giảng / tạm dừng / học lại / kết thúc / hủy lớp, tạo lịch tự động,
+  hủy buổi, học bù / học thêm / đổi lịch, sự cố + học tiếp / cho nghỉ, nhật ký hỗ trợ, xác nhận / bỏ xác nhận / xác nhận hàng loạt.
+- Buổi học bù chưa xác nhận hiện trạng thái `makeup` như mock; lý do tạm dừng hiện trong ghi chú lớp (không ghi đè ghi chú thật khi lưu).
+- Còn dữ liệu giả (ghi trong trình duyệt): điểm danh, chấm công GV tự làm, báo cáo buổi, đơn hủy buổi / dạy thay, đơn xin nghỉ, lên lớp,
+  học viên / học phí khi hủy / kết thúc lớp, cổng GV / HV / PH — giai đoạn 14, 15.

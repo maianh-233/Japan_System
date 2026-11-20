@@ -922,7 +922,6 @@ namespace JPCenter.Modules.Academic.Infrastructure.Persistence.Migrations
                                 .HasColumnName("class_session_id");
 
                             b1.Property<Guid>("StudentId")
-                                .ValueGeneratedOnAdd()
                                 .HasColumnType("uuid")
                                 .HasColumnName("student_id");
 
@@ -1150,7 +1149,6 @@ namespace JPCenter.Modules.Academic.Infrastructure.Persistence.Migrations
                                 .HasColumnName("class_session_id");
 
                             b1.Property<Guid>("TeacherId")
-                                .ValueGeneratedOnAdd()
                                 .HasColumnType("uuid")
                                 .HasColumnName("teacher_id");
 

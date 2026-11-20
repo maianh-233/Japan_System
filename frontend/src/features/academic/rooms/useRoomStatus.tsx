@@ -6,7 +6,7 @@ import { DateInput, ModalForm, TextArea, useConfirm, useNotify } from '@/compone
 import { fmtDate } from '@/lib/date';
 import { useClassStore } from '../classes/classStore';
 import { bookingsByRoom, openClassesIn, roomKey } from './roomUsage';
-import { useRoomStore } from './roomStore';
+import * as roomApi from './roomApi';
 import type { Room, RoomStatus } from './types';
 
 interface MaintenanceForm {
@@ -23,7 +23,6 @@ interface MaintenanceForm {
 export function useRoomStatus() {
   const notify = useNotify();
   const { confirm, confirmDialog } = useConfirm();
-  const setStatus = useRoomStore((s) => s.setStatus);
   const classes = useClassStore((s) => s.classes);
   const sessions = useClassStore((s) => s.sessions);
   const [maintaining, setMaintaining] = useState<Room | null>(null);
@@ -42,7 +41,12 @@ export function useRoomStatus() {
 
   const change = async (room: Room, status: RoomStatus) => {
     if (status === 'active') {
-      setStatus(room.id, 'active');
+      try {
+        await roomApi.setRoomStatus(room.id, 'active');
+      } catch (e) {
+        notify.error({ title: `Chưa dùng lại được ${room.name}`, description: (e as Error).message });
+        return;
+      }
       notify.toast.success(`${room.name} đã dùng lại để xếp lớp`);
       return;
     }
@@ -65,9 +69,9 @@ export function useRoomStatus() {
       tone: 'warning',
       confirmAction: 'save',
       confirmText: 'Ngừng sử dụng',
+      onConfirm: () => roomApi.setRoomStatus(room.id, 'inactive'),
     });
     if (!ok) return;
-    setStatus(room.id, 'inactive');
     notify.success({ title: 'Đã ngừng sử dụng phòng', description: room.name });
   };
 
@@ -82,8 +86,8 @@ export function useRoomStatus() {
         submitAction="save"
         submitText="Chuyển bảo trì"
         successMessage="Đã chuyển phòng sang bảo trì"
-        onSubmit={(v) => {
-          if (maintaining) setStatus(maintaining.id, 'maintenance', { reason: v.reason.trim(), until: v.until?.format('YYYY-MM-DD') });
+        onSubmit={async (v) => {
+          if (maintaining) await roomApi.setRoomStatus(maintaining.id, 'maintenance', { reason: v.reason.trim(), until: v.until?.format('YYYY-MM-DD') });
         }}
       >
         <Form.Item name="reason" label="Lý do" rules={[{ required: true, whitespace: true, message: 'Nhập lý do bảo trì' }]}>

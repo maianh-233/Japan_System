@@ -10,6 +10,8 @@ import { fmtDate } from '@/lib/date';
 import { EXAM_KINDS } from '../../curriculum/constants';
 import { useCurriculumStore } from '../../curriculum/curriculumStore';
 import { useClassStore } from '../classStore';
+import * as classApi from '../classApi';
+import { USE_API } from '@/lib/api/config';
 import { effectiveStart, SESSION_STATUS, teacherName, totalSessionsOf, WEEKDAYS, weekdayOf } from '../constants';
 import { generateSessions } from '../sessionGenerator';
 import { canTakeAttendance, isTaught, notStarted, originOf } from '../sessionUtils';
@@ -121,7 +123,14 @@ export function ClassSessionsTab({ cls }: { cls: ClassInfo }) {
       notify.toast.error('Buổi học đã bắt đầu — không thể hủy');
       return;
     }
-    updateSession(s.id, { status: 'cancelled', note: res.reason, cancelledBy: { name: user?.fullName ?? 'Giáo vụ', at: new Date().toISOString() } });
+    if (USE_API) {
+      try {
+        await classApi.cancelSession(s.id, res.reason ?? '');
+      } catch (e) {
+        notify.error({ title: 'Chưa hủy được buổi', description: (e as Error).message });
+        return;
+      }
+    } else updateSession(s.id, { status: 'cancelled', note: res.reason, cancelledBy: { name: user?.fullName ?? 'Giáo vụ', at: new Date().toISOString() } });
     notify.info({
       title: `Đã hủy ${s.no ? `buổi ${s.no}` : 'buổi học thêm'}`,
       description: s.origin === 'extra' ? undefined : 'Bấm nút "Xếp học bù" ở dòng buổi gốc, hoặc "Tạo buổi học".',
@@ -339,7 +348,19 @@ export function ClassSessionsTab({ cls }: { cls: ClassInfo }) {
         submitText="Tạo lịch"
         successMessage="Đã tạo lịch học"
         initialValues={{ startDate: nextStart, weekdays: cls.weekdays, startTime: atTime(cls.startTime), endTime: atTime(cls.endTime), skipHolidays: true }}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
+          if (USE_API) {
+            // Server thay buổi chưa dạy (giữ buổi đã dạy / hủy / học bù / học thêm), bỏ ngày lễ trong Cài đặt chung
+            const plan = await classApi.generateSchedule(cls.id, {
+              from: v.startDate.format('YYYY-MM-DD'),
+              weekdays: v.weekdays,
+              startTime: v.startTime.format('HH:mm'),
+              endTime: v.endTime.format('HH:mm'),
+              skipHolidays: v.skipHolidays,
+            });
+            if (plan.overridesLost) notify.info({ title: `Đã tạo ${plan.count} buổi`, description: `${plan.overridesLost} buổi có thay đổi riêng (dạy thay, đổi phòng, dời lịch) đã được thay theo lịch mới.` });
+            return;
+          }
           const plan = generateSessions({
             classId: cls.id,
             startDate: v.startDate.format('YYYY-MM-DD'),

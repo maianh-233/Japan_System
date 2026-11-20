@@ -7,6 +7,8 @@ import { fmtDate, fmtDateTime } from '@/lib/date';
 import { useCourseStore } from '../../courses/courseStore';
 import { useCurriculumStore } from '../../curriculum/curriculumStore';
 import { useClassStore } from '../classStore';
+import * as classApi from '../classApi';
+import { USE_API } from '@/lib/api/config';
 import { ClassFormFields, classToForm, formToClass, type ClassFormValues } from '../ClassFormFields';
 import { CODE_PREFIX, startDelayDays } from '../constants';
 import type { ClassInfo } from '../types';
@@ -70,7 +72,7 @@ export function ClassOverviewTab({ cls }: { cls: ClassInfo }) {
         onValuesChange={() => setDirty(true)}
         onFinish={async (v) => {
           setSaving(true);
-          await new Promise((r) => setTimeout(r, 500)); // giả lập gọi API
+          if (!USE_API) await new Promise((r) => setTimeout(r, 500)); // giả lập gọi API
           const data = formToClass(v, course ? CODE_PREFIX[course.teacherType] : '', cls.courseLabel, Boolean(cls.online));
           // Lớp đã khai giảng: chỉ ghi các trường được phép
           const patch: Partial<ClassInfo> = closed
@@ -78,7 +80,18 @@ export function ClassOverviewTab({ cls }: { cls: ClassInfo }) {
             : locked
               ? { name: data.name, teacherIds: data.teacherIds, assistantIds: data.assistantIds, room: data.room, meetingUrl: data.meetingUrl, maxStudents: data.maxStudents, note: data.note }
               : data;
-          updateClass(cls.id, patch);
+          if (USE_API) {
+            // Server kiểm lại các trường bị khóa theo trạng thái lớp, trùng lịch, sửa đè
+            const { id: _id, createdAt: _c, status: _s, actualStartDate: _a, actualEndDate: _e, cancelReason: _r, ...current } = cls;
+            try {
+              const warnings = await classApi.updateClass(cls.id, { ...current, ...patch });
+              if (warnings.length) notify.info({ title: 'Đã cập nhật lớp', description: warnings.join(' · ') });
+            } catch (e) {
+              setSaving(false);
+              notify.error({ title: 'Chưa lưu được lớp', description: (e as Error).message });
+              return;
+            }
+          } else updateClass(cls.id, patch);
           setSaving(false);
           setDirty(false);
           notify.success({ title: 'Đã cập nhật lớp', description: `${data.code} — ${data.name}` });

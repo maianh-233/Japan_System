@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import dayjs, { type Dayjs } from 'dayjs';
 import {
   BadgeCheck,
@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import { Button, DateInput, PageHeader, Select, StatCard, StatusTag, useConfirm, useNotify, type Tone } from '@/components/common';
 import { useClassStore } from '@/features/academic/classes/classStore';
+import * as classApi from '@/features/academic/classes/classApi';
+import { USE_API } from '@/lib/api/config';
 import { teacherName, useAssistants, useTeachers } from '@/features/academic/classes/constants';
 import { SessionDetailDrawer } from '@/features/academic/classes/detail/SessionDetailDrawer';
 import { SessionScheduleModal, type ScheduleMode } from '@/features/academic/classes/detail/SessionScheduleModal';
@@ -75,6 +77,14 @@ export default function SessionsPage() {
   const [incident, setIncident] = useState<string | null>(null);
   const [showAwaiting, setShowAwaiting] = useState(true);
   const [picking, setPicking] = useState(false);
+
+  // Chế độ API: tải buổi ±45 ngày quanh tuần đang xem (đủ cho bảng tuần / tháng + danh sách chờ xác nhận)
+  const weekKey = date.startOf('week').format('YYYY-MM-DD');
+  useEffect(() => {
+    if (!USE_API) return;
+    const base = dayjs(weekKey);
+    void classApi.loadSessionRange(base.subtract(45, 'day').format('YYYY-MM-DD'), base.add(45, 'day').format('YYYY-MM-DD')).catch(() => undefined);
+  }, [weekKey]);
 
   const now = dayjs();
   const inBranch = (c: ClassInfo) => branchId === ALL_BRANCHES || c.branchId === branchId;
@@ -207,7 +217,14 @@ export default function SessionsPage() {
       notify.toast.error('Buổi học đã bắt đầu — dùng "Báo sự cố GV" thay vì hủy');
       return;
     }
-    updateSession(s.id, { status: 'cancelled', note: res.reason, cancelledBy: { name: user?.fullName ?? 'Giáo vụ', at: new Date().toISOString() } });
+    if (USE_API) {
+      try {
+        await classApi.cancelSession(s.id, res.reason ?? '');
+      } catch (e) {
+        notify.error({ title: 'Chưa hủy được buổi', description: (e as Error).message });
+        return;
+      }
+    } else updateSession(s.id, { status: 'cancelled', note: res.reason, cancelledBy: { name: user?.fullName ?? 'Giáo vụ', at: new Date().toISOString() } });
     notify.info({ title: 'Đã hủy buổi học', description: 'Bấm "Xếp học bù" trong chi tiết buổi để xếp lịch bù.' });
   };
 
@@ -220,6 +237,17 @@ export default function SessionsPage() {
       confirmText: 'Xác nhận tất cả',
     });
     if (!ok) return;
+    if (USE_API) {
+      // 1 request cho cả lô — buổi lỗi trả lý do, buổi hợp lệ vẫn được xác nhận
+      try {
+        const r = await classApi.confirmSessions(readyToConfirm.map((x) => x.s.id));
+        if (r.failed.length) notify.warning({ title: `Đã xác nhận ${r.confirmed} buổi · ${r.failed.length} buổi chưa được`, description: [...new Set(r.failed.map((f) => f.message))].join(' · ') });
+        else notify.success({ title: `Đã xác nhận ${r.confirmed} buổi học` });
+      } catch (e) {
+        notify.error({ title: 'Chưa xác nhận được', description: (e as Error).message });
+      }
+      return;
+    }
     const by = user ? `${user.fullName} (${user.roleName})` : 'Nhân viên';
     readyToConfirm.forEach((x) => updateSession(x.s.id, { confirmation: { by, at: new Date().toISOString() } }));
     notify.success({ title: `Đã xác nhận ${readyToConfirm.length} buổi học` });

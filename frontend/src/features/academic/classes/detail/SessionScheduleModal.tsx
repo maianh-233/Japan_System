@@ -7,6 +7,8 @@ import { useStudentStore } from '@/features/student/studentStore';
 import { fmtDate } from '@/lib/date';
 import { useCurriculumStore } from '../../curriculum/curriculumStore';
 import { useClassStore } from '../classStore';
+import * as classApi from '../classApi';
+import { USE_API } from '@/lib/api/config';
 import { useTeachers } from '../constants';
 import { useRoomOptions } from '../../rooms/roomStore';
 import { findConflicts, originOf, SESSION_ORIGIN, sessionRoom, sessionTeachers } from '../sessionUtils';
@@ -86,10 +88,31 @@ export function SessionScheduleModal({ cls, mode, onClose }: { cls: ClassInfo; m
           notify: true,
         };
 
-  const submit = (v: Values) => {
+  const submit = async (v: Values) => {
     const date = v.date.format('YYYY-MM-DD');
     const startTime = v.startTime.format('HH:mm');
     const endTime = v.endTime.format('HH:mm');
+    if (USE_API) {
+      if (v.endTime.isBefore(v.startTime) || startTime === endTime) throw new Error('Giờ kết thúc phải sau giờ bắt đầu');
+      // Server: trùng GV / phòng / ngày lễ chỉ cảnh báo; GV, phòng giống lớp = không ghi đè
+      const warnings = editing
+        ? await classApi.editSession(editing, cls, { date, startTime, endTime, teacherIds: v.teacherIds, room: v.room, reason: v.reason?.trim() || 'Đổi lịch buổi học' })
+        : await classApi.createSession({
+            cls,
+            origin: v.origin === 'makeup' ? 'makeup' : 'extra',
+            makeupForId: v.origin === 'makeup' ? v.makeupForId : undefined,
+            date,
+            startTime,
+            endTime,
+            teacherIds: v.teacherIds,
+            room: v.room,
+            note: v.origin === 'makeup' ? v.reason?.trim() : v.reason?.trim() || 'Học thêm để kịp tiến độ',
+            lessonId: v.origin === 'makeup' ? undefined : v.lessonId,
+          });
+      if (warnings.length) notify.warning({ title: 'Lưu ý lịch học', description: warnings.join(' · ') });
+      if (v.notify && studentCount) notify.toast.info(`Đã gửi thông báo lịch học tới ${studentCount} học viên`);
+      return;
+    }
     const conflicts = findConflicts({ id: editing?.id, classId: cls.id, date, startTime, endTime, teacherIds: v.teacherIds, room: v.room }, allSessions, classes);
     if (conflicts.some((c) => c.startsWith('Giờ kết thúc'))) throw new Error('Giờ kết thúc phải sau giờ bắt đầu');
     const overrides = {

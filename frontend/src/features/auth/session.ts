@@ -5,6 +5,8 @@ import { useAuthStore } from '@/stores/authStore';
 import type { SessionUser } from '@/types/auth';
 import { loadCourses } from '@/features/academic/courses/courseApi';
 import { loadCurricula } from '@/features/academic/curriculum/curriculumApi';
+import { loadClasses } from '@/features/academic/classes/classApi';
+import { loadRooms } from '@/features/academic/rooms/roomApi';
 import { loadEmployees } from '@/features/hr/hrApi';
 import { loadBranches } from '@/features/system/branchApi';
 import { loadSystem, rememberAccount } from '@/features/system/systemApi';
@@ -17,7 +19,9 @@ export async function onSignedIn(user: SessionUser & { accountId?: string }) {
   if (user.portal !== 'staff') return;
   // Lỗi tải dữ liệu không chặn việc vào hệ thống — trang tương ứng sẽ báo / dùng dữ liệu cũ
   const quiet = (p: Promise<unknown>) => p.catch(() => undefined);
-  await Promise.all([quiet(loadSystem()), quiet(loadBranches()), quiet(loadEmployees()), quiet(loadCourses()), quiet(loadCurricula())]);
+  await Promise.all([quiet(loadSystem()), quiet(loadBranches()), quiet(loadEmployees()), quiet(loadCourses()), quiet(loadCurricula()), quiet(loadRooms())]);
+  // Lớp cần phòng (đổi tên phòng ↔ Id) → tải sau phòng
+  await quiet(loadClasses());
 }
 
 /**

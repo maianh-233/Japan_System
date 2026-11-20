@@ -1,11 +1,13 @@
 import { isTaught } from '@/features/academic/classes/sessionUtils';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Checkbox, Form, Tabs } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import { ArrowUpRight, BarChart3, BookOpenCheck, CalendarCheck, CalendarDays, Megaphone, Star, CirclePause, CirclePlay, Flag, Info, NotebookPen, Rocket, Users, XCircle } from 'lucide-react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Button, DateInput, EmptyState, ModalForm, PageHeader, StatusTag, useConfirm, useNotify } from '@/components/common';
 import { useClassStore } from '@/features/academic/classes/classStore';
+import * as classApi from '@/features/academic/classes/classApi';
+import { USE_API } from '@/lib/api/config';
 import { CLASS_STATUS, effectiveStart, scheduleLabel, teacherNames, totalSessionsOf } from '@/features/academic/classes/constants';
 import { ClassAnnouncementsTab } from '@/features/academic/classes/detail/ClassAnnouncementsTab';
 import { ClassAssignmentsTab } from '@/features/academic/classes/detail/ClassAssignmentsTab';
@@ -42,6 +44,11 @@ export default function ClassDetailPage() {
   const tabParam = params.get('tab') as TabKey | null;
   const tab: TabKey = tabParam && TAB_KEYS.includes(tabParam) ? tabParam : 'overview';
   const setTab = (k: string) => setParams({ tab: k }, { replace: true });
+
+  // Chế độ API: tải đủ buổi của lớp (lúc đăng nhập chỉ tải ±45 ngày)
+  useEffect(() => {
+    if (USE_API && id) void classApi.loadClassSessions(id).catch(() => undefined);
+  }, [id]);
 
   if (!cls)
     return (
@@ -172,11 +179,15 @@ function StatusActions({ cls }: { cls: ClassInfo }) {
       confirmText: 'Hủy lớp',
       requireReason: { label: 'Lý do hủy lớp', placeholder: 'VD: Không đủ học viên tối thiểu sau 3 tuần' },
       typeToConfirm: cls.code,
+      onConfirm: USE_API ? async ({ reason }) => void (await classApi.cancelClass(cls.id, reason ?? '', cls.code)) : undefined,
     });
     if (!res) return;
+    // ⏳ Học viên / học phí còn dữ liệu giả (giai đoạn 14) → vẫn cập nhật ở trình duyệt
     active.forEach((e) => dropEnrollment(e.id, `Lớp bị hủy: ${res.reason}`));
-    upcoming.forEach((s) => updateSession(s.id, { status: 'cancelled', note: 'Lớp bị hủy' }));
-    updateClass(cls.id, { status: 'cancelled', cancelReason: res.reason });
+    if (!USE_API) {
+      upcoming.forEach((s) => updateSession(s.id, { status: 'cancelled', note: 'Lớp bị hủy' }));
+      updateClass(cls.id, { status: 'cancelled', cancelReason: res.reason });
+    }
     notify.success({ title: 'Đã hủy lớp', description: cls.code });
   };
 
@@ -188,14 +199,22 @@ function StatusActions({ cls }: { cls: ClassInfo }) {
       confirmAction: 'save',
       confirmText: 'Tạm dừng',
       requireReason: { label: 'Lý do tạm dừng' },
+      onConfirm: USE_API ? async ({ reason }) => void (await classApi.pauseClass(cls.id, reason ?? '')) : undefined,
     });
     if (!res) return;
-    updateClass(cls.id, { status: 'paused', note: `Tạm dừng: ${res.reason}` });
+    if (!USE_API) updateClass(cls.id, { status: 'paused', note: `Tạm dừng: ${res.reason}` });
     notify.success({ title: 'Đã tạm dừng lớp', description: cls.code });
   };
 
-  const resume = () => {
-    updateClass(cls.id, { status: 'ongoing' });
+  const resume = async () => {
+    if (USE_API) {
+      try {
+        await classApi.resumeClass(cls.id);
+      } catch (e) {
+        notify.error({ title: 'Chưa cho học lại được', description: (e as Error).message });
+        return;
+      }
+    } else updateClass(cls.id, { status: 'ongoing' });
     notify.info({ title: 'Lớp học lại', description: 'Nhớ kiểm tra lịch các buổi còn lại ở tab Buổi học.' });
   };
 
@@ -243,8 +262,13 @@ function StatusActions({ cls }: { cls: ClassInfo }) {
         submitText="Khai giảng"
         successMessage="Lớp đã khai giảng"
         initialValues={{ actualStartDate: dayjs().isAfter(dayjs(cls.plannedStartDate)) ? dayjs() : dayjs(cls.plannedStartDate), reschedule: true }}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           const date = v.actualStartDate.format('YYYY-MM-DD');
+          if (USE_API) {
+            const warnings = await classApi.startClass(cls.id, date, v.reschedule);
+            if (warnings.length) notify.info({ title: 'Lớp đã khai giảng', description: warnings.join(' · ') });
+            return;
+          }
           let end = cls.plannedEndDate;
           if (v.reschedule) {
             const plan = generateSessions({
@@ -294,10 +318,16 @@ function StatusActions({ cls }: { cls: ClassInfo }) {
         submitText="Kết thúc lớp"
         successMessage="Đã kết thúc lớp"
         initialValues={{ actualEndDate: dayjs() }}
-        onSubmit={(v) => {
-          upcoming.forEach((s) => updateSession(s.id, { status: 'cancelled', note: 'Lớp kết thúc sớm' }));
+        onSubmit={async (v) => {
+          if (USE_API) {
+            const warnings = await classApi.finishClass(cls.id, v.actualEndDate.format('YYYY-MM-DD'));
+            if (warnings.length) notify.info({ title: 'Đã kết thúc lớp', description: warnings.join(' · ') });
+          } else {
+            upcoming.forEach((s) => updateSession(s.id, { status: 'cancelled', note: 'Lớp kết thúc sớm' }));
+            updateClass(cls.id, { status: 'finished', actualEndDate: v.actualEndDate.format('YYYY-MM-DD') });
+          }
+          // ⏳ Học viên + lên lớp còn dữ liệu giả → vẫn cập nhật ở trình duyệt
           active.filter((e) => e.status === 'studying').forEach((e) => setEnrollmentStatus(e.id, 'completed'));
-          updateClass(cls.id, { status: 'finished', actualEndDate: v.actualEndDate.format('YYYY-MM-DD') });
           // Giao danh sách lên lớp cho Sale
           handOver(cls.id);
         }}

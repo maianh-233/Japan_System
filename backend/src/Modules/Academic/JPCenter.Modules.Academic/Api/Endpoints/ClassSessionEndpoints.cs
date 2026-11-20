@@ -27,7 +27,7 @@ namespace JPCenter.Modules.Academic.Api.Endpoints;
 public static class ClassSessionEndpoints
 {
     public sealed record CreateBody(Guid ClassId, SessionOrigin Origin, Guid? MakeupForId, DateOnly Date, TimeOnly StartTime, TimeOnly EndTime,
-        List<Guid>? TeacherIds, Guid? RoomId, string? Note);
+        List<Guid>? TeacherIds, Guid? RoomId, string? Note, Guid? LessonId);
 
     public sealed record EditBody(DateOnly Date, TimeOnly StartTime, TimeOnly EndTime, List<Guid>? TeacherIds, List<Guid>? AssistantIds,
         Guid? RoomId, string Reason, uint? RowVersion);
@@ -37,9 +37,10 @@ public static class ClassSessionEndpoints
 
     public sealed record ReasonBody(string Reason);
 
-    public sealed record IncidentBody(TimeOnly At, IncidentReason Reason, string? Detail, IncidentAction Action, Guid? TakeoverId, bool? Notified);
+    public sealed record IncidentBody(TimeOnly At, IncidentReason Reason, string? Detail, IncidentAction Action, Guid? TakeoverId, bool? Notified,
+        TimeOnly? TakeoverAt);
 
-    public sealed record OutcomeBody(IncidentOutcome Outcome, Guid? TeacherId);
+    public sealed record OutcomeBody(IncidentOutcome Outcome, Guid? TeacherId, TimeOnly? At);
 
     public sealed record SupportBody(SupportKind Kind, string Note);
 
@@ -67,7 +68,7 @@ public static class ClassSessionEndpoints
         // Học bù / học thêm (DT-10)
         g.MapPost("/", async (CreateBody b, ISender s, CancellationToken ct) =>
                 (await s.Send(new CreateSessionCommand(b.ClassId, b.Origin, b.MakeupForId, b.Date, b.StartTime, b.EndTime, b.TeacherIds, b.RoomId,
-                    b.Note), ct)).ToCreatedResult(r => $"/api/v1/academic/class-sessions/{r.Session.Id}"))
+                    b.Note, b.LessonId), ct)).ToCreatedResult(r => $"/api/v1/academic/class-sessions/{r.Session.Id}"))
             .RequirePermission(page, PermissionAction.Create);
 
         g.MapPut("/{id:guid}", async (Guid id, EditBody b, ISender s, CancellationToken ct) =>
@@ -80,11 +81,11 @@ public static class ClassSessionEndpoints
             .RequirePermission(page, PermissionAction.Update);
 
         g.MapPost("/{id:guid}/incident", async (Guid id, IncidentBody b, ISender s, CancellationToken ct) =>
-                (await s.Send(new ReportIncidentCommand(id, b.At, b.Reason, b.Detail, b.Action, b.TakeoverId, b.Notified ?? false), ct)).ToHttpResult())
+                (await s.Send(new ReportIncidentCommand(id, b.At, b.Reason, b.Detail, b.Action, b.TakeoverId, b.Notified ?? false, b.TakeoverAt), ct)).ToHttpResult())
             .RequirePermission(page, PermissionAction.Update);
 
         g.MapPost("/{id:guid}/incident/outcome", async (Guid id, OutcomeBody b, ISender s, CancellationToken ct) =>
-                (await s.Send(new ResolveIncidentCommand(id, b.Outcome, b.TeacherId), ct)).ToHttpResult())
+                (await s.Send(new ResolveIncidentCommand(id, b.Outcome, b.TeacherId, b.At), ct)).ToHttpResult())
             .RequirePermission(page, PermissionAction.Update);
 
         g.MapPost("/{id:guid}/support", async (Guid id, SupportBody b, ISender s, CancellationToken ct) =>

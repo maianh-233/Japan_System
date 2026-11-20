@@ -275,6 +275,46 @@ public sealed class ClassFlowTests(SeededApiFactory api)
         (await SessionsOf(c, id)).EnumerateArray().ShouldAllBe(s => s.GetProperty("status").GetString() == "cancelled");
     }
 
+    [Fact(DisplayName = "DT-13: báo sự cố tạm dừng → chấm công GV chốt giờ ra; học tiếp → mở lại giờ ra, ghi giờ học tiếp; học thêm gán bài")]
+    public async Task Incident_adjusts_teacher_attendance()
+    {
+        var c = await SignIn();
+        var tanaka = SeedData.IdOf("t-tanaka");
+        var room401 = SeedData.IdOf("R-CG-401");
+        // Lớp đã qua (Chủ nhật 04/10/2026, 1 buổi 05:00–07:00) để buổi "đã bắt đầu"
+        var cls = (await Ok(await c.PostAsJsonAsync(Classes, new
+        {
+            courseId = N5Course, curriculumId = N5Curriculum, code = "GVV_N5-" + Suffix(), name = "Lớp sự cố", branchId = Cg,
+            teacherIds = new[] { tanaka }, assistantIds = Array.Empty<Guid>(), roomId = room401, online = false, plannedStartDate = "2026-10-04",
+            weekdays = new[] { 7 }, startTime = "05:00", endTime = "07:00", totalHours = 2m, minStudents = 1, maxStudents = 4, fee = 0m,
+        }, Ct))).GetProperty("class");
+        var id = cls.GetProperty("id").GetGuid();
+        var session = (await SessionsOf(c, id))[0];
+        var sid = session.GetProperty("id").GetGuid();
+        var lessonId = session.GetProperty("lessonId").GetGuid();
+
+        var reported = (await Ok(await c.PostAsJsonAsync($"{Sessions}/{sid}/incident",
+            new { at = "05:30", reason = "sick", detail = "Sốt cao", action = "pause", notified = true }, Ct))).GetProperty("session");
+        reported.GetProperty("incident").GetProperty("action").GetString().ShouldBe("pause");
+        var row = reported.GetProperty("teacherAttendance").EnumerateArray().Single(t => t.GetProperty("teacherId").GetGuid() == tanaka);
+        row.GetProperty("checkIn").GetString().ShouldBe("05:00");
+        row.GetProperty("checkOut").GetString().ShouldBe("05:30");
+        reported.GetProperty("supportLog").GetArrayLength().ShouldBe(1);
+
+        var resumed = (await Ok(await c.PostAsJsonAsync($"{Sessions}/{sid}/incident/outcome", new { outcome = "resumed", at = "06:00" }, Ct)))
+            .GetProperty("session");
+        resumed.GetProperty("incident").GetProperty("outcome").GetProperty("at").GetString().ShouldBe("06:00");
+        resumed.GetProperty("incident").GetProperty("outcome").GetProperty("teacherId").GetGuid().ShouldBe(tanaka);
+        var after = resumed.GetProperty("teacherAttendance").EnumerateArray().Single(t => t.GetProperty("teacherId").GetGuid() == tanaka);
+        Absent(after, "checkOut").ShouldBeTrue();
+        after.GetProperty("note").GetString()!.ShouldContain("05:30–06:00");
+
+        // Học thêm gán bài do giáo vụ chọn
+        var extra = (await Ok(await c.PostAsJsonAsync(Sessions,
+            new { classId = id, origin = "extra", date = "2026-10-11", startTime = "05:00", endTime = "07:00", lessonId }, Ct))).GetProperty("session");
+        extra.GetProperty("lessonId").GetGuid().ShouldBe(lessonId);
+    }
+
     // ---------------- Xác nhận buổi & quyền ----------------
 
     [Fact(DisplayName = "DT-15: bỏ xác nhận → xác nhận lại; buổi chưa tới giờ không xác nhận được; xác nhận hàng loạt trả lý do lỗi")]

@@ -34,6 +34,8 @@ import { fmtDate } from '@/lib/date';
 import { EXAM_KINDS } from '../../curriculum/constants';
 import { useCurriculumStore } from '../../curriculum/curriculumStore';
 import { useClassStore } from '../classStore';
+import * as classApi from '../classApi';
+import { USE_API } from '@/lib/api/config';
 import { LESSON_COVERAGE, teacherName, useTeachers, WEEKDAYS, weekdayOf } from '../constants';
 import { canTakeAttendance, notStarted, originOf, SESSION_ORIGIN, sessionRoom, summarize } from '../sessionUtils';
 import type { AttendanceStatus, ClassInfo, ClassSession, TeacherAttendance } from '../types';
@@ -215,12 +217,14 @@ function InfoTab({
       tone: missing.length ? 'warning' : 'primary',
       confirmAction: 'approve',
       confirmText: 'Xác nhận đã diễn ra',
+      onConfirm: USE_API ? async () => void (await classApi.confirmSession(s.id)) : undefined,
     });
     if (!res) return;
-    updateSession(s.id, {
-      confirmation: { by: user ? `${user.fullName} (${user.roleName})` : 'Nhân viên', at: new Date().toISOString() },
-      status: s.status === 'scheduled' ? 'completed' : s.status,
-    });
+    if (!USE_API)
+      updateSession(s.id, {
+        confirmation: { by: user ? `${user.fullName} (${user.roleName})` : 'Nhân viên', at: new Date().toISOString() },
+        status: s.status === 'scheduled' ? 'completed' : s.status,
+      });
     notify.toast.success('Đã xác nhận buổi học');
   };
 
@@ -231,8 +235,9 @@ function InfoTab({
       tone: 'warning',
       confirmAction: 'cancel',
       confirmText: 'Bỏ xác nhận',
+      onConfirm: USE_API ? async () => void (await classApi.unconfirmSession(s.id)) : undefined,
     });
-    if (res) updateSession(s.id, { confirmation: undefined });
+    if (res && !USE_API) updateSession(s.id, { confirmation: undefined });
   };
   const curriculum = useCurriculumStore((st) => st.curricula.find((c) => c.id === cls.curriculumId));
   const room = sessionRoom(s, cls);
