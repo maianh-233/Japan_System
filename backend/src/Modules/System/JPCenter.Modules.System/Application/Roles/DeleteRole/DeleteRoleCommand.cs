@@ -34,9 +34,12 @@ public sealed class DeleteRoleHandler(ISystemDbContext db, ICurrentUser user, IE
             return PermissionErrors.RoleInUse(users.Select(id => names.TryGetValue(id, out var e) ? e.FullName : id.ToString()));
         }
 
+        var trash = TrashItem.Create("system.role", role.Id.Value, role.Name, role.Description, null,
+            user.AccountId ?? Guid.Empty, clock.UtcNow, TrashDays);
+        if (trash.IsFailure) return trash.Error;
+
         db.Roles.Remove(role); // xóa mềm (interceptor)
-        db.TrashItems.Add(TrashItem.Create("system.role", role.Id.Value, role.Name, role.Description, null,
-            user.AccountId ?? Guid.Empty, clock.UtcNow, TrashDays));
+        db.TrashItems.Add(trash.Value);
         await db.SaveChangesAsync(ct);
         changes.Invalidate();
 

@@ -16,10 +16,11 @@ Mỗi file = 1 nhóm nghiệp vụ. Viết từ giao diện frontend đã dựng
 | 07 | [Lớp học & buổi học (điểm danh, dạy thay, đơn từ, lên lớp)](07-lop-hoc.md) | `DT-xx` | 🚧 Backend đợt 1 (phòng, lớp, buổi) |
 | 08 | [Học phí, hóa đơn & tài chính (đối soát, công nợ, lương, hoa hồng)](08-tai-chinh.md) | `TC-xx` | ✍️ Đã viết |
 | 09 | [Khóa học & lộ trình (phiên bản, tài liệu giảng dạy, mốc thi)](09-khoa-hoc-lo-trinh.md) | `KH-xx`, `LT-xx` | ✍️ Đã viết |
+| 10 | [Nền chung: cài đặt chung, thông báo, nhật ký hệ thống, thùng rác](10-he-thong-chung.md) | `CD-xx`, `TB-xx`, `NK-xx`, `TR-xx` | 🚧 Giai đoạn 16 |
 
 **Chưa có nhóm story riêng** (trang frontend đã dựng — viết khi bắt đầu làm module): Ngân hàng câu hỏi · Bài tập, bài thi,
 thông báo lớp, đánh giá GV, flashcard · Phòng học & báo hỏng · Thư viện tài liệu · Tuyển dụng & Onboarding · Chấm công, đơn từ & phê duyệt ·
-Công việc, xếp ca & bàn giao ca · Hệ thống (tích hợp, nhật ký, duyệt thao tác, thùng rác, cài đặt chung) · Báo cáo & bảng điều khiển.
+Công việc, xếp ca & bàn giao ca · Hệ thống (tích hợp) · Báo cáo & bảng điều khiển. Thứ tự làm: [../ke-hoach.md](../ke-hoach.md).
 
 ## Mẫu 1 user story
 

@@ -15,5 +15,11 @@ public sealed class Setting : Entity<SettingId>, IAuditable
 
     public static Setting Create(string key, string value) => new() { Id = SettingId.New(), Key = key, Value = value };
 
-    public void Change(string value) => Value = value;
+    /// <summary>Đổi giá trị — trả <c>false</c> khi giá trị không đổi (không ghi nhật ký, không cập nhật updated_at).</summary>
+    public bool Change(string value)
+    {
+        if (Value == value) return false;
+        Value = value;
+        return true;
+    }
 }

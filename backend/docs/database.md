@@ -263,6 +263,28 @@ thêm / đổi / xóa thuộc tính → sửa dòng trong bảng + ghi 1 dòng �
 Khóa đã dùng: `academic.holidays` — mảng `[{ "date": "YYYY-MM-DD", "name": "…" }]`, ngày nghỉ lễ khi sinh lịch buổi học (DT-08.E5),
 module khác đọc qua `IHolidayCalendar` (System.Contracts); seeder `SettingsSeeder` thêm nếu chưa có.
 
+Cài đặt chung (user story 10, domain `CenterSettings`) — mỗi mục 1 dòng, chưa có dòng = giá trị mặc định:
+
+| Khóa | Giá trị JSON | Mặc định |
+|---|---|---|
+| `crm.defaultSlaMinutes` | số 1 → 1440 | 15 |
+| `office.from`, `office.to` | chuỗi `HH:mm`, from < to | `08:00`, `17:30` |
+| `office.satTo` | chuỗi `HH:mm` hoặc `null` (nghỉ thứ 7) | `12:00` |
+| `office.lateGraceMin` | số 0 → 120 | 5 |
+| `invoice.codePattern` | chuỗi ≤ 40, biến `{CN} {YYYY} {YY} {MM}` + đúng 1 `{SO}` / `{SO:n}` | `HD-{CN}-{YY}{MM}-{SO:4}` |
+| `invoice.resetEvery` | `never` · `year` · `month` | `month` |
+| `payroll.lockDay` | số 1 → 28 | 5 |
+| `atRisk.absent`, `atRisk.streak` | số 1 → 20 | 3, 2 |
+| `atRisk.attendanceRate`, `submitRate`, `scorePct` | số 0 → 100 (%) | 80, 50, 60 |
+| `atRisk.mediumFrom`, `atRisk.highFrom` | số 1 → 20, medium < high | 3, 5 |
+| `parent.arrivalNotice`, `parent.weeklyReport` | bool | true, true |
+| `parent.absentAlertMin` | số 0 → 120 (0 = tắt) | 15 |
+| `parent.underAge` | số 0 → 25 (0 = mọi HV) | 0 |
+| `parent.weeklyDay` | số 0 (CN) → 6 (T7) | 0 |
+| `parent.weeklyTime` | chuỗi `HH:mm` | `20:00` |
+| `safety.refundApprovalMin` | số nguyên VND ≥ 0 | 0 |
+| `safety.trashDays` | số 1 → 365 | 30 |
+
 ### 13a. user_sessions
 **Chức năng:** Phiên đăng nhập trên từng thiết bị: giữ refresh token (băm, xoay vòng mỗi lần làm mới), ghi nhớ đăng nhập, danh sách thiết bị, đăng xuất từ xa. Token cũ bị dùng lại → thu hồi mọi phiên của tài khoản. Entity `UserSession`. User story AUTH-02, 03, 08.
 
@@ -1840,4 +1862,5 @@ sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đ�
 | 2026-11-20 | Giai đoạn 15 phase 1 (user story 07, HV-14): `session_cancel_requests.status`, `leave_requests.status` thêm `withdrawn` (thu hồi khi còn chờ); `substitute_invites.decline_reason` ghi cả lý do hết hiệu lực. Không đổi cấu trúc bảng |
 | 2026-11-20 | Giai đoạn 15 phase 4: tạo bảng `crm.leads`, `consultations`, `lead_student_links` — migration `CrmLeads` (cổng PH thấy con; `campaign_id` chưa ràng buộc FK tới khi có bảng `campaigns`). Dữ liệu: vai trò mẫu Giáo vụ thêm `academic.requests.approve` (migration `GrantAcademicStaffRequestsApprove`, không đổi cấu trúc) |
 | 2026-11-20 | Giai đoạn 15 phase 2: tạo bảng `session_cancel_requests`, `substitute_invites`, `leave_requests`, `promotion_candidates` (UQ lớp đang học × HV), `promotion_notes`, `student_evaluations` — migration `AcademicRequestsPromotions`; `care_cases`, `care_logs` — migration `StudentsCare`. `session_id` / `makeup_session_id` của đơn từ & lời mời không ràng buộc FK (buổi chưa dạy có thể bị xóa khi sinh lại lịch) |
+| 2026-11-20 | Giai đoạn 16 phase 1 (user story 10): `settings` liệt kê 23 khóa Cài đặt chung + khoảng hợp lệ (domain `CenterSettings`); `trash_items.purge_after` tính theo `safety.trashDays` lúc xóa (1 → 365); `notifications` cắt `title` ≤ 200, `description` ≤ 1000, `link` ≤ 500 và chỉ nhận đường dẫn nội bộ. Không đổi cấu trúc bảng |
 | 2026-11-17 | Chốt thiết kế (user story 08): `invoices.status` chỉ lưu `open` / `cancelled` / `voided`, các trạng thái tiền tính khi đọc; `payments.method` dùng `vietqr` (không `viet_qr`). Domain `InvoiceStatus`, `PaymentMethod` sửa theo khi code module Tài chính |
