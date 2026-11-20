@@ -1,0 +1,46 @@
+{
+  "generatedAt": "2026-11-20T10:34:22.524Z",
+  "cases": [
+    {
+      "classId": "C-N3K12",
+      "studentId": "ST-20",
+      "branchId": "cg",
+      "assigneeId": "e-hong",
+      "status": "contacting",
+      "nextAt": "2026-11-21",
+      "updatedAt": "2026-11-19T10:34:22.522Z"
+    },
+    {
+      "classId": "C-N4K15",
+      "studentId": "ST-21",
+      "branchId": "cg",
+      "assigneeId": "e-vy",
+      "status": "monitoring",
+      "updatedAt": "2026-11-16T10:34:22.522Z"
+    }
+  ],
+  "logs": [
+    {
+      "id": "CL-C-N3K12",
+      "classId": "C-N3K12",
+      "studentId": "ST-1",
+      "channel": "call",
+      "note": "Đã gọi phụ huynh — học viên ốm 1 tuần, tuần sau đi học lại.",
+      "by": "Giáo vụ",
+      "at": "2026-11-17T08:00:00.522Z",
+      "branchId": "cg",
+      "byId": null
+    },
+    {
+      "id": "CL-C-KIDS05",
+      "classId": "C-KIDS05",
+      "studentId": "ST-2",
+      "channel": "call",
+      "note": "Đã gọi phụ huynh — học viên ốm 1 tuần, tuần sau đi học lại.",
+      "by": "Giáo vụ",
+      "at": "2026-11-17T08:00:00.522Z",
+      "branchId": "cg",
+      "byId": null
+    }
+  ]
+}

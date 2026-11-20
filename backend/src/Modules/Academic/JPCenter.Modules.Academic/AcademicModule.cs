@@ -55,6 +55,7 @@ public sealed class AcademicModule : IModule
 
         services.AddScoped<IDataSeeder, AcademicSeeder>();
         services.AddScoped<IDataSeeder, ClassSeeder>();
+        services.AddScoped<IDataSeeder, RequestSeeder>();
     }
 
     public void MapEndpoints(IEndpointRouteBuilder group) => AcademicEndpoints.Map(group);

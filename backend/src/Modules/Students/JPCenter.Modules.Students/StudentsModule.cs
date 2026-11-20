@@ -39,6 +39,7 @@ public sealed class StudentsModule : IModule
         services.AddScoped<EnrollmentRules>();
 
         services.AddScoped<IDataSeeder, StudentSeeder>();
+        services.AddScoped<IDataSeeder, CareSeeder>();
     }
 
     public void MapEndpoints(IEndpointRouteBuilder group) => StudentsEndpoints.Map(group);

@@ -95,6 +95,48 @@ write(resolve(backend, 'Students', 'JPCenter.Modules.Students', 'Infrastructure'
   })),
 });
 
+// Đơn hủy buổi, lời mời dạy thay, đơn xin nghỉ, lên lớp, nhận xét cuối khóa (user story 07 — giai đoạn 15).
+// Import ĐỘNG sau khi đã ghi classes.seed.json: mock đơn xin nghỉ sửa điểm danh của MOCK_SESSIONS lúc nạp module —
+// backend tự áp hiệu lực đơn (vắng có phép, khách học bù) bằng method domain, nên dữ liệu buổi học xuất ở trên phải là bản gốc.
+const { MOCK_CANCEL_REQUESTS, MOCK_SUB_INVITES, MOCK_LEAVE_REQUESTS } = await import('@/mocks/data/portal');
+const { MOCK_PROMOTIONS } = await import('@/mocks/data/promotions');
+const { MOCK_EVALUATIONS, MOCK_CARE_LOGS } = await import('@/mocks/data/classExtras');
+const { useAtRiskStore } = await import('@/features/student/atRisk/atRisk');
+const classBranch = (classId: string) => MOCK_CLASSES.find((c) => c.id === classId)?.branchId ?? null;
+/** Tài khoản cổng gửi đơn: HV → tài khoản của HV; PH → tài khoản PH có tên trùng người gửi */
+const portalAccountOf = (studentId: string, by: 'student' | 'parent', byName: string) =>
+  (by === 'student'
+    ? PORTAL_ACCOUNTS.find((a) => a.ownerType === 'student' && a.ownerId === studentId)
+    : PORTAL_ACCOUNTS.find((a) => a.ownerType !== 'student' && leadName.get(a.ownerId) === byName)
+  )?.id ?? null;
+write(resolve(backend, 'Academic', 'JPCenter.Modules.Academic', 'Infrastructure', 'Persistence', 'Seed', 'requests.seed.json'), {
+  generatedAt: new Date().toISOString(),
+  cancelRequests: MOCK_CANCEL_REQUESTS.map((r) => ({ ...r, branchId: classBranch(r.classId), decidedById: personId(r.decidedBy) })),
+  subInvites: MOCK_SUB_INVITES.map((i) => ({ ...i, branchId: classBranch(i.classId), invitedById: personId(i.invitedBy) })),
+  leaveRequests: MOCK_LEAVE_REQUESTS.map((r) => ({
+    ...r,
+    branchId: classBranch(r.classId),
+    byAccountId: portalAccountOf(r.studentId, r.by, r.byName),
+    decidedById: personId(r.decidedBy),
+  })),
+  promotions: MOCK_PROMOTIONS.map((p) => ({
+    ...p,
+    branchId: classBranch(p.fromClassId),
+    notes: p.notes.map((n) => ({ ...n, byId: personId(n.by) })),
+  })),
+  evaluations: MOCK_EVALUATIONS,
+});
+
+// Cảnh báo bỏ học (HV-14): trường hợp đã giao người chăm sóc + nhật ký liên hệ. Mức rủi ro / dấu hiệu do job backend tính lại
+write(resolve(backend, 'Students', 'JPCenter.Modules.Students', 'Infrastructure', 'Persistence', 'Seed', 'care.seed.json'), {
+  generatedAt: new Date().toISOString(),
+  cases: Object.entries(useAtRiskStore.getState().cases).map(([key, c]) => {
+    const [classId, studentId] = key.split(':');
+    return { classId, studentId, branchId: classBranch(classId), assigneeId: personId(c.assignee), status: c.status, nextAt: c.nextAt, updatedAt: c.updatedAt };
+  }),
+  logs: MOCK_CARE_LOGS.map((l) => ({ ...l, branchId: classBranch(l.classId), byId: personId(l.by) })),
+});
+
 write(resolve(backend, 'System', 'JPCenter.Modules.System', 'Infrastructure', 'Persistence', 'Seed', 'system.seed.json'), {
   generatedAt: new Date().toISOString(),
   branches: MOCK_BRANCH_PROFILES,
@@ -135,6 +177,12 @@ const seedIds = [
   ...MOCK_ROOMS.map((r) => r.id),
   ...MOCK_CLASSES.map((c) => c.id),
   ...MOCK_SESSIONS.map((x) => x.id),
+  ...MOCK_CANCEL_REQUESTS.map((x) => x.id),
+  ...MOCK_SUB_INVITES.map((x) => x.id),
+  ...MOCK_LEAVE_REQUESTS.map((x) => x.id),
+  ...MOCK_PROMOTIONS.map((x) => x.id),
+  ...MOCK_EVALUATIONS.map((x) => x.id),
+  ...MOCK_CARE_LOGS.map((x) => x.id),
 ];
 const idPath = resolve(process.cwd(), 'src', 'lib', 'api', 'seedIds.generated.ts');
 mkdirSync(dirname(idPath), { recursive: true });

@@ -687,6 +687,538 @@ namespace JPCenter.Modules.Academic.Infrastructure.Persistence.Migrations
                     b.ToTable("curricula", "academic");
                 });
 
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Promotions.PromotionCandidate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<DateTimeOffset?>("ConfirmedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("confirmed_at");
+
+                    b.Property<Guid?>("ConfirmedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("confirmed_by");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("DeclineReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("decline_reason");
+
+                    b.Property<Guid?>("EnrollmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("enrollment_id");
+
+                    b.Property<Guid>("FromClassId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("from_class_id");
+
+                    b.Property<DateTimeOffset?>("HandedOverAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("handed_over_at");
+
+                    b.Property<DateOnly?>("HoldUntil")
+                        .HasColumnType("date")
+                        .HasColumnName("hold_until");
+
+                    b.Property<DateTimeOffset?>("InterestAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("interest_at");
+
+                    b.Property<string>("InterestBy")
+                        .HasColumnType("text")
+                        .HasColumnName("interest_by");
+
+                    b.Property<Guid?>("SaleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("sale_id");
+
+                    b.Property<bool>("SeatHeld")
+                        .HasColumnType("boolean")
+                        .HasColumnName("seat_held");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("source");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("student_id");
+
+                    b.Property<Guid?>("ToClassId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("to_class_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_promotion_candidates");
+
+                    b.HasIndex("FromClassId", "StudentId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_promotion_candidates_from_class_id_student_id");
+
+                    b.HasIndex("SaleId", "Status")
+                        .HasDatabaseName("ix_promotion_candidates_sale_id_status");
+
+                    b.HasIndex("ToClassId", "SeatHeld")
+                        .HasDatabaseName("ix_promotion_candidates_to_class_id_seat_held");
+
+                    b.ToTable("promotion_candidates", "academic");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Requests.LeaveRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<string>("By")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("by");
+
+                    b.Property<Guid>("ByAccountId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("by_account_id");
+
+                    b.Property<string>("ByName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("by_name");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("class_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset?>("DecidedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("decided_at");
+
+                    b.Property<Guid?>("DecidedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("decided_by");
+
+                    b.Property<string>("MakeupResult")
+                        .HasColumnType("text")
+                        .HasColumnName("makeup_result");
+
+                    b.Property<Guid?>("MakeupSessionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("makeup_session_id");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("note");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("reason");
+
+                    b.Property<string>("ReasonType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("reason_type");
+
+                    b.Property<DateTimeOffset>("RequestedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("requested_at");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("session_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("student_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_leave_requests");
+
+                    b.HasIndex("ClassId")
+                        .HasDatabaseName("ix_leave_requests_class_id");
+
+                    b.HasIndex("MakeupSessionId")
+                        .HasDatabaseName("ix_leave_requests_makeup_session_id");
+
+                    b.HasIndex("BranchId", "Status")
+                        .HasDatabaseName("ix_leave_requests_branch_id_status");
+
+                    b.HasIndex("SessionId", "StudentId")
+                        .HasDatabaseName("ix_leave_requests_session_id_student_id");
+
+                    b.HasIndex("StudentId", "Status")
+                        .HasDatabaseName("ix_leave_requests_student_id_status");
+
+                    b.ToTable("leave_requests", "academic");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Requests.SessionCancelRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("class_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset?>("DecidedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("decided_at");
+
+                    b.Property<Guid?>("DecidedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("decided_by");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("note");
+
+                    b.Property<DateTimeOffset?>("ProposedMakeupAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("proposed_makeup_at");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("reason");
+
+                    b.Property<string>("ReasonType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("reason_type");
+
+                    b.Property<DateTimeOffset>("RequestedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("requested_at");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("session_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("TeacherId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("teacher_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_session_cancel_requests");
+
+                    b.HasIndex("ClassId")
+                        .HasDatabaseName("ix_session_cancel_requests_class_id");
+
+                    b.HasIndex("BranchId", "Status")
+                        .HasDatabaseName("ix_session_cancel_requests_branch_id_status");
+
+                    b.HasIndex("SessionId", "Status")
+                        .HasDatabaseName("ix_session_cancel_requests_session_id_status");
+
+                    b.HasIndex("TeacherId", "Status")
+                        .HasDatabaseName("ix_session_cancel_requests_teacher_id_status");
+
+                    b.ToTable("session_cancel_requests", "academic");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Requests.SubstituteInvite", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<Guid?>("CancelRequestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("cancel_request_id");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("class_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("DeclineReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("decline_reason");
+
+                    b.Property<Guid>("FromTeacherId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("from_teacher_id");
+
+                    b.Property<DateTimeOffset>("InvitedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("invited_at");
+
+                    b.Property<Guid>("InvitedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("invited_by");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("reason");
+
+                    b.Property<DateTimeOffset>("RespondBy")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("respond_by");
+
+                    b.Property<DateTimeOffset?>("RespondedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("responded_at");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("session_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("ToTeacherId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("to_teacher_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_substitute_invites");
+
+                    b.HasIndex("CancelRequestId")
+                        .HasDatabaseName("ix_substitute_invites_cancel_request_id");
+
+                    b.HasIndex("ClassId")
+                        .HasDatabaseName("ix_substitute_invites_class_id");
+
+                    b.HasIndex("SessionId", "Status")
+                        .HasDatabaseName("ix_substitute_invites_session_id_status");
+
+                    b.HasIndex("ToTeacherId", "Status")
+                        .HasDatabaseName("ix_substitute_invites_to_teacher_id_status");
+
+                    b.ToTable("substitute_invites", "academic");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Reviews.StudentEvaluation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Advice")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("advice");
+
+                    b.Property<int>("Attitude")
+                        .HasColumnType("integer")
+                        .HasColumnName("attitude");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("class_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<int>("Grammar")
+                        .HasColumnType("integer")
+                        .HasColumnName("grammar");
+
+                    b.Property<int>("Listening")
+                        .HasColumnType("integer")
+                        .HasColumnName("listening");
+
+                    b.Property<int>("Reading")
+                        .HasColumnType("integer")
+                        .HasColumnName("reading");
+
+                    b.Property<string>("Recommendation")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("recommendation");
+
+                    b.Property<int>("Speaking")
+                        .HasColumnType("integer")
+                        .HasColumnName("speaking");
+
+                    b.Property<string>("Strengths")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("strengths");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("student_id");
+
+                    b.Property<Guid>("TeacherId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("teacher_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<int>("Vocab")
+                        .HasColumnType("integer")
+                        .HasColumnName("vocab");
+
+                    b.Property<string>("Weaknesses")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("weaknesses");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_student_evaluations");
+
+                    b.HasIndex("StudentId")
+                        .HasDatabaseName("ix_student_evaluations_student_id");
+
+                    b.HasIndex("ClassId", "StudentId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_student_evaluations_class_id_student_id");
+
+                    b.ToTable("student_evaluations", "academic");
+                });
+
             modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Rooms.Room", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1469,6 +2001,118 @@ namespace JPCenter.Modules.Academic.Infrastructure.Persistence.Migrations
                     b.Navigation("Exams");
 
                     b.Navigation("Lessons");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Promotions.PromotionCandidate", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Academic.Domain.Classes.Class", null)
+                        .WithMany()
+                        .HasForeignKey("FromClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_promotion_candidates_classes_from_class_id");
+
+                    b.HasOne("JPCenter.Modules.Academic.Domain.Classes.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ToClassId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_promotion_candidates_classes_to_class_id");
+
+                    b.OwnsMany("JPCenter.Modules.Academic.Domain.Promotions.PromotionNote", "Notes", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<DateTimeOffset>("At")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("at");
+
+                            b1.Property<Guid>("By")
+                                .HasColumnType("uuid")
+                                .HasColumnName("by");
+
+                            b1.Property<string>("ByName")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("by_name");
+
+                            b1.Property<string>("Channel")
+                                .HasMaxLength(20)
+                                .HasColumnType("character varying(20)")
+                                .HasColumnName("channel");
+
+                            b1.Property<Guid>("PromotionCandidateId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("promotion_candidate_id");
+
+                            b1.Property<string>("Text")
+                                .IsRequired()
+                                .HasMaxLength(2000)
+                                .HasColumnType("character varying(2000)")
+                                .HasColumnName("text");
+
+                            b1.HasKey("Id")
+                                .HasName("pk_promotion_notes");
+
+                            b1.HasIndex("PromotionCandidateId")
+                                .HasDatabaseName("ix_promotion_notes_promotion_candidate_id");
+
+                            b1.ToTable("promotion_notes", "academic");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PromotionCandidateId")
+                                .HasConstraintName("fk_promotion_notes_promotion_candidates_promotion_candidate_id");
+                        });
+
+                    b.Navigation("Notes");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Requests.LeaveRequest", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Academic.Domain.Classes.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_leave_requests_classes_class_id");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Requests.SessionCancelRequest", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Academic.Domain.Classes.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_session_cancel_requests_classes_class_id");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Requests.SubstituteInvite", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Academic.Domain.Requests.SessionCancelRequest", null)
+                        .WithMany()
+                        .HasForeignKey("CancelRequestId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_substitute_invites_session_cancel_requests_cancel_request_id");
+
+                    b.HasOne("JPCenter.Modules.Academic.Domain.Classes.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_substitute_invites_classes_class_id");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Reviews.StudentEvaluation", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Academic.Domain.Classes.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_student_evaluations_classes_class_id");
                 });
 
             modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Rooms.RoomIssue", b =>

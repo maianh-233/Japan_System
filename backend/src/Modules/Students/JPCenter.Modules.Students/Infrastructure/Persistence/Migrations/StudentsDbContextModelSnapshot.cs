@@ -82,6 +82,147 @@ namespace JPCenter.Modules.Students.Infrastructure.Persistence.Migrations
                     b.ToTable("outbox_messages", "students");
                 });
 
+            modelBuilder.Entity("JPCenter.Modules.Students.Domain.CareCases.CareCase", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("AssigneeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("assignee_id");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("class_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset>("DetectedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("detected_at");
+
+                    b.PrimitiveCollection<List<string>>("Flags")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("flags");
+
+                    b.Property<DateOnly?>("NextAt")
+                        .HasColumnType("date")
+                        .HasColumnName("next_at");
+
+                    b.Property<string>("RiskLevel")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("risk_level");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("student_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_care_cases");
+
+                    b.HasIndex("AssigneeId")
+                        .HasDatabaseName("ix_care_cases_assignee_id");
+
+                    b.HasIndex("StudentId")
+                        .HasDatabaseName("ix_care_cases_student_id");
+
+                    b.HasIndex("BranchId", "Status")
+                        .HasDatabaseName("ix_care_cases_branch_id_status");
+
+                    b.HasIndex("ClassId", "StudentId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_care_cases_class_id_student_id");
+
+                    b.ToTable("care_cases", "students");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Students.Domain.CareCases.CareLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("At")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("at");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<Guid>("By")
+                        .HasColumnType("uuid")
+                        .HasColumnName("by");
+
+                    b.Property<string>("ByName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("by_name");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("channel");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("class_id");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("note");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("student_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_care_logs");
+
+                    b.HasIndex("StudentId")
+                        .HasDatabaseName("ix_care_logs_student_id");
+
+                    b.HasIndex("ClassId", "StudentId")
+                        .HasDatabaseName("ix_care_logs_class_id_student_id");
+
+                    b.ToTable("care_logs", "students");
+                });
+
             modelBuilder.Entity("JPCenter.Modules.Students.Domain.Enrollments.Enrollment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -286,6 +427,26 @@ namespace JPCenter.Modules.Students.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_students_branch_id_hidden");
 
                     b.ToTable("students", "students");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Students.Domain.CareCases.CareCase", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Students.Domain.Students.Student", null)
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_care_cases_students_student_id");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Students.Domain.CareCases.CareLog", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Students.Domain.Students.Student", null)
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_care_logs_students_student_id");
                 });
 
             modelBuilder.Entity("JPCenter.Modules.Students.Domain.Enrollments.Enrollment", b =>

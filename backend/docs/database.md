@@ -1089,7 +1089,7 @@ Khóa chính (scope, key).
 | advice | text? | Ghi chú cho Sale (lớp phù hợp, lịch học, lưu ý) |
 
 ### 56. promotion_candidates
-**Chức năng:** Lên lớp: giữ chỗ tạm HV lớp sắp kết thúc vào lớp kỳ sau → giao Sale tư vấn người quyết định → chốt (ghi danh) / từ chối; hết hạn tự trả chỗ. Entity `PromotionCandidate`.
+**Chức năng:** Lên lớp: giữ chỗ tạm HV lớp sắp kết thúc vào lớp kỳ sau → giao Sale tư vấn người quyết định → chốt (ghi danh) / từ chối; hết hạn tự trả chỗ. Entity `PromotionCandidate`. UQ (from_class_id, student_id).
 
 | Thuộc tính | Kiểu | Giải thích |
 |---|---|---|
@@ -1128,7 +1128,7 @@ Khóa chính (scope, key).
 | Thuộc tính | Kiểu | Giải thích |
 |---|---|---|
 | id | uuid PK | |
-| session_id | uuid FK | → class_sessions |
+| session_id | uuid | → class_sessions (không ràng buộc FK: sinh lại lịch có thể xóa buổi chưa dạy → đơn còn chờ bị đóng) |
 | class_id | uuid FK | → classes |
 | branch_id | uuid | → system.branches |
 | teacher_id | uuid | GV gửi → hr.employees |
@@ -1148,7 +1148,7 @@ Khóa chính (scope, key).
 | id | uuid PK | |
 | student_id | uuid | → students.students |
 | class_id | uuid FK | → classes |
-| session_id | uuid FK | Buổi xin nghỉ → class_sessions |
+| session_id | uuid | Buổi xin nghỉ → class_sessions (không ràng buộc FK) |
 | branch_id | uuid | → system.branches |
 | reason_type | text | Loại lý do |
 | reason | text | Chi tiết lý do (≥ 5 ký tự) |
@@ -1158,7 +1158,7 @@ Khóa chính (scope, key).
 | status | text | `pending` · `approved` · `rejected` · `withdrawn` người gửi thu hồi |
 | requested_at | timestamptz | Lúc gửi |
 | decided_by, decided_at | uuid?, timestamptz? | Người duyệt |
-| makeup_session_id | uuid? FK | Buổi học bù đã đăng ký → class_sessions |
+| makeup_session_id | uuid? | Buổi học bù đã đăng ký → class_sessions (không ràng buộc FK) |
 | makeup_result | text? | Kết quả điểm danh buổi bù |
 | note | text? | Ghi chú |
 
@@ -1168,7 +1168,7 @@ Khóa chính (scope, key).
 | Thuộc tính | Kiểu | Giải thích |
 |---|---|---|
 | id | uuid PK | |
-| session_id | uuid FK | → class_sessions |
+| session_id | uuid | → class_sessions (không ràng buộc FK) |
 | class_id | uuid FK | → classes |
 | branch_id | uuid | → system.branches |
 | cancel_request_id | uuid? FK | Đơn hủy buổi dẫn tới lời mời → session_cancel_requests |
@@ -1838,4 +1838,5 @@ sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đ�
 | 2026-11-20 | Giai đoạn 13 phase 4: `attendance_records.student_id`, `teacher_attendances.teacher_id` (thuộc khóa chính) khai báo không tự sinh — EF thêm dòng mới vào buổi có sẵn bằng INSERT (trước đó UPDATE 0 dòng → lỗi). Migration `AcademicOwnedKeysNotGenerated` không đổi cấu trúc bảng |
 | 2026-11-20 | Giai đoạn 14 phase 2 (user story 06): tạo bảng `students`, `enrollments`, `certificates` đúng thiết kế (thêm UQ `certificates.code`, chỉ mục `enrollments (class_id, status)`, `(student_id, status)`, `students.phone`) — migration `Initial` của schema `students`; `enrollments.branch_id` = chi nhánh của lớp |
 | 2026-11-20 | Giai đoạn 15 phase 1 (user story 07, HV-14): `session_cancel_requests.status`, `leave_requests.status` thêm `withdrawn` (thu hồi khi còn chờ); `substitute_invites.decline_reason` ghi cả lý do hết hiệu lực. Không đổi cấu trúc bảng |
+| 2026-11-20 | Giai đoạn 15 phase 2: tạo bảng `session_cancel_requests`, `substitute_invites`, `leave_requests`, `promotion_candidates` (UQ lớp đang học × HV), `promotion_notes`, `student_evaluations` — migration `AcademicRequestsPromotions`; `care_cases`, `care_logs` — migration `StudentsCare`. `session_id` / `makeup_session_id` của đơn từ & lời mời không ràng buộc FK (buổi chưa dạy có thể bị xóa khi sinh lại lịch) |
 | 2026-11-17 | Chốt thiết kế (user story 08): `invoices.status` chỉ lưu `open` / `cancelled` / `voided`, các trạng thái tiền tính khi đọc; `payments.method` dùng `vietqr` (không `viet_qr`). Domain `InvoiceStatus`, `PaymentMethod` sửa theo khi code module Tài chính |

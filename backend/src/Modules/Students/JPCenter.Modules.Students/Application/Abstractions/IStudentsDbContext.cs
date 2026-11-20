@@ -1,3 +1,4 @@
+using JPCenter.Modules.Students.Domain.CareCases;
 using JPCenter.Modules.Students.Domain.Enrollments;
 using JPCenter.Modules.Students.Domain.Students;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,8 @@ public interface IStudentsDbContext
 {
     DbSet<Student> Students { get; }
     DbSet<Enrollment> Enrollments { get; }
+    DbSet<CareCase> CareCases { get; }
+    DbSet<CareLog> CareLogs { get; }
 
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

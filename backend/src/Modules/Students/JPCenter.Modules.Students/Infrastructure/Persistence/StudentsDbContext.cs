@@ -1,5 +1,6 @@
 using JPCenter.Infrastructure.Common.Persistence;
 using JPCenter.Modules.Students.Application.Abstractions;
+using JPCenter.Modules.Students.Domain.CareCases;
 using JPCenter.Modules.Students.Domain.Enrollments;
 using JPCenter.Modules.Students.Domain.Students;
 using Microsoft.EntityFrameworkCore;
@@ -7,8 +8,8 @@ using Microsoft.EntityFrameworkCore;
 namespace JPCenter.Modules.Students.Infrastructure.Persistence;
 
 /// <summary>
-/// DbContext module Students — schema <c>students</c>: hồ sơ học viên, ghi danh, chứng nhận (user story 06, giai đoạn 14).
-/// Chăm sóc / JLPT / du học thêm khi làm các story đó.
+/// DbContext module Students — schema <c>students</c>: hồ sơ học viên, ghi danh, chứng nhận (user story 06, giai đoạn 14),
+/// cảnh báo bỏ học & chăm sóc (HV-14, giai đoạn 15). JLPT / du học thêm khi làm các story đó.
 /// </summary>
 public sealed class StudentsDbContext(DbContextOptions<StudentsDbContext> options) : ModuleDbContextBase(options), IStudentsDbContext
 {
@@ -18,4 +19,6 @@ public sealed class StudentsDbContext(DbContextOptions<StudentsDbContext> option
 
     public DbSet<Student> Students => Set<Student>();
     public DbSet<Enrollment> Enrollments => Set<Enrollment>();
+    public DbSet<CareCase> CareCases => Set<CareCase>();
+    public DbSet<CareLog> CareLogs => Set<CareLog>();
 }
