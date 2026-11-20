@@ -6,6 +6,7 @@ using JPCenter.Infrastructure.Common.Jobs;
 using JPCenter.Infrastructure.Common.Persistence;
 using JPCenter.Modules.Academic;
 using JPCenter.Modules.Hr;
+using JPCenter.Modules.Students;
 using JPCenter.Modules.System;
 using Serilog;
 
@@ -31,6 +32,7 @@ builder.Services
     .AddModules(builder.Configuration,
         new AcademicModule(),
         new HrModule(),
+        new StudentsModule(),
         new SystemModule());
 
 var app = builder.Build();

@@ -1,0 +1,852 @@
+{
+  "generatedAt": "2026-11-20T06:02:54.441Z",
+  "students": [
+    {
+      "id": "ST-1",
+      "code": "HV1000",
+      "fullName": "Nguyễn Văn An",
+      "gender": "male",
+      "dob": "2008-04-12",
+      "phone": "0912000111",
+      "address": "25 Trần Thái Tông, Cầu Giấy, Hà Nội",
+      "branchId": "cg",
+      "joinedAt": "2026-01-04T02:00:00.410Z",
+      "hidden": false,
+      "note": "Mục tiêu JLPT N3 tháng 12. Liên hệ qua bố (anh Bình)."
+    },
+    {
+      "id": "ST-2",
+      "code": "HV1001",
+      "fullName": "Nguyễn Gia Bảo",
+      "gender": "male",
+      "dob": "2016-09-03",
+      "address": "25 Trần Thái Tông, Cầu Giấy, Hà Nội",
+      "branchId": "cg",
+      "joinedAt": "2026-10-06T02:00:00.410Z",
+      "hidden": false,
+      "note": "Em của An — ưu đãi anh chị em 10%."
+    },
+    {
+      "id": "ST-3",
+      "code": "HV1002",
+      "fullName": "Lê Hoàng Phúc",
+      "gender": "male",
+      "dob": "1997-11-20",
+      "phone": "0901112233",
+      "email": "phuc.le@outlook.com",
+      "address": "12 Nguyễn Huệ, Quận 1, TP.HCM",
+      "branchId": "q1",
+      "joinedAt": "2026-02-03T02:00:00.410Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-4",
+      "code": "HV1003",
+      "fullName": "Đỗ Minh Tuấn",
+      "gender": "male",
+      "dob": "2002-02-14",
+      "phone": "0977888999",
+      "branchId": "hc",
+      "joinedAt": "2026-09-01T02:00:00.410Z",
+      "hidden": false,
+      "note": "Đơn hàng thực phẩm Aichi, dự kiến xuất cảnh tháng 3."
+    },
+    {
+      "id": "ST-5",
+      "code": "HV1004",
+      "fullName": "Hoàng Thu Giang",
+      "gender": "female",
+      "dob": "2001-07-30",
+      "phone": "0966222333",
+      "email": "giang.ht@gmail.com",
+      "branchId": "cg",
+      "joinedAt": "2026-02-23T02:00:00.410Z",
+      "hidden": false,
+      "note": "Bảo lưu 2 tháng do đi công tác."
+    },
+    {
+      "id": "ST-6",
+      "code": "HV1005",
+      "fullName": "Nguyễn Văn Anh",
+      "gender": "male",
+      "dob": "1995-01-01",
+      "phone": "0330000000",
+      "email": "hocvien5@gmail.com",
+      "branchId": "cg",
+      "joinedAt": "2026-10-31T02:00:00.410Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-7",
+      "code": "HV1006",
+      "fullName": "Bùi Đức Hiếu",
+      "gender": "female",
+      "dob": "1995-07-31",
+      "phone": "0330271829",
+      "branchId": "q1",
+      "joinedAt": "2026-10-20T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-8",
+      "code": "HV1007",
+      "fullName": "Hoàng Hải Sơn",
+      "gender": "male",
+      "dob": "1996-02-27",
+      "phone": "0330543658",
+      "branchId": "hc",
+      "joinedAt": "2026-10-09T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-9",
+      "code": "HV1008",
+      "fullName": "Trần Thị Bích",
+      "gender": "female",
+      "dob": "1996-09-25",
+      "phone": "0330815487",
+      "email": "hocvien8@gmail.com",
+      "branchId": "cg",
+      "joinedAt": "2026-09-28T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-10",
+      "code": "HV1009",
+      "fullName": "Đỗ Thu Lan",
+      "gender": "female",
+      "dob": "1997-04-24",
+      "phone": "0331087316",
+      "branchId": "q1",
+      "joinedAt": "2026-09-17T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-11",
+      "code": "HV1010",
+      "fullName": "Vũ Quang Thảo",
+      "gender": "male",
+      "dob": "1997-11-21",
+      "phone": "0331359145",
+      "branchId": "hc",
+      "joinedAt": "2026-09-06T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-12",
+      "code": "HV1011",
+      "fullName": "Lê Minh Cường",
+      "gender": "male",
+      "dob": "1998-06-20",
+      "phone": "0331630974",
+      "email": "hocvien11@gmail.com",
+      "branchId": "cg",
+      "joinedAt": "2026-08-26T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-13",
+      "code": "HV1012",
+      "fullName": "Ngô Ngọc Long",
+      "gender": "female",
+      "dob": "1999-01-17",
+      "phone": "0331902803",
+      "branchId": "q1",
+      "joinedAt": "2026-08-15T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-14",
+      "code": "HV1013",
+      "fullName": "Đặng Văn Vinh",
+      "gender": "male",
+      "dob": "1999-08-16",
+      "phone": "0332174632",
+      "branchId": "hc",
+      "joinedAt": "2026-08-04T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-15",
+      "code": "HV1014",
+      "fullName": "Phạm Đức Duy",
+      "gender": "male",
+      "dob": "2000-03-14",
+      "phone": "0332446461",
+      "email": "hocvien14@gmail.com",
+      "branchId": "cg",
+      "joinedAt": "2026-07-24T02:00:00.411Z",
+      "hidden": true,
+      "hiddenAt": "2026-11-06T02:00:00.411Z"
+    },
+    {
+      "id": "ST-16",
+      "code": "HV1015",
+      "fullName": "Nguyễn Hải My",
+      "gender": "female",
+      "dob": "2000-10-11",
+      "phone": "0332718290",
+      "branchId": "q1",
+      "joinedAt": "2026-07-13T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-17",
+      "code": "HV1016",
+      "fullName": "Bùi Thị Xuân",
+      "gender": "female",
+      "dob": "2001-05-10",
+      "phone": "0332990119",
+      "branchId": "hc",
+      "joinedAt": "2026-07-02T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-18",
+      "code": "HV1017",
+      "fullName": "Hoàng Thu Hạnh",
+      "gender": "male",
+      "dob": "2001-12-07",
+      "phone": "0333261948",
+      "email": "hocvien17@gmail.com",
+      "branchId": "cg",
+      "joinedAt": "2026-06-21T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-19",
+      "code": "HV1018",
+      "fullName": "Trần Quang Nhung",
+      "gender": "female",
+      "dob": "2002-07-06",
+      "phone": "0333533777",
+      "branchId": "q1",
+      "joinedAt": "2026-06-10T02:00:00.411Z",
+      "hidden": true,
+      "hiddenAt": "2026-11-02T02:00:00.411Z"
+    },
+    {
+      "id": "ST-20",
+      "code": "HV1019",
+      "fullName": "Đỗ Minh Anh",
+      "gender": "male",
+      "dob": "2003-02-02",
+      "phone": "0333805606",
+      "branchId": "hc",
+      "joinedAt": "2026-05-30T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-21",
+      "code": "HV1020",
+      "fullName": "Vũ Ngọc Hiếu",
+      "gender": "male",
+      "dob": "2003-09-01",
+      "phone": "0334077435",
+      "email": "hocvien20@gmail.com",
+      "branchId": "cg",
+      "joinedAt": "2026-05-19T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-22",
+      "code": "HV1021",
+      "fullName": "Lê Văn Sơn",
+      "gender": "female",
+      "dob": "2004-03-30",
+      "phone": "0334349264",
+      "branchId": "q1",
+      "joinedAt": "2026-05-08T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-23",
+      "code": "HV1022",
+      "fullName": "Ngô Đức Bích",
+      "gender": "male",
+      "dob": "2004-10-27",
+      "phone": "0334621093",
+      "branchId": "hc",
+      "joinedAt": "2026-04-27T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-24",
+      "code": "HV1023",
+      "fullName": "Đặng Hải Lan",
+      "gender": "male",
+      "dob": "2005-05-26",
+      "phone": "0334892922",
+      "email": "hocvien23@gmail.com",
+      "branchId": "cg",
+      "joinedAt": "2026-04-16T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-25",
+      "code": "HV1024",
+      "fullName": "Phạm Thị Thảo",
+      "gender": "female",
+      "dob": "2005-12-23",
+      "phone": "0335164751",
+      "branchId": "q1",
+      "joinedAt": "2026-04-05T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-26",
+      "code": "HV1025",
+      "fullName": "Nguyễn Thu Cường",
+      "gender": "male",
+      "dob": "2006-07-22",
+      "phone": "0335436580",
+      "branchId": "hc",
+      "joinedAt": "2026-03-25T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-27",
+      "code": "HV1026",
+      "fullName": "Bùi Quang Long",
+      "gender": "male",
+      "dob": "2007-02-18",
+      "phone": "0335708409",
+      "email": "hocvien26@gmail.com",
+      "branchId": "cg",
+      "joinedAt": "2026-03-14T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-28",
+      "code": "HV1027",
+      "fullName": "Hoàng Minh Vinh",
+      "gender": "female",
+      "dob": "2007-09-17",
+      "phone": "0335980238",
+      "branchId": "q1",
+      "joinedAt": "2026-03-03T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-29",
+      "code": "HV1028",
+      "fullName": "Trần Ngọc Duy",
+      "gender": "male",
+      "dob": "2008-04-15",
+      "phone": "0336252067",
+      "branchId": "hc",
+      "joinedAt": "2026-02-20T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-30",
+      "code": "HV1029",
+      "fullName": "Đỗ Văn My",
+      "gender": "male",
+      "dob": "2008-11-12",
+      "phone": "0336523896",
+      "email": "hocvien29@gmail.com",
+      "branchId": "cg",
+      "joinedAt": "2026-02-09T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-31",
+      "code": "HV1030",
+      "fullName": "Vũ Đức Xuân",
+      "gender": "female",
+      "dob": "2009-06-11",
+      "phone": "0336795725",
+      "branchId": "q1",
+      "joinedAt": "2026-01-29T02:00:00.411Z",
+      "hidden": true,
+      "hiddenAt": "2026-10-21T02:00:00.411Z"
+    },
+    {
+      "id": "ST-32",
+      "code": "HV1031",
+      "fullName": "Lê Hải Hạnh",
+      "gender": "male",
+      "dob": "2010-01-08",
+      "phone": "0337067554",
+      "branchId": "hc",
+      "joinedAt": "2026-01-18T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-33",
+      "code": "HV1032",
+      "fullName": "Ngô Thị Nhung",
+      "gender": "female",
+      "dob": "2010-08-07",
+      "phone": "0337339383",
+      "email": "hocvien32@gmail.com",
+      "branchId": "cg",
+      "joinedAt": "2026-01-07T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-34",
+      "code": "HV1033",
+      "fullName": "Đặng Thu Anh",
+      "gender": "female",
+      "dob": "2011-03-06",
+      "phone": "0337611212",
+      "branchId": "q1",
+      "joinedAt": "2025-12-27T02:00:00.411Z",
+      "hidden": false
+    },
+    {
+      "id": "ST-35",
+      "code": "HV1034",
+      "fullName": "Phạm Quang Hiếu",
+      "gender": "male",
+      "dob": "2011-10-03",
+      "phone": "0337883041",
+      "branchId": "hc",
+      "joinedAt": "2025-12-16T02:00:00.411Z",
+      "hidden": true,
+      "hiddenAt": "2026-10-17T02:00:00.411Z"
+    },
+    {
+      "id": "ST-36",
+      "code": "HV1035",
+      "fullName": "Nguyễn Minh Sơn",
+      "gender": "male",
+      "dob": "2012-05-01",
+      "phone": "0338154870",
+      "email": "hocvien35@gmail.com",
+      "branchId": "cg",
+      "joinedAt": "2025-12-05T02:00:00.411Z",
+      "hidden": false
+    }
+  ],
+  "enrollments": [
+    {
+      "id": "E-1",
+      "studentId": "ST-1",
+      "classId": "C-N4K11",
+      "status": "completed",
+      "enrolledAt": "2026-01-19T17:00:00.000Z",
+      "endedAt": "2026-09-11",
+      "certificate": {
+        "code": "CN-2026-N4K11-0001",
+        "issuedAt": "2026-09-15T17:00:00.000Z",
+        "sentTo": "hv1000@gmail.com",
+        "sentBy": "Phạm Thị Hồng (Giáo vụ)",
+        "sendCount": 1,
+        "sentById": "e-hong"
+      },
+      "branchId": "cg"
+    },
+    {
+      "id": "E-2",
+      "studentId": "ST-1",
+      "classId": "C-N3K12",
+      "status": "studying",
+      "enrolledAt": "2026-09-18T17:00:00.000Z",
+      "branchId": "cg"
+    },
+    {
+      "id": "E-3",
+      "studentId": "ST-2",
+      "classId": "C-KIDS05",
+      "status": "studying",
+      "enrolledAt": "2026-09-25T17:00:00.000Z",
+      "branchId": "cg"
+    },
+    {
+      "id": "E-4",
+      "studentId": "ST-3",
+      "classId": "C-N3K09",
+      "status": "completed",
+      "enrolledAt": "2026-02-01T17:00:00.000Z",
+      "endedAt": "2026-10-11",
+      "note": "Đỗ JLPT N3 tháng 7",
+      "certificate": {
+        "code": "CN-2026-N3K09-0002",
+        "issuedAt": "2026-10-16T17:00:00.000Z",
+        "sentTo": "phuc.le@outlook.com",
+        "sentBy": "Phạm Thị Hồng (Giáo vụ)",
+        "sendCount": 2,
+        "sentById": "e-hong"
+      },
+      "branchId": "q1"
+    },
+    {
+      "id": "E-5",
+      "studentId": "ST-3",
+      "classId": "C-N2K05",
+      "status": "studying",
+      "enrolledAt": "2026-10-18T17:00:00.000Z",
+      "branchId": "q1"
+    },
+    {
+      "id": "E-6",
+      "studentId": "ST-4",
+      "classId": "C-XKLD08",
+      "status": "studying",
+      "enrolledAt": "2026-09-27T17:00:00.000Z",
+      "branchId": "hc"
+    },
+    {
+      "id": "E-7",
+      "studentId": "ST-5",
+      "classId": "C-N5K18",
+      "status": "completed",
+      "enrolledAt": "2026-02-18T17:00:00.000Z",
+      "endedAt": "2026-09-01",
+      "branchId": "cg"
+    },
+    {
+      "id": "E-8",
+      "studentId": "ST-5",
+      "classId": "C-N4K15",
+      "status": "reserved",
+      "enrolledAt": "2026-10-05T17:00:00.000Z",
+      "note": "Bảo lưu đến hết tháng sau — đi công tác",
+      "branchId": "cg"
+    },
+    {
+      "id": "E-9",
+      "studentId": "ST-9",
+      "classId": "C-N5K21",
+      "status": "studying",
+      "enrolledAt": "2026-11-16T03:02:54.411Z",
+      "branchId": "cg"
+    },
+    {
+      "id": "E-10",
+      "studentId": "ST-28",
+      "classId": "C-N5K21",
+      "status": "studying",
+      "enrolledAt": "2026-11-15T03:02:54.411Z",
+      "branchId": "cg"
+    },
+    {
+      "id": "E-11",
+      "studentId": "ST-20",
+      "classId": "C-N3K13",
+      "status": "studying",
+      "enrolledAt": "2026-11-07T17:00:00.000Z",
+      "branchId": "q1"
+    },
+    {
+      "id": "E-12",
+      "studentId": "ST-6",
+      "classId": "C-N3K12",
+      "status": "studying",
+      "enrolledAt": "2026-09-17T17:00:00.000Z",
+      "branchId": "cg"
+    },
+    {
+      "id": "E-13",
+      "studentId": "ST-7",
+      "classId": "C-N3K09",
+      "status": "completed",
+      "enrolledAt": "2026-02-01T17:00:00.000Z",
+      "endedAt": "2026-10-11",
+      "certificate": {
+        "code": "CN-2026-N3K09-0003",
+        "issuedAt": "2026-10-17T17:00:00.000Z",
+        "sentTo": "hv1006@gmail.com",
+        "sentBy": "Phạm Thị Hồng (Giáo vụ)",
+        "sendCount": 1,
+        "sentById": "e-hong"
+      },
+      "branchId": "q1"
+    },
+    {
+      "id": "E-14",
+      "studentId": "ST-8",
+      "classId": "C-N5K07",
+      "status": "completed",
+      "enrolledAt": "2026-03-17T17:00:00.000Z",
+      "endedAt": "2026-09-21",
+      "certificate": {
+        "code": "CN-2026-N5K07-0004",
+        "issuedAt": "2026-09-28T17:00:00.000Z",
+        "sentTo": "hv1007@gmail.com",
+        "sentBy": "Phạm Thị Hồng (Giáo vụ)",
+        "sendCount": 1,
+        "exception": "Vắng 3 buổi do nằm viện — Giám đốc duyệt cấp",
+        "sentById": "e-hong"
+      },
+      "branchId": "hc"
+    },
+    {
+      "id": "E-15",
+      "studentId": "ST-8",
+      "classId": "C-XKLD08",
+      "status": "studying",
+      "enrolledAt": "2026-09-27T17:00:00.000Z",
+      "branchId": "hc"
+    },
+    {
+      "id": "E-16",
+      "studentId": "ST-10",
+      "classId": "C-N5K20",
+      "status": "studying",
+      "enrolledAt": "2026-10-21T17:00:00.000Z",
+      "branchId": "q1"
+    },
+    {
+      "id": "E-17",
+      "studentId": "ST-11",
+      "classId": "C-N4K16",
+      "status": "dropped",
+      "enrolledAt": "2026-10-25T17:00:00.000Z",
+      "endedAt": "2026-12-20",
+      "note": "Nghỉ do chuyển công tác",
+      "branchId": "hc"
+    },
+    {
+      "id": "E-18",
+      "studentId": "ST-12",
+      "classId": "C-N3ON14",
+      "status": "reserved",
+      "enrolledAt": "2026-10-03T17:00:00.000Z",
+      "note": "Bảo lưu vì lý do sức khỏe",
+      "branchId": "cg"
+    },
+    {
+      "id": "E-19",
+      "studentId": "ST-13",
+      "classId": "C-N5K20",
+      "status": "studying",
+      "enrolledAt": "2026-10-27T17:00:00.000Z",
+      "branchId": "q1"
+    },
+    {
+      "id": "E-20",
+      "studentId": "ST-14",
+      "classId": "C-XKLD08",
+      "status": "studying",
+      "enrolledAt": "2026-10-01T17:00:00.000Z",
+      "branchId": "hc"
+    },
+    {
+      "id": "E-21",
+      "studentId": "ST-15",
+      "classId": "C-N4K11",
+      "status": "completed",
+      "enrolledAt": "2026-01-17T17:00:00.000Z",
+      "endedAt": "2026-09-11",
+      "branchId": "cg"
+    },
+    {
+      "id": "E-22",
+      "studentId": "ST-16",
+      "classId": "C-N3K09",
+      "status": "completed",
+      "enrolledAt": "2026-02-01T17:00:00.000Z",
+      "endedAt": "2026-10-11",
+      "certificate": {
+        "code": "CN-2026-N3K09-0005",
+        "issuedAt": "2026-10-19T17:00:00.000Z",
+        "sentTo": "hv1015@gmail.com",
+        "sentBy": "Phạm Thị Hồng (Giáo vụ)",
+        "sendCount": 1,
+        "sentById": "e-hong"
+      },
+      "branchId": "q1"
+    },
+    {
+      "id": "E-23",
+      "studentId": "ST-16",
+      "classId": "C-N5K20",
+      "status": "studying",
+      "enrolledAt": "2026-10-23T17:00:00.000Z",
+      "branchId": "q1"
+    },
+    {
+      "id": "E-24",
+      "studentId": "ST-18",
+      "classId": "C-N4ON03",
+      "status": "studying",
+      "enrolledAt": "2026-10-09T17:00:00.000Z",
+      "branchId": "cg"
+    },
+    {
+      "id": "E-25",
+      "studentId": "ST-19",
+      "classId": "C-N5K20",
+      "status": "dropped",
+      "enrolledAt": "2026-10-21T17:00:00.000Z",
+      "endedAt": "2026-12-15",
+      "note": "Nghỉ do chuyển công tác",
+      "branchId": "q1"
+    },
+    {
+      "id": "E-26",
+      "studentId": "ST-20",
+      "classId": "C-XKLD08",
+      "status": "reserved",
+      "enrolledAt": "2026-09-25T17:00:00.000Z",
+      "note": "Bảo lưu vì lý do sức khỏe",
+      "branchId": "hc"
+    },
+    {
+      "id": "E-27",
+      "studentId": "ST-21",
+      "classId": "C-KIDS05",
+      "status": "studying",
+      "enrolledAt": "2026-09-28T17:00:00.000Z",
+      "branchId": "cg"
+    },
+    {
+      "id": "E-28",
+      "studentId": "ST-22",
+      "classId": "C-N5K20",
+      "status": "studying",
+      "enrolledAt": "2026-10-27T17:00:00.000Z",
+      "branchId": "q1"
+    },
+    {
+      "id": "E-29",
+      "studentId": "ST-23",
+      "classId": "C-N5K07",
+      "status": "completed",
+      "enrolledAt": "2026-03-20T17:00:00.000Z",
+      "endedAt": "2026-09-21",
+      "certificate": {
+        "code": "CN-2026-N5K07-0006",
+        "issuedAt": "2026-09-30T17:00:00.000Z",
+        "sentTo": "hv1022@gmail.com",
+        "sentBy": "Phạm Thị Hồng (Giáo vụ)",
+        "sendCount": 2,
+        "sentById": "e-hong"
+      },
+      "branchId": "hc"
+    },
+    {
+      "id": "E-30",
+      "studentId": "ST-24",
+      "classId": "C-N5K18",
+      "status": "completed",
+      "enrolledAt": "2026-02-22T17:00:00.000Z",
+      "endedAt": "2026-09-01",
+      "branchId": "cg"
+    },
+    {
+      "id": "E-31",
+      "studentId": "ST-24",
+      "classId": "C-KAIWAC2",
+      "status": "studying",
+      "enrolledAt": "2026-10-04T17:00:00.000Z",
+      "branchId": "cg"
+    },
+    {
+      "id": "E-32",
+      "studentId": "ST-26",
+      "classId": "C-XKLD08",
+      "status": "studying",
+      "enrolledAt": "2026-09-28T17:00:00.000Z",
+      "branchId": "hc"
+    },
+    {
+      "id": "E-33",
+      "studentId": "ST-27",
+      "classId": "C-N3K12",
+      "status": "dropped",
+      "enrolledAt": "2026-09-14T17:00:00.000Z",
+      "endedAt": "2026-11-07",
+      "note": "Nghỉ do chuyển công tác",
+      "branchId": "cg"
+    },
+    {
+      "id": "E-34",
+      "studentId": "ST-28",
+      "classId": "C-N5K20",
+      "status": "reserved",
+      "enrolledAt": "2026-10-21T17:00:00.000Z",
+      "note": "Bảo lưu vì lý do sức khỏe",
+      "branchId": "q1"
+    },
+    {
+      "id": "E-35",
+      "studentId": "ST-29",
+      "classId": "C-N4K16",
+      "status": "studying",
+      "enrolledAt": "2026-10-25T17:00:00.000Z",
+      "branchId": "hc"
+    },
+    {
+      "id": "E-36",
+      "studentId": "ST-30",
+      "classId": "C-N5K22",
+      "status": "studying",
+      "enrolledAt": "2026-10-18T17:00:00.000Z",
+      "branchId": "cg"
+    },
+    {
+      "id": "E-37",
+      "studentId": "ST-31",
+      "classId": "C-N3K09",
+      "status": "completed",
+      "enrolledAt": "2026-02-04T17:00:00.000Z",
+      "endedAt": "2026-10-11",
+      "certificate": {
+        "code": "CN-2026-N3K09-0007",
+        "issuedAt": "2026-10-15T17:00:00.000Z",
+        "sentTo": "hv1030@gmail.com",
+        "sentBy": "Phạm Thị Hồng (Giáo vụ)",
+        "sendCount": 1,
+        "sentById": "e-hong"
+      },
+      "branchId": "q1"
+    },
+    {
+      "id": "E-38",
+      "studentId": "ST-32",
+      "classId": "C-N5K07",
+      "status": "completed",
+      "enrolledAt": "2026-03-20T17:00:00.000Z",
+      "endedAt": "2026-09-21",
+      "certificate": {
+        "code": "CN-2026-N5K07-0008",
+        "issuedAt": "2026-09-26T17:00:00.000Z",
+        "sentTo": "hv1031@gmail.com",
+        "sentBy": "Phạm Thị Hồng (Giáo vụ)",
+        "sendCount": 1,
+        "sentById": "e-hong"
+      },
+      "branchId": "hc"
+    },
+    {
+      "id": "E-39",
+      "studentId": "ST-32",
+      "classId": "C-XKLD08",
+      "status": "studying",
+      "enrolledAt": "2026-09-30T17:00:00.000Z",
+      "branchId": "hc"
+    },
+    {
+      "id": "E-40",
+      "studentId": "ST-34",
+      "classId": "C-N5K20",
+      "status": "studying",
+      "enrolledAt": "2026-10-24T17:00:00.000Z",
+      "branchId": "q1"
+    },
+    {
+      "id": "E-41",
+      "studentId": "ST-35",
+      "classId": "C-N4K16",
+      "status": "dropped",
+      "enrolledAt": "2026-10-28T17:00:00.000Z",
+      "endedAt": "2026-12-20",
+      "note": "Nghỉ do chuyển công tác",
+      "branchId": "hc"
+    },
+    {
+      "id": "E-42",
+      "studentId": "ST-36",
+      "classId": "C-N4K15",
+      "status": "reserved",
+      "enrolledAt": "2026-10-07T17:00:00.000Z",
+      "note": "Bảo lưu vì lý do sức khỏe",
+      "branchId": "cg"
+    }
+  ]
+}

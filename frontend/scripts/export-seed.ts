@@ -3,7 +3,7 @@
  * Dữ liệu mẫu backend vì thế giống hệt những gì giao diện đang hiển thị.
  *
  * Chạy (từ thư mục frontend):  npm run export-seed
- * Kết quả: backend/src/Modules/{System,Hr,Academic}/.../Infrastructure/Persistence/Seed/*.seed.json
+ * Kết quả: backend/src/Modules/{System,Hr,Academic,Students}/.../Infrastructure/Persistence/Seed/*.seed.json
  * Thời gian tương đối (dayjs "x ngày trước") được chốt tại lúc chạy script.
  */
 import { createHash } from 'node:crypto';
@@ -16,7 +16,7 @@ import { MOCK_CLASSES } from '@/mocks/data/classes';
 import { MOCK_SESSIONS } from '@/mocks/data/attendance';
 import { MOCK_ROOM_ISSUES, MOCK_ROOMS } from '@/mocks/data/rooms';
 import { MOCK_LEADS } from '@/mocks/data/crm';
-import { MOCK_ACCOUNTS as PORTAL_ACCOUNTS, MOCK_STUDENTS } from '@/mocks/data/students';
+import { MOCK_ACCOUNTS as PORTAL_ACCOUNTS, MOCK_ENROLLMENTS, MOCK_STUDENTS } from '@/mocks/data/students';
 import {
   MOCK_AUDIT_LOGS,
   MOCK_BRANCH_PROFILES,
@@ -83,6 +83,18 @@ write(resolve(backend, 'Academic', 'JPCenter.Modules.Academic', 'Infrastructure'
   })),
 });
 
+// Học viên + ghi danh + chứng nhận (user story 06). Người gửi chứng nhận: tên → Id nhân viên
+write(resolve(backend, 'Students', 'JPCenter.Modules.Students', 'Infrastructure', 'Persistence', 'Seed', 'students.seed.json'), {
+  generatedAt: new Date().toISOString(),
+  students: MOCK_STUDENTS,
+  // Chi nhánh của LỚP (Students không đọc bảng Academic)
+  enrollments: MOCK_ENROLLMENTS.map((e) => ({
+    ...e,
+    branchId: MOCK_CLASSES.find((c) => c.id === e.classId)?.branchId,
+    certificate: e.certificate && { ...e.certificate, sentById: personId(e.certificate.sentBy) },
+  })),
+});
+
 write(resolve(backend, 'System', 'JPCenter.Modules.System', 'Infrastructure', 'Persistence', 'Seed', 'system.seed.json'), {
   generatedAt: new Date().toISOString(),
   branches: MOCK_BRANCH_PROFILES,
@@ -115,6 +127,7 @@ const seedIds = [
   ...MOCK_ROLES.map((r) => r.id),
   ...MOCK_EMPLOYEES.map((e) => e.id),
   ...MOCK_STUDENTS.map((x) => x.id),
+  ...MOCK_ENROLLMENTS.map((x) => x.id),
   ...MOCK_LEADS.map((x) => x.id),
   ...PORTAL_ACCOUNTS.map((a) => a.id),
   ...MOCK_COURSES.map((c) => c.id),
