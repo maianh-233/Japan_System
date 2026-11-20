@@ -3,7 +3,7 @@
  * Dữ liệu mẫu backend vì thế giống hệt những gì giao diện đang hiển thị.
  *
  * Chạy (từ thư mục frontend):  npm run export-seed
- * Kết quả: backend/src/Modules/{System,Hr,Academic,Students}/.../Infrastructure/Persistence/Seed/*.seed.json
+ * Kết quả: backend/src/Modules/{System,Hr,Academic,Students,Crm}/.../Infrastructure/Persistence/Seed/*.seed.json
  * Thời gian tương đối (dayjs "x ngày trước") được chốt tại lúc chạy script.
  */
 import { createHash } from 'node:crypto';
@@ -15,7 +15,7 @@ import { MOCK_COURSE_CURRICULA, MOCK_CURRICULA } from '@/mocks/data/curricula';
 import { MOCK_CLASSES } from '@/mocks/data/classes';
 import { MOCK_SESSIONS } from '@/mocks/data/attendance';
 import { MOCK_ROOM_ISSUES, MOCK_ROOMS } from '@/mocks/data/rooms';
-import { MOCK_LEADS } from '@/mocks/data/crm';
+import { MOCK_LEADS, MOCK_LINKS } from '@/mocks/data/crm';
 import { MOCK_ACCOUNTS as PORTAL_ACCOUNTS, MOCK_ENROLLMENTS, MOCK_STUDENTS } from '@/mocks/data/students';
 import {
   MOCK_AUDIT_LOGS,
@@ -127,6 +127,9 @@ write(resolve(backend, 'Academic', 'JPCenter.Modules.Academic', 'Infrastructure'
   evaluations: MOCK_EVALUATIONS,
 });
 
+// Lead + liên kết lead ↔ học viên (phụ huynh – con): cổng PH thấy con mình (giai đoạn 15). Lịch sử tư vấn, lịch hẹn… làm ở giai đoạn 16
+write(resolve(backend, 'Crm', 'JPCenter.Modules.Crm', 'Infrastructure', 'Persistence', 'Seed', 'crm.seed.json'), crmSeed());
+
 // Cảnh báo bỏ học (HV-14): trường hợp đã giao người chăm sóc + nhật ký liên hệ. Mức rủi ro / dấu hiệu do job backend tính lại
 write(resolve(backend, 'Students', 'JPCenter.Modules.Students', 'Infrastructure', 'Persistence', 'Seed', 'care.seed.json'), {
   generatedAt: new Date().toISOString(),
@@ -155,6 +158,17 @@ write(resolve(backend, 'System', 'JPCenter.Modules.System', 'Infrastructure', 'P
   integrationLogs: MOCK_INTEGRATION_LOGS,
   auditLogs: MOCK_AUDIT_LOGS,
 });
+
+function crmSeed() {
+  return {
+    generatedAt: new Date().toISOString(),
+    leads: MOCK_LEADS.map((l) => ({
+      id: l.id, code: l.code, fullName: l.fullName, phone: l.phone, email: l.email, source: l.source, status: l.status, branchId: l.branchId,
+      assigneeId: l.assigneeId, interest: l.interest, note: l.note, lostReason: l.lostReason, hidden: l.hidden, hiddenAt: l.hiddenAt,
+    })),
+    links: MOCK_LINKS,
+  };
+}
 
 // Bảng đổi Id mock ↔ GUID backend (giống SeedData.IdOf: MD5 "jpcenter-seed:" + id, đánh dấu UUID v3) — frontend dùng khi nối API thật
 function idOf(mockId: string): string {

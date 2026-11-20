@@ -41,6 +41,17 @@ public sealed class ClassReader(IAcademicDbContext db, AcademicAccess access, Cl
     public async Task<ClassDto> ReloadAsync(ClassId id, CancellationToken ct) =>
         (await ToDtosAsync([await Query(db.Classes.Where(c => c.Id == id)).FirstAsync(ct)], ct))[0];
 
+    /// <summary>
+    /// Cổng GV / HV / PH: lớp theo Id (người gọi đã được kiểm là chủ tài khoản) — không học phí, không ghi chú nội bộ (quy tắc vàng 5).
+    /// </summary>
+    public async Task<IReadOnlyList<ClassDto>> ForPortalAsync(IReadOnlyCollection<ClassId> ids, CancellationToken ct)
+    {
+        if (ids.Count == 0) return [];
+        var list = ids.Distinct().ToList();
+        var rows = await Query(db.Classes.IgnoreQueryFilters().Where(c => list.Contains(c.Id))).ToListAsync(ct);
+        return (await ToDtosAsync(rows, ct)).Select(c => c with { Fee = null, Note = null }).ToList();
+    }
+
     /// <summary>Lớp được theo dõi để sửa, trong phạm vi <paramref name="action"/> của <paramref name="page"/></summary>
     public async Task<Class?> ForUpdateAsync(Guid id, string page, PermissionAction action, CancellationToken ct)
     {

@@ -35,8 +35,8 @@ public sealed class PortalFlowTests(SeededApiFactory api)
     private static readonly Guid TeacherAnh = SeedData.IdOf("t-anh");
     private static readonly Guid St1 = SeedData.IdOf("ST-1");
 
-    /// <summary>Giáo vụ (mở lớp, điểm danh hộ) · quản lý chi nhánh (có <c>academic.requests.approve</c> — duyệt đơn, mời dạy thay)</summary>
-    private const string Staff = "giaovu@jpcenter.vn", Manager = "quanly.caugiay@jpcenter.vn", Ha = "giaovien@jpcenter.vn", Long = "long.t.long@jpcenter.vn", Anh = "anh.t.anh@jpcenter.vn";
+    /// <summary>Giáo vụ: mở lớp, điểm danh hộ, duyệt đơn / mời dạy thay (<c>academic.requests.approve</c>)</summary>
+    private const string Staff = "giaovu@jpcenter.vn", Ha = "giaovien@jpcenter.vn", Long = "long.t.long@jpcenter.vn", Anh = "anh.t.anh@jpcenter.vn";
     private const string StudentAcc = "hocvien@jpcenter.vn", ParentAcc = "phuhuynh@jpcenter.vn";
 
     /// <summary>Thứ Bảy gần nhất cách hôm nay ≥ 3 ngày (trong cửa sổ học bù 3 tuần)</summary>
@@ -143,6 +143,10 @@ public sealed class PortalFlowTests(SeededApiFactory api)
         var s1 = sessions[0];
 
         var ha = await SignIn(Ha);
+        var myClass = (await Ok(await ha.GetAsync($"{Teaching}/classes", Ct))).EnumerateArray()
+            .Single(x => x.GetProperty("class").GetProperty("id").GetGuid() == classId);
+        myClass.GetProperty("students").EnumerateArray().Select(x => x.GetProperty("studentId").GetGuid()).ShouldBe([St1, other], ignoreOrder: true);
+        Absent(myClass.GetProperty("class"), "fee").ShouldBeTrue();
         var mine = await Ok(await ha.GetAsync($"{Teaching}/sessions?from={start:yyyy-MM-dd}&to={start.AddDays(60):yyyy-MM-dd}", Ct));
         mine.EnumerateArray().Select(s => s.GetProperty("id").GetGuid()).ShouldContain(s1);
 
@@ -198,7 +202,6 @@ public sealed class PortalFlowTests(SeededApiFactory api)
         var staff = await SignIn(Staff);
         var (_, sessions) = await OpenClass(staff, TeacherHa, RoomP201, "05:00", "06:00", FarSaturday);
         var ha = await SignIn(Ha);
-        var manager = await SignIn(Manager);
 
         await Expect(await ha.PostAsJsonAsync($"{Teaching}/cancel-requests",
             new { sessionId = sessions[2], reasonType = "Ốm", reason = "Ốm" }, Ct), HttpStatusCode.BadRequest, "academic.cancel_request.reason_required");
@@ -218,9 +221,9 @@ public sealed class PortalFlowTests(SeededApiFactory api)
         candidates.ShouldContain(TeacherLong);
         candidates.ShouldNotContain(TeacherHa);
 
-        // Giáo vụ không có quyền duyệt (academic.requests.approve) trong dữ liệu mẫu
-        (await staff.PostAsJsonAsync($"{Academic}/requests/cancel/{requestId}/approve", new { }, Ct)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
-        var invites = await Ok(await manager.PostAsJsonAsync($"{Academic}/substitute-invites", new
+        // GV không duyệt được đơn của mình
+        (await ha.PostAsJsonAsync($"{Academic}/requests/cancel/{requestId}/approve", new { }, Ct)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+        var invites = await Ok(await staff.PostAsJsonAsync($"{Academic}/substitute-invites", new
         {
             sessionId = sessions[2], cancelRequestId = requestId, teacherIds = new[] { TeacherLong, TeacherAnh }, respondBy = DateTimeOffset.UtcNow.AddDays(2),
             reason = "GV Hà ốm",
@@ -254,14 +257,14 @@ public sealed class PortalFlowTests(SeededApiFactory api)
             .ShouldNotContain(x => x.GetProperty("id").GetGuid() == w.GetProperty("id").GetGuid());
         var rj = (await Ok(await ha.PostAsJsonAsync($"{Teaching}/cancel-requests",
             new { sessionId = sessions[4], reasonType = "Khác", reason = "Tham dự hội thảo giáo viên" }, Ct))).GetProperty("id").GetGuid();
-        (await manager.PostAsJsonAsync($"{Academic}/requests/cancel/{rj}/reject", new { note = "" }, Ct)).StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-        (await Ok(await manager.PostAsJsonAsync($"{Academic}/requests/cancel/{rj}/reject", new { note = "Lớp sắp thi" }, Ct)))
+        (await staff.PostAsJsonAsync($"{Academic}/requests/cancel/{rj}/reject", new { note = "" }, Ct)).StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        (await Ok(await staff.PostAsJsonAsync($"{Academic}/requests/cancel/{rj}/reject", new { note = "Lớp sắp thi" }, Ct)))
             .GetProperty("status").GetString().ShouldBe("rejected");
-        await Expect(await manager.PostAsJsonAsync($"{Academic}/requests/cancel/{rj}/approve", new { note = "x" }, Ct), HttpStatusCode.Conflict,
+        await Expect(await staff.PostAsJsonAsync($"{Academic}/requests/cancel/{rj}/approve", new { note = "x" }, Ct), HttpStatusCode.Conflict,
             "academic.request.not_pending");
 
         // Job hết hạn lời mời (DT-16 bước 3)
-        var shortInvite = (await Ok(await manager.PostAsJsonAsync($"{Academic}/substitute-invites", new
+        var shortInvite = (await Ok(await staff.PostAsJsonAsync($"{Academic}/substitute-invites", new
         {
             sessionId = sessions[5], teacherIds = new[] { TeacherAnh }, respondBy = DateTimeOffset.UtcNow.AddSeconds(2), reason = "Thử hết hạn",
         }, Ct)))[0].GetProperty("id").GetGuid();
@@ -306,8 +309,7 @@ public sealed class PortalFlowTests(SeededApiFactory api)
 
         (await Ok(await staff.GetAsync($"{Academic}/requests/leave?status=pending&classId={classC}", Ct))).EnumerateArray()
             .Select(x => x.GetProperty("id").GetGuid()).ShouldContain(leaveId);
-        var manager = await SignIn(Manager);
-        var decided = await Ok(await manager.PostAsJsonAsync($"{Academic}/requests/leave/{leaveId}/approve", new { note = "Đã duyệt" }, Ct));
+        var decided = await Ok(await staff.PostAsJsonAsync($"{Academic}/requests/leave/{leaveId}/approve", new { note = "Đã duyệt" }, Ct));
         decided.GetProperty("request").GetProperty("status").GetString().ShouldBe("approved");
         RecordOf(await Session(staff, sc[0]), St1).GetProperty("status").GetString().ShouldBe("excused");
         RecordOf(await Session(staff, sd[0]), St1).GetProperty("makeupFor").GetProperty("sessionId").GetGuid().ShouldBe(sc[0]);
@@ -332,11 +334,23 @@ public sealed class PortalFlowTests(SeededApiFactory api)
         await Expect(await student.PostAsJsonAsync($"{Learning}/attendance/scan", new { payload = qr.GetProperty("payload").GetString() }, Ct),
             HttpStatusCode.Conflict, "academic.attendance.qr_closed");
 
-        // PH (Crm chưa có liên kết con — giai đoạn 16): xem rỗng, gửi đơn 403; PH không quét QR; GV không vào cổng HV
+        // PH (lead L-0001 liên kết ST-1, ST-2): thấy con, lớp và đơn của con; gửi đơn thay con; không gửi cho HV không phải con
         var parent = await SignIn(ParentAcc);
-        (await Ok(await parent.GetAsync($"{Learning}/leave-requests", Ct))).GetArrayLength().ShouldBe(0);
+        (await Ok(await parent.GetAsync($"{Learning}/students", Ct))).EnumerateArray().Select(x => x.GetProperty("id").GetGuid())
+            .ShouldBe([St1, SeedData.IdOf("ST-2")], ignoreOrder: true);
+        (await Ok(await parent.GetAsync($"{Learning}/classes?studentId={St1}", Ct))).EnumerateArray()
+            .ShouldContain(x => x.GetProperty("class").GetProperty("id").GetGuid() == classC);
+        (await Ok(await parent.GetAsync($"{Learning}/leave-requests?studentId={St1}", Ct))).EnumerateArray()
+            .Select(x => x.GetProperty("id").GetGuid()).ShouldContain(leaveId);
+        var byParent = await Ok(await parent.PostAsJsonAsync($"{Learning}/leave-requests",
+            new { studentId = St1, sessionId = sc[3], reasonType = "Ốm", reason = "Con bị ốm sốt" }, Ct));
+        (byParent.GetProperty("by").GetString(), byParent.GetProperty("byName").GetString()).ShouldBe(("parent", "Nguyễn Văn Bình"));
         await Expect(await parent.PostAsJsonAsync($"{Learning}/leave-requests",
-            new { studentId = St1, sessionId = sc[3], reasonType = "Ốm", reason = "Con bị ốm" }, Ct), HttpStatusCode.Forbidden, "academic.portal.not_your_child");
+            new { studentId = SeedData.IdOf("ST-3"), sessionId = sc[3], reasonType = "Ốm", reason = "Con bị ốm" }, Ct), HttpStatusCode.Forbidden,
+            "academic.portal.not_your_child");
+        // PH nhiều con phải chọn con
+        await Expect(await parent.PostAsJsonAsync($"{Learning}/leave-requests",
+            new { sessionId = sc[4], reasonType = "Ốm", reason = "Con bị ốm sốt" }, Ct), HttpStatusCode.Forbidden, "academic.portal.not_your_child");
         await Expect(await parent.PostAsJsonAsync($"{Learning}/attendance/scan", new { code = "ABCDEF" }, Ct), HttpStatusCode.Forbidden,
             "system.permission.wrong_portal");
         (await longClient.GetAsync($"{Learning}/leave-requests", Ct)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);

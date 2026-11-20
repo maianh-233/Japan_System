@@ -559,6 +559,7 @@ Code: `Application/{ClassSessions,Requests,Promotions,Evaluations,Portals}/` · 
 - Điểm danh phát `AttendanceRecorded` → Students tính lại nguy cơ bỏ học ngay; cảnh báo "N HV vắng 2 buổi liên tiếp" (E5). Điểm danh khách học bù → ghi kết quả về đơn + buổi gốc "đã học bù".
 - Hủy buổi → đơn xin nghỉ đang chờ tự đóng; đơn chọn buổi đó làm buổi bù → bỏ đăng ký bù (DT-11.E4).
 - Academic.Contracts: `IAttendanceStats`, event `AttendanceRecorded`, `SubstituteAccepted`. Students.Contracts: `IEnrollmentLookup.OfStudentAsync / NamesAsync`. Crm.Contracts: `IGuardianDirectory`.
-- ⏳ PH chưa có con: `IGuardianDirectory` tạm trả rỗng tới khi Crm lưu DB (giai đoạn 16) → cổng PH xem rỗng, gửi đơn 403.
-- ⏳ Dữ liệu mẫu: vai trò Giáo vụ (R-GV) chưa có `academic.requests.approve` → chỉ quản lý chi nhánh duyệt được đơn / mời dạy thay.
+- ✅ (phase 4) PH thấy con: Crm lưu lead + liên kết (`crm.lead_student_links`), `IGuardianDirectory` đọc thật. Cổng thêm `GET portal/teaching/classes` (lớp + HV),
+  `GET portal/learning/students` (con / chính mình), `GET portal/learning/classes?studentId=` (ghi danh + lớp, không học phí / ghi chú nội bộ).
+- ✅ (phase 4) Vai trò Giáo vụ có `academic.requests.approve` (seed + migration dữ liệu cho DB đã có).
 - ⏳ Thông báo chuông (đơn mới, vấn đề trong báo cáo buổi, HV bấm Quan tâm) chờ module Thông báo; ngưỡng "xin nghỉ nhiều buổi" tạm cố định 3.

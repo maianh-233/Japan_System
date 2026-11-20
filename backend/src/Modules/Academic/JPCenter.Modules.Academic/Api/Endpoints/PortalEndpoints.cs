@@ -10,6 +10,7 @@ using JPCenter.Modules.Academic.Application.ClassSessions.TeacherCheck;
 using JPCenter.Modules.Academic.Application.Evaluations.Common;
 using JPCenter.Modules.Academic.Application.Evaluations.GetEvaluations;
 using JPCenter.Modules.Academic.Application.Evaluations.SaveEvaluation;
+using JPCenter.Modules.Academic.Application.Portals.GetPortalClasses;
 using JPCenter.Modules.Academic.Application.Portals.GetStudentSessions;
 using JPCenter.Modules.Academic.Application.Portals.GetTeachingSessions;
 using JPCenter.Modules.Academic.Application.Portals.PromotionOffers;
@@ -61,7 +62,8 @@ public static class PortalEndpoints
     /// <summary>Cổng GV — DT-09, 12, 14, 16, 19, 20</summary>
     private static void MapTeaching(RouteGroupBuilder g)
     {
-        // Thời khóa biểu / chi tiết buổi (DT-20.E1)
+        // Lớp mình dạy + danh sách HV; thời khóa biểu / chi tiết buổi (DT-20.E1)
+        g.MapGet("/classes", async (ISender s, CancellationToken ct) => (await s.Send(new GetTeachingClassesQuery(), ct)).ToHttpResult());
         g.MapGet("/sessions", async (DateOnly from, DateOnly to, ISender s, CancellationToken ct) =>
             (await s.Send(new GetTeachingSessionsQuery(from, to), ct)).ToHttpResult());
         g.MapGet("/sessions/{id:guid}", async (Guid id, ISender s, CancellationToken ct) =>
@@ -108,6 +110,10 @@ public static class PortalEndpoints
     /// <summary>Cổng HV / PH — DT-09 (quét QR, chỉ HV), DT-17 (Quan tâm), DT-18 (xin nghỉ, học bù), DT-20</summary>
     private static void MapLearning(RouteGroupBuilder g)
     {
+        // HV của tài khoản (PH: các con) + lớp đã ghi danh
+        g.MapGet("/students", async (ISender s, CancellationToken ct) => (await s.Send(new GetMyStudentsQuery(), ct)).ToHttpResult());
+        g.MapGet("/classes", async (Guid? studentId, ISender s, CancellationToken ct) =>
+            (await s.Send(new GetLearningClassesQuery(studentId), ct)).ToHttpResult());
         g.MapGet("/sessions", async (Guid? studentId, DateOnly from, DateOnly to, ISender s, CancellationToken ct) =>
             (await s.Send(new GetStudentSessionsQuery(studentId, from, to), ct)).ToHttpResult());
 

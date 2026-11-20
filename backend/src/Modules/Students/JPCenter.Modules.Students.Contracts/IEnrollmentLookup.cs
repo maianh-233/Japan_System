@@ -16,4 +16,7 @@ public interface IEnrollmentLookup
 
     /// <summary>Họ tên HV theo Id (danh sách nhận xét / lên lớp)</summary>
     Task<IReadOnlyDictionary<Guid, string>> NamesAsync(IReadOnlyCollection<Guid> studentIds, CancellationToken ct);
+
+    /// <summary>Hồ sơ rút gọn của các học viên (kể cả đã ẩn) — cổng PH hiển thị danh sách con</summary>
+    Task<IReadOnlyList<StudentSummary>> SummariesAsync(IReadOnlyCollection<Guid> studentIds, CancellationToken ct);
 }

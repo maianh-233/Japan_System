@@ -579,6 +579,7 @@
         "academic.requests.create": "branch",
         "academic.requests.update": "branch",
         "academic.requests.export": "branch",
+        "academic.requests.approve": "branch",
         "academic.rooms.view": "branch",
         "academic.rooms.create": "branch",
         "academic.rooms.update": "branch",

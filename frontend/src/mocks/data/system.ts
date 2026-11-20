@@ -79,7 +79,9 @@ export const MOCK_ROLES: Role[] = [
   {
     id: 'R-GV', name: 'Giáo vụ', description: 'Học viên, lớp, buổi học, điểm danh; tạo hóa đơn khi ghi danh.', system: true, ...base,
     grants: g({
-      'dashboard.overview': ['view', 'branch'], 'students.*': ['view,create,update,export', 'branch'], 'academic.*': ['view,create,update,export', 'branch'], 'crm.promotions': ['view', 'branch'],
+      'dashboard.overview': ['view', 'branch'], 'students.*': ['view,create,update,export', 'branch'], 'academic.*': ['view,create,update,export', 'branch'],
+      // Giáo vụ duyệt đơn hủy buổi / xin nghỉ, mời dạy thay (DT-16, DT-18)
+      'academic.requests': ['view,create,update,approve,export', 'branch'], 'crm.promotions': ['view', 'branch'],
       'academic.questions': ['view,create,update', 'own'], 'library.documents': ['view,create', 'branch'], 'finance.invoices': ['view,create', 'branch'], ...SELF,
     }),
   },
