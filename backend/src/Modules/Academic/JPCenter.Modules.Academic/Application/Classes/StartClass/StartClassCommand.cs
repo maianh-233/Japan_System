@@ -32,7 +32,6 @@ public sealed class StartClassHandler(IAcademicDbContext db, ClassReader reader,
 
         var warnings = new List<string>();
         if (enrolled is { } n && n < cls.MinStudents) warnings.Add($"Lớp mới có {n} HV, chưa đủ tối thiểu {cls.MinStudents}");
-        if (enrolled is null) warnings.Add("Chưa kiểm được sĩ số (module Học viên chưa nối)");
         if (cmd.Reschedule)
         {
             var plan = await scheduler.ApplyAsync(cls, new ScheduleOptions(cmd.ActualStartDate, null, null, null, null), ct);

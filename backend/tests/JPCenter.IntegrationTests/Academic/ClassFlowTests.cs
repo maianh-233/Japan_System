@@ -75,6 +75,25 @@ public sealed class ClassFlowTests(SeededApiFactory api)
         fee = 4_900_000m, previousClassId = (Guid?)null, note = (string?)null, generateSessions = generate, applyToUpcoming = true, rowVersion,
     };
 
+    /// <summary>Nhập 1 học viên mới (chi nhánh Cầu Giấy) → Id</summary>
+    private static async Task<Guid> NewStudent(HttpClient c)
+    {
+        var r = await Ok(await c.PostAsJsonAsync("/api/v1/students/import",
+            new { rows = new[] { new { fullName = "HV thử " + Suffix(), branchId = Cg } } }, Ct));
+        return r.GetProperty("created")[0].GetProperty("id").GetGuid();
+    }
+
+    /// <summary>Chờ việc chạy nền (outbox) — tối đa ~10 giây</summary>
+    private static async Task Eventually(Func<Task<bool>> condition)
+    {
+        for (var i = 0; i < 40; i++)
+        {
+            if (await condition()) return;
+            await Task.Delay(250, Ct);
+        }
+        (await condition()).ShouldBeTrue("Hết thời gian chờ việc chạy nền");
+    }
+
     private static async Task<JsonElement> SessionsOf(HttpClient c, Guid classId) => await Ok(await c.GetAsync($"{Classes}/{classId}/sessions", Ct));
 
     // ---------------- Phòng học ----------------
@@ -181,8 +200,17 @@ public sealed class ClassFlowTests(SeededApiFactory api)
         var cls = (await Ok(await c.PostAsJsonAsync(Classes, NewClass(code, TeacherLong, RoomP302, "15:30", "17:30"), Ct))).GetProperty("class");
         var id = cls.GetProperty("id").GetGuid();
 
+        // DT-03.E3 — chưa có HV nào → chặn; ghi danh 1 HV (Students) → khai giảng được, cảnh báo dưới sĩ số tối thiểu
+        (await Code(await c.PostAsJsonAsync($"{Classes}/{id}/start", new { actualStartDate = "2027-03-14", reschedule = true }, Ct)))
+            .ShouldBe("academic.class.not_enough_students");
+        var studentId = await NewStudent(c);
+        var enrollment = (await Ok(await c.PostAsJsonAsync("/api/v1/students/enrollments", new { studentId, classId = id }, Ct)))
+            .GetProperty("enrollments")[0].GetProperty("id").GetGuid();
+        (await Ok(await c.GetAsync($"{Classes}/{id}", Ct))).GetProperty("enrolled").GetInt32().ShouldBe(1);
+
         var started = await Ok(await c.PostAsJsonAsync($"{Classes}/{id}/start", new { actualStartDate = "2027-03-14", reschedule = true }, Ct));
         started.GetProperty("class").GetProperty("status").GetString().ShouldBe("ongoing");
+        started.GetProperty("warnings").EnumerateArray().ShouldContain(w => w.GetString()!.Contains("chưa đủ tối thiểu"));
         started.GetProperty("class").GetProperty("actualStartDate").GetString().ShouldBe("2027-03-14");
         var sessions = (await SessionsOf(c, id)).EnumerateArray().ToList();
         sessions.Count.ShouldBe(10);
@@ -198,6 +226,10 @@ public sealed class ClassFlowTests(SeededApiFactory api)
         var finished = await Ok(await c.PostAsJsonAsync($"{Classes}/{id}/finish", new { actualEndDate = "2027-03-20" }, Ct));
         finished.GetProperty("class").GetProperty("status").GetString().ShouldBe("finished");
         finished.GetProperty("warnings")[0].GetString()!.ShouldContain("Đã hủy 10 buổi");
+
+        // HV-11 — Students nghe ClassFinished (outbox, chạy nền) → ghi danh hoàn thành
+        await Eventually(async () => (await Ok(await c.GetAsync($"/api/v1/students/enrollments?classId={id}", Ct)))
+            .EnumerateArray().Single(x => x.GetProperty("id").GetGuid() == enrollment).GetProperty("status").GetString() == "completed");
         (await SessionsOf(c, id)).EnumerateArray().ShouldAllBe(s => s.GetProperty("status").GetString() == "cancelled");
 
         (await Code(await c.PostAsJsonAsync($"{Classes}/{id}/pause", new { reason = "x" }, Ct))).ShouldBe("academic.class.not_ongoing");

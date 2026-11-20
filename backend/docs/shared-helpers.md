@@ -84,6 +84,7 @@
 | `[AsParameters] PagingRequest` (`Paging/`) | Đọc `page`, `pageSize`, `sort` từ query | ✅ |
 | `AddRequestPipeline(config)` / `UseRequestPipeline()` | Toàn bộ middleware theo đúng thứ tự (docs/request-pipeline.md) — Host chỉ gọi 2 hàm này | ✅ |
 | `.RequirePermission(page, action)` / `.RequireSignedIn()` / `.RequirePortal(...)` / `.AllowAnonymous()` (`Security/`) | **Mọi endpoint phải có 1 trong 4** | ✅ |
+| `.RequireAnyPermission((page, action), …)` (`Security/`) | Thao tác đứng được ở nhiều trang (vd ghi danh: Lớp học hoặc Hồ sơ HV) — cần ít nhất 1 quyền; phạm vi chi nhánh kiểm trong handler | ✅ |
 | `AccessTokenIssuer.Issue(accountId, portal, tokenVersion, sessionId)`, `JwtOptions`, `JwtClaims` | Phát access token khi đăng nhập / làm mới phiên | ✅ |
 | `.RequireRateLimiting(RateLimitPolicies.WriteSensitive / Anonymous / Export / Import)` (`RateLimiting/`) | Giới hạn riêng; mọi request đã có giới hạn chung + giới hạn ghi | ✅ |
 | `.Idempotent()` (`Idempotency/`) | Bắt buộc header Idempotency-Key — thao tác tiền / ghi danh / gửi tin / nhập file | ✅ |

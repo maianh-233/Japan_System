@@ -3,8 +3,13 @@ using JPCenter.Application.Common.Messaging;
 using JPCenter.Infrastructure.Common.Persistence;
 using JPCenter.Modules.Students.Api;
 using JPCenter.Modules.Students.Application.Abstractions;
+using JPCenter.Modules.Students.Application.Common;
+using JPCenter.Modules.Students.Application.Enrollments.Common;
+using JPCenter.Modules.Students.Application.Students.Common;
+using JPCenter.Modules.Students.Contracts;
 using JPCenter.Modules.Students.Infrastructure.Persistence;
 using JPCenter.Modules.Students.Infrastructure.Persistence.Seed;
+using JPCenter.Modules.Students.Infrastructure.Services;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +26,17 @@ public sealed class StudentsModule : IModule
         services.AddModuleDbContext<StudentsDbContext>(configuration, StudentsDbContext.SchemaName);
         services.AddScoped<IStudentsDbContext>(sp => sp.GetRequiredService<StudentsDbContext>());
         services.AddHandlersFromAssembly(typeof(StudentsModule).Assembly);
+
+        // Cho module khác (Students.Contracts)
+        services.AddScoped<IEnrollmentLookup, EnrollmentLookup>();
+
+        // Dùng chung giữa các use case (user story 06)
+        services.AddScoped<StudentAccess>();
+        services.AddScoped<EmployeeNames>();
+        services.AddScoped<StudentReader>();
+        services.AddScoped<StudentCodes>();
+        services.AddScoped<EnrollmentReader>();
+        services.AddScoped<EnrollmentRules>();
 
         services.AddScoped<IDataSeeder, StudentSeeder>();
     }

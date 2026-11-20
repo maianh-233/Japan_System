@@ -429,3 +429,25 @@ Phát `EnrollmentCompleted` → cổng HV hiện "Đã học xong", trang Chứn
 - **Domain (phase 1):** `Student.Create / Update` kiểm họ tên, ngày sinh không ở tương lai, SĐT 10 số bắt đầu bằng 0 (+84 → 0), email; `Hide` nêu lớp còn học.
   `Enrollment`: bảo lưu cần lý do + hạn sau hôm nay ≤ 6 tháng, cho nghỉ / chuyển lớp cần lý do, hoàn thành chỉ từ "đang học"; ghi chú giống frontend
   ("Bảo lưu đến dd/MM/yyyy — …", "Học lại từ …", "Chuyển sang lớp … — …").
+
+## Đã làm — backend (giai đoạn 14 phase 3, 2026-11-20)
+
+Code: `src/Modules/Students/JPCenter.Modules.Students/Application/{Students,Enrollments}/` · Test: `tests/JPCenter.IntegrationTests/Students/`.
+
+| Story | API (`/api/v1/students/...`) | Quyền |
+|---|---|---|
+| HV-01, 02 | `GET ?includeHidden=&branchId=` (kèm `studyStatus`, `activeClassIds`) · `GET {id}` | `students.profiles.view` |
+| HV-03 | `PUT {id}` `{ …, rowVersion }` | `.update` |
+| HV-04 | `POST import` `{ rows, importDuplicates }` → `{ created, errors[row], duplicates[row, existingCode] }` (≤ 1000 dòng, giới hạn nhập file) | `.create` |
+| HV-05 | `POST hide` `{ ids }` → `{ hidden, skipped[reason] }` · `POST {id}/unhide` | `.update` |
+| Ghi danh | `GET enrollments?classId=&studentId=` | `students.profiles.view` **hoặc** `academic.classes.view` |
+| HV-06 | `POST enrollments` `{ studentId, classId, amount?, discount?, dueDate? }` | `academic.classes.update` **hoặc** `students.profiles.update` |
+| HV-07, 08, 10 | `POST enrollments/{id}/reserve` `{ until, reason }` · `…/resume` · `…/drop` `{ reason }` | như trên |
+| HV-09 | `POST enrollments/transfer` `{ targetClassId, items[{ enrollmentId, amount, credit }], dueDate, reason }` (1 hoặc nhiều HV) | như trên |
+| HV-11 | Tự động: Academic `ClassFinished` → ghi danh đang học thành hoàn thành; `ClassCancelled` → cho nghỉ "Lớp bị hủy: …" | — |
+
+**Chốt khi code:**
+- Quyền "1 trong 2" dùng `.RequireAnyPermission(...)` (BuildingBlocks); phạm vi: HV theo chi nhánh của HV, ghi danh còn theo chi nhánh của lớp.
+- Phát `StudentEnrolled` (học phí, giảm trừ, hạn đóng, ghi danh gốc khi chuyển lớp) và `EnrollmentEnded` cho Finance — ⏳ chưa ai nghe (giai đoạn 17).
+- Mã HV mới = số lớn nhất + 1 (HV1036…); nhập Excel bỏ qua dòng lỗi, dòng trùng SĐT + họ tên trả về để người dùng chọn.
+- ⏳ Phạm vi `own` (HV có lead do mình phụ trách) tạm tính như `branch` cho tới khi có Crm.

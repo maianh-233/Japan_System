@@ -30,6 +30,9 @@ public sealed class AcademicModule : IModule
 
         // Dùng chung giữa các use case (user story 09)
         services.AddScoped<ClassUsage>();
+
+        // Cho module khác (Academic.Contracts)
+        services.AddScoped<JPCenter.Modules.Academic.Contracts.IClassLookup, JPCenter.Modules.Academic.Infrastructure.Services.ClassLookup>();
         services.AddScoped<CourseReader>();
         services.AddScoped<CourseRules>();
         services.AddScoped<CurriculumReader>();

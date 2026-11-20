@@ -42,6 +42,30 @@ public static class EndpointSecurityExtensions
         return builder;
     }
 
+    /// <summary>
+    /// Cần ÍT NHẤT MỘT trong các quyền (thao tác đứng được ở 2 trang, vd ghi danh: <c>academic.classes.update</c> hoặc
+    /// <c>students.profiles.update</c>). Thiếu hết → 403 như <see cref="RequirePermission{TBuilder}"/>. Phạm vi chi nhánh kiểm trong handler.
+    /// </summary>
+    public static TBuilder RequireAnyPermission<TBuilder>(this TBuilder builder, params (string Page, PermissionAction Action)[] options)
+        where TBuilder : IEndpointConventionBuilder
+    {
+        if (options.Length == 0) throw new ArgumentException("Cần ít nhất 1 quyền", nameof(options));
+        var required = options.Select(o => new RequiredPermission(o.Page, o.Action)).ToList();
+        builder.RequireAuthorization();
+        foreach (var r in required) builder.WithMetadata(r);
+        builder.AddEndpointFilter(async (ctx, next) =>
+        {
+            var http = ctx.HttpContext;
+            var user = http.RequestServices.GetRequiredService<ICurrentUser>();
+            if (required.Any(r => user.Can(r.Page, r.Action))) return await next(ctx);
+
+            http.RequestServices.GetRequiredService<IAuditTrail>().Record(AuditCategory.Permission, AuditSeverity.Warning,
+                "Từ chối truy cập", $"{http.Request.Method} {http.Request.Path}", $"Thiếu quyền {string.Join(" / ", required.Select(r => r.Code))}");
+            return new Results.ErrorHttpResult(Error.Forbidden("system.permission.forbidden", "Bạn không có quyền thực hiện thao tác này."));
+        });
+        return builder;
+    }
+
     /// <summary>Chỉ cần đăng nhập (trang Cá nhân: hồ sơ, đổi mật khẩu, thiết bị của tôi...).</summary>
     public static TBuilder RequireSignedIn<TBuilder>(this TBuilder builder) where TBuilder : IEndpointConventionBuilder
     {

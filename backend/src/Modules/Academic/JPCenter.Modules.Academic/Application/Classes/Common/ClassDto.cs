@@ -40,7 +40,7 @@ public sealed record ClassDto(
     /// <summary>Số buổi theo khóa = tổng giờ ÷ giờ mỗi buổi</summary>
     int SessionCount,
     ClassProgressDto Progress,
-    /// <summary>Sĩ số hiện tại — ⏳ null cho tới khi có module Học viên (giai đoạn 14)</summary>
+    /// <summary>Sĩ số hiện tại = ghi danh đang học + bảo lưu (Students.Contracts)</summary>
     int? Enrolled,
     DateTimeOffset CreatedAt,
     uint RowVersion);

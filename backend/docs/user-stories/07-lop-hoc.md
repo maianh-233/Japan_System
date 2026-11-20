@@ -520,7 +520,8 @@ Code: `src/Modules/Academic/JPCenter.Modules.Academic/Application/{Rooms,Classes
 - Integration event (`Academic.Contracts`): `ClassOpened`, `ClassStarted`, `ClassFinished`, `ClassCancelled`, `SessionCancelled`, `SessionRescheduled`,
   `SessionConfirmed`, `SessionUnconfirmed` — chưa module nào nghe.
 - Lớp Việt + Nhật: mới kiểm đủ 2 GV, **chưa** kiểm 1 Việt + 1 Nhật (Hr.Contracts chưa trả quốc tịch).
-- ⏳ Chờ Học viên (giai đoạn 14): sĩ số (`ClassRoster` trả "chưa biết" → `enrolled` null, khai giảng không chặn theo sĩ số, DT-07.E3 chưa kiểm).
+- ✅ 2026-11-20 (giai đoạn 14): sĩ số thật qua `Students.Contracts.IEnrollmentLookup` — `enrolled`, khai giảng chặn khi 0 HV (DT-03.E3), DT-07.E3;
+  lớp kết thúc / bị hủy → Students hoàn thành / cho nghỉ ghi danh (nghe `ClassFinished` / `ClassCancelled`). Academic cung cấp `IClassLookup`.
 - ⏳ Đợt 2 (giai đoạn 15): DT-09 điểm danh, DT-12 chấm công GV, DT-14 báo cáo buổi, DT-16 đơn hủy buổi / dạy thay, DT-17 lên lớp, DT-18 đơn xin nghỉ,
   DT-19 nhận xét cuối khóa, cổng GV / HV / PH, `IClassLookup` / `ISessionSchedule` / `IAttendanceStats`.
 - ⏳ DT-15.E5 (bảng lương đã chốt) làm cùng Tài chính (giai đoạn 17).
