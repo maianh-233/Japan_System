@@ -99,6 +99,7 @@ public sealed class ModuleDbContextConventionTests(PostgresFixture pg) : IAsyncL
     {
         public DateTimeOffset UtcNow => Now;
         public DateOnly Today => DateOnly.FromDateTime(Now.DateTime);
+        public DateTime LocalNow => Now.DateTime;
     }
 
     private sealed class FixedUser : ICurrentUser

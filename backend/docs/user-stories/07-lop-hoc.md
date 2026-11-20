@@ -491,3 +491,36 @@ ghi chú cho Sale → lưu (UQ lớp × HV, sửa được tới khi lớp kết
   `academic.room.unavailable`, `academic.course.not_available`, `academic.attendance.invalid_code`, `academic.attendance.not_in_roster`,
   `academic.attendance.qr_closed`, `academic.session.already_made_up`, `academic.session.already_started`, `academic.session.not_finished`,
   `academic.teacher_attendance.not_checked_in`, `academic.cancel_request.duplicate`, `academic.leave_request.too_late`, `academic.leave_request.duplicate`.
+
+## Đã làm — đợt 1 (backend, 2026-11-20, giai đoạn 13 phase 3)
+
+Code: `src/Modules/Academic/JPCenter.Modules.Academic/Application/{Rooms,Classes,ClassSessions}/` · Test: `tests/JPCenter.IntegrationTests/Academic/ClassFlowTests.cs`.
+
+| Story | API (`/api/v1/academic/...`) | Quyền |
+|---|---|---|
+| Phòng | `GET rooms?branchId=` · `GET rooms/options?branchId=` · `POST rooms` · `PUT rooms/{id}` `{ …, rowVersion }` · `POST rooms/{id}/status` `{ status, reason?, until? }` | `academic.rooms.*` · options: nhân viên đã đăng nhập |
+| Báo hỏng | `GET rooms/issues?roomId=` · `POST rooms/issues` (ai xem được phòng) · `POST rooms/issues/{id}/start|resolve|reopen` | `.view` / `.update` |
+| DT-01 | `GET classes?branchId=&courseId=&teacherId=&status=` · `GET classes/{id}` | `academic.classes.view` |
+| DT-02, 07 | `POST classes/check` (số buổi, ngày kết thúc dự kiến, lớp trùng) · `POST classes` `{ …, generateSessions = true }` · `PUT classes/{id}` `{ …, applyToUpcoming, rowVersion }` → `{ class, warnings }` | `.view` / `.create` / `.update` |
+| DT-03 → 06 | `POST classes/{id}/start` `{ actualStartDate, reschedule }` · `…/pause` `{ reason }` · `…/resume` · `…/finish` `{ actualEndDate }` · `…/cancel` `{ reason, confirmCode }` | `.update` |
+| DT-08 | `GET classes/{id}/sessions` · `POST classes/{id}/sessions/preview` · `POST classes/{id}/sessions/generate` `{ from?, weekdays?, startTime?, endTime?, count?, skipHolidays }` | `.view` / `academic.sessions.create` |
+| DT-10, 11 | `POST class-sessions/check` · `POST class-sessions` (học bù / học thêm) · `PUT class-sessions/{id}` `{ …, reason, rowVersion }` · `POST class-sessions/{id}/cancel` | `academic.sessions.*` |
+| DT-13 | `POST class-sessions/{id}/incident` · `…/incident/outcome` · `POST class-sessions/{id}/support` (nhật ký hỗ trợ) | `.update` |
+| DT-15 | `POST class-sessions/{id}/confirm` · `…/unconfirm` · `POST class-sessions/confirm` `{ ids }` → `{ confirmed, failed[] }` | `.approve` |
+| DT-20 | `GET class-sessions?from=&to=&branchId=&classId=&teacherId=&roomId=` (bắt buộc lớp, hoặc khoảng ≤ 3 tháng) | `.view` |
+
+**Chốt khi code:**
+- Ngày lễ lấy từ Cài đặt chung (`settings.academic.holidays`, qua `IHolidayCalendar`) — DT-08.E5.
+- Sinh lịch: thay buổi thường chưa diễn ra (chưa điểm danh, chưa xác nhận); số buổi mặc định = số buổi khóa − buổi còn giữ (không tính buổi hủy, học thêm);
+  đánh số tiếp từ số lớn nhất còn giữ. Mở lớp mặc định sinh lịch ngay.
+- Sửa lớp: GV / phòng của lớp luôn áp cho buổi không ghi đè (buổi chỉ lưu phần ghi đè); `applyToUpcoming` chỉ quyết định đổi **giờ** cho buổi chưa dạy.
+  Đổi thứ học → cảnh báo dùng "Tạo lịch tự động".
+- Học phí lớp chỉ trả khi người xem mở / sửa lớp được hoặc có `finance.invoices.view` (DT-01.E2, nới thêm cho giáo vụ vì phải nhập học phí khi mở lớp).
+- Phạm vi `own` = lớp / buổi mình là GV, trợ giảng, dạy thay hoặc có chấm công (chưa tính "người tạo").
+- Integration event (`Academic.Contracts`): `ClassOpened`, `ClassStarted`, `ClassFinished`, `ClassCancelled`, `SessionCancelled`, `SessionRescheduled`,
+  `SessionConfirmed`, `SessionUnconfirmed` — chưa module nào nghe.
+- Lớp Việt + Nhật: mới kiểm đủ 2 GV, **chưa** kiểm 1 Việt + 1 Nhật (Hr.Contracts chưa trả quốc tịch).
+- ⏳ Chờ Học viên (giai đoạn 14): sĩ số (`ClassRoster` trả "chưa biết" → `enrolled` null, khai giảng không chặn theo sĩ số, DT-07.E3 chưa kiểm).
+- ⏳ Đợt 2 (giai đoạn 15): DT-09 điểm danh, DT-12 chấm công GV, DT-14 báo cáo buổi, DT-16 đơn hủy buổi / dạy thay, DT-17 lên lớp, DT-18 đơn xin nghỉ,
+  DT-19 nhận xét cuối khóa, cổng GV / HV / PH, `IClassLookup` / `ISessionSchedule` / `IAttendanceStats`.
+- ⏳ DT-15.E5 (bảng lương đã chốt) làm cùng Tài chính (giai đoạn 17).

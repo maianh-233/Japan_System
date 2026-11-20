@@ -258,7 +258,10 @@ thêm / đổi / xóa thuộc tính → sửa dòng trong bảng + ghi 1 dòng �
 |---|---|---|
 | id | uuid PK | |
 | key | text UQ | `nhóm.tên`, vd `crm.defaultSlaMinutes`, `invoice.codePattern`, `atRisk.streak` |
-| value | jsonb | Giá trị (số / chuỗi / bool) |
+| value | jsonb | Giá trị (số / chuỗi / bool / mảng) |
+
+Khóa đã dùng: `academic.holidays` — mảng `[{ "date": "YYYY-MM-DD", "name": "…" }]`, ngày nghỉ lễ khi sinh lịch buổi học (DT-08.E5),
+module khác đọc qua `IHolidayCalendar` (System.Contracts); seeder `SettingsSeeder` thêm nếu chưa có.
 
 ### 13a. user_sessions
 **Chức năng:** Phiên đăng nhập trên từng thiết bị: giữ refresh token (băm, xoay vòng mỗi lần làm mới), ghi nhớ đăng nhập, danh sách thiết bị, đăng xuất từ xa. Token cũ bị dùng lại → thu hồi mọi phiên của tài khoản. Entity `UserSession`. User story AUTH-02, 03, 08.
@@ -1831,4 +1834,5 @@ sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đ�
 | 2026-11-17 | Giai đoạn 10 (user story 04): `employees` + `quit_reason`; thêm bảng `employment_contracts` (81a) lưu hợp đồng cũ — migration `HrEmployeeHistory` |
 | 2026-11-17 | Giai đoạn 12 (user story 09): `materials` + `file_key`, `file_name`, `content_type`, `url` thành tùy chọn (chỉ cho link); `curricula.version` dạng `v1.0` |
 | 2026-11-17 | Giai đoạn 13 (user story 07): `classes` + `pause_reason`; `class_sessions.status` `completed` = đã xác nhận (bỏ xác nhận → `scheduled`); tạo bảng `rooms`, `room_issues`, `classes`, `class_sessions`, `attendance_records`, `teacher_attendances`, `session_support_entries` — migration `AcademicClassesSessions` |
+| 2026-11-20 | Giai đoạn 13 phase 3 (user story 07): `settings` thêm khóa `academic.holidays` (ngày nghỉ lễ, không đổi cấu trúc bảng); `room_issues` mở lại được (`resolved` → `open` / `in_progress`, xóa kết quả sửa) |
 | 2026-11-17 | Chốt thiết kế (user story 08): `invoices.status` chỉ lưu `open` / `cancelled` / `voided`, các trạng thái tiền tính khi đọc; `payments.method` dùng `vietqr` (không `viet_qr`). Domain `InvoiceStatus`, `PaymentMethod` sửa theo khi code module Tài chính |

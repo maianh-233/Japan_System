@@ -460,6 +460,6 @@ Code: `src/Modules/Academic/JPCenter.Modules.Academic/Application/{Courses,Curri
 - Endpoint tải file đọc form trong handler — kiểm quyền **trước** khi nhận body; giới hạn riêng 51 MB (chung 1 MB).
 - KH-03: nhân bản bỏ qua lộ trình đã lưu trữ; nếu bản mặc định bị bỏ thì lộ trình đầu tiên còn lại tự thành mặc định (quy tắc "khóa luôn có 1 mặc định").
 - Dữ liệu mẫu: 14 khóa + 14 lộ trình từ mock frontend; tài liệu file trỏ tới 1 file mẫu / đuôi (PDF mở được thật, đuôi khác chỉ đúng phần đầu).
-- ⏳ chờ Lớp học (giai đoạn 14): `ClassUsage` đang trả rỗng — KH-04.E1/E2 (khóa mã / hình thức khi có lớp), KH-06.E2, LT-11.E3, cột "lớp đang mở",
-  số lớp dùng lộ trình; link tài liệu cho cổng GV / HV (LT-07 phía cổng).
+- ✅ 2026-11-20 (giai đoạn 13 phase 3): `ClassUsage` đọc bảng `classes` thật — KH-04.E1/E2, KH-06.E2, LT-11.E3, cột "lớp đang mở", số lớp dùng lộ trình.
+- ⏳ Link tài liệu cho cổng GV / HV (LT-07 phía cổng) — làm cùng cổng GV (giai đoạn 15).
 

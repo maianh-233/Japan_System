@@ -15,7 +15,7 @@
 | `Money` (`Primitives/`): `Create` (kiểm tra ≥ 0, không lẻ), `FromTrusted`, `+ − < >`, `Percent()` | Học phí, lương, thanh toán | ✅ |
 | `PhoneNumber` (chuẩn hóa số VN: 0xxx / +84) | Lead, học viên, nhân viên — kiểm tra trùng SĐT | 📝 |
 | `DateRange`, `TimeRange` (kiểm tra chồng lấn) | Lịch lớp, ca làm, trùng phòng / GV | 📝 |
-| `IClock` (`Domain/`: `UtcNow`, `Today` theo giờ VN) | Thay `DateTime.Now` ở mọi nơi | ✅ interface |
+| `IClock` (`Domain/`: `UtcNow`, `Today` + `LocalNow` theo giờ VN) | Thay `DateTime.Now` ở mọi nơi | ✅ interface |
 | `Guard` (`Against.NullOrEmpty`, `Against.OutOfRange`) | Kiểm tra tham số trong factory | 📝 |
 | `BranchId` (`Primitives/`), `IBranchScoped`, `IAuditable`, `ISoftDeletable` (`Domain/`) | Đánh dấu entity để interceptor / filter chung xử lý | ✅ |
 | Enum dùng chung (`Primitives/`): `JlptLevel`, `JapaneseSkill`, `Gender`, `ShiftKey`, `ContactChannel` | Giá trị chung toàn hệ thống (không phải nghiệp vụ của 1 module) — KHÔNG thêm enum nghiệp vụ vào đây | ✅ |

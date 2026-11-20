@@ -9,5 +9,7 @@ public sealed class SystemClock(TimeProvider time) : IClock
 
     public DateTimeOffset UtcNow => time.GetUtcNow();
 
-    public DateOnly Today => DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(UtcNow, Vietnam).DateTime);
+    public DateOnly Today => DateOnly.FromDateTime(LocalNow);
+
+    public DateTime LocalNow => TimeZoneInfo.ConvertTime(UtcNow, Vietnam).DateTime;
 }

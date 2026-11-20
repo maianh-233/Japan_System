@@ -4,6 +4,8 @@ namespace JPCenter.Modules.Academic.Domain.Rooms;
 
 public static class RoomErrors
 {
+    public static readonly Error NotFound = Error.NotFound("academic.room.not_found", "Không tìm thấy phòng học");
+    public static readonly Error IssueNotFound = Error.NotFound("academic.room_issue.not_found", "Không tìm thấy báo hỏng");
     public static readonly Error NameRequired = Error.Validation("academic.room.name_required", "Nhập tên phòng");
     public static readonly Error InvalidCapacity = Error.Validation("academic.room.invalid_capacity", "Sức chứa phải lớn hơn 0");
     public static readonly Error InvalidArea = Error.Validation("academic.room.invalid_area", "Diện tích phải lớn hơn 0");

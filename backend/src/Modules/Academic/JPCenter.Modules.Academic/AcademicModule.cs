@@ -3,8 +3,12 @@ using JPCenter.Application.Common.Messaging;
 using JPCenter.Infrastructure.Common.Persistence;
 using JPCenter.Modules.Academic.Api;
 using JPCenter.Modules.Academic.Application.Abstractions;
+using JPCenter.Modules.Academic.Application.Classes.Common;
+using JPCenter.Modules.Academic.Application.ClassSessions.Common;
+using JPCenter.Modules.Academic.Application.Common;
 using JPCenter.Modules.Academic.Application.Courses.Common;
 using JPCenter.Modules.Academic.Application.Curricula.Common;
+using JPCenter.Modules.Academic.Application.Rooms.Common;
 using JPCenter.Modules.Academic.Infrastructure.Persistence;
 using JPCenter.Modules.Academic.Infrastructure.Persistence.Seed;
 using Microsoft.AspNetCore.Routing;
@@ -31,6 +35,20 @@ public sealed class AcademicModule : IModule
         services.AddScoped<CurriculumReader>();
         services.AddScoped<CurriculumRules>();
         services.AddScoped<CurriculumEditor>();
+
+        // Dùng chung giữa các use case (user story 07 — lớp, buổi, phòng)
+        services.AddScoped<AcademicAccess>();
+        services.AddScoped<PeopleNames>();
+        services.AddScoped<RoomReader>();
+        services.AddScoped<RoomRules>();
+        services.AddScoped<ClassRoster>();
+        services.AddScoped<ClassReader>();
+        services.AddScoped<ClassRules>();
+        services.AddScoped<UpcomingSessions>();
+        services.AddScoped<SessionScheduler>();
+        services.AddScoped<SessionReader>();
+        services.AddScoped<SessionConflicts>();
+        services.AddScoped<SessionConfirmer>();
 
         services.AddScoped<IDataSeeder, AcademicSeeder>();
         services.AddScoped<IDataSeeder, ClassSeeder>();

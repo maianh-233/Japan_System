@@ -4,6 +4,8 @@ namespace JPCenter.Modules.Academic.Domain.ClassSessions;
 
 public static class SessionErrors
 {
+    public static readonly Error NotFound = Error.NotFound("academic.session.not_found", "Không tìm thấy buổi học");
+    public static readonly Error ClassPaused = Error.Conflict("academic.class.paused", "Lớp đang tạm dừng");
     public static readonly Error InvalidTime = Error.Validation("academic.session.invalid_time", "Giờ kết thúc phải sau giờ bắt đầu");
     public static readonly Error MakeupForRequired = Error.Validation("academic.session.makeup_for_required", "Buổi học bù phải chỉ ra buổi bị hủy được bù");
     public static readonly Error ReasonRequired = Error.Validation("academic.session.reason_required", "Cần ghi lý do");

@@ -25,6 +25,8 @@ public sealed partial class AuthFlowTests(SeededApiFactory api)
     [
         "superadmin@jpcenter.vn", "admin@jpcenter.vn", "quanly.caugiay@jpcenter.vn", "giaovu@jpcenter.vn", "sale@jpcenter.vn",
         "marketing@jpcenter.vn", "ketoan@jpcenter.vn", "giaovien@jpcenter.vn",
+        // Lễ tân — ClassFlowTests dùng kiểm quyền chỉ xem buổi / phòng
+        "hang.hang@jpcenter.vn",
     ];
 
     /// <summary>Email tài khoản nhân viên thứ n (ngoài tài khoản demo) — mỗi test dùng 1 số riêng để không ảnh hưởng nhau.</summary>

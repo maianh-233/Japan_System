@@ -46,4 +46,13 @@ public sealed class RoomIssue : AggregateRoot<RoomIssueId>, IAuditable
         (Status, Resolution, Cost, ResolvedAt) = (IssueStatus.Resolved, resolution, cost, at);
         return Result.Success();
     }
+
+    /// <summary>Sửa chưa xong / hỏng lại → mở lại (giữ người nhận sửa, xóa kết quả)</summary>
+    public Result Reopen()
+    {
+        if (Status != IssueStatus.Resolved) return Error.Conflict("academic.room_issue.not_resolved", "Báo hỏng chưa xử lý xong");
+        Status = Assignee is null ? IssueStatus.Open : IssueStatus.InProgress;
+        (Resolution, Cost, ResolvedAt) = (null, null, null);
+        return Result.Success();
+    }
 }

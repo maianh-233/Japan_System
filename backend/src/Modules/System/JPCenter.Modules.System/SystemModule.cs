@@ -55,6 +55,7 @@ public sealed class SystemModule : IModule
         // Cho module khác (System.Contracts)
         services.AddScoped<IBranchDirectory, BranchDirectory>();
         services.AddScoped<IStaffAccessDirectory, StaffAccessDirectory>();
+        services.AddScoped<IHolidayCalendar, HolidayCalendar>();
 
         // Dịch vụ dùng chung giữa các use case (Application/*/Common)
         services.AddScoped<SignInAccounts>();
@@ -85,6 +86,7 @@ public sealed class SystemModule : IModule
         }
 
         services.AddScoped<IDataSeeder, SystemSeeder>();
+        services.AddScoped<IDataSeeder, SettingsSeeder>();
     }
 
     public void MapEndpoints(IEndpointRouteBuilder group) => SystemEndpoints.Map(group);
