@@ -13,7 +13,11 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5173,
       // Gọi /api/* → backend (cùng origin nên cookie phiên HttpOnly hoạt động, không vướng CORS)
-      proxy: { '/api': { target: env.VITE_PROXY_TARGET || 'http://localhost:5080' } },
+      proxy: {
+        '/api': { target: env.VITE_PROXY_TARGET || 'http://localhost:5080' },
+        // SignalR (lời mời dạy thay, kết quả duyệt đơn, HV quét QR) — WebSocket
+        '/hubs': { target: env.VITE_PROXY_TARGET || 'http://localhost:5080', ws: true },
+      },
     },
   };
 });

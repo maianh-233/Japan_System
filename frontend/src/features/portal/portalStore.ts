@@ -1,3 +1,4 @@
+import { USE_API } from '@/lib/api/config';
 import dayjs from 'dayjs';
 import { create } from 'zustand';
 import { MOCK_CANCEL_REQUESTS, MOCK_CARD_PROGRESS, MOCK_DECKS, MOCK_LEAVE_REQUESTS, MOCK_STUDY_DAYS, MOCK_SUB_INVITES, MOCK_TEACHER_DOCS } from '@/mocks/data/portal';
@@ -54,10 +55,11 @@ let seq = 100;
 const now = () => new Date().toISOString();
 
 export const usePortalStore = create<PortalState>((set, get) => ({
-  cancelRequests: MOCK_CANCEL_REQUESTS,
-  subInvites: MOCK_SUB_INVITES,
+  // Chế độ API: đơn từ / lời mời tải từ server (portalApi) — không dùng dữ liệu giả
+  cancelRequests: USE_API ? [] : MOCK_CANCEL_REQUESTS,
+  subInvites: USE_API ? [] : MOCK_SUB_INVITES,
   teacherDocs: MOCK_TEACHER_DOCS,
-  leaveRequests: MOCK_LEAVE_REQUESTS,
+  leaveRequests: USE_API ? [] : MOCK_LEAVE_REQUESTS,
   decks: MOCK_DECKS,
   cardProgress: MOCK_CARD_PROGRESS,
   studyDays: MOCK_STUDY_DAYS,

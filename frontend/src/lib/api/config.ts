@@ -1,10 +1,13 @@
 /**
  * Chế độ dữ liệu:
- *  - "api"  (mặc định): đăng nhập, phân quyền, duyệt cấp quyền, chi nhánh, nhân viên / giáo viên, khóa học, lộ trình, phòng học, lớp học, buổi học, học viên, ghi danh gọi backend thật
+ *  - "api"  (mặc định): đăng nhập, phân quyền, duyệt cấp quyền, chi nhánh, nhân viên / giáo viên, khóa học, lộ trình, phòng học, lớp học, buổi học, học viên, ghi danh,
+ *    điểm danh / chấm công / báo cáo buổi, đơn hủy buổi / xin nghỉ / dạy thay, lên lớp, nhận xét cuối khóa, chăm sóc HV có nguy cơ bỏ học,
+ *    cổng GV / HV / PH (lớp, lịch, đơn, QR, Quan tâm) + realtime SignalR gọi backend thật
  *    (cần chạy API + Docker — xem backend/README.md).
  *  - "mock": toàn bộ chạy bằng dữ liệu giả trong trình duyệt như trước (không cần backend).
  * Đặt trong frontend/.env.local:  VITE_API_MODE=mock
- * Các phần backend CHƯA làm (CRM / phụ huynh, Tài chính / hóa đơn, điểm danh, cổng GV / HV...) luôn dùng dữ liệu giả.
+ * Các phần backend CHƯA làm (Tuyển sinh, Tài chính / hóa đơn, bài tập / thi, tài liệu GV, flashcard…) vẫn dùng dữ liệu giả.
+ * Store đã nối API khởi tạo RỖNG ở chế độ "api" (không lẫn dữ liệu giả); dữ liệu giả chỉ còn cho chế độ "mock".
  */
 export const USE_API = import.meta.env.VITE_API_MODE !== 'mock';
 

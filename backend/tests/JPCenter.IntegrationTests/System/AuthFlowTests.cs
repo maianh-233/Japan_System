@@ -265,7 +265,8 @@ public sealed partial class AuthFlowTests(SeededApiFactory api)
             new { currentPassword = Pw, newPassword = "MatKhauMoi2027", logoutOtherDevices = true }, Ct);
         ok.StatusCode.ShouldBe(HttpStatusCode.OK);
         var body = await Json(ok);
-        body.GetProperty("loggedOutDevices").GetInt32().ShouldBe(1);
+        // ≥ 1: test khác chạy song song có thể cũng đang đăng nhập tài khoản này (DB dùng chung)
+        body.GetProperty("loggedOutDevices").GetInt32().ShouldBeGreaterThanOrEqualTo(1);
 
         (await WithToken(body.GetProperty("accessToken").GetString()!).GetAsync("/api/v1/system/auth/me", Ct)).StatusCode.ShouldBe(HttpStatusCode.OK);
         (await WithToken(otherToken).GetAsync("/api/v1/system/auth/me", Ct)).StatusCode.ShouldBe(HttpStatusCode.Unauthorized);

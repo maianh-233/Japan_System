@@ -7,6 +7,8 @@ import type { ClassSession, LessonCoverage, SessionLog } from '@/features/academ
 import type { Lesson } from '@/features/academic/curriculum/types';
 import { useAuth } from '@/hooks/useAuth';
 import { fmtDateTime } from '@/lib/date';
+import { USE_API } from '@/lib/api/config';
+import * as portalApi from '@/features/portal/portalApi';
 
 interface Values {
   coverage: LessonCoverage;
@@ -37,7 +39,18 @@ export function EndSessionModal({ open, onClose, session, lesson, teacherId }: P
   const editing = Boolean(log?.endedAt);
   const chapters = lesson?.chapters ?? [];
 
-  const submit = (v: Values) => {
+  const submit = async (v: Values) => {
+    if (USE_API) {
+      // Server ghi báo cáo + tự check-out GV nếu đang check-in
+      await portalApi.submitReport(session.id, {
+        content: v.content,
+        homework: v.homework,
+        issues: v.issues,
+        coverage: v.coverage,
+        coveredChapterIds: v.coverage === 'full' ? chapters.map((c) => c.id) : v.coverage === 'none' ? [] : (v.coveredChapterIds ?? []),
+      });
+      return;
+    }
     const now = new Date().toISOString();
     const teacherLog: SessionLog = {
       ...v,

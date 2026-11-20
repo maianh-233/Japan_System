@@ -6,6 +6,8 @@ import { useClassStore } from '@/features/academic/classes/classStore';
 import { notStarted, sessionTeachers } from '@/features/academic/classes/sessionUtils';
 import { usePortalStore } from '../portalStore';
 import { shortCode, useTeacherId } from '../usePortal';
+import { USE_API } from '@/lib/api/config';
+import * as portalApi from '@/features/portal/portalApi';
 
 interface Props {
   open: boolean;
@@ -45,9 +47,11 @@ export function CancelRequestModal({ open, onClose, sessionId }: Props) {
       submitText="Gửi đơn"
       successMessage="Đã gửi đơn — giáo vụ sẽ xử lý và báo lại"
       initialValues={{ sessionId }}
-      onSubmit={(v) => {
+      onSubmit={async (v) => {
         const s = sessions.find((x) => x.id === v.sessionId)!;
         if (!notStarted(s)) throw new Error('Buổi đã bắt đầu — gọi giáo vụ để báo sự cố.');
+        if (USE_API)
+          return void (await portalApi.submitCancelRequest({ sessionId: s.id, reasonType: v.reasonType, reason: v.reason, makeupAt: v.makeupAt?.toISOString() }));
         add({ sessionId: s.id, classId: s.classId, teacherId: me, reasonType: v.reasonType, reason: v.reason, makeupAt: v.makeupAt?.toISOString() });
       }}
     >

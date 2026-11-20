@@ -38,6 +38,17 @@ public sealed class CareCase : AggregateRoot<CareCaseId>, IBranchScoped, IAudita
         };
 
     /// <summary>
+    /// Nhân viên mở trường hợp chăm sóc bằng tay (giao diện thấy dấu hiệu mà hệ thống chưa tính — bài tập, điểm, học phí…):
+    /// chưa có dấu hiệu chuyên cần, mức thấp; lần tính sau cập nhật dấu hiệu.
+    /// </summary>
+    public static CareCase OpenManually(StudentId studentId, Guid classId, BranchId branchId, DateTimeOffset at) =>
+        new()
+        {
+            Id = CareCaseId.New(), StudentId = studentId, ClassId = classId, BranchId = branchId, RiskLevel = RiskLevel.Low, Flags = [],
+            Status = CareStatus.New, DetectedAt = at,
+        };
+
+    /// <summary>
     /// Job hằng đêm / điểm danh tính lại (HV-14.E4). Hết dấu hiệu → giữ case, xóa flags (E2).
     /// Case đã ổn định mà có dấu hiệu MỚI → mở lại "chưa liên hệ", ghi lại lúc phát hiện (E3).
     /// </summary>

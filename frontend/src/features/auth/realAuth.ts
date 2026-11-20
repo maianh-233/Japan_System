@@ -5,6 +5,7 @@
 import type { Portal, SessionUser } from '@/types/auth';
 import { ApiError, api, lastSignIn, refreshSession, setAccessToken } from '@/lib/api/http';
 import { fromGuid, fromGuids } from '@/lib/api/ids';
+import { stopRealtime } from '@/features/portal/realtime';
 
 /** SessionUserDto của backend */
 interface ServerUser {
@@ -89,6 +90,7 @@ export async function restore() {
 }
 
 export async function logout() {
+  void stopRealtime();
   try {
     await call('/system/auth/logout');
   } finally {

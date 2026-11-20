@@ -19,6 +19,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { cn } from '@/lib/cn';
 import { fmtDateTime, fromNow } from '@/lib/date';
+import { USE_API } from '@/lib/api/config';
+import * as portalApi from '@/features/portal/portalApi';
 
 type Tab = 'pending' | 'history' | 'all';
 type Decision = 'approved' | 'rejected';
@@ -158,7 +160,14 @@ export default function RequestsPage() {
         return;
       }
       // Duyệt đơn NGAY: chốt đơn + đánh dấu buổi "đang tìm người dạy thay" → mở luôn bước chọn cách dạy thay
-      if (notStarted(item.session)) {
+      if (notStarted(item.session) && USE_API) {
+        try {
+          if (item.status === 'pending') await portalApi.decideCancelRequest(item.id, true, 'Đã duyệt — đang chọn cách dạy thay / học bù');
+        } catch (e) {
+          return void notify.error({ title: 'Không duyệt được đơn', description: (e as Error).message });
+        }
+        notify.success({ title: 'Đã duyệt đơn', description: 'Chọn mời GV dạy thay hoặc hủy buổi & xếp học bù bên dưới.' });
+      } else if (notStarted(item.session)) {
         const by = user?.fullName ?? 'Giáo vụ';
         usePortalStore.getState().decideCancelRequest(item.id, true, by, 'Đã duyệt — đang chọn cách dạy thay / học bù');
         useClassStore.getState().updateSession(item.session.id, {
@@ -188,7 +197,14 @@ export default function RequestsPage() {
 
     const by = user?.fullName ?? 'Giáo vụ';
     const note = typeof result === 'object' ? result.reason : undefined;
-    if (item.kind === 'leave') {
+    if (USE_API && item.kind !== 'hr') {
+      try {
+        if (item.kind === 'leave') (await portalApi.decideLeaveRequest(item.id, isApproval, note)).warnings.forEach((w) => notify.warning({ title: w }));
+        else await portalApi.decideCancelRequest(item.id, false, note);
+      } catch (e) {
+        return void notify.error({ title: 'Không xử lý được đơn', description: (e as Error).message });
+      }
+    } else if (item.kind === 'leave') {
       usePortalStore.getState().decideLeaveRequest(item.id, isApproval, by, note);
     } else if (item.kind === 'cancel') {
       usePortalStore.getState().decideCancelRequest(item.id, false, by, note);

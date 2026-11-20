@@ -4,6 +4,7 @@ import { CircleCheck, CircleDashed, Eye, PhoneCall, type LucideIcon } from 'luci
 import type { Tone } from '@/components/common';
 import type { StudentStats } from '@/features/academic/classes/studentInsights';
 import { getSettings } from '@/features/system/settings';
+import { USE_API } from '@/lib/api/config';
 
 /**
  * Cảnh báo bỏ học = học viên ĐANG HỌC có dấu hiệu nghỉ: vắng nhiều / vắng liền, chuyên cần thấp, không nộp bài,
@@ -59,7 +60,8 @@ const ago = (d: number) => dayjs().subtract(d, 'day').toISOString();
 
 export const useAtRiskStore = create<AtRiskState>((set) => ({
   // Một vài trường hợp đã được giao (dữ liệu giả) — còn lại mặc định "Chưa liên hệ"
-  cases: {
+  // Chế độ API: tải từ server (careApi.loadCareCases)
+  cases: USE_API ? ({} as Record<string, CareCase>) : {
     'C-N3K12:ST-20': { assignee: CARE_STAFF[0], status: 'contacting', nextAt: dayjs().add(1, 'day').format('YYYY-MM-DD'), updatedAt: ago(1) },
     'C-N4K15:ST-21': { assignee: CARE_STAFF[1], status: 'monitoring', updatedAt: ago(4) },
   },

@@ -77,4 +77,16 @@ public sealed class CareCaseTests
         (c.Status, c.DetectedAt).ShouldBe((CareStatus.New, later));
         c.Flags.ShouldBe([RiskAssessment.Streak, RiskAssessment.Tuition]);
     }
+
+    [Fact]
+    public void Mo_case_bang_tay_chua_co_dau_hieu_lan_tinh_sau_cap_nhat()
+    {
+        var c = CareCase.OpenManually(StudentId.New(), Guid.NewGuid(), new BranchId(Guid.NewGuid()), At);
+        (c.Status, c.RiskLevel, c.Flags.Count, c.DetectedAt).ShouldBe((CareStatus.New, RiskLevel.Low, 0, At));
+        c.NoLongerFlagged.ShouldBeTrue();
+
+        c.Reassess(Eval(Clean with { Streak = 2 }), At.AddDays(1));
+        c.Flags.ShouldBe([RiskAssessment.Streak]);
+        c.NoLongerFlagged.ShouldBeFalse();
+    }
 }

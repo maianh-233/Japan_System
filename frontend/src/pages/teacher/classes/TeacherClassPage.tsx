@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Input, Tabs, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { MessageSquareQuote, NotebookPen, Users } from 'lucide-react';
@@ -15,6 +15,8 @@ import { useCurriculumStore } from '@/features/academic/curriculum/curriculumSto
 import { useCrmStore } from '@/features/crm/crmStore';
 import { shortCode, useTeacherId } from '@/features/portal/usePortal';
 import { cn } from '@/lib/cn';
+import { USE_API } from '@/lib/api/config';
+import * as portalApi from '@/features/portal/portalApi';
 
 type StudentRow = StudentStats & { id: string; name: string; code: string };
 
@@ -24,6 +26,10 @@ export default function TeacherClassPage() {
   const navigate = useNavigate();
   const me = useTeacherId();
   const cls = useClassStore((s) => s.classes.find((c) => c.id === id));
+  // Chế độ API: nhận xét cuối khóa của lớp (chỉ GV của lớp xem / ghi)
+  useEffect(() => {
+    if (USE_API && id) void portalApi.loadEvaluations(id, true).catch(() => undefined);
+  }, [id]);
   if (!cls || !cls.teacherIds.includes(me))
     return <EmptyState title="Không tìm thấy lớp" description="Lớp không tồn tại hoặc bạn không dạy lớp này." action={<Button action="back" onClick={() => navigate('/teacher/classes')}>Lớp của tôi</Button>} />;
   return <ClassView cls={cls} />;

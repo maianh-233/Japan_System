@@ -35,6 +35,9 @@ export const setAccessToken = (token: string | null) => {
 
 export const hasAccessToken = () => accessToken !== null;
 
+/** Token hiện tại (SignalR gửi qua query khi mở WebSocket) */
+export const getAccessToken = () => accessToken;
+
 /** Đăng ký hành động khi phiên hết hạn hẳn (vd đăng xuất về trang đăng nhập) */
 export const onExpired = (fn: () => void) => {
   onSessionExpired = fn;

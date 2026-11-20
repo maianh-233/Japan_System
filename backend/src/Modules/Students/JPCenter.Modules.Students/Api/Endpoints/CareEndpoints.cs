@@ -4,6 +4,7 @@ using JPCenter.Api.Common.Security;
 using JPCenter.Application.Common.Messaging;
 using JPCenter.Application.Common.Security;
 using JPCenter.Modules.Students.Application.CareCases.AddCareLog;
+using JPCenter.Modules.Students.Application.CareCases.Common;
 using JPCenter.Modules.Students.Application.CareCases.GetCareCases;
 using JPCenter.Modules.Students.Application.CareCases.GetCareLogs;
 using JPCenter.Modules.Students.Application.CareCases.RecalculateRisk;
@@ -37,11 +38,22 @@ public static class CareEndpoints
             .RequirePermission(page, PermissionAction.Update);
 
         g.MapPut("/{id:guid}", async (Guid id, UpdateBody b, ISender s, CancellationToken ct) =>
-                (await s.Send(new UpdateCareCaseCommand(id, b.AssigneeId, b.Status, b.NextAt), ct)).ToHttpResult())
+                (await s.Send(new UpdateCareCaseCommand(new CareCaseRef(id, null, null), b.AssigneeId, b.Status, b.NextAt), ct)).ToHttpResult())
             .RequirePermission(page, PermissionAction.Update);
 
         g.MapPost("/{id:guid}/logs", async (Guid id, LogBody b, ISender s, CancellationToken ct) =>
-                (await s.Send(new AddCareLogCommand(id, b.Channel, b.Note), ct)).ToHttpResult())
+                (await s.Send(new AddCareLogCommand(new CareCaseRef(id, null, null), b.Channel, b.Note), ct)).ToHttpResult())
+            .RequirePermission(page, PermissionAction.Update);
+
+        // Theo lớp × HV — chưa có trường hợp thì mở mới (giao diện còn tính thêm dấu hiệu bài tập / điểm / học phí)
+        g.MapPut("/classes/{classId:guid}/students/{studentId:guid}", async (Guid classId, Guid studentId, UpdateBody b, ISender s,
+                    CancellationToken ct) =>
+                (await s.Send(new UpdateCareCaseCommand(new CareCaseRef(null, classId, studentId), b.AssigneeId, b.Status, b.NextAt), ct)).ToHttpResult())
+            .RequirePermission(page, PermissionAction.Update);
+
+        g.MapPost("/classes/{classId:guid}/students/{studentId:guid}/logs", async (Guid classId, Guid studentId, LogBody b, ISender s,
+                    CancellationToken ct) =>
+                (await s.Send(new AddCareLogCommand(new CareCaseRef(null, classId, studentId), b.Channel, b.Note), ct)).ToHttpResult())
             .RequirePermission(page, PermissionAction.Update);
 
         // Nhật ký liên hệ: trang Cảnh báo bỏ học hoặc tab Học viên của lớp

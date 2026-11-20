@@ -42,6 +42,7 @@ import type { AttendanceStatus, ClassInfo, ClassSession, TeacherAttendance } fro
 import { SessionAttendanceTab } from './SessionAttendanceTab';
 import { PauseFollowUp, SupportLogSection } from '../../sessions/SessionSupport';
 import { confirmChecklist, INCIDENT_ACTIONS, isPaused, INCIDENT_REASONS, ROLE_LABEL, RUN_STATE, runState, staffOf } from '../../sessions/sessionOps';
+import * as portalApi from '@/features/portal/portalApi';
 
 export type SessionTab = 'info' | 'students' | 'teachers';
 
@@ -541,7 +542,7 @@ function TeachersTab({ cls, s, editable }: { cls: ClassInfo; s: ClassSession; ed
     setDirty(true);
   };
 
-  const save = () => {
+  const save = async () => {
     const fixed = rows.map((r) => {
       if (r.status === 'absent') return { ...r, checkIn: undefined, checkOut: undefined };
       // Vào sau giờ học > 5 phút → tự đánh dấu muộn
@@ -552,7 +553,23 @@ function TeachersTab({ cls, s, editable }: { cls: ClassInfo; s: ClassSession; ed
       notify.toast.warning('GV vắng — chọn giáo viên dạy thay (hoặc hủy buổi nếu không có người thay)');
       return;
     }
-    updateSession(s.id, { teacherAttendance: fixed });
+    if (USE_API) {
+      // Server ghi "chấm hộ" + nhật ký hỗ trợ cho từng người giáo vụ đã sửa
+      try {
+        for (const r of fixed.filter((x) => x.source === 'staff'))
+          await portalApi.recordTeacherAttendance(s.id, {
+            teacherId: r.teacherId,
+            role: r.role ?? 'teacher',
+            status: r.status,
+            checkIn: r.checkIn,
+            checkOut: r.checkOut,
+            substituteId: r.substituteId,
+            note: r.note,
+          });
+      } catch (e) {
+        return void notify.error({ title: 'Chưa lưu được chấm công', description: (e as Error).message });
+      }
+    } else updateSession(s.id, { teacherAttendance: fixed });
     setRows(fixed);
     setDirty(false);
     notify.toast.success('Đã lưu chấm công giáo viên');

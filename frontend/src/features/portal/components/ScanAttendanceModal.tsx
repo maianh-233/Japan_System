@@ -6,6 +6,8 @@ import { Button, TextInput } from '@/components/common';
 import { useQrCheckIn, type ScanResult } from '@/features/academic/classes/attendanceQr';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { cn } from '@/lib/cn';
+import { USE_API } from '@/lib/api/config';
+import * as portalApi from '@/features/portal/portalApi';
 
 interface Props {
   open: boolean;
@@ -23,7 +25,19 @@ export function ScanAttendanceModal({ open, onClose, studentId }: Props) {
   const [result, setResult] = useState<ScanResult | null>(null);
   const [code, setCode] = useState('');
 
-  const handle = (text: string) => setResult(checkIn(text));
+  const handle = (text: string) => {
+    if (!USE_API) return setResult(checkIn(text));
+    // Chế độ API: server kiểm mã, giờ mở QR, HV có trong danh sách (kể cả học bù), đi muộn
+    portalApi.scanAttendance(text, studentId).then(
+      (r) =>
+        setResult({
+          ok: true,
+          title: r.status === 'late' ? 'Điểm danh thành công — đi muộn' : 'Điểm danh thành công',
+          description: `${r.classCode.replace(/^GV[VN]*_/, '')} · Buổi ${r.no || '(học thêm)'}${r.checkInAt ? ` · vào lớp lúc ${r.checkInAt}` : ''}`,
+        }),
+      (e: Error) => setResult({ ok: false, title: 'Không điểm danh được', description: e.message }),
+    );
+  };
   const reset = () => {
     setResult(null);
     setCode('');

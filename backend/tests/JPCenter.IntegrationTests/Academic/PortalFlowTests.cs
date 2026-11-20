@@ -440,6 +440,16 @@ public sealed class PortalFlowTests(SeededApiFactory api)
         (await Ok(await staff.GetAsync($"/api/v1/students/care-logs?classId={classG}", Ct))).GetArrayLength().ShouldBe(1);
         (await Ok(await staff.PostAsync("/api/v1/students/at-risk/recalculate", null, Ct))).GetInt32().ShouldBeGreaterThanOrEqualTo(1);
 
+        // Theo lớp × HV: HV chưa có trường hợp (giao diện thấy dấu hiệu khác) → tự mở khi ghi liên hệ / giao người
+        var other = await NewStudent(staff);
+        await Enroll(staff, other, classG);
+        var pairPath = $"/api/v1/students/at-risk/classes/{classG}/students/{other}";
+        (await Ok(await staff.PostAsJsonAsync($"{pairPath}/logs", new { channel = "call", note = "Gọi hỏi thăm" }, Ct)))
+            .GetProperty("note").GetString().ShouldBe("Gọi hỏi thăm");
+        (await Ok(await staff.PutAsJsonAsync(pairPath, new { status = "monitoring" }, Ct))).GetProperty("status").GetString().ShouldBe("monitoring");
+        (await staff.PutAsJsonAsync($"/api/v1/students/at-risk/classes/{classG}/students/{Guid.NewGuid()}", new { status = "monitoring" }, Ct))
+            .StatusCode.ShouldBe(HttpStatusCode.NotFound);
+
         var teacher = await SignIn(Ha);
         (await teacher.GetAsync("/api/v1/students/at-risk", Ct)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         (await teacher.GetAsync($"/api/v1/students/care-logs?classId={classG}", Ct)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);

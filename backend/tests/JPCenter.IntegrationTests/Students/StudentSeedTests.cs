@@ -14,19 +14,22 @@ public sealed class StudentSeedTests(SeededApiFactory api)
 {
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
+    private static bool IsSeed(Guid id) => id.ToString()[14] == '3';
+
     [Fact]
     public async Task Du_lieu_mau_hoc_vien_va_ghi_danh()
     {
         await using var scope = api.Scope();
         var db = scope.ServiceProvider.GetRequiredService<StudentsDbContext>();
 
-        var students = await db.Students.AsNoTracking().ToListAsync(Ct);
+        // Chỉ xét bản ghi MẪU (Id cố định GUID v3 — SeedData.IdOf); test khác tạo thêm bản ghi mới (Guid v7) trong DB dùng chung
+        var students = (await db.Students.AsNoTracking().ToListAsync(Ct)).Where(s => IsSeed(s.Id.Value)).ToList();
         students.Count.ShouldBe(36);
         var an = students.Single(s => s.Id == new StudentId(SeedData.IdOf("ST-1")));
         (an.Code, an.FullName, an.Phone).ShouldBe(("HV1000", "Nguyễn Văn An", "0912000111"));
         students.ShouldContain(s => s.Hidden && s.HiddenAt != null);
 
-        var enrollments = await db.Enrollments.AsNoTracking().ToListAsync(Ct);
+        var enrollments = (await db.Enrollments.AsNoTracking().ToListAsync(Ct)).Where(e => IsSeed(e.Id.Value)).ToList();
         enrollments.Count.ShouldBe(42);
         enrollments.Count(e => e.Status == EnrollmentStatus.Studying).ShouldBe(22);
         enrollments.Count(e => e.Status == EnrollmentStatus.Completed).ShouldBe(11);

@@ -9,6 +9,8 @@ import { useDecider } from '@/features/academic/promotion/usePromotion';
 import { useCrmStore } from '@/features/crm/crmStore';
 import { fmtDate } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
+import { USE_API } from '@/lib/api/config';
+import * as portalApi from '@/features/portal/portalApi';
 
 /**
  * Đề xuất lên lớp trên cổng — hiện cho NGƯỜI QUYẾT ĐỊNH:
@@ -78,8 +80,13 @@ export function PromotionOffers({ studentIds, viewer }: { studentIds: string[]; 
                 <Button
                   icon={Heart}
                   size="sm"
-                  onClick={() => {
-                    markInterest(c.id, viewer);
+                  onClick={async () => {
+                    try {
+                      if (USE_API) await portalApi.markInterest(c.id);
+                      else markInterest(c.id, viewer);
+                    } catch (e) {
+                      return void notify.error({ title: 'Chưa gửi được', description: (e as Error).message });
+                    }
                     notify.success({ title: 'Đã gửi', description: 'Tư vấn viên sẽ liên hệ để hoàn tất ghi danh.' });
                   }}
                 >

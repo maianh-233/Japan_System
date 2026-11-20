@@ -38,6 +38,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { cn } from '@/lib/cn';
 import { fmtDateTime } from '@/lib/date';
+import { USE_API } from '@/lib/api/config';
+import * as portalApi from '@/features/portal/portalApi';
 
 const toMin = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
 /** Chấm công sau giờ bắt đầu quá số phút này → tính "muộn" */
@@ -135,8 +137,18 @@ export default function TeachingSessionPage() {
 
   // ---------- Chấm công (theo buổi) ----------
   const mine = session.teacherAttendance?.find((t) => t.teacherId === me);
-  const punch = () => {
+  const punch = async () => {
     if (mine?.checkIn) return;
+    if (USE_API) {
+      try {
+        const r = await portalApi.teacherCheck(session.id, false);
+        const t = r.session.teacherAttendance?.find((x) => x.teacherId === me);
+        notify.toast.success(`Đã chấm công buổi ${session.no || ''} lúc ${t?.checkIn ?? ''}${t?.status === 'late' ? ' (muộn)' : ''}`);
+      } catch (e) {
+        notify.error({ title: 'Chưa chấm công được', description: (e as Error).message });
+      }
+      return;
+    }
     const hm = dayjs().format('HH:mm');
     const late = phase !== 'upcoming' && toMin(hm) > toMin(session.startTime) + TEACHER_LATE_MIN && session.date === dayjs().format('YYYY-MM-DD');
     const role: TeacherAttendance['role'] = isSub ? 'substitute' : cls.teacherIds.includes(me) ? 'teacher' : 'assistant';

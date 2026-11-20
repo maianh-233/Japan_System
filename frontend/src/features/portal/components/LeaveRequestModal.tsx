@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Form } from 'antd';
 import dayjs from 'dayjs';
 import { ModalForm, Select, TextArea } from '@/components/common';
@@ -7,6 +7,8 @@ import { notStarted } from '@/features/academic/classes/sessionUtils';
 import { useAuth } from '@/hooks/useAuth';
 import { usePortalStore } from '../portalStore';
 import { activeOf, shortCode, useStudentLearning } from '../usePortal';
+import { USE_API } from '@/lib/api/config';
+import * as portalApi from '@/features/portal/portalApi';
 
 interface Props {
   open: boolean;
@@ -52,9 +54,11 @@ export function LeaveRequestModal({ open, onClose, studentId, by, sessionId }: P
       submitText="Gửi đơn"
       successMessage="Đã gửi đơn — giáo vụ sẽ duyệt và báo lại"
       initialValues={{ sessionId }}
-      onSubmit={(v) => {
+      onSubmit={async (v) => {
         const s = sessions.find((x) => x.id === v.sessionId)!;
         if (!notStarted(s)) throw new Error('Buổi này đã bắt đầu — liên hệ giáo vụ để báo vắng.');
+        if (USE_API)
+          return void (await portalApi.submitLeaveRequest({ studentId, sessionId: s.id, reasonType: v.reasonType, reason: v.reason, makeupSessionId: v.makeupSessionId }));
         add({ studentId, classId: s.classId, sessionId: s.id, reasonType: v.reasonType, reason: v.reason, makeupSessionId: v.makeupSessionId, by, byName: user?.fullName ?? '' });
       }}
     >
@@ -76,6 +80,8 @@ export function LeaveRequestModal({ open, onClose, studentId, by, sessionId }: P
           const cls = classes.find((c) => c.id === s?.classId);
           if (!s || !cls) return null;
           if (s.kind === 'exam') return <p className="text-xs text-warning-700">Buổi thi: giáo vụ sẽ xếp lịch thi bù riêng.</p>;
+          // Chế độ API: server lọc buổi bù hợp lệ (lớp khác cùng khóa, cùng bài, còn chỗ, không trùng giờ)
+          if (USE_API) return <ApiMakeupField key={s.id} sessionId={s.id} studentId={studentId} />;
           // Lớp khác cùng khóa, buổi trong 3 tuần tới, KHÔNG trùng giờ với các lớp HV đang học
           const myIds = mine.map((m) => m.cls.id);
           const clash = (x: (typeof sessions)[number]) =>
@@ -97,5 +103,44 @@ export function LeaveRequestModal({ open, onClose, studentId, by, sessionId }: P
         }}
       </Form.Item>
     </ModalForm>
+  );
+}
+
+/** Ô chọn buổi học bù lấy từ server (GET portal/learning/leave-requests/makeup-options) */
+function ApiMakeupField({ sessionId, studentId }: { sessionId: string; studentId: string }) {
+  const [options, setOptions] = useState<portalApi.MakeupOption[]>();
+  useEffect(() => {
+    let alive = true;
+    portalApi
+      .makeupOptions(sessionId, studentId)
+      .then((list) => alive && setOptions(list))
+      .catch(() => alive && setOptions([]));
+    return () => {
+      alive = false;
+    };
+  }, [sessionId, studentId]);
+  const list = options ?? [];
+  return (
+    <Form.Item
+      name="makeupSessionId"
+      label="Đăng ký học bù (tùy chọn)"
+      extra={
+        options === undefined
+          ? 'Đang tìm buổi học bù phù hợp…'
+          : list.length
+            ? 'Học cùng lớp khác cùng khóa, cùng bài — giáo viên lớp đó điểm danh, có mặt → buổi nghỉ được tính như có mặt.'
+            : 'Không có buổi nào của lớp cùng khóa trong 3 tuần tới còn chỗ và không trùng lịch học của bạn — giáo vụ sẽ liên hệ xếp học bù.'
+      }
+    >
+      <Select
+        disabled={!list.length}
+        placeholder="Không đăng ký"
+        allowClear
+        options={list.map((o) => ({
+          value: o.sessionId,
+          label: `${dayjs(o.date).format('dd DD/MM')} ${o.startTime} · ${o.classCode} · buổi ${o.no}${o.online ? ' · online' : ''} · còn ${o.seatsLeft} chỗ`,
+        }))}
+      />
+    </Form.Item>
   );
 }

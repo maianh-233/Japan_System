@@ -11,18 +11,23 @@ import { loadStudents } from '@/features/student/studentApi';
 import { loadEmployees } from '@/features/hr/hrApi';
 import { loadBranches } from '@/features/system/branchApi';
 import { loadSystem, rememberAccount } from '@/features/system/systemApi';
+import { loadLearningPortal, loadStaffRequests, loadTeacherPortal } from '@/features/portal/portalApi';
+import { startRealtime } from '@/features/portal/realtime';
 import { restore } from './realAuth';
 
 /** Việc làm ngay sau khi có phiên (đăng nhập / kích hoạt / tải lại trang) — chế độ API */
 export async function onSignedIn(user: SessionUser & { accountId?: string }) {
   if (!USE_API) return;
   if (user.accountId) rememberAccount(user.accountId, user.id);
-  if (user.portal !== 'staff') return;
   // Lỗi tải dữ liệu không chặn việc vào hệ thống — trang tương ứng sẽ báo / dùng dữ liệu cũ
   const quiet = (p: Promise<unknown>) => p.catch(() => undefined);
+  void startRealtime(user.portal, user.portalOwnerId);
+  // Cổng GV / HV / PH: chỉ dữ liệu của chủ tài khoản (lớp mình dạy / lớp của mình / của con)
+  if (user.portal === 'teacher') return void (await quiet(loadTeacherPortal()));
+  if (user.portal === 'student' || user.portal === 'parent') return void (await quiet(loadLearningPortal(user.portalOwnerId, user.portal === 'parent')));
   await Promise.all([quiet(loadSystem()), quiet(loadBranches()), quiet(loadEmployees()), quiet(loadCourses()), quiet(loadCurricula()), quiet(loadRooms())]);
   // Lớp cần phòng (đổi tên phòng ↔ Id) → tải sau phòng
-  await Promise.all([quiet(loadClasses()), quiet(loadStudents())]);
+  await Promise.all([quiet(loadClasses()), quiet(loadStudents()), quiet(loadStaffRequests())]);
 }
 
 /**

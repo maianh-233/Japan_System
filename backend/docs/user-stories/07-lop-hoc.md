@@ -563,3 +563,13 @@ Code: `Application/{ClassSessions,Requests,Promotions,Evaluations,Portals}/` · 
   `GET portal/learning/students` (con / chính mình), `GET portal/learning/classes?studentId=` (ghi danh + lớp, không học phí / ghi chú nội bộ).
 - ✅ (phase 4) Vai trò Giáo vụ có `academic.requests.approve` (seed + migration dữ liệu cho DB đã có).
 - ⏳ Thông báo chuông (đơn mới, vấn đề trong báo cáo buổi, HV bấm Quan tâm) chờ module Thông báo; ngưỡng "xin nghỉ nhiều buổi" tạm cố định 3.
+
+### Frontend (giai đoạn 15 phase 4b, 2026-11-20)
+- `features/portal/portalApi.ts`: tải theo cổng sau đăng nhập — nhân viên (đơn hủy buổi, đơn xin nghỉ, lời mời), GV (`portal/teaching/classes`, buổi −30 → +60 ngày,
+  đơn, lời mời — buổi được mời dạy thay mà chưa thuộc lịch thì thêm buổi / lớp tạm), HV / PH (con, lớp, buổi −45 → +45 ngày, đơn, lớp kỳ sau).
+- `features/portal/realtime.ts`: SignalR `/hubs/realtime` (Vite proxy `/hubs` ws) → chuông thông báo + tải lại dữ liệu; GV mở QR thấy HV quét ngay.
+- Đã nối: gửi / rút đơn hủy buổi, nhận / từ chối dạy thay, duyệt / từ chối đơn + mời dạy thay + hủy buổi (Đơn chờ xử lý), gửi / rút đơn xin nghỉ +
+  chọn buổi học bù (server lọc), quét QR / nhập mã, điểm danh (GV & giáo vụ — tab điểm danh dùng chung), QR thật của buổi, GV check-in, kết thúc buổi & báo cáo,
+  giáo vụ chấm công hộ, lên lớp (thêm / giữ chỗ / bỏ giữ / giao Sale), "Quan tâm", nhận xét cuối khóa (GV ghi, nhân viên xem).
+- Dọn mock ở chế độ API: đơn hủy buổi, lời mời, đơn xin nghỉ, lên lớp, nhận xét, trường hợp chăm sóc, nhật ký liên hệ khởi tạo rỗng (mock chỉ còn cho `VITE_API_MODE=mock`).
+- ⏳ Còn giả: tài liệu GV, bài tập / thi, flashcard, học phí ở cổng; ghi chú tư vấn / chốt lên lớp phía Sale (CRM-19, giai đoạn 16).

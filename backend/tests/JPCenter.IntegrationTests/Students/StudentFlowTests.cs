@@ -89,7 +89,9 @@ public sealed class StudentFlowTests(SeededApiFactory api)
 
         // Ghi danh của HV: tab Lớp học trong hồ sơ
         var history = (await Ok(await admin.GetAsync($"{Enrollments}?studentId={An}", Ct))).EnumerateArray().ToList();
-        history.Select(e => e.GetProperty("status").GetString()).ShouldBe(["completed", "studying"], ignoreOrder: true);
+        // ST-1 là tài khoản cổng HV duy nhất của dữ liệu mẫu → test cổng (PortalFlowTests) ghi danh thêm lớp mới; chỉ xét ghi danh mẫu
+        history.Where(e => e.GetProperty("id").GetGuid().ToString()[14] == '3').Select(e => e.GetProperty("status").GetString())
+            .ShouldBe(["completed", "studying"], ignoreOrder: true);
         history.Single(e => e.GetProperty("status").GetString() == "completed").GetProperty("certificate").GetProperty("sentBy").GetString()
             .ShouldBe("Phạm Thị Hồng");
     }

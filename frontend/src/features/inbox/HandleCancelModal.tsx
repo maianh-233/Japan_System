@@ -17,6 +17,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { cn } from '@/lib/cn';
 import { fmtDateTime } from '@/lib/date';
+import { USE_API } from '@/lib/api/config';
+import * as portalApi from '@/features/portal/portalApi';
+import * as classApi from '@/features/academic/classes/classApi';
 
 type Action = 'invite' | 'makeup' | 'cancel';
 
@@ -80,6 +83,36 @@ export function HandleCancelModal({ request, session: s, cls, onClose }: Props) 
 
   const submit = async () => {
     const reason = request ? `GV ${teacherName(request.teacherId)} xin nghỉ — ${request.reasonType}` : 'GV không dạy được';
+    if (action === 'invite' && USE_API) {
+      const v = await form.validateFields();
+      try {
+        await portalApi.inviteSubstitutes({
+          sessionId: s.id,
+          cancelRequestId: request?.id,
+          teacherIds: v.teacherIds,
+          respondBy: (v.respondBy ?? dayjs(`${s.date}T${s.startTime}`).subtract(3, 'hour')).toISOString(),
+          reason: request ? `${teacherName(request.teacherId)}: ${request.reasonType}` : (v.message ?? 'GV lớp vắng'),
+        });
+      } catch (e) {
+        return void notify.error({ title: 'Chưa gửi được lời mời', description: (e as Error).message });
+      }
+      notify.success({ title: 'Đã gửi lời mời dạy thay', description: 'GV nhận ngay trên Cổng giáo viên — ai nhận trước thì dạy.' });
+      onClose();
+      return;
+    }
+    if (action !== 'invite' && USE_API) {
+      try {
+        await classApi.cancelSession(s.id, reason);
+        if (request?.status === 'pending')
+          await portalApi.decideCancelRequest(request.id, true, action === 'makeup' ? 'Hủy buổi, đã xếp học bù' : 'Hủy buổi — giáo vụ sẽ xếp học bù sau');
+        await portalApi.loadStaffRequests();
+      } catch (e) {
+        return void notify.error({ title: 'Chưa hủy được buổi', description: (e as Error).message });
+      }
+      if (action === 'makeup') return void setMakeupFor(s.id);
+      notify.success({ title: 'Đã hủy buổi', description: 'Học viên & phụ huynh nhận thông báo. Nhớ xếp học bù ở trang Lớp học.' });
+      return void onClose();
+    }
     if (action === 'invite') {
       const v = await form.validateFields();
       addSubInvites(

@@ -1,3 +1,4 @@
+import { USE_API } from '@/lib/api/config';
 import { create } from 'zustand';
 import { useStudentStore } from '@/features/student/studentStore';
 import { MOCK_PROMOTIONS } from '@/mocks/data/promotions';
@@ -22,7 +23,8 @@ interface PromotionState {
 const now = () => new Date().toISOString();
 
 export const usePromotionStore = create<PromotionState>((set, get) => ({
-  candidates: MOCK_PROMOTIONS,
+  // Chế độ API: tải theo lớp / cổng (portalApi)
+  candidates: USE_API ? [] : MOCK_PROMOTIONS,
 
   upsertMany: (list) =>
     set((s) => {

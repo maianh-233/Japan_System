@@ -15,6 +15,8 @@ import { useStudentStore } from '@/features/student/studentStore';
 import { cn } from '@/lib/cn';
 import { fromNow } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
+import { USE_API } from '@/lib/api/config';
+import * as portalApi from '@/features/portal/portalApi';
 
 const STATUS: Record<InviteStatus, { label: string; tone: Tone; icon: typeof Check }> = {
   pending: { label: 'Chờ trả lời', tone: 'warning', icon: Hourglass },
@@ -88,16 +90,29 @@ export default function SubstitutesPage() {
       confirmText: 'Nhận dạy',
     });
     if (!ok || !inv.s) return;
-    respond(inv.id, true);
-    updateSession(inv.s.id, { teacherIds: [me], note: `Dạy thay GV ${teacherName(inv.fromTeacherId)} (${inv.reason})` });
+    if (USE_API) {
+      try {
+        await portalApi.respondInvite(inv.id, true);
+      } catch (e) {
+        return void notify.error({ title: 'Không nhận được lời mời', description: (e as Error).message });
+      }
+    } else {
+      respond(inv.id, true);
+      updateSession(inv.s.id, { teacherIds: [me], note: `Dạy thay GV ${teacherName(inv.fromTeacherId)} (${inv.reason})` });
+    }
     notify.success({ title: 'Đã nhận dạy thay', description: 'Giáo vụ và học viên lớp được thông báo.' });
   };
 
   const decline = async (inv: SubInvite) => {
     const res = await confirm({ title: 'Từ chối lời mời?', tone: 'warning', requireReason: { label: 'Lý do', placeholder: 'Vd: trùng lịch cá nhân' }, confirmAction: 'reject' });
     if (res) {
-      respond(inv.id, false, res.reason);
-      notify.toast.success('Đã từ chối — giáo vụ sẽ mời GV khác');
+      try {
+        if (USE_API) await portalApi.respondInvite(inv.id, false, res.reason);
+        else respond(inv.id, false, res.reason);
+        notify.toast.success('Đã từ chối — giáo vụ sẽ mời GV khác');
+      } catch (e) {
+        notify.error({ title: 'Không từ chối được', description: (e as Error).message });
+      }
     }
   };
 

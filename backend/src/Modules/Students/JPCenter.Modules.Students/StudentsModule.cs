@@ -42,6 +42,7 @@ public sealed class StudentsModule : IModule
         services.AddScoped<EnrollmentRules>();
         services.AddScoped<RiskCalculator>();
         services.AddScoped<CareCaseReader>();
+        services.AddScoped<CareCaseOpener>();
 
         services.AddScoped<IDataSeeder, StudentSeeder>();
         services.AddScoped<IDataSeeder, CareSeeder>();

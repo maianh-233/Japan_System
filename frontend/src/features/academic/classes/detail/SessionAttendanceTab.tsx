@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Modal, Popover, QRCode, Radio } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import { CheckCheck, DoorOpen, Headset, QrCode, ScanLine, Smartphone, UserRound, X } from 'lucide-react';
@@ -14,6 +14,8 @@ import { qrCodeOf, qrPayload } from '../attendanceQr';
 import { useClassStore } from '../classStore';
 import { canTakeAttendance, defaultRecords, rosterFor, summarize } from '../sessionUtils';
 import type { AttendanceMethod, AttendanceRecord, AttendanceStatus, ClassInfo, ClassSession, SupportEntry } from '../types';
+import { USE_API } from '@/lib/api/config';
+import * as portalApi from '@/features/portal/portalApi';
 
 const ATT_OPTIONS: { value: AttendanceStatus; label: string }[] = [
   { value: 'present', label: 'Có mặt' },
@@ -127,8 +129,9 @@ export function SessionAttendanceTab({ cls, s, siblings, editable }: { cls: Clas
     setDirty(true);
   };
 
-  /** Lưu + ghi nhật ký hỗ trợ cho các thao tác của nhân viên */
-  const persist = (list: AttendanceRecord[], extraLog: SupportEntry[] = []) => {
+  /** Lưu + ghi nhật ký hỗ trợ cho các thao tác của nhân viên. Chế độ API: server lưu, tự ghi nhật ký hỗ trợ / kết quả học bù, trả cảnh báo */
+  const persist = async (list: AttendanceRecord[], extraLog: SupportEntry[] = []): Promise<string[]> => {
+    if (USE_API) return (await portalApi.saveAttendance(s.id, list, user?.portal === 'teacher')).warnings;
     const sm = summarize(list);
     updateSession(s.id, {
       records: list,
@@ -139,9 +142,10 @@ export function SessionAttendanceTab({ cls, s, siblings, editable }: { cls: Clas
     });
     // HV học bù: ghi kết quả về đơn xin nghỉ + buổi gốc ở lớp của HV
     list.filter((r) => r.makeupFor).forEach((r) => recordMakeup(r.makeupFor!.leaveRequestId, r.status));
+    return [];
   };
 
-  const save = () => {
+  const save = async () => {
     const log: SupportEntry[] = [];
     const stamp = new Date().toISOString();
     const helped = records.filter((r) => touched.has(r.studentId) && r.method === 'staff' && (r.status === 'present' || r.status === 'late'));
@@ -150,12 +154,18 @@ export function SessionAttendanceTab({ cls, s, siblings, editable }: { cls: Clas
     records
       .filter((r) => r.leftAt && before.get(r.studentId)?.leftAt !== r.leftAt)
       .forEach((r, i) => log.push({ id: `SL-${Date.now()}-l${i}`, kind: 'early_leave', note: `${nameOf(r.studentId)} về sớm lúc ${r.leftAt}${r.leaveReason ? ` — ${r.leaveReason}` : ''}.`, by, at: stamp }));
-    persist(records, log);
+    let warnings: string[];
+    try {
+      warnings = await persist(records, log);
+    } catch (e) {
+      return void notify.error({ title: 'Chưa lưu được điểm danh', description: (e as Error).message });
+    }
     setDirty(false);
     setTouched(new Set());
     const streak = records.filter((r) => r.status === 'absent' && history.get(r.studentId)?.lastAbsent);
     notify.toast.success(`Đã lưu điểm danh: ${summarize(records).attended}/${records.length} có mặt`);
-    if (streak.length)
+    if (USE_API) warnings.forEach((w) => notify.warning({ title: w }));
+    else if (streak.length)
       notify.warning({ title: `${streak.length} học viên vắng 2 buổi liên tiếp`, description: `${streak.map((r) => nameOf(r.studentId)).join(', ')} — nhắc Giáo vụ / Sale liên hệ.` });
   };
 
@@ -164,7 +174,7 @@ export function SessionAttendanceTab({ cls, s, siblings, editable }: { cls: Clas
     const t = nowOr(s);
     const next = records.map((r) => (r.studentId === studentId ? { ...r, status: (lateBy(s, t) > LATE_AFTER_MIN ? 'late' : 'present') as AttendanceStatus, checkInAt: t, method: 'qr' as const } : r));
     setRecords(next);
-    persist(next);
+    void persist(next);
   };
 
   if (!roster.length && !guests.length) return <EmptyState size="compact" title="Lớp chưa có học viên" description="Thêm học viên ở tab Học viên & học phí." />;
@@ -429,14 +439,20 @@ export function QrModal({
   onScan: (studentId: string) => void;
   onClose: () => void;
 }) {
+  const { user } = useAuth();
+  const [qr, setQr] = useState<portalApi.SessionQr>();
+  useEffect(() => {
+    if (!USE_API) return;
+    portalApi.getSessionQr(s.id, user?.portal === 'teacher').then(setQr, () => undefined);
+  }, [s.id, user?.portal]);
   return (
     <Modal open onCancel={onClose} footer={null} width={460} title={`Mã QR điểm danh · ${cls.code}`} destroyOnHidden>
       <div className="flex flex-col items-center gap-3">
-        <QRCode value={qrPayload(s)} size={256} bordered={false} className="!bg-white" errorLevel="M" />
+        <QRCode value={qr?.payload ?? qrPayload(s)} size={256} bordered={false} className="!bg-white" errorLevel="M" status={USE_API && !qr ? 'loading' : 'active'} />
         <p className="text-center text-[13px] text-ink-muted">
           Học viên mở Cổng học viên → <b className="text-ink">Quét QR điểm danh</b>
           <br />
-          Không quét được? Nhập mã: <span className="tabular rounded-md bg-page px-2 py-0.5 font-mono text-base font-bold tracking-[0.2em] text-ink">{qrCodeOf(s.id)}</span>
+          Không quét được? Nhập mã: <span className="tabular rounded-md bg-page px-2 py-0.5 font-mono text-base font-bold tracking-[0.2em] text-ink">{USE_API ? (qr?.code ?? '······') : qrCodeOf(s.id)}</span>
         </p>
         <p className="text-xs text-ink-muted">
           Buổi {s.no || '(học thêm)'} · {s.startTime}–{s.endTime} · mã cố định cho buổi này
@@ -444,7 +460,14 @@ export function QrModal({
         <p className="tabular text-sm">
           Đã quét <strong>{scanned}</strong>/{total} học viên
         </p>
-        {waiting.length > 0 ? (
+        {USE_API && qr && !qr.isOpen && (
+          <p className="text-center text-xs text-warning-700">
+            Mã nhận quét từ {dayjs(qr.opensAt).format('HH:mm DD/MM')} đến {dayjs(qr.closesAt).format('HH:mm')} — ngoài giờ này học viên quét sẽ bị từ chối.
+          </p>
+        )}
+        {USE_API ? (
+          <p className="text-xs text-ink-muted">Danh sách tự cập nhật khi học viên quét.</p>
+        ) : waiting.length > 0 ? (
           <div className="w-full rounded-lg border border-dashed border-line p-3">
             <p className="mb-2 flex items-center gap-1.5 text-xs text-ink-muted">
               <Smartphone size={13} aria-hidden /> Mô phỏng học viên quét (bản demo)

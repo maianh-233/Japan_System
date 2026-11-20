@@ -8,6 +8,8 @@ import { usePortalStore } from '@/features/portal/portalStore';
 import { shortCode, useTeacherId } from '@/features/portal/usePortal';
 import { cn } from '@/lib/cn';
 import { fmtDateTime, fromNow } from '@/lib/date';
+import { USE_API } from '@/lib/api/config';
+import * as portalApi from '@/features/portal/portalApi';
 
 /** Cổng GV › Đơn hủy buổi: đơn đã gửi + trạng thái duyệt; gửi đơn mới */
 export default function TeacherRequestsPage() {
@@ -69,8 +71,13 @@ export default function TeacherRequestsPage() {
                   className="mt-2"
                   onClick={async () => {
                     if (await confirm({ title: 'Rút lại đơn?', description: 'Buổi học giữ nguyên lịch, bạn dạy như bình thường.', tone: 'warning' })) {
-                      withdraw(r.id);
-                      notify.toast.success('Đã rút đơn');
+                      try {
+                        if (USE_API) await portalApi.withdrawCancelRequest(r.id);
+                        else withdraw(r.id);
+                        notify.toast.success('Đã rút đơn');
+                      } catch (e) {
+                        notify.error({ title: 'Không rút được đơn', description: (e as Error).message });
+                      }
                     }
                   }}
                 >

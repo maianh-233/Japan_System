@@ -5,6 +5,8 @@ import { fmtDateTime } from '@/lib/date';
 import { useClassStore } from '../classStore';
 import { EVAL_RECOMMENDATION, EVAL_SKILLS } from '../constants';
 import type { EvalRecommendation, EvalSkill, StudentEvaluation } from '../types';
+import { USE_API } from '@/lib/api/config';
+import * as portalApi from '@/features/portal/portalApi';
 
 type Values = Pick<StudentEvaluation, 'skills' | 'attitude' | 'strengths' | 'weaknesses' | 'recommendation' | 'advice'>;
 
@@ -47,7 +49,10 @@ export function EvaluationModal({ open, onClose, classId, studentId, studentName
           recommendation: 'next_level',
         }
       }
-      onSubmit={(v) => saveEvaluation({ ...v, classId, studentId, teacherId, author: user?.fullName ?? '' })}
+      onSubmit={async (v) => {
+        if (USE_API) return void (await portalApi.saveEvaluation({ ...v, classId, studentId }));
+        saveEvaluation({ ...v, classId, studentId, teacherId, author: user?.fullName ?? '' });
+      }}
     >
       <div className="mb-4 rounded-[var(--radius-card)] border border-line px-4 py-3">
         <p className="mb-1 text-[13px] font-medium text-ink">Năng lực theo kỹ năng</p>

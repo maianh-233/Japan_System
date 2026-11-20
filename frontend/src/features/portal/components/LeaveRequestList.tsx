@@ -7,6 +7,8 @@ import { cn } from '@/lib/cn';
 import { fromNow } from '@/lib/date';
 import { usePortalStore } from '../portalStore';
 import { shortCode } from '../usePortal';
+import { USE_API } from '@/lib/api/config';
+import * as portalApi from '@/features/portal/portalApi';
 
 /** Danh sách đơn xin nghỉ của 1 học viên (Cổng HV › Đơn xin nghỉ, Cổng PH › Chuyên cần) */
 export function LeaveRequestList({ studentId }: { studentId: string }) {
@@ -67,8 +69,13 @@ export function LeaveRequestList({ studentId }: { studentId: string }) {
                   className="mt-2"
                   onClick={async () => {
                     if (await confirm({ title: 'Rút đơn xin nghỉ?', description: 'Bạn sẽ đi học buổi này như bình thường.', tone: 'warning' })) {
-                      withdraw(r.id);
-                      notify.toast.success('Đã rút đơn');
+                      try {
+                        if (USE_API) await portalApi.withdrawLeaveRequest(r.id);
+                        else withdraw(r.id);
+                        notify.toast.success('Đã rút đơn');
+                      } catch (e) {
+                        notify.error({ title: 'Không rút được đơn', description: (e as Error).message });
+                      }
                     }
                   }}
                 >

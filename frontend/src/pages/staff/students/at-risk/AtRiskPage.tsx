@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 import { CircleDashed, OctagonAlert, ShieldCheck, TriangleAlert, UserX } from 'lucide-react';
 import { DataTable, PageHeader, Select, StatCard, StatusTag, UserCell, type DataColumn } from '@/components/common';
@@ -12,6 +12,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/cn';
 import { fmtDate, fromNow } from '@/lib/date';
 import { ALL_BRANCHES } from '@/types/auth';
+import { USE_API } from '@/lib/api/config';
+import { loadCareCases, useCareStaff } from '@/features/student/atRisk/careApi';
 
 interface Row {
   id: string;
@@ -42,6 +44,11 @@ export default function AtRiskPage() {
   const classes = useClassStore((s) => s.classes);
   const students = useCrmStore((s) => s.students);
   const cases = useAtRiskStore((s) => s.cases);
+  const staffNames = useCareStaff();
+  // Chế độ API: phần chăm sóc (người phụ trách, tiến độ, hẹn) lưu ở server
+  useEffect(() => {
+    if (USE_API) void loadCareCases().catch(() => undefined);
+  }, []);
 
   const [level, setLevel] = useState<RiskLevel | 'all'>('all');
   const [classId, setClassId] = useState<string>();
@@ -223,7 +230,7 @@ export default function AtRiskPage() {
               <Select placeholder="Lớp" value={classId} onChange={setClassId} options={scope.map((c) => ({ value: c.id, label: c.code }))} className="lg:!w-40" />
               <Select placeholder="Dấu hiệu" value={reason} onChange={setReason} options={REASONS} showSearch={false} className="lg:!w-40" />
               <Select placeholder="Chăm sóc" value={care} onChange={setCare} options={CARE_STATUS_OPTIONS} showSearch={false} className="lg:!w-40" />
-              <Select placeholder="Phụ trách" value={assignee} onChange={setAssignee} options={[{ value: 'none', label: 'Chưa giao' }, ...CARE_STAFF.map((x) => ({ value: x, label: x }))]} className="lg:!w-52" />
+              <Select placeholder="Phụ trách" value={assignee} onChange={setAssignee} options={[{ value: 'none', label: 'Chưa giao' }, ...(USE_API ? staffNames : CARE_STAFF).map((x) => ({ value: x, label: x }))]} className="lg:!w-52" />
             </>
           ),
           onReset: () => {

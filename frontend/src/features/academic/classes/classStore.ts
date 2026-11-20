@@ -1,3 +1,4 @@
+import { USE_API } from '@/lib/api/config';
 import { create } from 'zustand';
 import { MOCK_SESSIONS } from '@/mocks/data/attendance';
 import { MOCK_ASSIGNMENTS, MOCK_CLASSES } from '@/mocks/data/classes';
@@ -60,7 +61,8 @@ export const useClassStore = create<ClassState>((set, get) => ({
   examResults: MOCK_EXAM_RESULTS,
   announcements: MOCK_ANNOUNCEMENTS,
   teacherReviews: MOCK_TEACHER_REVIEWS,
-  careLogs: MOCK_CARE_LOGS,
+  // Chế độ API: tải theo lớp / HV (careApi)
+  careLogs: USE_API ? [] : MOCK_CARE_LOGS,
 
   addClass: (input) => {
     const c: ClassInfo = { ...input, id: `C-${Date.now()}`, status: 'enrolling', createdAt: now() };
@@ -110,7 +112,8 @@ export const useClassStore = create<ClassState>((set, get) => ({
 
   updateAssignment: (id, patch) => set((s) => ({ assignments: s.assignments.map((x) => (x.id === id ? { ...x, ...patch } : x)) })),
 
-  evaluations: MOCK_EVALUATIONS,
+  // Chế độ API: tải theo lớp (portalApi.loadEvaluations)
+  evaluations: USE_API ? [] : MOCK_EVALUATIONS,
   saveEvaluation: (e) =>
     set((s) => {
       const old = s.evaluations.find((x) => x.classId === e.classId && x.studentId === e.studentId);

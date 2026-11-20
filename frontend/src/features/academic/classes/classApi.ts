@@ -27,7 +27,7 @@ import type {
 
 // ---------------- Kiểu dữ liệu server ----------------
 
-interface ServerClass {
+export interface ServerClass {
   id: string;
   courseId: string;
   curriculumId?: string;
@@ -67,7 +67,7 @@ interface PersonAt {
   at: string;
 }
 
-interface ServerSession {
+export interface ServerSession {
   id: string;
   classId: string;
   no: number;
@@ -142,7 +142,7 @@ interface ClassResult {
   warnings: string[];
 }
 
-interface SessionResult {
+export interface SessionResult {
   session: ServerSession;
   warnings: string[];
 }
@@ -178,7 +178,7 @@ const classNotes = new Map<string, string | undefined>();
 /** Lớp do server quản lý — chỉ thay buổi của các lớp này khi tải lại (lớp mock khác giữ nguyên) */
 const serverClasses = new Set<string>();
 
-function toClass(c: ServerClass): ClassInfo {
+export function toClass(c: ServerClass): ClassInfo {
   const id = fromGuid(c.id);
   classVersions.set(id, c.rowVersion);
   classNotes.set(id, c.note);
@@ -216,7 +216,7 @@ function toClass(c: ServerClass): ClassInfo {
   };
 }
 
-function toSession(s: ServerSession): ClassSession {
+export function toSession(s: ServerSession): ClassSession {
   const id = fromGuid(s.id);
   sessionVersions.set(id, s.rowVersion);
   return {
@@ -302,7 +302,7 @@ function toSession(s: ServerSession): ClassSession {
 
 const bySchedule = (a: ClassSession, b: ClassSession) => a.classId.localeCompare(b.classId) || a.date.localeCompare(b.date) || a.no - b.no;
 
-function upsertClass(c: ServerClass): ClassInfo {
+export function upsertClass(c: ServerClass): ClassInfo {
   const cls = toClass(c);
   useClassStore.setState((s) => ({
     classes: s.classes.some((x) => x.id === cls.id) ? s.classes.map((x) => (x.id === cls.id ? cls : x)) : [cls, ...s.classes],
@@ -310,7 +310,7 @@ function upsertClass(c: ServerClass): ClassInfo {
   return cls;
 }
 
-function upsertSession(x: ServerSession): ClassSession {
+export function upsertSession(x: ServerSession): ClassSession {
   const session = toSession(x);
   useClassStore.setState((s) => ({
     sessions: (s.sessions.some((y) => y.id === session.id) ? s.sessions.map((y) => (y.id === session.id ? session : y)) : [...s.sessions, session]).sort(bySchedule),
@@ -319,7 +319,7 @@ function upsertSession(x: ServerSession): ClassSession {
 }
 
 /** Thay các buổi khớp `drop` (của lớp server) bằng danh sách mới */
-function replaceSessions(list: ServerSession[], drop: (s: ClassSession) => boolean) {
+export function replaceSessions(list: ServerSession[], drop: (s: ClassSession) => boolean) {
   const fresh = list.map(toSession);
   const ids = new Set(fresh.map((s) => s.id));
   useClassStore.setState((s) => ({

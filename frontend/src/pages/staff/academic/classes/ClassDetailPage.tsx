@@ -7,6 +7,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Button, DateInput, EmptyState, ModalForm, PageHeader, StatusTag, useConfirm, useNotify } from '@/components/common';
 import { useClassStore } from '@/features/academic/classes/classStore';
 import * as classApi from '@/features/academic/classes/classApi';
+import * as portalApi from '@/features/portal/portalApi';
 import * as studentApi from '@/features/student/studentApi';
 import { cancelMockInvoice } from '@/features/student/studentStore';
 import { USE_API } from '@/lib/api/config';
@@ -30,6 +31,7 @@ import { summarizeInvoice, useStudentStore } from '@/features/student/studentSto
 import { useAuth } from '@/hooks/useAuth';
 import { fmtDate } from '@/lib/date';
 import { getBranches } from '@/features/system/useBranches';
+import { loadClassCareLogs } from '@/features/student/atRisk/careApi';
 
 type TabKey = 'overview' | 'students' | 'sessions' | 'attendance' | 'progress' | 'assignments' | 'exams' | 'reviews' | 'announcements' | 'promotion';
 const TAB_KEYS: TabKey[] = ['overview', 'students', 'sessions', 'attendance', 'progress', 'assignments', 'exams', 'reviews', 'announcements', 'promotion'];
@@ -51,6 +53,8 @@ export default function ClassDetailPage() {
   useEffect(() => {
     if (USE_API && id) {
       void classApi.loadClassSessions(id).catch(() => undefined);
+      void portalApi.loadEvaluations(id, false).catch(() => undefined);
+      void loadClassCareLogs(id).catch(() => undefined);
       void studentApi.loadEnrollments(id).catch(() => undefined);
     }
   }, [id]);

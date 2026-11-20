@@ -1,4 +1,4 @@
-import { useMemo, useState, type Key } from 'react';
+import { useEffect, useMemo, useState, type Key } from 'react';
 import { Form, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { ArrowRight, Bookmark, BookmarkX, CalendarClock, CheckCheck, CirclePlus, ListPlus, Send, Sparkles, UserRound, Users } from 'lucide-react';
@@ -21,6 +21,8 @@ import { usePromotionStore } from './promotionStore';
 import { holdUntilFor, isOpen, nextCoursesOf, PROMOTION_STATUS, seatActive, suggestionFor, targetClassesFor, viewStatus, type Decider, type Suggestion } from './promotionUtils';
 import type { PromotionCandidate } from './types';
 import { useDecider, useSeats } from './usePromotion';
+import { USE_API } from '@/lib/api/config';
+import * as portalApi from '@/features/portal/portalApi';
 
 interface Row {
   id: string;
@@ -68,6 +70,12 @@ function Outgoing({ cls }: { cls: ClassInfo }) {
   const { upsertMany, update, remove, handOver } = usePromotionStore();
   const decider = useDecider();
   const { map } = useClassStudentStats(cls);
+  // Chế độ API: danh sách lên lớp + nhận xét cuối khóa của lớp tải từ server
+  useEffect(() => {
+    if (!USE_API) return;
+    void portalApi.loadPromotions(cls.id).catch(() => undefined);
+    void portalApi.loadEvaluations(cls.id, false).catch(() => undefined);
+  }, [cls.id]);
 
   const course = courses.find((c) => c.id === cls.courseId);
   const nextCourses = useMemo(() => nextCoursesOf(course, courses), [course, courses]);
@@ -110,8 +118,29 @@ function Outgoing({ cls }: { cls: ClassInfo }) {
   const editable = (r: Row) => !r.cand || r.cand.status !== 'confirmed';
   const pick = (keys: Key[]) => rows.filter((r) => keys.includes(r.id) && editable(r));
 
-  const put = (list: Row[], hold: boolean) => {
+  /** Chế độ API: thêm HV chưa có vào danh sách rồi đặt lớp đích / giữ chỗ từng HV (server kiểm lớp đích, cảnh báo vượt sĩ số) */
+  const putApi = async (list: Row[], hold: boolean, toClassId: string) => {
+    const missing = list.filter((r) => !r.cand);
+    if (missing.length) await portalApi.addPromotions(cls.id, missing.map((r) => r.id), 'manual');
+    const warnings = new Set<string>();
+    for (const r of list) {
+      const id = usePromotionStore.getState().candidates.find((c) => c.fromClassId === cls.id && c.studentId === r.id)?.id;
+      if (id) (await portalApi.updatePromotion(id, { toClassId, holdSeat: hold })).forEach((w) => warnings.add(w));
+    }
+    return [...warnings];
+  };
+
+  const put = async (list: Row[], hold: boolean) => {
     if (!target) return notify.error({ title: 'Chưa chọn lớp kế tiếp', description: 'Chọn hoặc mở lớp kế tiếp trước khi giữ chỗ.' });
+    if (USE_API) {
+      try {
+        (await putApi(list, hold, target.id)).forEach((w) => notify.warning({ title: w }));
+      } catch (e) {
+        return void notify.error({ title: 'Chưa lưu được', description: (e as Error).message });
+      }
+      setSelected([]);
+      return void notify.toast.success(hold ? `Đã giữ chỗ ${list.length} học viên vào ${target.code}` : `Đã thêm ${list.length} học viên vào danh sách tư vấn`);
+    }
     upsertMany(
       list.map((r) => ({
         studentId: r.id,
@@ -244,7 +273,18 @@ function Outgoing({ cls }: { cls: ClassInfo }) {
           <div className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-warning-100 bg-warning-50 px-4 py-3 text-[13px] text-warning-700 sm:flex-row sm:items-center">
             <Send size={18} className="shrink-0" aria-hidden />
             <span className="flex-1">Lớp đã kết thúc — còn {counts.notHanded} học viên trong danh sách chưa giao cho Sale tư vấn.</span>
-            <Button icon={Send} size="sm" onClick={() => notify.toast.success(`Đã giao ${handOver(cls.id)} học viên cho Sale`)}>
+            <Button
+              icon={Send}
+              size="sm"
+              onClick={async () => {
+                if (!USE_API) return notify.toast.success(`Đã giao ${handOver(cls.id)} học viên cho Sale`);
+                try {
+                  notify.toast.success(`Đã giao ${await portalApi.handOverPromotions(cls.id)} học viên cho Sale`);
+                } catch (e) {
+                  notify.error({ title: 'Chưa giao được', description: (e as Error).message });
+                }
+              }}
+            >
               Giao cho Sale
             </Button>
           </div>
@@ -341,8 +381,14 @@ function Outgoing({ cls }: { cls: ClassInfo }) {
               size="sm"
               variant="ghost"
               tone="danger"
-              onClick={() => {
-                pick(keys).forEach((r) => r.cand && (r.cand.handedOverAt || r.cand.notes.length ? update(r.cand.id, { seatHeld: false, holdUntil: undefined }) : remove(r.cand.id)));
+              onClick={async () => {
+                if (USE_API) {
+                  try {
+                    for (const r of pick(keys)) if (r.cand) await portalApi.updatePromotion(r.cand.id, { toClassId: r.cand.toClassId, holdSeat: false });
+                  } catch (e) {
+                    return void notify.error({ title: 'Chưa bỏ giữ chỗ được', description: (e as Error).message });
+                  }
+                } else pick(keys).forEach((r) => r.cand && (r.cand.handedOverAt || r.cand.notes.length ? update(r.cand.id, { seatHeld: false, holdUntil: undefined }) : remove(r.cand.id)));
                 setSelected([]);
                 notify.toast.success('Đã bỏ giữ chỗ');
               }}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Drawer, Radio, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { ExternalLink, MessageCircle, Phone, PhoneCall, Star, Users, Video } from 'lucide-react';
@@ -15,6 +15,9 @@ import { fmtDate, fmtDateTime } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
 import { GUARDIAN_ROLE } from '../constants';
 import { CARE_STAFF, CARE_STATUS, CARE_STATUS_OPTIONS, caseKey, RISK_LEVEL, riskLevel, useAtRiskStore, type CareStatus } from './atRisk';
+import { USE_API } from '@/lib/api/config';
+import * as careApi from './careApi';
+import { useCareStaff } from './careApi';
 
 const CHANNEL = { call: { label: 'Gọi điện', icon: PhoneCall }, zalo: { label: 'Zalo', icon: MessageCircle }, meet: { label: 'Gặp trực tiếp', icon: Video } } as const;
 const DOT: Record<string, string> = { present: 'bg-success-600', late: 'bg-warning-600', excused: 'bg-primary-400', absent: 'bg-danger-600' };
@@ -33,6 +36,13 @@ export function AtRiskDrawer({ item, onClose }: { item: { cls: ClassInfo; st: St
   const setCase = useAtRiskStore((s) => s.setCase);
   const [channel, setChannel] = useState<'call' | 'zalo' | 'meet'>('call');
   const [note, setNote] = useState('');
+  const staffNames = useCareStaff();
+  const itemClassId = item?.cls.id;
+  const itemStudentId = item?.st.enrollment.studentId;
+  // Chế độ API: nhật ký liên hệ của HV × lớp tải từ server khi mở hồ sơ
+  useEffect(() => {
+    if (USE_API && itemClassId && itemStudentId) void careApi.loadCareLogs(itemClassId, itemStudentId).catch(() => undefined);
+  }, [itemClassId, itemStudentId]);
 
   if (!item) return <Drawer open={false} onClose={onClose} />;
   const { cls, st } = item;
@@ -48,8 +58,23 @@ export function AtRiskDrawer({ item, onClose }: { item: { cls: ClassInfo; st: St
     .sort((a, b) => Number(Boolean(b.link.primary)) - Number(Boolean(a.link.primary)));
   const me = user ? `${user.fullName} (${user.roleName})` : 'Nhân viên';
 
-  const log = () => {
+  /** Đổi người phụ trách / tiến độ / hẹn — chế độ API lưu server (tự mở trường hợp nếu chưa có) */
+  const update = (patch: Parameters<typeof setCase>[1]) => {
+    if (!USE_API) return setCase(key, patch);
+    careApi.saveCareCase(cls.id, sid, patch).catch((e: Error) => notify.error({ title: 'Chưa lưu được', description: e.message }));
+  };
+
+  const log = async () => {
     if (!note.trim()) return;
+    if (USE_API) {
+      try {
+        await careApi.addCareLog(cls.id, sid, channel, note.trim());
+      } catch (e) {
+        return void notify.error({ title: 'Chưa ghi nhận được', description: (e as Error).message });
+      }
+      setNote('');
+      return void notify.toast.success('Đã ghi nhận lần liên hệ');
+    }
     addCareLog({ classId: cls.id, studentId: sid, channel, note: note.trim(), by: me });
     if (c.status === 'new') setCase(key, { status: 'contacting', assignee: c.assignee ?? me });
     setNote('');
@@ -171,15 +196,15 @@ export function AtRiskDrawer({ item, onClose }: { item: { cls: ClassInfo; st: St
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             <label className="flex flex-col gap-1">
               <span className="text-xs text-ink-muted">Người phụ trách</span>
-              <Select value={c.assignee} placeholder="Chưa giao" onChange={(v) => setCase(key, { assignee: v as string })} options={CARE_STAFF.map((x) => ({ value: x, label: x }))} />
+              <Select value={c.assignee} placeholder="Chưa giao" onChange={(v) => update({ assignee: v as string })} options={(USE_API ? staffNames : CARE_STAFF).map((x) => ({ value: x, label: x }))} />
             </label>
             <label className="flex flex-col gap-1">
               <span className="text-xs text-ink-muted">Trạng thái</span>
-              <Select value={c.status} onChange={(v) => setCase(key, { status: v as CareStatus })} options={CARE_STATUS_OPTIONS} showSearch={false} allowClear={false} />
+              <Select value={c.status} onChange={(v) => update({ status: v as CareStatus })} options={CARE_STATUS_OPTIONS} showSearch={false} allowClear={false} />
             </label>
             <label className="flex flex-col gap-1">
               <span className="text-xs text-ink-muted">Hẹn liên hệ lại</span>
-              <DateInput value={c.nextAt ? dayjs(c.nextAt) : null} onChange={(d) => setCase(key, { nextAt: d?.format('YYYY-MM-DD') })} />
+              <DateInput value={c.nextAt ? dayjs(c.nextAt) : null} onChange={(d) => update({ nextAt: d?.format('YYYY-MM-DD') })} />
             </label>
           </div>
 
