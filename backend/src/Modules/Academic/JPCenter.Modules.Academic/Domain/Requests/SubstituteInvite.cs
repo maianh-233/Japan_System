@@ -32,14 +32,19 @@ public sealed class SubstituteInvite : AggregateRoot<SubstituteInviteId>, IBranc
     public DateTimeOffset? RespondedAt { get; private set; }
     public string? DeclineReason { get; private set; }
 
-    public static SubstituteInvite Create(ClassSessionId sessionId, ClassId classId, BranchId branchId, SessionCancelRequestId? cancelRequestId,
-        Guid fromTeacherId, Guid toTeacherId, string reason, Guid invitedBy, DateTimeOffset at, DateTimeOffset respondBy) =>
-        new()
+    public bool IsPending => Status == InviteStatus.Pending;
+
+    public static Result<SubstituteInvite> Create(ClassSessionId sessionId, ClassId classId, BranchId branchId, SessionCancelRequestId? cancelRequestId,
+        Guid fromTeacherId, Guid toTeacherId, string reason, Guid invitedBy, DateTimeOffset at, DateTimeOffset respondBy)
+    {
+        if (toTeacherId == fromTeacherId || respondBy <= at) return RequestErrors.InviteInvalid;
+        return new SubstituteInvite
         {
             Id = SubstituteInviteId.New(), SessionId = sessionId, ClassId = classId, BranchId = branchId, CancelRequestId = cancelRequestId,
             FromTeacherId = fromTeacherId, ToTeacherId = toTeacherId, Reason = reason, InvitedBy = invitedBy, InvitedAt = at, RespondBy = respondBy,
             Status = InviteStatus.Pending,
         };
+    }
 
     public Result Accept(DateTimeOffset at)
     {
@@ -52,13 +57,21 @@ public sealed class SubstituteInvite : AggregateRoot<SubstituteInviteId>, IBranc
     public Result Decline(string? reason, DateTimeOffset at)
     {
         if (Status != InviteStatus.Pending) return RequestErrors.InviteClosed;
-        (Status, RespondedAt, DeclineReason) = (InviteStatus.Declined, at, reason);
+        (Status, RespondedAt, DeclineReason) = (InviteStatus.Declined, at, string.IsNullOrWhiteSpace(reason) ? null : reason.Trim());
         return Result.Success();
     }
 
-    /// <summary>GV khác đã nhận / quá hạn</summary>
-    public void Expire()
+    /// <summary>Hết hiệu lực: GV khác đã nhận / giáo vụ thu hồi / quá hạn — lý do ghi vào <see cref="DeclineReason"/></summary>
+    public void Expire(string reason, DateTimeOffset at)
     {
-        if (Status == InviteStatus.Pending) Status = InviteStatus.Expired;
+        if (Status == InviteStatus.Pending) (Status, RespondedAt, DeclineReason) = (InviteStatus.Expired, at, reason);
+    }
+
+    /// <summary>Job: quá hạn trả lời mà chưa ai nhận (DT-16 bước 3)</summary>
+    public bool ExpireIfOverdue(DateTimeOffset now)
+    {
+        if (Status != InviteStatus.Pending || now <= RespondBy) return false;
+        Expire("Quá hạn trả lời", now);
+        return true;
     }
 }

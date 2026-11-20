@@ -27,14 +27,40 @@ public sealed class CareCase : AggregateRoot<CareCaseId>, IBranchScoped, IAudita
     public DateOnly? NextAt { get; private set; }
     public DateTimeOffset DetectedAt { get; private set; }
 
-    public static CareCase Detect(StudentId studentId, Guid classId, BranchId branchId, RiskLevel level, List<string> flags, DateTimeOffset at) =>
+    /// <summary>Hết dấu hiệu nhưng case còn mở (HV-14.E2) — nhãn "Không còn dấu hiệu"</summary>
+    public bool NoLongerFlagged => Flags.Count == 0 && Status != CareStatus.Resolved;
+
+    public static CareCase Detect(StudentId studentId, Guid classId, BranchId branchId, RiskAssessment risk, DateTimeOffset at) =>
         new()
         {
-            Id = CareCaseId.New(), StudentId = studentId, ClassId = classId, BranchId = branchId, RiskLevel = level, Flags = flags,
-            Status = CareStatus.New, DetectedAt = at,
+            Id = CareCaseId.New(), StudentId = studentId, ClassId = classId, BranchId = branchId, RiskLevel = risk.Level ?? RiskLevel.Low,
+            Flags = [.. risk.Flags], Status = CareStatus.New, DetectedAt = at,
         };
 
-    public void Reassess(RiskLevel level, List<string> flags) => (RiskLevel, Flags) = (level, flags);
+    /// <summary>
+    /// Job hằng đêm / điểm danh tính lại (HV-14.E4). Hết dấu hiệu → giữ case, xóa flags (E2).
+    /// Case đã ổn định mà có dấu hiệu MỚI → mở lại "chưa liên hệ", ghi lại lúc phát hiện (E3).
+    /// </summary>
+    public void Reassess(RiskAssessment risk, DateTimeOffset at)
+    {
+        if (!risk.Flagged)
+        {
+            Flags = [];
+            return;
+        }
+        var fresh = risk.Flags.Except(Flags).Any();
+        (RiskLevel, Flags) = (risk.Level!.Value, [.. risk.Flags]);
+        if (Status == CareStatus.Resolved && fresh) (Status, NextAt, DetectedAt) = (CareStatus.New, null, at);
+    }
+
     public void Assign(Guid? employeeId) => AssigneeId = employeeId;
-    public void ChangeStatus(CareStatus status, DateOnly? nextAt) => (Status, NextAt) = (status, nextAt);
+
+    /// <summary>Đổi tiến độ chăm sóc + hẹn liên hệ lại; đã ổn định thì bỏ hẹn</summary>
+    public void ChangeStatus(CareStatus status, DateOnly? nextAt) => (Status, NextAt) = (status, status == CareStatus.Resolved ? null : nextAt);
+
+    /// <summary>Ghi nhận liên hệ: case "chưa liên hệ" chuyển "đang liên hệ"</summary>
+    public void Contacted()
+    {
+        if (Status == CareStatus.New) Status = CareStatus.Contacting;
+    }
 }

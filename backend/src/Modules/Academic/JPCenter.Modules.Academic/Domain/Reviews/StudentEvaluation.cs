@@ -29,16 +29,35 @@ public sealed class StudentEvaluation : AggregateRoot<StudentEvaluationId>, IAud
     /// <summary>Ghi chú cho trung tâm / Sale khi tư vấn</summary>
     public string? Advice { get; private set; }
 
-    public static Result<StudentEvaluation> Create(ClassId classId, Guid studentId, Guid teacherId) =>
-        new StudentEvaluation { Id = StudentEvaluationId.New(), ClassId = classId, StudentId = studentId, TeacherId = teacherId, Recommendation = EvalRecommendation.NextLevel };
+    /// <summary>GV sửa được tới khi lớp kết thúc + N ngày (DT-19)</summary>
+    public const int EditableDaysAfterClassEnd = 14;
 
-    public Result Update(int vocab, int grammar, int reading, int listening, int speaking, int attitude, string? strengths, string? weaknesses,
-        EvalRecommendation recommendation, string? advice)
+    public static readonly Error InvalidRating = Error.Validation("academic.evaluation.invalid_rating", "Đánh giá từ 1 đến 5 sao");
+    public static readonly Error Locked = Error.Conflict("academic.evaluation.locked", "Đã quá 14 ngày sau khi lớp kết thúc — không sửa được nhận xét");
+
+    /// <summary>Còn sửa được không: lớp chưa kết thúc, hoặc kết thúc chưa quá 14 ngày</summary>
+    public static bool IsEditable(DateOnly? classEndedOn, DateOnly today) =>
+        classEndedOn is not { } end || today <= end.AddDays(EditableDaysAfterClassEnd);
+
+    /// <summary>Tạo nhận xét (UQ lớp × HV — handler kiểm đã có thì sửa)</summary>
+    public static Result<StudentEvaluation> Create(ClassId classId, Guid studentId, Guid teacherId, EvaluationScores scores, string? strengths,
+        string? weaknesses, EvalRecommendation recommendation, string? advice, DateOnly? classEndedOn, DateOnly today)
     {
-        int[] stars = [vocab, grammar, reading, listening, speaking, attitude];
-        if (stars.Any(s => s is < 1 or > 5)) return Error.Validation("academic.evaluation.invalid_rating", "Đánh giá từ 1 đến 5 sao");
-        (Vocab, Grammar, Reading, Listening, Speaking, Attitude) = (vocab, grammar, reading, listening, speaking, attitude);
-        (Strengths, Weaknesses, Recommendation, Advice) = (strengths, weaknesses, recommendation, advice);
+        var e = new StudentEvaluation { Id = StudentEvaluationId.New(), ClassId = classId, StudentId = studentId, TeacherId = teacherId };
+        var r = e.Update(teacherId, scores, strengths, weaknesses, recommendation, advice, classEndedOn, today);
+        return r.IsSuccess ? e : r.Error;
+    }
+
+    public Result Update(Guid teacherId, EvaluationScores scores, string? strengths, string? weaknesses, EvalRecommendation recommendation,
+        string? advice, DateOnly? classEndedOn, DateOnly today)
+    {
+        if (!IsEditable(classEndedOn, today)) return Locked;
+        if (!scores.IsValid) return InvalidRating;
+        (Vocab, Grammar, Reading, Listening, Speaking, Attitude) =
+            (scores.Vocab, scores.Grammar, scores.Reading, scores.Listening, scores.Speaking, scores.Attitude);
+        (Strengths, Weaknesses, Recommendation, Advice, TeacherId) = (Clean(strengths), Clean(weaknesses), recommendation, Clean(advice), teacherId);
         return Result.Success();
     }
+
+    private static string? Clean(string? s) => string.IsNullOrWhiteSpace(s) ? null : s.Trim();
 }

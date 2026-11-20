@@ -19,8 +19,14 @@ public static class SessionErrors
     public static readonly Error NotConfirmed = Error.Conflict("academic.session.not_confirmed", "Buổi học chưa được xác nhận");
     public static readonly Error ConfirmedLocked = Error.Conflict("academic.session.confirmed_locked", "Buổi đã xác nhận — giáo viên không sửa được, liên hệ giáo vụ");
     public static readonly Error ReportLocked = Error.Conflict("academic.session.report_locked", "Đã quá 24 giờ sau khi xác nhận — không sửa được báo cáo buổi");
+    public static readonly Error ReportContentRequired = Error.Validation("academic.session.report_required", "Chưa nhập nội dung buổi học");
     public static readonly Error NoIncident = Error.NotFound("academic.session.no_incident", "Buổi học không có sự cố");
     public static readonly Error NotCheckedIn = Error.Conflict("academic.teacher_attendance.not_checked_in", "Chưa check-in — không check-out được");
+    public static readonly Error TooEarly = Error.Conflict("academic.teacher_attendance.too_early", "Chỉ check-in được từ 30 phút trước giờ học");
+    public static readonly Error NotAssigned = Error.Forbidden("academic.teacher_attendance.not_assigned", "Bạn không phải GV / trợ giảng của buổi này");
+    public static readonly Error InvalidCode = Error.Validation("academic.attendance.invalid_code", "Mã điểm danh không đúng");
+    public static readonly Error NotInRoster = Error.Forbidden("academic.attendance.not_in_roster", "Bạn không có tên trong danh sách buổi học này");
+    public static readonly Error QrClosed = Error.Conflict("academic.attendance.qr_closed", "Chưa tới giờ hoặc buổi học đã kết thúc — không điểm danh QR được");
     public static readonly Error AlreadyMadeUp = Error.Conflict("academic.session.already_made_up", "Buổi này đã có buổi học bù khác");
     public static readonly Error MakeupTargetInvalid = Error.Conflict("academic.session.makeup_target", "Chỉ xếp học bù cho buổi đã hủy của cùng lớp");
 }

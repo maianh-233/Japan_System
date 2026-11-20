@@ -30,19 +30,44 @@ public sealed class SessionCancelRequest : AggregateRoot<SessionCancelRequestId>
     /// <summary>Kết quả xử lý: "Đã mời GV ... dạy thay"</summary>
     public string? Note { get; private set; }
 
+    /// <summary>Chi tiết lý do tối thiểu (DT-16)</summary>
+    public const int MinReasonLength = 10;
+
+    public bool IsPending => Status == RequestStatus.Pending;
+
+    /// <summary>
+    /// GV gửi đơn (DT-16): buổi chưa bắt đầu (<paramref name="sessionStartsAt"/>, <paramref name="now"/> theo giờ VN), lý do ≥ 10 ký tự.
+    /// Trùng đơn chờ duyệt (E7) — handler kiểm.
+    /// </summary>
     public static Result<SessionCancelRequest> Create(ClassSessionId sessionId, ClassId classId, BranchId branchId, Guid teacherId,
-        string reasonType, string reason, DateTimeOffset? proposedMakeupAt, DateTimeOffset at)
+        string reasonType, string reason, DateTimeOffset? proposedMakeupAt, DateTime sessionStartsAt, DateTime now, DateTimeOffset at)
     {
-        if (string.IsNullOrWhiteSpace(reason)) return Error.Validation("academic.cancel_request.reason_required", "Chưa nhập lý do");
+        if (now >= sessionStartsAt) return RequestErrors.CancelSessionStarted;
+        if (string.IsNullOrWhiteSpace(reasonType) || (reason?.Trim().Length ?? 0) < MinReasonLength) return RequestErrors.CancelReasonRequired;
         return new SessionCancelRequest
         {
             Id = SessionCancelRequestId.New(), SessionId = sessionId, ClassId = classId, BranchId = branchId, TeacherId = teacherId,
-            ReasonType = reasonType, Reason = reason, ProposedMakeupAt = proposedMakeupAt, RequestedAt = at, Status = RequestStatus.Pending,
+            ReasonType = reasonType.Trim(), Reason = reason!.Trim(), ProposedMakeupAt = proposedMakeupAt, RequestedAt = at, Status = RequestStatus.Pending,
         };
     }
 
+    /// <summary>GV thu hồi khi còn chờ duyệt</summary>
+    public Result Withdraw(DateTimeOffset at)
+    {
+        if (!IsPending) return RequestErrors.NotPending;
+        (Status, DecidedAt) = (RequestStatus.Withdrawn, at);
+        return Result.Success();
+    }
+
+    /// <summary>Buổi / lớp liên kết không còn (DT-16.E6) → đóng đơn</summary>
+    public void CloseOrphan(DateTimeOffset at)
+    {
+        if (IsPending) (Status, DecidedAt, Note) = (RequestStatus.Rejected, at, RequestErrors.SessionGone.Message);
+    }
+
     public Result Approve(Guid by, DateTimeOffset at, string? note) => Decide(RequestStatus.Approved, by, at, note);
-    public Result Reject(Guid by, DateTimeOffset at, string note) => Decide(RequestStatus.Rejected, by, at, note);
+    public Result Reject(Guid by, DateTimeOffset at, string note) =>
+        string.IsNullOrWhiteSpace(note) ? RequestErrors.RejectReasonRequired : Decide(RequestStatus.Rejected, by, at, note.Trim());
     public void AddResultNote(string note) => Note = note;
 
     private Result Decide(RequestStatus status, Guid by, DateTimeOffset at, string? note)

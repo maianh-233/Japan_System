@@ -71,9 +71,20 @@ public sealed class ClassSession : AggregateRoot<ClassSessionId>, IBranchScoped,
     public IReadOnlyList<TeacherAttendance> TeacherAttendance => _teacherAttendance;
     public IReadOnlyList<SupportEntry> SupportLog => _supportLog;
 
+    /// <summary>Mở QR điểm danh / GV check-in từ N phút trước giờ học (DT-09, DT-12)</summary>
+    public const int OpenBeforeMinutes = 30;
+    /// <summary>Quét QR quá N phút sau giờ bắt đầu → đi muộn (DT-09)</summary>
+    public const int LateAfterMinutes = 10;
+
     public DateTime StartsAt => Date.ToDateTime(StartTime);
     public DateTime EndsAt => Date.ToDateTime(EndTime);
     public bool IsConfirmed => ConfirmedAt is not null;
+
+    /// <summary>Mã 6 ký tự HV nhập tay thay cho quét QR (phần đầu mã QR, chữ hoa)</summary>
+    public string ShortCode => (AttendanceQrToken.Length > 6 ? AttendanceQrToken[..6] : AttendanceQrToken).ToUpperInvariant();
+
+    /// <summary>QR mở từ 30 phút trước giờ học tới hết buổi</summary>
+    public bool IsQrOpen(DateTime now) => Status == SessionStatus.Scheduled && now >= StartsAt.AddMinutes(-OpenBeforeMinutes) && now <= EndsAt;
 
     /// <summary>Có thay đổi riêng (dạy thay, đổi phòng, dời lịch) — sinh lại lịch sẽ mất (DT-08.E3)</summary>
     public bool HasOverrides => TeacherIds.Count > 0 || AssistantIds is not null || RoomId is not null || RescheduledFromDate is not null;
@@ -161,6 +172,32 @@ public sealed class ClassSession : AggregateRoot<ClassSessionId>, IBranchScoped,
         return Result.Success();
     }
 
+    /// <summary>
+    /// HV quét QR / nhập mã 6 ký tự (DT-09): có mặt, quá 10 phút → muộn. Quét lần 2 giữ kết quả lần đầu (E8).
+    /// <paramref name="enrolled"/> = HV có ghi danh hiệu lực ở lớp (handler đọc Students.Contracts); khách học bù đã có dòng điểm danh.
+    /// </summary>
+    public Result<AttendanceStatus> ScanQr(Guid studentId, string code, bool enrolled, DateTime now, DateTimeOffset at)
+    {
+        if (Status == SessionStatus.Cancelled) return SessionErrors.Cancelled;
+        var c = code.Trim();
+        if (!string.Equals(c, AttendanceQrToken, StringComparison.OrdinalIgnoreCase) && !string.Equals(c, ShortCode, StringComparison.OrdinalIgnoreCase))
+            return SessionErrors.InvalidCode;
+        var record = _attendance.FirstOrDefault(r => r.StudentId == studentId);
+        if (!enrolled && record is not { IsGuest: true }) return SessionErrors.NotInRoster;
+        if (IsConfirmed || !IsQrOpen(now)) return SessionErrors.QrClosed;
+        if (record is { Status: AttendanceStatus.Present or AttendanceStatus.Late }) return record.Status;
+
+        if (record is null)
+        {
+            record = new AttendanceRecord(studentId);
+            _attendance.Add(record);
+        }
+        var status = now > StartsAt.AddMinutes(LateAfterMinutes) ? AttendanceStatus.Late : AttendanceStatus.Present;
+        record.Mark(status, AttendanceMethod.Qr, TimeOnly.FromDateTime(now), record.Note, null, null);
+        (AttendanceBy, AttendanceAt) = (studentId, at);
+        return status;
+    }
+
     /// <summary>Vắng theo đơn xin nghỉ đã duyệt (DT-09.E7): đã có mặt / muộn thì giữ nguyên</summary>
     public void MarkExcusedByLeave(Guid studentId, Guid leaveRequestId)
     {
@@ -208,6 +245,44 @@ public sealed class ClassSession : AggregateRoot<ClassSessionId>, IBranchScoped,
         return Result.Success();
     }
 
+    /// <summary>
+    /// GV / trợ giảng tự check-in trên cổng (DT-12): từ 30 phút trước giờ học; sau giờ bắt đầu → muộn. Đã check-in thì giữ nguyên.
+    /// <paramref name="role"/> do handler suy (GV lớp / GV ghi đè ở buổi = dạy thay / trợ giảng).
+    /// </summary>
+    public Result SelfCheckIn(Guid teacherId, StaffRole role, DateTime now, DateTimeOffset at)
+    {
+        if (Status == SessionStatus.Cancelled) return SessionErrors.Cancelled;
+        if (IsConfirmed) return SessionErrors.ConfirmedLocked;
+        if (now < StartsAt.AddMinutes(-OpenBeforeMinutes)) return SessionErrors.TooEarly;
+        if (_teacherAttendance.Any(t => t.TeacherId == teacherId && t.CheckIn is not null)) return Result.Success();
+        var status = now > StartsAt ? TeacherAttendanceStatus.Late : TeacherAttendanceStatus.Present;
+        return RecordStaffAttendance(teacherId, role, CheckSource.Self, status, TimeOnly.FromDateTime(now), null, null, null, at);
+    }
+
+    /// <summary>GV tự check-out (DT-12.E2: chưa check-in → lỗi). Giờ ra không sớm hơn giờ vào.</summary>
+    public Result SelfCheckOut(Guid teacherId, DateTime now, DateTimeOffset at)
+    {
+        if (Status == SessionStatus.Cancelled) return SessionErrors.Cancelled;
+        if (IsConfirmed) return SessionErrors.ConfirmedLocked;
+        var item = _teacherAttendance.FirstOrDefault(t => t.TeacherId == teacherId);
+        if (item?.CheckIn is not { } checkIn) return SessionErrors.NotCheckedIn;
+        var checkOut = TimeOnly.FromDateTime(now);
+        if (checkOut <= checkIn) checkOut = checkIn.AddMinutes(1);
+        item.Record(item.Role, CheckSource.Self, item.Status, checkIn, checkOut, null, item.Note, at);
+        return Result.Success();
+    }
+
+    /// <summary>GV nhận lời mời dạy thay (DT-16): buổi chưa bắt đầu → ghi đè GV của buổi</summary>
+    public Result AssignSubstitute(Guid teacherId, string reason, DateTime now)
+    {
+        if (Status == SessionStatus.Cancelled) return SessionErrors.Cancelled;
+        if (Status != SessionStatus.Scheduled || IsConfirmed) return SessionErrors.NotScheduled;
+        if (now >= StartsAt) return SessionErrors.AlreadyStarted;
+        TeacherIds = [teacherId];
+        RescheduleReason = reason.Trim();
+        return Result.Success();
+    }
+
     public void AddSupport(SupportKind kind, string note, Guid by, DateTimeOffset at) => _supportLog.Add(new SupportEntry(kind, note.Trim(), by, at));
 
     /// <summary>Báo sự cố GV giữa buổi (DT-13) — chỉ khi buổi đã bắt đầu</summary>
@@ -228,14 +303,18 @@ public sealed class ClassSession : AggregateRoot<ClassSessionId>, IBranchScoped,
 
     /// <summary>
     /// GV bấm "Kết thúc buổi học" / sửa báo cáo (DT-14). Buổi chuyển "Chờ xác nhận" (suy theo giờ) — không tự xác nhận.
-    /// Sau khi xác nhận chỉ sửa được trong 24 giờ.
+    /// Sau khi xác nhận chỉ sửa được trong 24 giờ. Có <paramref name="now"/> (cổng GV) → GV đã check-in mà chưa check-out thì tự check-out.
     /// </summary>
     public Result SubmitReport(string content, string? homework, string? issues, LessonCoverage coverage, List<ChapterId> coveredChapterIds,
-        Guid authorId, DateTimeOffset at)
+        Guid authorId, DateTimeOffset at, DateTime? now = null)
     {
         if (Status == SessionStatus.Cancelled) return SessionErrors.Cancelled;
         if (ConfirmedAt is { } confirmed && at > confirmed.AddHours(24)) return SessionErrors.ReportLocked;
-        Report = new SessionReport(content.Trim(), homework, issues, coverage, coveredChapterIds, Report?.EndedAt ?? at, authorId, at);
+        if (string.IsNullOrWhiteSpace(content)) return SessionErrors.ReportContentRequired;
+        Report = new SessionReport(content.Trim(), string.IsNullOrWhiteSpace(homework) ? null : homework.Trim(),
+            string.IsNullOrWhiteSpace(issues) ? null : issues.Trim(), coverage, [.. coveredChapterIds.Distinct()], Report?.EndedAt ?? at, authorId, at);
+        if (now is { } n && !IsConfirmed && _teacherAttendance.FirstOrDefault(t => t.TeacherId == authorId) is { CheckIn: not null, CheckOut: null })
+            SelfCheckOut(authorId, n, at);
         return Result.Success();
     }
 

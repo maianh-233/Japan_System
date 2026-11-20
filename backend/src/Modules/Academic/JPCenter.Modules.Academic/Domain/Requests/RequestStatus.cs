@@ -9,4 +9,6 @@ public enum RequestStatus
     Approved,
     /// <summary>Từ chối</summary>
     Rejected,
+    /// <summary>Người gửi thu hồi khi còn chờ duyệt (không hiện trong danh sách)</summary>
+    Withdrawn,
 }

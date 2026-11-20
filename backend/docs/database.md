@@ -1133,9 +1133,9 @@ Khóa chính (scope, key).
 | branch_id | uuid | → system.branches |
 | teacher_id | uuid | GV gửi → hr.employees |
 | reason_type | text | Loại lý do |
-| reason | text | Lý do |
+| reason | text | Chi tiết lý do (≥ 10 ký tự) |
 | proposed_makeup_at | timestamptz? | GV đề xuất ngày dạy bù |
-| status | text | `pending` · `approved` · `rejected` |
+| status | text | `pending` · `approved` · `rejected` · `withdrawn` GV thu hồi |
 | requested_at | timestamptz | Lúc gửi |
 | decided_by, decided_at | uuid?, timestamptz? | Người duyệt |
 | note | text? | Kết quả xử lý |
@@ -1151,11 +1151,11 @@ Khóa chính (scope, key).
 | session_id | uuid FK | Buổi xin nghỉ → class_sessions |
 | branch_id | uuid | → system.branches |
 | reason_type | text | Loại lý do |
-| reason | text | Lý do |
+| reason | text | Chi tiết lý do (≥ 5 ký tự) |
 | by | text | `student` · `parent` |
 | by_account_id | uuid | Tài khoản cổng gửi → system.portal_accounts |
 | by_name | text | Tên người gửi |
-| status | text | `pending` · `approved` · `rejected` |
+| status | text | `pending` · `approved` · `rejected` · `withdrawn` người gửi thu hồi |
 | requested_at | timestamptz | Lúc gửi |
 | decided_by, decided_at | uuid?, timestamptz? | Người duyệt |
 | makeup_session_id | uuid? FK | Buổi học bù đã đăng ký → class_sessions |
@@ -1179,8 +1179,8 @@ Khóa chính (scope, key).
 | invited_at | timestamptz | Lúc mời |
 | respond_by | timestamptz | Hạn trả lời |
 | status | text | `pending` · `accepted` · `declined` · `expired` |
-| responded_at | timestamptz? | Lúc trả lời |
-| decline_reason | text? | Lý do từ chối |
+| responded_at | timestamptz? | Lúc trả lời / hết hiệu lực |
+| decline_reason | text? | Lý do từ chối, hoặc lý do hết hiệu lực (GV khác đã nhận · quá hạn · giáo vụ thu hồi) |
 
 ### 61. flash_decks
 **Chức năng:** Bộ flashcard từ vựng / Kanji theo bài học (cổng HV). Entity `FlashDeck`.
@@ -1837,4 +1837,5 @@ sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đ�
 | 2026-11-20 | Giai đoạn 13 phase 3 (user story 07): `settings` thêm khóa `academic.holidays` (ngày nghỉ lễ, không đổi cấu trúc bảng); `room_issues` mở lại được (`resolved` → `open` / `in_progress`, xóa kết quả sửa) |
 | 2026-11-20 | Giai đoạn 13 phase 4: `attendance_records.student_id`, `teacher_attendances.teacher_id` (thuộc khóa chính) khai báo không tự sinh — EF thêm dòng mới vào buổi có sẵn bằng INSERT (trước đó UPDATE 0 dòng → lỗi). Migration `AcademicOwnedKeysNotGenerated` không đổi cấu trúc bảng |
 | 2026-11-20 | Giai đoạn 14 phase 2 (user story 06): tạo bảng `students`, `enrollments`, `certificates` đúng thiết kế (thêm UQ `certificates.code`, chỉ mục `enrollments (class_id, status)`, `(student_id, status)`, `students.phone`) — migration `Initial` của schema `students`; `enrollments.branch_id` = chi nhánh của lớp |
+| 2026-11-20 | Giai đoạn 15 phase 1 (user story 07, HV-14): `session_cancel_requests.status`, `leave_requests.status` thêm `withdrawn` (thu hồi khi còn chờ); `substitute_invites.decline_reason` ghi cả lý do hết hiệu lực. Không đổi cấu trúc bảng |
 | 2026-11-17 | Chốt thiết kế (user story 08): `invoices.status` chỉ lưu `open` / `cancelled` / `voided`, các trạng thái tiền tính khi đọc; `payments.method` dùng `vietqr` (không `viet_qr`). Domain `InvoiceStatus`, `PaymentMethod` sửa theo khi code module Tài chính |

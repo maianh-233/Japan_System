@@ -34,18 +34,47 @@ public sealed class LeaveRequest : AggregateRoot<LeaveRequestId>, IBranchScoped,
     public AttendanceStatus? MakeupResult { get; private set; }
     public string? Note { get; private set; }
 
-    public static LeaveRequest Create(Guid studentId, ClassId classId, ClassSessionId sessionId, BranchId branchId, string reasonType,
-        string reason, RequestedBy by, Guid byAccountId, string byName, ClassSessionId? makeupSessionId, DateTimeOffset at) =>
-        new()
+    /// <summary>Chi tiết lý do tối thiểu (DT-18)</summary>
+    public const int MinReasonLength = 5;
+
+    public bool IsPending => Status == RequestStatus.Pending;
+
+    /// <summary>
+    /// HV / PH gửi đơn (DT-18): buổi chưa bắt đầu, lý do ≥ 5 ký tự. Buổi học bù (nếu có) đã kiểm bằng <see cref="MakeupRules"/>;
+    /// trùng đơn (E2), PH không liên kết (E5) — handler kiểm.
+    /// </summary>
+    public static Result<LeaveRequest> Create(Guid studentId, ClassId classId, ClassSessionId sessionId, BranchId branchId, string reasonType,
+        string reason, RequestedBy by, Guid byAccountId, string byName, ClassSessionId? makeupSessionId, DateTime sessionStartsAt, DateTime now,
+        DateTimeOffset at)
+    {
+        if (now >= sessionStartsAt) return RequestErrors.LeaveTooLate;
+        if (string.IsNullOrWhiteSpace(reasonType) || (reason?.Trim().Length ?? 0) < MinReasonLength) return RequestErrors.LeaveReasonRequired;
+        return new LeaveRequest
         {
-            Id = LeaveRequestId.New(), StudentId = studentId, ClassId = classId, SessionId = sessionId, BranchId = branchId, ReasonType = reasonType,
-            Reason = reason, By = by, ByAccountId = byAccountId, ByName = byName, MakeupSessionId = makeupSessionId, RequestedAt = at,
+            Id = LeaveRequestId.New(), StudentId = studentId, ClassId = classId, SessionId = sessionId, BranchId = branchId, ReasonType = reasonType.Trim(),
+            Reason = reason!.Trim(), By = by, ByAccountId = byAccountId, ByName = byName, MakeupSessionId = makeupSessionId, RequestedAt = at,
             Status = RequestStatus.Pending,
         };
+    }
+
+    /// <summary>Người gửi thu hồi khi còn chờ duyệt</summary>
+    public Result Withdraw(DateTimeOffset at)
+    {
+        if (!IsPending) return RequestErrors.NotPending;
+        (Status, DecidedAt) = (RequestStatus.Withdrawn, at);
+        return Result.Success();
+    }
+
+    /// <summary>Buổi bù đầy khi duyệt (DT-18.E3): vẫn duyệt nghỉ, bỏ đăng ký bù</summary>
+    public void DropMakeup() => (MakeupSessionId, MakeupResult) = (null, null);
 
     public Result Approve(Guid by, DateTimeOffset at, string? note) => Decide(RequestStatus.Approved, by, at, note);
-    public Result Reject(Guid by, DateTimeOffset at, string note) => Decide(RequestStatus.Rejected, by, at, note);
-    public void RecordMakeupResult(AttendanceStatus result) => MakeupResult = result;
+    public Result Reject(Guid by, DateTimeOffset at, string note) =>
+        string.IsNullOrWhiteSpace(note) ? RequestErrors.RejectReasonRequired : Decide(RequestStatus.Rejected, by, at, note.Trim());
+    public void RecordMakeupResult(AttendanceStatus result)
+    {
+        if (Status == RequestStatus.Approved && MakeupSessionId is not null) MakeupResult = result;
+    }
 
     private Result Decide(RequestStatus status, Guid by, DateTimeOffset at, string? note)
     {

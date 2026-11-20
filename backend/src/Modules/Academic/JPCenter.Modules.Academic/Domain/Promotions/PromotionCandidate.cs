@@ -41,31 +41,84 @@ public sealed class PromotionCandidate : AggregateRoot<PromotionCandidateId>, IB
     public Guid? ConfirmedBy { get; private set; }
     public IReadOnlyList<PromotionNote> Notes => _notes;
 
-    public static PromotionCandidate Create(Guid studentId, BranchId branchId, ClassId fromClassId, ClassId? toClassId, PromotionSource source,
-        DateOnly? holdUntil) =>
-        new()
+    /// <summary>Hạn giữ chỗ mặc định: N ngày trước khai giảng lớp đích</summary>
+    public const int DefaultHoldDaysBeforeStart = 7;
+
+    /// <summary>Thêm HV vào danh sách lên lớp (DT-17 bước 1); trùng HV × lớp — handler kiểm</summary>
+    public static Result<PromotionCandidate> Create(Guid studentId, BranchId branchId, ClassId fromClassId, PromotionSource source) =>
+        new PromotionCandidate
         {
-            Id = PromotionCandidateId.New(), StudentId = studentId, BranchId = branchId, FromClassId = fromClassId, ToClassId = toClassId,
-            Source = source, SeatHeld = toClassId is not null, HoldUntil = toClassId is null ? null : holdUntil, Status = PromotionStatus.Pending,
+            Id = PromotionCandidateId.New(), StudentId = studentId, BranchId = branchId, FromClassId = fromClassId, Source = source,
+            Status = PromotionStatus.Pending,
         };
 
-    public Result HoldSeat(ClassId toClassId, DateOnly holdUntil)
+    /// <summary>Hạn giữ chỗ mặc định = khai giảng − 7 ngày (không trước hôm nay)</summary>
+    public static DateOnly DefaultHoldUntil(DateOnly targetStart, DateOnly today)
+    {
+        var d = targetStart.AddDays(-DefaultHoldDaysBeforeStart);
+        return d < today ? today : d;
+    }
+
+    /// <summary>Chọn / đổi lớp đích mà chưa giữ chỗ</summary>
+    public Result ChooseTarget(ClassId? toClassId)
     {
         if (IsClosed) return PromotionErrors.Closed;
-        (ToClassId, SeatHeld, HoldUntil) = (toClassId, true, holdUntil);
+        if (toClassId == FromClassId) return PromotionErrors.SameClass;
+        ToClassId = toClassId;
+        if (toClassId is null) ReleaseSeat();
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Giữ chỗ tạm (DT-17 bước 2) — không tính sĩ số, không hóa đơn. Không truyền lớp → dùng lớp đích đã chọn (E1: chưa có → lỗi).
+    /// Vượt sĩ số chỉ cảnh báo (E2) — handler.
+    /// </summary>
+    public Result HoldSeat(ClassId? toClassId, DateOnly holdUntil, DateOnly today)
+    {
+        if (IsClosed) return PromotionErrors.Closed;
+        var target = toClassId ?? ToClassId;
+        if (target is null) return PromotionErrors.ToClassRequired;
+        if (target == FromClassId) return PromotionErrors.SameClass;
+        if (holdUntil < today) return PromotionErrors.InvalidHoldUntil;
+        (ToClassId, SeatHeld, HoldUntil) = (target, true, holdUntil);
         return Result.Success();
     }
 
     public void ReleaseSeat() => (SeatHeld, HoldUntil) = (false, null);
 
-    public void HandOver(Guid? saleId, DateTimeOffset at) => (SaleId, HandedOverAt) = (saleId, at);
+    /// <summary>Job hằng ngày (DT-17.E3): quá hạn giữ chỗ mà chưa chốt → trả chỗ</summary>
+    public bool ExpireHold(DateOnly today)
+    {
+        if (!SeatHeld || IsClosed || HoldUntil is not { } until || until >= today) return false;
+        ReleaseSeat();
+        return true;
+    }
 
-    public void MarkInterest(InterestBy by, DateTimeOffset at) => (InterestBy, InterestAt) = (by, at);
+    /// <summary>Giao Sale (lớp cũ kết thúc, hoặc "Giao Sale ngay" — E4). Đã giao thì chỉ đổi Sale.</summary>
+    public Result HandOver(Guid? saleId, DateTimeOffset at)
+    {
+        if (IsClosed) return PromotionErrors.Closed;
+        SaleId = saleId ?? SaleId;
+        HandedOverAt ??= at;
+        return Result.Success();
+    }
+
+    public bool IsHandedOver => HandedOverAt is not null;
+
+    /// <summary>HV / PH bấm "Quan tâm" lớp kỳ sau trên cổng (giữ lần bấm đầu)</summary>
+    public Result MarkInterest(InterestBy by, DateTimeOffset at)
+    {
+        if (IsClosed) return PromotionErrors.Closed;
+        if (ToClassId is null) return PromotionErrors.ToClassRequired;
+        if (InterestAt is null) (InterestBy, InterestAt) = (by, at);
+        return Result.Success();
+    }
 
     public Result AddNote(string text, string? channel, Guid by, string byName, DateTimeOffset at)
     {
         if (IsClosed) return PromotionErrors.Closed;
-        _notes.Add(new PromotionNote(text, channel, by, byName, at));
+        if (string.IsNullOrWhiteSpace(text)) return PromotionErrors.NoteRequired;
+        _notes.Add(new PromotionNote(text.Trim(), channel, by, byName, at));
         if (Status == PromotionStatus.Pending) Status = PromotionStatus.Consulting;
         return Result.Success();
     }
@@ -80,7 +133,7 @@ public sealed class PromotionCandidate : AggregateRoot<PromotionCandidateId>, IB
     public Result Confirm(Guid enrollmentId, Guid by, DateTimeOffset at)
     {
         if (IsClosed) return PromotionErrors.Closed;
-        if (ToClassId is null) return Error.Validation("academic.promotion.to_class_required", "Chưa chọn lớp lên");
+        if (ToClassId is null) return PromotionErrors.ToClassRequired;
         (Status, EnrollmentId, ConfirmedBy, ConfirmedAt, SeatHeld) = (PromotionStatus.Confirmed, enrollmentId, by, at, false);
         return Result.Success();
     }
@@ -88,9 +141,10 @@ public sealed class PromotionCandidate : AggregateRoot<PromotionCandidateId>, IB
     public Result Decline(string reason)
     {
         if (IsClosed) return PromotionErrors.Closed;
-        (Status, DeclineReason, SeatHeld, HoldUntil) = (PromotionStatus.Declined, reason, false, null);
+        if (string.IsNullOrWhiteSpace(reason)) return PromotionErrors.DeclineReasonRequired;
+        (Status, DeclineReason, SeatHeld, HoldUntil) = (PromotionStatus.Declined, reason.Trim(), false, null);
         return Result.Success();
     }
 
-    private bool IsClosed => Status is PromotionStatus.Confirmed or PromotionStatus.Declined;
+    public bool IsClosed => Status is PromotionStatus.Confirmed or PromotionStatus.Declined;
 }
