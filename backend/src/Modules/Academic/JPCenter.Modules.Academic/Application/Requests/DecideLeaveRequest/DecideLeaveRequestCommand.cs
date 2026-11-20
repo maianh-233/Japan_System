@@ -32,7 +32,7 @@ public sealed class DecideLeaveRequestValidator : AbstractValidator<DecideLeaveR
 }
 
 public sealed class DecideLeaveRequestHandler(IAcademicDbContext db, RequestReader reader, AcademicAccess access, ClassRoster roster, IClock clock,
-    IRealtimeNotifier realtime, IAuditTrail audit) : ICommandHandler<DecideLeaveRequestCommand, DecisionResult<LeaveRequestDto>>
+    IRealtimeNotifier realtime, IAuditTrail audit, AcademicNotices notices) : ICommandHandler<DecideLeaveRequestCommand, DecisionResult<LeaveRequestDto>>
 {
     /// <summary>⏳ DT-18.E6: ngưỡng "xin nghỉ quá N buổi / khóa" — chuyển sang Cài đặt chung khi có màn hình cấu hình</summary>
     public const int ManyLeavesFrom = 3;
@@ -69,6 +69,8 @@ public sealed class DecideLeaveRequestHandler(IAcademicDbContext db, RequestRead
                 && l.Status == RequestStatus.Approved && l.Id != request.Id, ct) + 1;
             if (leaves >= ManyLeavesFrom) warnings.Add($"HV đã xin nghỉ {leaves} buổi trong lớp này");
         }
+        notices.LeaveRequestDecided(request.ByAccountId, request.By, await notices.SessionLabelAsync(request.ClassId, request.SessionId, ct),
+            cmd.Approve, cmd.Note);
         await db.SaveChangesAsync(ct);
 
         var dto = (await reader.LeaveDtosAsync([request], ct))[0];

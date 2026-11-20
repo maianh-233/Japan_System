@@ -49,6 +49,7 @@ public sealed class AcademicModule : IModule
 
         // Dùng chung giữa các use case (user story 07 — lớp, buổi, phòng)
         services.AddScoped<AcademicAccess>();
+        services.AddScoped<AcademicNotices>();
         services.AddScoped<PeopleNames>();
         services.AddScoped<RoomReader>();
         services.AddScoped<RoomRules>();

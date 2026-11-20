@@ -562,7 +562,7 @@ Code: `Application/{ClassSessions,Requests,Promotions,Evaluations,Portals}/` · 
 - ✅ (phase 4) PH thấy con: Crm lưu lead + liên kết (`crm.lead_student_links`), `IGuardianDirectory` đọc thật. Cổng thêm `GET portal/teaching/classes` (lớp + HV),
   `GET portal/learning/students` (con / chính mình), `GET portal/learning/classes?studentId=` (ghi danh + lớp, không học phí / ghi chú nội bộ).
 - ✅ (phase 4) Vai trò Giáo vụ có `academic.requests.approve` (seed + migration dữ liệu cho DB đã có).
-- ⏳ Thông báo chuông (đơn mới, vấn đề trong báo cáo buổi, HV bấm Quan tâm) chờ module Thông báo; ngưỡng "xin nghỉ nhiều buổi" tạm cố định 3.
+- ✅ (giai đoạn 16) Thông báo chuông: đơn mới, đơn được duyệt / từ chối, vấn đề trong báo cáo buổi, HV bấm Quan tâm (`AcademicNotices`). Ngưỡng "xin nghỉ nhiều buổi" vẫn cố định 3.
 
 ### Frontend (giai đoạn 15 phase 4b, 2026-11-20)
 - `features/portal/portalApi.ts`: tải theo cổng sau đăng nhập — nhân viên (đơn hủy buổi, đơn xin nghỉ, lời mời), GV (`portal/teaching/classes`, buổi −30 → +60 ngày,

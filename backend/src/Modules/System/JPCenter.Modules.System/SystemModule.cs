@@ -9,8 +9,11 @@ using JPCenter.Modules.System.Api;
 using JPCenter.Modules.System.Contracts;
 using JPCenter.Modules.System.Application.Abstractions;
 using JPCenter.Modules.System.Application.Approvals.Common;
+using JPCenter.Modules.System.Application.AuditLogs.Common;
 using JPCenter.Modules.System.Application.Auth.Common;
 using JPCenter.Modules.System.Application.Branches.Common;
+using JPCenter.Modules.System.Application.Settings.Common;
+using JPCenter.Modules.System.Application.Trash.Common;
 using JPCenter.Modules.System.Application.Permissions.Common;
 using JPCenter.Modules.System.Application.PortalAccounts.Common;
 using JPCenter.Modules.System.Application.Roles.Common;
@@ -56,6 +59,10 @@ public sealed class SystemModule : IModule
         services.AddScoped<IBranchDirectory, BranchDirectory>();
         services.AddScoped<IStaffAccessDirectory, StaffAccessDirectory>();
         services.AddScoped<IHolidayCalendar, HolidayCalendar>();
+        services.AddScoped<ICenterSettings, CenterSettingsProvider>();
+
+        // Thùng rác: mỗi loại dữ liệu xóa mềm 1 ITrashHandler (module khác tự đăng ký của mình)
+        services.AddScoped<ITrashHandler, RoleTrashHandler>();
 
         // Dịch vụ dùng chung giữa các use case (Application/*/Common)
         services.AddScoped<SignInAccounts>();
@@ -75,6 +82,11 @@ public sealed class SystemModule : IModule
         services.AddScoped<BranchReader>();
         services.AddScoped<BranchRules>();
         services.AddScoped<BranchStatusEvents>();
+        services.AddSingleton<SettingsCache>();
+        services.AddScoped<SettingsStore>();
+        services.AddScoped<SettingsReader>();
+        services.AddScoped<AuditLogReader>();
+        services.AddScoped<TrashBin>();
 
         // Job định kỳ (Host bật scheduler khi Jobs:Enabled ≠ false)
         if (JobServiceCollectionExtensions.IsEnabled(configuration))

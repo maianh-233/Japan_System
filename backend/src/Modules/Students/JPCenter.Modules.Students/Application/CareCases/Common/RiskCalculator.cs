@@ -1,6 +1,7 @@
 using JPCenter.Modules.Academic.Contracts;
 using JPCenter.Modules.Academic.Contracts.Dtos;
 using JPCenter.Modules.Students.Application.Abstractions;
+using JPCenter.Modules.System.Contracts;
 using JPCenter.Modules.Students.Domain.CareCases;
 using JPCenter.Modules.Students.Domain.Enrollments;
 using JPCenter.Modules.Students.Domain.Students;
@@ -13,10 +14,10 @@ namespace JPCenter.Modules.Students.Application.CareCases.Common;
 /// HV-14 bước 1–3 — tính nguy cơ bỏ học cho HV đang học (× lớp) rồi mở / cập nhật trường hợp chăm sóc (<c>care_cases</c>):
 /// có dấu hiệu mà chưa có case → mở mới; đã có → <see cref="CareCase.Reassess"/> (E2 giữ case khi hết dấu hiệu, E3 mở lại khi có dấu hiệu mới).
 /// Chuyên cần đọc qua <c>Academic.Contracts.IAttendanceStats</c>.
-/// ⏳ Bài tập / điểm thi (Academic — chưa có API), nợ quá hạn (Finance — giai đoạn 17) tạm tính 0; ngưỡng dùng mặc định
-/// (<see cref="RiskThresholds.Default"/>) tới khi Cài đặt chung lưu khóa <c>atRisk</c>.
+/// Ngưỡng lấy từ Cài đặt chung (<c>atRisk.*</c>, System.Contracts.ICenterSettings — CD-03).
+/// ⏳ Bài tập / điểm thi (giai đoạn 20), nợ quá hạn (Finance — giai đoạn 19) tạm tính 0.
 /// </summary>
-public sealed class RiskCalculator(IStudentsDbContext db, IAttendanceStats attendance, IClock clock)
+public sealed class RiskCalculator(IStudentsDbContext db, IAttendanceStats attendance, ICenterSettings settings, IClock clock)
 {
     /// <param name="classIds">null = mọi lớp có HV đang học</param>
     /// <param name="studentIds">null = mọi HV đang học của các lớp đó</param>
@@ -39,11 +40,13 @@ public sealed class RiskCalculator(IStudentsDbContext db, IAttendanceStats atten
         var cases = (await db.CareCases.IgnoreQueryFilters().Where(c => classes.Contains(c.ClassId) && students.Contains(c.StudentId)).ToListAsync(ct))
             .ToDictionary(c => (c.ClassId, c.StudentId.Value));
 
+        var t = (await settings.GetAsync(ct)).AtRisk;
+        var thresholds = new RiskThresholds(t.Absent, t.Streak, t.AttendanceRate, t.SubmitRate, t.ScorePct, t.MediumFrom, t.HighFrom);
         var flagged = 0;
         var now = clock.UtcNow;
         foreach (var e in studying)
         {
-            var risk = RiskAssessment.Evaluate(Signals(stats.GetValueOrDefault((e.ClassId, e.StudentId.Value))), RiskThresholds.Default);
+            var risk = RiskAssessment.Evaluate(Signals(stats.GetValueOrDefault((e.ClassId, e.StudentId.Value))), thresholds);
             if (risk.Flagged) flagged++;
             if (cases.TryGetValue((e.ClassId, e.StudentId.Value), out var existing)) existing.Reassess(risk, now);
             else if (risk.Flagged)

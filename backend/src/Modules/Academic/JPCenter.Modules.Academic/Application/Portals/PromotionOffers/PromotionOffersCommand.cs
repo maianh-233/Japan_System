@@ -1,4 +1,5 @@
 using JPCenter.Application.Common.Messaging;
+using JPCenter.Modules.Academic.Application.Common;
 using JPCenter.Modules.Academic.Application.Abstractions;
 using JPCenter.Modules.Academic.Application.Portals.Common;
 using JPCenter.Modules.Academic.Application.Promotions.Common;
@@ -15,7 +16,8 @@ public sealed record GetPromotionOffersQuery(Guid? StudentId) : IQuery<IReadOnly
 /// <summary>DT-17 bước 3 — HV / PH bấm "Quan tâm" lớp kỳ sau (giữ lần bấm đầu)</summary>
 public sealed record MarkInterestCommand(Guid Id) : ICommand<PromotionOfferDto>;
 
-public sealed class PromotionOffersHandler(IAcademicDbContext db, PortalOwner owner, PromotionReader reader, IClock clock)
+public sealed class PromotionOffersHandler(IAcademicDbContext db, PortalOwner owner, PromotionReader reader, IClock clock,
+    AcademicNotices notices)
     : IQueryHandler<GetPromotionOffersQuery, IReadOnlyList<PromotionOfferDto>>, ICommandHandler<MarkInterestCommand, PromotionOfferDto>
 {
     public async Task<Result<IReadOnlyList<PromotionOfferDto>>> Handle(GetPromotionOffersQuery q, CancellationToken ct)
@@ -41,9 +43,14 @@ public sealed class PromotionOffersHandler(IAcademicDbContext db, PortalOwner ow
         var mine = await owner.StudentsAsync(ct);
         var p = await db.PromotionCandidates.FirstOrDefaultAsync(x => x.Id == new PromotionCandidateId(cmd.Id) && mine.Contains(x.StudentId), ct);
         if (p is null) return PromotionErrors.NotFound;
+        var firstInterest = p.InterestAt is null;
         if (p.MarkInterest(owner.IsParent ? InterestBy.Parent : InterestBy.Student, clock.UtcNow) is { IsFailure: true } r) return r.Error;
+        if (firstInterest)
+        {
+            var fromClass = await db.Classes.IgnoreQueryFilters().Where(c => c.Id == p.FromClassId).Select(c => c.Code).FirstOrDefaultAsync(ct);
+            notices.PromotionInterest(p, fromClass ?? "");
+        }
         await db.SaveChangesAsync(ct);
-        // ⏳ Báo Sale phụ trách khi HV / PH bấm Quan tâm — làm cùng module Thông báo
         return (await reader.OffersAsync([p], ct))[0];
     }
 }

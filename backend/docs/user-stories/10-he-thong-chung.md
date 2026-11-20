@@ -199,7 +199,8 @@ Thông báo không cần mã quyền: mỗi tài khoản chỉ thấy thông bá
 
 ## NK-02 · Xuất nhật ký
 
-- [ ] `GET /api/v1/system/audit-logs/export?…` cùng bộ lọc NK-01, tối đa 10 000 dòng, trả file `.xlsx`. Quyền `system.audit.export`.
+- [ ] `GET /api/v1/system/audit-logs/export?…` cùng bộ lọc NK-01, tối đa 10 000 dòng mới nhất → `{ items, total, truncated }`; **frontend ghi file `.xlsx`**
+  bằng `lib/spreadsheet.ts` có sẵn (backend không thêm thư viện Excel). Quyền `system.audit.export`.
 - [ ] Bản thân việc xuất ghi 1 dòng `export` / `warning` "Xuất nhật ký hệ thống".
 
 ---
@@ -239,7 +240,7 @@ Thông báo không cần mã quyền: mỗi tài khoản chỉ thấy thông bá
 
 ## TR-04 · Tự xóa hẳn khi quá hạn
 
-- [ ] Job hằng đêm (03:00): mục có `purgeAfter` ≤ bây giờ → như TR-03 (người làm = Hệ thống). Lỗi ở 1 mục không chặn các mục khác.
+- [ ] Job dọn hằng đêm của System (02:00): mục có `purgeAfter` ≤ bây giờ → như TR-03 (người làm = Hệ thống). Lỗi ở 1 mục không chặn các mục khác.
 - [ ] `purgeAfter` tính lúc xóa theo `safety.trashDays` lúc đó; đổi cài đặt sau **không** đổi hạn của mục cũ.
 
 ---
@@ -252,3 +253,31 @@ Thông báo không cần mã quyền: mỗi tài khoản chỉ thấy thông bá
 - **Domain (phase 1):** `CenterSettings` (7 nhóm, giá trị mặc định, `Validate()`, phẳng hóa ↔ khóa `nhóm.mục`, so sánh trước → sau);
   `Setting.Change` báo có đổi hay không; `Notification.Create` trả `Result` (tiêu đề bắt buộc, cắt độ dài), `IsRead`;
   `TrashItem.IsExpired` / `DaysLeft`.
+
+## Đã làm — backend (giai đoạn 16 phase 3, 2026-11-20)
+
+Code: `System/Application/{Settings,AuditLogs,Trash}/`, `Notifications/Application/Notifications/`, `Academic/Application/Common/AcademicNotices.cs` ·
+Test: `tests/JPCenter.IntegrationTests/System/FoundationFlowTests.cs` (+ kiểm tra chuông trong `Academic/PortalFlowTests.cs`).
+
+| Story | API | Quyền |
+|---|---|---|
+| CD-01 | `GET /api/v1/system/settings` → `{ settings, updatedAt, updatedBy }` (`settings` đúng hình dạng `CenterSettings` frontend) | cổng nhân viên / GV |
+| CD-02 | `PUT /api/v1/system/settings` `{ settings }` → `{ settings, updatedAt, updatedBy, changed }` | `system.settings.update` |
+| NK-01 | `GET /api/v1/system/audit-logs?branchId=&category=&severity=&actorId=&from=&to=&q=&page=&pageSize=` · `…/stats?branchId=` · `…/actors` | `system.audit.view` |
+| NK-02 | `GET /api/v1/system/audit-logs/export?…` → `{ items, total, truncated }` | `system.audit.export` |
+| TR-01 → 03 | `GET /api/v1/system/trash?branchId=&kind=` · `POST /api/v1/system/trash/{id}/restore` → `{ kind, entityId, note }` · `DELETE /api/v1/system/trash/{id}` | `system.trash.view / update / delete` |
+| TB-01, 02 | `GET /api/v1/notifications?before=&limit=` → `{ items, unread }` · `POST /api/v1/notifications/{id}/read` · `POST /api/v1/notifications/read-all` → `{ marked }` | đã đăng nhập (mọi cổng) |
+
+**Chốt khi code:**
+- Cài đặt: cache trong bộ nhớ (`SettingsCache`, 1 instance), cập nhật ngay khi lưu. Module khác đọc qua `System.Contracts.ICenterSettings`.
+  Đã dùng: Students tính nguy cơ bỏ học theo `atRisk.*`; xóa vai trò theo `safety.trashDays`. Nhật ký "Đổi cài đặt chung" ghi trước → sau theo nhãn tiếng Việt.
+- Đọc cài đặt hỏng trong DB (sửa tay) → dùng mặc định + ghi log cảnh báo, không lỗi.
+- Nhật ký: phạm vi `branch` thấy dòng của chi nhánh được gán + dòng không gắn chi nhánh do chính mình làm; lọc chi nhánh kèm dòng không gắn chi nhánh.
+- Thùng rác: module sở hữu đăng ký `System.Contracts.ITrashHandler` (khôi phục / xóa hẳn) và phát `ItemTrashed` khi xóa mềm. Loại đầu tiên: `system.role`
+  (trùng tên → "… (khôi phục)"). Khôi phục / xóa hẳn ghi nhật ký `data`. Helper chung `db.Undelete(entity)` (shared-helpers.md).
+- Thông báo: module khác phát `Notifications.Contracts.NotificationRequested` (người nhận: tài khoản nhân viên / cổng, nhân viên theo `EmployeeIds`,
+  hoặc theo quyền + chi nhánh qua `IStaffAccessDirectory`); lưu rồi đẩy SignalR `notification.created` (dữ liệu = `AppNotification`).
+  Đã nối từ Academic: đơn hủy buổi / đơn xin nghỉ mới → người có `academic.requests.approve` của chi nhánh; đơn được duyệt / từ chối → GV / HV / PH gửi đơn;
+  báo cáo buổi có vấn đề → `academic.sessions.update`; HV / PH bấm "Quan tâm" → Sale phụ trách (chưa giao → `academic.classes.update`).
+- Job: dọn thông báo cũ 03:30 hằng ngày; xóa hẳn mục thùng rác quá hạn trong job dọn hệ thống 02:00.
+- ⏳ GV và nhân viên dùng chung tài khoản nhân viên → chuông ở cổng nhân viên và cổng GV là 1 danh sách.

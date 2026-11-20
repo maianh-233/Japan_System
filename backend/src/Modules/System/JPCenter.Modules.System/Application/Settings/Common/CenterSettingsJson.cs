@@ -6,8 +6,13 @@ using JPCenter.SharedKernel.Primitives;
 namespace JPCenter.Modules.System.Application.Settings.Common;
 
 /// <summary>
-/// Đổi <see cref="CenterSettings"/> ↔ các dòng <c>system.settings</c> (khóa "nhóm.mục" → giá trị JSON).
-/// Đọc: mục thiếu hoặc hỏng (sai kiểu, sửa tay trong DB) lấy giá trị mặc định — cài đặt hỏng không được làm sập nghiệp vụ.
+/// Đổi <see cref="CenterSettings"/> ↔ JSON, đúng hình dạng <c>CenterSettings</c> của frontend:
+/// <list type="bullet">
+/// <item>Lưu DB: mỗi mục 1 dòng <c>system.settings</c> (khóa "nhóm.mục" → giá trị JSON) — <see cref="ToRows"/> / <see cref="FromRows"/>.
+/// Đọc từ DB: mục thiếu hoặc hỏng lấy mặc định (cài đặt hỏng không được làm sập nghiệp vụ).</item>
+/// <item>API: object lồng <c>{ crm: { defaultSlaMinutes }, office: { … }, … }</c> — <see cref="ToObject"/> / <see cref="Parse"/>.
+/// Nhận từ client: chặt — thiếu / sai kiểu → lỗi theo khóa "nhóm.mục".</item>
+/// </list>
 /// </summary>
 public static class CenterSettingsJson
 {
@@ -16,45 +21,101 @@ public static class CenterSettingsJson
     /// <summary>Mọi khóa thuộc bộ Cài đặt chung (không gồm khóa khác như <c>academic.holidays</c>)</summary>
     public static readonly IReadOnlyList<string> Keys = CenterSettings.Labels.Keys.ToArray();
 
-    /// <summary>Giá trị JSON của từng mục</summary>
+    private static readonly Dictionary<string, JsonElement> Defaults =
+        CenterSettings.Default.ToEntries().ToDictionary(e => e.Key, e => JsonSerializer.SerializeToElement(e.Value, Json));
+
+    /// <summary>Giá trị JSON của từng mục — để lưu DB</summary>
     public static IReadOnlyList<(string Key, string Value)> ToRows(CenterSettings settings) =>
         settings.ToEntries().Select(e => (e.Key, JsonSerializer.Serialize(e.Value, Json))).ToList();
+
+    /// <summary>Object lồng theo nhóm — trả về API (frontend dùng thẳng làm <c>CenterSettings</c>)</summary>
+    public static Dictionary<string, Dictionary<string, object?>> ToObject(CenterSettings settings)
+    {
+        var result = new Dictionary<string, Dictionary<string, object?>>();
+        foreach (var e in settings.ToEntries())
+        {
+            var (group, field) = Split(e.Key);
+            if (!result.TryGetValue(group, out var g)) result[group] = g = new Dictionary<string, object?>();
+            g[field] = e.Value;
+        }
+        return result;
+    }
 
     /// <summary>Dựng bộ cài đặt từ các dòng đã lưu; <paramref name="invalidKeys"/> = mục hỏng đã thay bằng mặc định (để ghi log).</summary>
     public static CenterSettings FromRows(IReadOnlyDictionary<string, string> rows, out IReadOnlyList<string> invalidKeys)
     {
-        var defaults = ToRows(CenterSettings.Default).ToDictionary(r => r.Key, r => Parse(r.Value)!.Value);
+        var values = new Dictionary<string, JsonElement>(Defaults);
         var bad = new List<string>();
-        var values = new Dictionary<string, JsonElement>(defaults);
         foreach (var (key, raw) in rows)
         {
-            if (!defaults.ContainsKey(key)) continue;
-            if (Parse(raw) is { } element) values[key] = element;
+            if (!Defaults.ContainsKey(key)) continue;
+            if (ParseRaw(raw) is { } element) values[key] = element;
             else bad.Add(key);
         }
 
+        var settings = Build(key => values[key], bad.Add);
+        // Từng mục đúng kiểu nhưng cả bộ vi phạm ràng buộc (vd sửa tay from > to) → dùng mặc định cho cả bộ, báo mọi mục
+        if (settings.Validate().IsFailure)
+        {
+            invalidKeys = Keys;
+            return CenterSettings.Default;
+        }
+        invalidKeys = bad.Distinct().ToList();
+        return settings;
+    }
+
+    /// <summary>
+    /// Đọc bộ cài đặt client gửi (CD-02). Thiếu mục / sai kiểu → <c>validation.failed</c> kèm lỗi theo khóa "nhóm.mục";
+    /// đúng kiểu thì kiểm tra nghiệp vụ bằng <see cref="CenterSettings.Validate"/>. <c>office.satTo</c> bỏ trống / null = nghỉ thứ 7.
+    /// </summary>
+    public static Result<CenterSettings> Parse(JsonElement body)
+    {
+        var values = new Dictionary<string, JsonElement>();
+        if (body.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var group in body.EnumerateObject().Where(g => g.Value.ValueKind == JsonValueKind.Object))
+            foreach (var field in group.Value.EnumerateObject())
+                values[$"{group.Name}.{field.Name}"] = field.Value;
+        }
+
+        var errors = new Dictionary<string, string[]>();
+        var settings = Build(
+            key => values.TryGetValue(key, out var v) ? v : key == "office.satTo" ? NullElement : null,
+            key => errors[key] = [$"{CenterSettings.Labels[key]}: thiếu hoặc sai kiểu dữ liệu"]);
+        if (errors.Count > 0) return Error.InvalidInput(errors);
+
+        var valid = settings.Validate();
+        return valid.IsSuccess ? settings : valid.Error;
+    }
+
+    private static readonly JsonElement NullElement = JsonSerializer.SerializeToElement<object?>(null);
+
+    /// <summary>Dựng bộ cài đặt: <paramref name="get"/> trả giá trị của khóa (null = thiếu); mục thiếu / sai kiểu → gọi <paramref name="invalid"/> và lấy mặc định.</summary>
+    private static CenterSettings Build(Func<string, JsonElement?> get, Action<string> invalid)
+    {
         T Read<T>(string key, Func<JsonElement, T?> read) where T : struct
         {
-            if (read(values[key]) is { } v) return v;
-            bad.Add(key);
-            return read(defaults[key])!.Value;
+            if (get(key) is { } e && read(e) is { } v) return v;
+            invalid(key);
+            return read(Defaults[key])!.Value;
         }
 
         string Text(string key)
         {
-            if (values[key].ValueKind == JsonValueKind.String && values[key].GetString() is { Length: > 0 } s) return s;
-            bad.Add(key);
-            return defaults[key].GetString()!;
+            if (get(key) is { ValueKind: JsonValueKind.String } e && e.GetString() is { Length: > 0 } s) return s;
+            invalid(key);
+            return Defaults[key].GetString()!;
         }
 
+        // null hoặc chuỗi rỗng (ô giờ bỏ trống trên form) = không có
         TimeOnly? OptionalTime(string key)
         {
-            if (values[key].ValueKind == JsonValueKind.Null) return null;
+            var e = get(key);
+            if (e is { ValueKind: JsonValueKind.Null } || (e is { ValueKind: JsonValueKind.String } s && s.GetString() == "")) return null;
             return Read(key, AsTime);
         }
 
-        var d = CenterSettings.Default;
-        var settings = new CenterSettings(
+        return new CenterSettings(
             new CrmSettings(Read("crm.defaultSlaMinutes", AsInt)),
             new OfficeSettings(Read("office.from", AsTime), Read("office.to", AsTime), OptionalTime("office.satTo"), Read("office.lateGraceMin", AsInt)),
             new InvoiceSettings(Text("invoice.codePattern"), Read("invoice.resetEvery", AsReset)),
@@ -64,19 +125,15 @@ public static class CenterSettingsJson
             new ParentNoticeSettings(Read("parent.arrivalNotice", AsBool), Read("parent.absentAlertMin", AsInt), Read("parent.underAge", AsInt),
                 Read("parent.weeklyReport", AsBool), Read("parent.weeklyDay", AsInt), Read("parent.weeklyTime", AsTime)),
             new SafetySettings(Money.FromTrusted(Read("safety.refundApprovalMin", AsMoney)), Read("safety.trashDays", AsInt)));
-
-        // Từng mục đúng kiểu nhưng cả bộ vi phạm ràng buộc (vd sửa tay from > to) → dùng mặc định cho cả bộ, báo mọi mục
-        if (settings.Validate().IsFailure)
-        {
-            invalidKeys = Keys.ToList();
-            return d;
-        }
-
-        invalidKeys = bad.Distinct().ToList();
-        return settings;
     }
 
-    private static JsonElement? Parse(string raw)
+    private static (string Group, string Field) Split(string key)
+    {
+        var dot = key.IndexOf('.');
+        return (key[..dot], key[(dot + 1)..]);
+    }
+
+    private static JsonElement? ParseRaw(string raw)
     {
         try
         {

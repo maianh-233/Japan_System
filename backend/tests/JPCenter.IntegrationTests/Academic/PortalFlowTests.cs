@@ -216,6 +216,11 @@ public sealed class PortalFlowTests(SeededApiFactory api)
         (await Ok(await staff.GetAsync($"{Academic}/requests/cancel?status=pending", Ct))).EnumerateArray()
             .Select(x => x.GetProperty("id").GetGuid()).ShouldContain(requestId);
 
+        // TB-04: giáo vụ chi nhánh nhận chuông "Đơn xin hủy buổi mới" (qua outbox → module Thông báo)
+        await Eventually(async () => (await Ok(await staff.GetAsync("/api/v1/notifications", Ct))).GetProperty("items").EnumerateArray()
+            .Any(n => n.GetProperty("title").GetString() == "Đơn xin hủy buổi mới"
+                && n.GetProperty("description").GetString()!.Contains("Sốt cao, có giấy khám bệnh", StringComparison.Ordinal)));
+
         var candidates = (await Ok(await staff.GetAsync($"{Academic}/substitute-invites/candidates?sessionId={sessions[2]}", Ct))).EnumerateArray()
             .Select(x => x.GetProperty("teacherId").GetGuid()).ToList();
         candidates.ShouldContain(TeacherLong);

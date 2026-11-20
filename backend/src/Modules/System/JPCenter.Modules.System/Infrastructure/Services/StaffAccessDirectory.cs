@@ -33,6 +33,16 @@ internal sealed class StaffAccessDirectory(SystemDbContext db, IClock clock) : I
             .ToList();
     }
 
+    public async Task<IReadOnlyDictionary<Guid, Guid>> ActiveAccountsOfAsync(IReadOnlyCollection<Guid> employeeIds, CancellationToken ct)
+    {
+        if (employeeIds.Count == 0) return new Dictionary<Guid, Guid>();
+        var rows = await db.UserAccounts.AsNoTracking()
+            .Where(a => a.Status == UserAccountStatus.Active && employeeIds.Contains(a.EmployeeId))
+            .Select(a => new { a.EmployeeId, a.Id })
+            .ToListAsync(ct);
+        return rows.ToDictionary(r => r.EmployeeId, r => r.Id.Value);
+    }
+
     public async Task<bool> IsLastActiveSuperAdminAsync(Guid employeeId, CancellationToken ct)
     {
         var superRoleIds = await db.Roles.Where(r => r.IsSuperAdmin).Select(r => r.Id).ToListAsync(ct);

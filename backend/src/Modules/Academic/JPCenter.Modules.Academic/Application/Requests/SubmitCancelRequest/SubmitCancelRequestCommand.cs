@@ -1,5 +1,6 @@
 using FluentValidation;
 using JPCenter.Application.Common.Messaging;
+using JPCenter.Modules.Academic.Application.Common;
 using JPCenter.Modules.Academic.Application.Abstractions;
 using JPCenter.Modules.Academic.Application.ClassSessions.Common;
 using JPCenter.Modules.Academic.Application.Requests.Common;
@@ -27,7 +28,8 @@ public sealed class SubmitCancelRequestValidator : AbstractValidator<SubmitCance
     }
 }
 
-public sealed class SubmitCancelRequestHandler(IAcademicDbContext db, TeacherSessions teacher, RequestReader reader, IClock clock)
+public sealed class SubmitCancelRequestHandler(IAcademicDbContext db, TeacherSessions teacher, RequestReader reader, IClock clock,
+    AcademicNotices notices)
     : ICommandHandler<SubmitCancelRequestCommand, CancelRequestDto>
 {
     public async Task<Result<CancelRequestDto>> Handle(SubmitCancelRequestCommand cmd, CancellationToken ct)
@@ -47,8 +49,8 @@ public sealed class SubmitCancelRequestHandler(IAcademicDbContext db, TeacherSes
             session.StartsAt, clock.LocalNow, clock.UtcNow);
         if (created.IsFailure) return created.Error;
         db.SessionCancelRequests.Add(created.Value);
+        notices.CancelRequestSubmitted(session.BranchId, await notices.SessionLabelAsync(cls.Id, session.Id, ct), cmd.Reason.Trim());
         await db.SaveChangesAsync(ct);
-        // ⏳ Báo giáo vụ chi nhánh có đơn mới — làm cùng module Thông báo (chuông)
         return (await reader.CancelDtosAsync([created.Value], ct))[0];
     }
 }

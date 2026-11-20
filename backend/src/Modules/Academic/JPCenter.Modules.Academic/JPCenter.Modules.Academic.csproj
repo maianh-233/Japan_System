@@ -4,6 +4,7 @@
     <ProjectReference Include="..\JPCenter.Modules.Academic.Contracts\JPCenter.Modules.Academic.Contracts.csproj" />
     <ProjectReference Include="..\..\Crm\JPCenter.Modules.Crm.Contracts\JPCenter.Modules.Crm.Contracts.csproj" />
     <ProjectReference Include="..\..\Hr\JPCenter.Modules.Hr.Contracts\JPCenter.Modules.Hr.Contracts.csproj" />
+    <ProjectReference Include="..\..\Notifications\JPCenter.Modules.Notifications.Contracts\JPCenter.Modules.Notifications.Contracts.csproj" />
     <ProjectReference Include="..\..\Students\JPCenter.Modules.Students.Contracts\JPCenter.Modules.Students.Contracts.csproj" />
     <ProjectReference Include="..\..\System\JPCenter.Modules.System.Contracts\JPCenter.Modules.System.Contracts.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\JPCenter.Application.Common\JPCenter.Application.Common.csproj" />

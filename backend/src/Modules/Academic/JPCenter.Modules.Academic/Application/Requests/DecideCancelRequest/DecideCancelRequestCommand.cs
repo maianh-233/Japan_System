@@ -31,7 +31,7 @@ public sealed class DecideCancelRequestValidator : AbstractValidator<DecideCance
 }
 
 public sealed class DecideCancelRequestHandler(IAcademicDbContext db, RequestReader reader, AcademicAccess access, IClock clock,
-    IRealtimeNotifier realtime, IAuditTrail audit) : ICommandHandler<DecideCancelRequestCommand, CancelRequestDto>
+    IRealtimeNotifier realtime, IAuditTrail audit, AcademicNotices notices) : ICommandHandler<DecideCancelRequestCommand, CancelRequestDto>
 {
     public async Task<Result<CancelRequestDto>> Handle(DecideCancelRequestCommand cmd, CancellationToken ct)
     {
@@ -52,6 +52,7 @@ public sealed class DecideCancelRequestHandler(IAcademicDbContext db, RequestRea
 
         var r = cmd.Approve ? request.Approve(access.ActorId, clock.UtcNow, cmd.Note?.Trim()) : request.Reject(access.ActorId, clock.UtcNow, cmd.Note ?? "");
         if (r.IsFailure) return r.Error;
+        notices.CancelRequestDecided(request.TeacherId, await notices.SessionLabelAsync(request.ClassId, request.SessionId, ct), cmd.Approve, cmd.Note);
         await db.SaveChangesAsync(ct);
 
         var dto = (await reader.CancelDtosAsync([request], ct))[0];

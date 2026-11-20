@@ -1,5 +1,6 @@
 using FluentValidation;
 using JPCenter.Application.Common.Messaging;
+using JPCenter.Modules.Academic.Application.Common;
 using JPCenter.Modules.Academic.Application.Abstractions;
 using JPCenter.Modules.Academic.Application.ClassSessions.Common;
 using JPCenter.Modules.Academic.Domain.ClassSessions;
@@ -27,7 +28,8 @@ public sealed class SubmitReportValidator : AbstractValidator<SubmitReportComman
     }
 }
 
-public sealed class SubmitReportHandler(IAcademicDbContext db, TeacherSessions teacher, SessionReader reader, IClock clock)
+public sealed class SubmitReportHandler(IAcademicDbContext db, TeacherSessions teacher, SessionReader reader, IClock clock,
+    AcademicNotices notices)
     : ICommandHandler<SubmitReportCommand, SessionResult>
 {
     public async Task<Result<SessionResult>> Handle(SubmitReportCommand cmd, CancellationToken ct)
@@ -39,12 +41,14 @@ public sealed class SubmitReportHandler(IAcademicDbContext db, TeacherSessions t
         var r = session.SubmitReport(cmd.Content, cmd.Homework, cmd.Issues, cmd.Coverage,
             (cmd.CoveredChapterIds ?? []).Select(x => new ChapterId(x)).ToList(), teacher.Me, clock.UtcNow, clock.LocalNow);
         if (r.IsFailure) return r.Error;
+        // DT-14.E3: có "vấn đề cần xử lý" → báo người quản lý buổi học của chi nhánh
+        if (!string.IsNullOrWhiteSpace(cmd.Issues))
+            notices.ReportIssue(session.BranchId, await notices.SessionLabelAsync(session.ClassId, session.Id, ct), cmd.Issues.Trim());
         await db.SaveChangesAsync(ct);
 
         var warnings = new List<string>();
         if (session.TeacherAttendance.FirstOrDefault(t => t.TeacherId == teacher.Me) is not { CheckIn: not null })
             warnings.Add("Bạn chưa check-in buổi này — giáo vụ sẽ chấm công hộ");
-        // ⏳ DT-14.E3: báo giáo vụ chi nhánh khi có "vấn đề cần xử lý" — làm cùng module Thông báo
         return new SessionResult(await reader.ReloadAsync(session.Id, ct), warnings);
     }
 }

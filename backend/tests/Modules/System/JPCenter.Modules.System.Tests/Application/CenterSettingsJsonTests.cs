@@ -1,3 +1,4 @@
+using System.Text.Json;
 using JPCenter.Modules.System.Application.Settings.Common;
 using JPCenter.Modules.System.Domain.Settings;
 using JPCenter.SharedKernel.Primitives;
@@ -59,6 +60,42 @@ public sealed class CenterSettingsJsonTests
         back.ShouldBe(CenterSettings.Default);
         invalid.ShouldBe(["office.to", "crm.defaultSlaMinutes", "invoice.resetEvery", "safety.refundApprovalMin"], ignoreOrder: true);
     }
+
+    private static JsonElement Body(CenterSettings s) => JsonSerializer.SerializeToElement(CenterSettingsJson.ToObject(s));
+
+    [Fact]
+    public void Doc_body_api_dung_hinh_dang_frontend()
+    {
+        var custom = CenterSettings.Default with { Crm = new CrmSettings(45) };
+        CenterSettingsJson.Parse(Body(custom)).Value.ShouldBe(custom);
+    }
+
+    [Fact]
+    public void Body_bo_trong_gio_thu_7_la_nghi_thu_7()
+    {
+        var obj = CenterSettingsJson.ToObject(CenterSettings.Default);
+        obj["office"]["satTo"] = "";
+        CenterSettingsJson.Parse(JsonSerializer.SerializeToElement(obj)).Value.Office.SatTo.ShouldBeNull();
+        obj["office"].Remove("satTo");
+        CenterSettingsJson.Parse(JsonSerializer.SerializeToElement(obj)).Value.Office.SatTo.ShouldBeNull();
+    }
+
+    [Fact]
+    public void Body_thieu_hoac_sai_kieu_bao_loi_theo_tung_muc()
+    {
+        var obj = CenterSettingsJson.ToObject(CenterSettings.Default);
+        obj.Remove("payroll");
+        obj["crm"]["defaultSlaMinutes"] = "15";
+        obj["office"]["to"] = "5h chiều";
+        var error = CenterSettingsJson.Parse(JsonSerializer.SerializeToElement(obj)).Error;
+        error.Code.ShouldBe("validation.failed");
+        error.FieldErrors!.Keys.ShouldBe(["crm.defaultSlaMinutes", "office.to", "payroll.lockDay"], ignoreOrder: true);
+    }
+
+    [Fact]
+    public void Body_dung_kieu_nhung_sai_nghiep_vu_tra_loi_domain() =>
+        CenterSettingsJson.Parse(Body(CenterSettings.Default with { AtRisk = CenterSettings.Default.AtRisk with { MediumFrom = 6 } })).Error
+            .ShouldBe(SettingsErrors.AtRiskLevelsInvalid);
 
     [Fact]
     public void Ca_bo_vi_pham_rang_buoc_thi_dung_mac_dinh()

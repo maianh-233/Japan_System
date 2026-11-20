@@ -15,5 +15,8 @@ public static class SystemEndpoints
         RoleEndpoints.Map(system);
         UserPermissionEndpoints.Map(system);
         ApprovalEndpoints.Map(system);
+        SettingsEndpoints.Map(system);
+        AuditLogEndpoints.Map(system);
+        TrashEndpoints.Map(system);
     }
 }

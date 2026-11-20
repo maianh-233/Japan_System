@@ -1,5 +1,6 @@
 using FluentValidation;
 using JPCenter.Application.Common.Messaging;
+using JPCenter.Modules.Academic.Application.Common;
 using JPCenter.Modules.Academic.Application.Abstractions;
 using JPCenter.Modules.Academic.Application.Portals.Common;
 using JPCenter.Modules.Academic.Application.Requests.Common;
@@ -29,7 +30,7 @@ public sealed class SubmitLeaveRequestValidator : AbstractValidator<SubmitLeaveR
 }
 
 public sealed class SubmitLeaveRequestHandler(IAcademicDbContext db, LeaveAccess leaves, MakeupChecker makeups, PortalOwner owner,
-    RequestReader reader, IClock clock) : ICommandHandler<SubmitLeaveRequestCommand, LeaveRequestDto>
+    RequestReader reader, IClock clock, AcademicNotices notices) : ICommandHandler<SubmitLeaveRequestCommand, LeaveRequestDto>
 {
     public async Task<Result<LeaveRequestDto>> Handle(SubmitLeaveRequestCommand cmd, CancellationToken ct)
     {
@@ -55,6 +56,7 @@ public sealed class SubmitLeaveRequestHandler(IAcademicDbContext db, LeaveAccess
             owner.Name, makeupId, session.StartsAt, clock.LocalNow, clock.UtcNow);
         if (created.IsFailure) return created.Error;
         db.LeaveRequests.Add(created.Value);
+        notices.LeaveRequestSubmitted(session.BranchId, await notices.SessionLabelAsync(cls.Id, session.Id, ct), cmd.Reason.Trim());
         await db.SaveChangesAsync(ct);
         return (await reader.LeaveDtosAsync([created.Value], ct))[0];
     }

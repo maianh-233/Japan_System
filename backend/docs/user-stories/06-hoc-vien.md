@@ -470,4 +470,4 @@ Code: `src/Modules/Students/JPCenter.Modules.Students/Application/{Students,Enro
   vì giao diện còn tính thêm dấu hiệu bài tập / điểm / học phí mà server chưa có. Frontend `features/student/atRisk/careApi.ts`: mức rủi ro vẫn tính ở
   trình duyệt, phần chăm sóc (người phụ trách = nhân viên thật, tiến độ, hẹn, nhật ký liên hệ) lưu server.
 - Tính nguy cơ: job hằng đêm 02:00 + ngay khi Academic phát `AttendanceRecorded`; chuyên cần qua `Academic.Contracts.IAttendanceStats`.
-- ⏳ Bài tập / điểm thi / nợ quá hạn tạm tính 0 (chưa có API); ngưỡng dùng mặc định tới khi Cài đặt chung lưu `atRisk`.
+- ⏳ Bài tập / điểm thi / nợ quá hạn tạm tính 0 (chưa có API). ✅ (giai đoạn 16) Ngưỡng đọc từ Cài đặt chung `atRisk.*` (`ICenterSettings`).

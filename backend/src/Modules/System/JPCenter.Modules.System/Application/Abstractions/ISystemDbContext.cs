@@ -5,6 +5,7 @@ using JPCenter.Modules.System.Domain.OneTimeTokens;
 using JPCenter.Modules.System.Domain.PortalAccounts;
 using JPCenter.Modules.System.Domain.Roles;
 using JPCenter.Modules.System.Domain.Sessions;
+using JPCenter.Modules.System.Domain.Settings;
 using JPCenter.Modules.System.Domain.Trash;
 using JPCenter.Modules.System.Domain.Users;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,7 @@ public interface ISystemDbContext
     DbSet<AuditLog> AuditLogs { get; }
     DbSet<ApprovalRequest> ApprovalRequests { get; }
     DbSet<TrashItem> TrashItems { get; }
+    DbSet<Setting> Settings { get; }
 
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }
