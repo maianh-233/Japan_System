@@ -9,6 +9,7 @@ using JPCenter.Modules.Academic.Application.ClassSessions.Common;
 using JPCenter.Modules.Academic.Application.Common;
 using JPCenter.Modules.Academic.Domain.Classes;
 using JPCenter.Modules.Academic.Domain.ClassSessions;
+using JPCenter.Modules.Academic.Domain.Requests;
 using JPCenter.Modules.Academic.Domain.Rooms;
 using JPCenter.SharedKernel.Domain;
 using JPCenter.SharedKernel.Primitives;
@@ -27,12 +28,21 @@ public sealed class CancelSessionValidator : AbstractValidator<CancelSessionComm
 public sealed class CancelSessionHandler(IAcademicDbContext db, SessionReader reader, AcademicAccess access, IClock clock,
     IIntegrationEventPublisher events, IAuditTrail audit) : ICommandHandler<CancelSessionCommand, SessionResult>
 {
+    public const string ClosedBySessionCancel = "Buổi học đã bị hủy — đơn tự đóng";
+
     public async Task<Result<SessionResult>> Handle(CancelSessionCommand cmd, CancellationToken ct)
     {
         if (await reader.ForUpdateAsync(cmd.Id, PermissionAction.Update, ct) is not var (session, cls)) return SessionErrors.NotFound;
         if (session.Cancel(cmd.Reason, access.ActorId, clock.UtcNow, clock.LocalNow) is { IsFailure: true } r) return r.Error;
 
         events.Publish(new Ev.SessionCancelled(session.Id.Value, cls.Id.Value, session.Date, session.Note!));
+
+        // DT-11.E4: đơn xin nghỉ đang chờ của buổi → tự đóng; đơn chờ chọn buổi này làm buổi bù → bỏ đăng ký bù
+        var pending = await db.LeaveRequests
+            .Where(l => l.Status == RequestStatus.Pending && (l.SessionId == session.Id || l.MakeupSessionId == session.Id)).ToListAsync(ct);
+        foreach (var l in pending)
+            if (l.SessionId == session.Id) l.Reject(access.ActorId, clock.UtcNow, ClosedBySessionCancel);
+            else l.ChangeMakeup(null);
         await db.SaveChangesAsync(ct);
         audit.Record(AuditCategory.Data, AuditSeverity.Warning, "Hủy buổi học", $"{cls.Code} · buổi {session.No}", session.Note);
         var warnings = new List<string> { "Có thể xếp buổi học bù cho buổi này" };

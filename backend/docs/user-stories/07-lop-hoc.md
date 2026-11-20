@@ -537,3 +537,28 @@ Code: `src/Modules/Academic/JPCenter.Modules.Academic/Application/{Rooms,Classes
 - Buổi học bù chưa xác nhận hiện trạng thái `makeup` như mock; lý do tạm dừng hiện trong ghi chú lớp (không ghi đè ghi chú thật khi lưu).
 - Còn dữ liệu giả (ghi trong trình duyệt): điểm danh, chấm công GV tự làm, báo cáo buổi, đơn hủy buổi / dạy thay, đơn xin nghỉ, lên lớp,
   học viên / học phí khi hủy / kết thúc lớp, cổng GV / HV / PH — giai đoạn 14, 15.
+
+## Đã làm — đợt 2 (backend, 2026-11-20, giai đoạn 15 phase 3)
+
+Code: `Application/{ClassSessions,Requests,Promotions,Evaluations,Portals}/` · Test: `tests/JPCenter.IntegrationTests/Academic/PortalFlowTests.cs`.
+
+| Story | API (`/api/v1/academic/...`) | Quyền |
+|---|---|---|
+| DT-09, 12 (giáo vụ) | `GET class-sessions/{id}/qr` · `PUT class-sessions/{id}/attendance` `{ records[] }` · `PUT class-sessions/{id}/teacher-attendance` | `academic.sessions.update` |
+| Cổng GV | `portal/teaching/sessions?from=&to=` · `sessions/{id}` · `…/qr` · `PUT …/attendance` · `POST …/check-in` · `…/check-out` · `PUT …/report` | GV của buổi (portal teacher) |
+| DT-16 (GV) | `GET/POST portal/teaching/cancel-requests` · `DELETE …/{id}` · `GET portal/teaching/substitute-invites` · `POST …/{id}/accept` · `…/decline` | GV |
+| DT-16 (giáo vụ) | `GET requests/cancel?status=&branchId=` · `POST requests/cancel/{id}/approve|reject` · `GET substitute-invites?sessionId=&status=` · `GET substitute-invites/candidates?sessionId=` · `POST substitute-invites` · `POST substitute-invites/{id}/withdraw` | `academic.requests.view / approve` |
+| DT-18 (HV / PH) | `GET portal/learning/sessions?studentId=&from=&to=` · `GET/POST portal/learning/leave-requests` · `GET …/makeup-options?sessionId=` · `PUT …/{id}/makeup` · `DELETE …/{id}` · `POST portal/learning/attendance/scan` `{ payload | code }` (chỉ HV) | HV / PH |
+| DT-18 (giáo vụ) | `GET requests/leave?status=&branchId=&classId=` · `POST requests/leave/{id}/approve|reject` → `{ request, warnings }` | `academic.requests.view / approve` |
+| DT-17 | `GET/POST classes/{id}/promotions` · `PUT promotions/{id}` `{ toClassId, holdSeat, holdUntil }` · `POST classes/{id}/promotions/hand-over` · cổng `GET portal/learning/promotions` · `POST …/{id}/interest` | `academic.classes.view / update` · HV / PH |
+| DT-19 | cổng GV `GET/PUT portal/teaching/classes/{id}/evaluations[/{studentId}]` · nhân viên `GET classes/{id}/evaluations` | GV của lớp · `academic.classes.view` |
+
+**Chốt khi code:**
+- Realtime (SignalR `/hubs/realtime`): `substitute-invite.created | accepted | declined | closed | expired`, `cancel-request.decided`, `leave-request.decided`, `attendance.scanned` (GV đang mở QR).
+- Job: hết hạn lời mời dạy thay (mỗi 5 phút) · trả chỗ giữ lên lớp quá hạn (00:30). Lớp kết thúc → tự giao Sale đề xuất lên lớp.
+- Điểm danh phát `AttendanceRecorded` → Students tính lại nguy cơ bỏ học ngay; cảnh báo "N HV vắng 2 buổi liên tiếp" (E5). Điểm danh khách học bù → ghi kết quả về đơn + buổi gốc "đã học bù".
+- Hủy buổi → đơn xin nghỉ đang chờ tự đóng; đơn chọn buổi đó làm buổi bù → bỏ đăng ký bù (DT-11.E4).
+- Academic.Contracts: `IAttendanceStats`, event `AttendanceRecorded`, `SubstituteAccepted`. Students.Contracts: `IEnrollmentLookup.OfStudentAsync / NamesAsync`. Crm.Contracts: `IGuardianDirectory`.
+- ⏳ PH chưa có con: `IGuardianDirectory` tạm trả rỗng tới khi Crm lưu DB (giai đoạn 16) → cổng PH xem rỗng, gửi đơn 403.
+- ⏳ Dữ liệu mẫu: vai trò Giáo vụ (R-GV) chưa có `academic.requests.approve` → chỉ quản lý chi nhánh duyệt được đơn / mời dạy thay.
+- ⏳ Thông báo chuông (đơn mới, vấn đề trong báo cáo buổi, HV bấm Quan tâm) chờ module Thông báo; ngưỡng "xin nghỉ nhiều buổi" tạm cố định 3.

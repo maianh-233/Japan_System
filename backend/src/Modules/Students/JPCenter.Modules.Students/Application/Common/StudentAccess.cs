@@ -25,6 +25,8 @@ public sealed class StudentAccess(ICurrentUser user)
 {
     public const string Profiles = "students.profiles";
     public const string Classes = "academic.classes";
+    /// <summary>Cảnh báo bỏ học & chăm sóc (HV-14)</summary>
+    public const string AtRisk = "students.at-risk";
 
     public Guid ActorId => user.Access?.EmployeeId ?? user.AccountId ?? Guid.Empty;
 

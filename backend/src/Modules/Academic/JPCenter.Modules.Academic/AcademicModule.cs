@@ -8,9 +8,17 @@ using JPCenter.Modules.Academic.Application.ClassSessions.Common;
 using JPCenter.Modules.Academic.Application.Common;
 using JPCenter.Modules.Academic.Application.Courses.Common;
 using JPCenter.Modules.Academic.Application.Curricula.Common;
+using JPCenter.Modules.Academic.Application.Evaluations.Common;
+using JPCenter.Modules.Academic.Application.Portals.Common;
+using JPCenter.Modules.Academic.Application.Promotions.Common;
+using JPCenter.Modules.Academic.Application.Requests.Common;
 using JPCenter.Modules.Academic.Application.Rooms.Common;
+using JPCenter.Modules.Academic.Contracts;
+using JPCenter.Infrastructure.Common.Jobs;
 using JPCenter.Modules.Academic.Infrastructure.Persistence;
 using JPCenter.Modules.Academic.Infrastructure.Persistence.Seed;
+using JPCenter.Modules.Academic.Infrastructure.Services;
+using Quartz;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,9 +61,34 @@ public sealed class AcademicModule : IModule
         services.AddScoped<SessionConflicts>();
         services.AddScoped<SessionConfirmer>();
 
+        // Cổng GV / HV / PH, đơn từ, điểm danh (giai đoạn 15)
+        services.AddScoped<PortalOwner>();
+        services.AddScoped<TeacherSessions>();
+        services.AddScoped<MakeupSync>();
+        services.AddScoped<RequestReader>();
+        services.AddScoped<MakeupChecker>();
+        services.AddScoped<LeaveAccess>();
+        services.AddScoped<PromotionReader>();
+        services.AddScoped<EvaluationReader>();
+        services.AddScoped<IAttendanceStats, AttendanceStats>();
+
         services.AddScoped<IDataSeeder, AcademicSeeder>();
         services.AddScoped<IDataSeeder, ClassSeeder>();
         services.AddScoped<IDataSeeder, RequestSeeder>();
+
+        if (JobServiceCollectionExtensions.IsEnabled(configuration))
+        {
+            var vietnam = TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh");
+            services.AddQuartz(q =>
+            {
+                q.ScheduleJob<SubstituteInviteJob>(
+                    trigger => trigger.WithIdentity("academic-substitute-invites").WithCronSchedule(SubstituteInviteJob.Cron, x => x.InTimeZone(vietnam)),
+                    job => job.WithIdentity("academic-substitute-invites"));
+                q.ScheduleJob<AcademicDailyJob>(
+                    trigger => trigger.WithIdentity("academic-daily").WithCronSchedule(AcademicDailyJob.Cron, x => x.InTimeZone(vietnam)),
+                    job => job.WithIdentity("academic-daily"));
+            });
+        }
     }
 
     public void MapEndpoints(IEndpointRouteBuilder group) => AcademicEndpoints.Map(group);

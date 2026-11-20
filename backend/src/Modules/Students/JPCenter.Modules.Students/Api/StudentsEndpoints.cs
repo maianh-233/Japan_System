@@ -108,5 +108,8 @@ public static class StudentsEndpoints
         e.MapPost("/transfer", async (TransferBody b, ISender s, CancellationToken ct) =>
                 (await s.Send(new TransferEnrollmentsCommand(b.TargetClassId, b.Items ?? [], b.DueDate, b.Reason), ct)).ToHttpResult())
             .RequireAnyPermission((classes, PermissionAction.Update), (page, PermissionAction.Update));
+
+        // ---------- Cảnh báo bỏ học & chăm sóc (HV-14) ----------
+        Endpoints.CareEndpoints.Map(students);
     }
 }

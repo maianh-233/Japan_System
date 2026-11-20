@@ -18,7 +18,7 @@ namespace JPCenter.Modules.Academic.Application.Classes.FinishClass;
 public sealed record FinishClassCommand(Guid Id, DateOnly ActualEndDate) : ICommand<ClassResult>;
 
 public sealed class FinishClassHandler(IAcademicDbContext db, ClassReader reader, UpcomingSessions upcoming, IIntegrationEventPublisher events,
-    IAuditTrail audit) : ICommandHandler<FinishClassCommand, ClassResult>
+    IAuditTrail audit, IClock clock) : ICommandHandler<FinishClassCommand, ClassResult>
 {
     public async Task<Result<ClassResult>> Handle(FinishClassCommand cmd, CancellationToken ct)
     {
@@ -31,6 +31,10 @@ public sealed class FinishClassHandler(IAcademicDbContext db, ClassReader reader
         if (cancelled > 0) warnings.Add($"Đã hủy {cancelled} buổi chưa dạy");
         var unconfirmed = await upcoming.UnconfirmedPastAsync(cls.Id, ct);
         if (unconfirmed > 0) warnings.Add($"{unconfirmed} buổi chưa xác nhận — chưa tính lương GV");
+        // DT-17 bước 4: đề xuất lên lớp chưa chốt tự giao Sale (⏳ chọn Sale theo lead liên kết khi có Crm — giai đoạn 16)
+        var promotions = await db.PromotionCandidates.Where(p => p.FromClassId == cls.Id && p.HandedOverAt == null).ToListAsync(ct);
+        var handed = promotions.Count(p => p.HandOver(null, clock.UtcNow).IsSuccess);
+        if (handed > 0) warnings.Add($"Đã giao Sale tư vấn lên lớp cho {handed} học viên");
         events.Publish(new Ev.ClassFinished(cls.Id.Value, cls.Code, cmd.ActualEndDate));
         await db.SaveChangesAsync(ct);
         audit.Record(AuditCategory.Data, AuditSeverity.Info, "Kết thúc lớp", cls.Code, $"{cmd.ActualEndDate:dd/MM/yyyy}");

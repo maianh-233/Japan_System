@@ -8,6 +8,12 @@ public static class RequestErrors
     public static readonly Error RejectReasonRequired = Error.Validation("academic.request.reject_reason_required", "Cần ghi lý do từ chối");
     public static readonly Error SessionGone = Error.Conflict("academic.request.session_gone", "Buổi học hoặc lớp học liên kết không còn tồn tại");
     public static readonly Error InviteClosed = Error.Conflict("academic.invite.closed", "Lời mời đã hết hiệu lực");
+    public static readonly Error CancelRequestNotFound = Error.NotFound("academic.cancel_request.not_found", "Không tìm thấy đơn hủy buổi");
+    public static readonly Error LeaveRequestNotFound = Error.NotFound("academic.leave_request.not_found", "Không tìm thấy đơn xin nghỉ");
+    public static readonly Error InviteNotFound = Error.NotFound("academic.invite.not_found", "Không tìm thấy lời mời dạy thay");
+    public static readonly Error NotYourChild = Error.Forbidden("academic.portal.not_your_child",
+        "Bạn chỉ thao tác được cho học viên của tài khoản mình (hoặc con mình)");
+    public static readonly Error InviteTeachersRequired = Error.Validation("academic.invite.teachers_required", "Chọn ít nhất 1 GV để mời dạy thay");
     public static readonly Error InviteInvalid = Error.Validation("academic.invite.invalid", "Lời mời không hợp lệ (mời chính GV vắng hoặc hạn trả lời đã qua)");
 
     // DT-16 — đơn hủy buổi của GV

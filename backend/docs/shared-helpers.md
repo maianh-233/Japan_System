@@ -45,6 +45,7 @@
 | `ICodeGenerator` (sinh mã HV1000, HD2400, LD0001 theo dãy số trong DB) | Mã hiển thị tăng dần, không trùng | 📝 |
 | `IFileStorage` (`Files/`): `UploadAsync(stream, fileName, folder, policy)` → `Result<StoredFile>` · `GetDownloadUrlAsync(key, FileLinkOptions?)` · `OpenReadAsync` · `ExistsAsync` · `DeleteAsync` | Mọi file người dùng tải lên (tài liệu lộ trình, bài nộp, ảnh, giấy tờ). Lưu `StoredFile.Key` vào entity; trả giao diện **link tạm** sau khi kiểm quyền — không trả key. Thư mục chữ thường theo module: `academic/materials`. Xóa file khi **xóa cứng** entity | ✅ |
 | `FilePolicy` (`TeachingMaterials` 50 MB · `Submissions` 20 MB · `Documents` 10 MB · `Images` 5 MB) + `FileTypes` (đuôi + magic bytes) + `FileErrors` (`file.*`) | Chọn quy định tải lên; tự tạo `new FilePolicy(tên, maxBytes, [FileTypes.Pdf, …])` khi cần khác. Thêm loại file mới → 1 dòng trong `FileTypes` | ✅ |
+| `IRealtimeNotifier.ToEmployeesAsync / ToAccountsAsync(ids, type, payload)` (`Realtime/`) | Đẩy sự kiện realtime (SignalR) tới nhân viên / GV / tài khoản cổng — gọi SAU khi lưu; tên sự kiện `<đối tượng>.<việc>` (vd `substitute-invite.created`). Mặc định bỏ qua (`NullRealtimeNotifier`), web host thay bằng SignalR | ✅ |
 | `INotificationSender` (in-app / Zalo / email / SMS) | Gửi thông báo từ mọi module | 📝 |
 | `ValidationRules` mở rộng FluentValidation: `.VietnamPhone()`, `.VndMoney()`, `.Code()` | Validator dùng lại | 📝 |
 
@@ -91,3 +92,5 @@
 | `.Audited(action, category, severity, target?)` (`Auditing/`) | Ghi 1 dòng nhật ký khi thành công | ✅ |
 | `.WithBodyLimit(bytes)` (`Validation/`) | Nới giới hạn body (mặc định 1 MB) cho endpoint nhập file | ✅ |
 | `ErrorHttpResult` (`Results/`) | Lỗi nghiệp vụ → ProblemDetails, traceId = X-Request-Id | ✅ |
+| `QueryEnum<T>` (`Http/`) | Tham số query kiểu enum viết snake_case như JSON (`?status=in_progress`): `(QueryEnum<RequestStatus>? status) => status?.Value` | ✅ |
+| `RealtimeHub` + `AddRealtime()` / `MapRealtimeHub()` (`Realtime/`) | Hub SignalR chung `/hubs/realtime` (cần đăng nhập; WebSocket gửi token qua query `access_token`, chỉ nhận ở `/hubs`). Kết nối vào nhóm theo tài khoản + nhân viên | ✅ |

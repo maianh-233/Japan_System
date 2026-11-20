@@ -11,7 +11,10 @@ using JPCenter.Modules.Academic.Application.ClassSessions.ConfirmSessions;
 using JPCenter.Modules.Academic.Application.ClassSessions.CreateSession;
 using JPCenter.Modules.Academic.Application.ClassSessions.EditSession;
 using JPCenter.Modules.Academic.Application.ClassSessions.GetSession;
+using JPCenter.Modules.Academic.Application.ClassSessions.GetSessionQr;
 using JPCenter.Modules.Academic.Application.ClassSessions.GetSessions;
+using JPCenter.Modules.Academic.Application.ClassSessions.RecordAttendance;
+using JPCenter.Modules.Academic.Application.ClassSessions.RecordTeacherAttendance;
 using JPCenter.Modules.Academic.Application.ClassSessions.ReportIncident;
 using JPCenter.Modules.Academic.Application.ClassSessions.ResolveIncident;
 using JPCenter.Modules.Academic.Application.ClassSessions.UnconfirmSession;
@@ -47,6 +50,21 @@ public static class ClassSessionEndpoints
     public sealed record ConfirmBody(string? Note);
 
     public sealed record ConfirmManyBody(List<Guid> Ids, string? Note);
+
+    public sealed record AttendanceEntryBody(Guid StudentId, AttendanceStatus Status, TimeOnly? CheckInAt, string? Note, TimeOnly? LeftAt,
+        string? LeaveReason)
+    {
+        public AttendanceEntry ToEntry() => new(StudentId, Status, CheckInAt, Note, LeftAt, LeaveReason);
+    }
+
+    /// <summary>Điểm danh cả danh sách (DT-09) — dùng chung cho nhân viên và cổng GV</summary>
+    public sealed record AttendanceBody(List<AttendanceEntryBody> Records)
+    {
+        public IReadOnlyList<AttendanceEntry> Entries => (Records ?? []).Select(r => r.ToEntry()).ToList();
+    }
+
+    public sealed record TeacherAttendanceBody(Guid TeacherId, StaffRole Role, TeacherAttendanceStatus Status, TimeOnly? CheckIn, TimeOnly? CheckOut,
+        Guid? SubstituteId, string? Note);
 
     public static void Map(IEndpointRouteBuilder academic)
     {
@@ -90,6 +108,20 @@ public static class ClassSessionEndpoints
 
         g.MapPost("/{id:guid}/support", async (Guid id, SupportBody b, ISender s, CancellationToken ct) =>
                 (await s.Send(new AddSupportEntryCommand(id, b.Kind, b.Note), ct)).ToHttpResult())
+            .RequirePermission(page, PermissionAction.Update);
+
+        // Điểm danh hộ, QR, chấm công hộ GV (DT-09, DT-12)
+        g.MapGet("/{id:guid}/qr", async (Guid id, ISender s, CancellationToken ct) =>
+                (await s.Send(new GetSessionQrQuery(id, AsTeacher: false), ct)).ToHttpResult())
+            .RequirePermission(page, PermissionAction.Update);
+
+        g.MapPut("/{id:guid}/attendance", async (Guid id, AttendanceBody b, ISender s, CancellationToken ct) =>
+                (await s.Send(new RecordAttendanceCommand(id, b.Entries, AsTeacher: false), ct)).ToHttpResult())
+            .RequirePermission(page, PermissionAction.Update);
+
+        g.MapPut("/{id:guid}/teacher-attendance", async (Guid id, TeacherAttendanceBody b, ISender s, CancellationToken ct) =>
+                (await s.Send(new RecordTeacherAttendanceCommand(id, b.TeacherId, b.Role, b.Status, b.CheckIn, b.CheckOut, b.SubstituteId, b.Note), ct))
+                .ToHttpResult())
             .RequirePermission(page, PermissionAction.Update);
 
         // Xác nhận buổi đã dạy (DT-15)

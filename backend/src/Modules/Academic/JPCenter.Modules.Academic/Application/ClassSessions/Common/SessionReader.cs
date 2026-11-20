@@ -43,6 +43,25 @@ public sealed class SessionReader(IAcademicDbContext db, AcademicAccess access, 
         return (await ToDtosAsync([row], ctx, ct))[0];
     }
 
+    /// <summary>Cổng GV (DT-20.E1): buổi GV có tham gia trong khoảng ngày (gồm dạy thay, trợ giảng)</summary>
+    public async Task<IReadOnlyList<SessionDto>> ListForTeacherAsync(Guid teacherId, DateOnly from, DateOnly to, CancellationToken ct)
+    {
+        var rows = await Rows(db.ClassSessions.AsNoTracking().Where(s => s.Date >= from && s.Date <= to)).ToListAsync(ct);
+        var ctx = await ContextAsync(rows.Select(r => r.Session).ToList(), ct);
+        var mine = rows.Where(r => TeacherSessions.RoleOf(r.Session, ctx.Classes[r.Session.ClassId], teacherId) is not null).ToList();
+        return await ToDtosAsync(mine, ctx, ct);
+    }
+
+    /// <summary>Cổng GV: 1 buổi GV có tham gia; không tham gia → null</summary>
+    public async Task<SessionDto?> FindForTeacherAsync(Guid id, Guid teacherId, CancellationToken ct)
+    {
+        var row = await Rows(db.ClassSessions.AsNoTracking().Where(s => s.Id == new ClassSessionId(id))).FirstOrDefaultAsync(ct);
+        if (row is null) return null;
+        var ctx = await ContextAsync([row.Session], ct);
+        if (TeacherSessions.RoleOf(row.Session, ctx.Classes[row.Session.ClassId], teacherId) is null) return null;
+        return (await ToDtosAsync([row], ctx, ct))[0];
+    }
+
     public async Task<SessionDto> ReloadAsync(ClassSessionId id, CancellationToken ct)
     {
         var row = await Rows(db.ClassSessions.AsNoTracking().Where(s => s.Id == id)).FirstAsync(ct);

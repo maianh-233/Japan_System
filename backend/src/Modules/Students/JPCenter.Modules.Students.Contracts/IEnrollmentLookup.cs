@@ -10,4 +10,10 @@ public interface IEnrollmentLookup
 
     /// <summary>Học viên có ghi danh hiệu lực trong lớp (kèm bảo lưu), sắp theo tên</summary>
     Task<IReadOnlyList<RosterEntry>> RosterAsync(Guid classId, CancellationToken ct);
+
+    /// <summary>Mọi ghi danh của 1 HV (cổng HV / PH: lớp của tôi, kiểm HV có trong lớp khi quét QR / xin nghỉ)</summary>
+    Task<IReadOnlyList<StudentEnrollmentEntry>> OfStudentAsync(Guid studentId, CancellationToken ct);
+
+    /// <summary>Họ tên HV theo Id (danh sách nhận xét / lên lớp)</summary>
+    Task<IReadOnlyDictionary<Guid, string>> NamesAsync(IReadOnlyCollection<Guid> studentIds, CancellationToken ct);
 }

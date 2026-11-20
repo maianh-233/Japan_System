@@ -6,9 +6,11 @@ using JPCenter.Infrastructure.Common.Outbox;
 using JPCenter.Application.Common.IntegrationEvents;
 using JPCenter.Application.Common.Auditing;
 using JPCenter.Application.Common.Idempotency;
+using JPCenter.Application.Common.Realtime;
 using JPCenter.Application.Common.Security;
 using JPCenter.Infrastructure.Common.Auditing;
 using JPCenter.Infrastructure.Common.Idempotency;
+using JPCenter.Infrastructure.Common.Realtime;
 using JPCenter.Infrastructure.Common.Time;
 using JPCenter.SharedKernel.Domain;
 using Microsoft.EntityFrameworkCore;
@@ -58,6 +60,9 @@ public static class PersistenceServiceCollectionExtensions
         services.TryAddScoped<OutboxCollector>();
         services.TryAddScoped<IIntegrationEventPublisher>(sp => sp.GetRequiredService<OutboxCollector>());
         services.TryAddScoped<OutboxInterceptor>();
+
+        // Realtime: mặc định bỏ qua; web host (Api.Common.AddRealtime) thay bằng SignalR
+        services.TryAddSingleton<IRealtimeNotifier, NullRealtimeNotifier>();
         return services;
     }
 

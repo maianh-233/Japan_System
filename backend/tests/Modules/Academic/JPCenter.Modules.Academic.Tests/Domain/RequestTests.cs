@@ -130,4 +130,18 @@ public sealed class RequestTests
         MakeupRules.Overlaps(Day, new(18, 0), new(20, 0), Day, new(20, 0), new(21, 0)).ShouldBeFalse();
         MakeupRules.Overlaps(Day, new(18, 0), new(20, 0), Day.AddDays(1), new(18, 0), new(20, 0)).ShouldBeFalse();
     }
+
+    [Fact]
+    public void Doi_bo_buoi_bu_chi_khi_don_con_cho()
+    {
+        var makeup = ClassSessionId.New();
+        var l = Leave("Bị ốm cần nghỉ", Morning).Value;
+        l.ChangeMakeup(makeup).IsSuccess.ShouldBeTrue();
+        l.MakeupSessionId.ShouldBe(makeup);
+        l.ChangeMakeup(null).IsSuccess.ShouldBeTrue();
+        l.MakeupSessionId.ShouldBeNull();
+
+        l.Approve(Staff, At, null);
+        l.ChangeMakeup(makeup).Error.Code.ShouldBe("academic.request.not_pending");
+    }
 }

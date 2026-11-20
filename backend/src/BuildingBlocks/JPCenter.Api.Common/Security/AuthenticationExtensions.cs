@@ -36,6 +36,14 @@ public static class AuthenticationExtensions
             };
             o.Events = new JwtBearerEvents
             {
+                // WebSocket / SSE của SignalR không gửi được header → nhận token qua query access_token, CHỈ cho đường dẫn hub
+                OnMessageReceived = ctx =>
+                {
+                    if (ctx.HttpContext.Request.Path.StartsWithSegments("/hubs")
+                        && ctx.Request.Query["access_token"].ToString() is { Length: > 0 } token)
+                        ctx.Token = token;
+                    return Task.CompletedTask;
+                },
                 // Hết hạn → mã riêng để frontend tự làm mới token (AUTH-02); còn lại → đăng nhập lại
                 OnChallenge = async ctx =>
                 {

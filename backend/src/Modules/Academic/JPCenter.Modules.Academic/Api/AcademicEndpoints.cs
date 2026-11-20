@@ -13,5 +13,8 @@ public static class AcademicEndpoints
         RoomEndpoints.Map(academic);
         ClassEndpoints.Map(academic);
         ClassSessionEndpoints.Map(academic);
+        RequestEndpoints.Map(academic);
+        PromotionEndpoints.Map(academic);
+        PortalEndpoints.Map(academic);
     }
 }

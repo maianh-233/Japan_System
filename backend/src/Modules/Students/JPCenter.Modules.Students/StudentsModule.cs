@@ -1,8 +1,10 @@
 using JPCenter.Api.Common.Modules;
 using JPCenter.Application.Common.Messaging;
+using JPCenter.Infrastructure.Common.Jobs;
 using JPCenter.Infrastructure.Common.Persistence;
 using JPCenter.Modules.Students.Api;
 using JPCenter.Modules.Students.Application.Abstractions;
+using JPCenter.Modules.Students.Application.CareCases.Common;
 using JPCenter.Modules.Students.Application.Common;
 using JPCenter.Modules.Students.Application.Enrollments.Common;
 using JPCenter.Modules.Students.Application.Students.Common;
@@ -13,6 +15,7 @@ using JPCenter.Modules.Students.Infrastructure.Services;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Quartz;
 
 namespace JPCenter.Modules.Students;
 
@@ -37,9 +40,19 @@ public sealed class StudentsModule : IModule
         services.AddScoped<StudentCodes>();
         services.AddScoped<EnrollmentReader>();
         services.AddScoped<EnrollmentRules>();
+        services.AddScoped<RiskCalculator>();
+        services.AddScoped<CareCaseReader>();
 
         services.AddScoped<IDataSeeder, StudentSeeder>();
         services.AddScoped<IDataSeeder, CareSeeder>();
+
+        if (JobServiceCollectionExtensions.IsEnabled(configuration))
+        {
+            services.AddQuartz(q => q.ScheduleJob<RiskAssessmentJob>(
+                trigger => trigger.WithIdentity("students-risk")
+                    .WithCronSchedule(RiskAssessmentJob.Cron, x => x.InTimeZone(TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh"))),
+                job => job.WithIdentity("students-risk")));
+        }
     }
 
     public void MapEndpoints(IEndpointRouteBuilder group) => StudentsEndpoints.Map(group);

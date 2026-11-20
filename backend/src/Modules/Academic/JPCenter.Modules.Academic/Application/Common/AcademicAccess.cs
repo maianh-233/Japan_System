@@ -13,6 +13,8 @@ public sealed class AcademicAccess(ICurrentUser user)
     public const string Classes = "academic.classes";
     public const string Sessions = "academic.sessions";
     public const string Rooms = "academic.rooms";
+    /// <summary>Đơn chờ xử lý: đơn hủy buổi của GV, đơn xin nghỉ của HV / PH, mời dạy thay (<c>approve</c> = duyệt)</summary>
+    public const string Requests = "academic.requests";
 
     /// <summary>Người thao tác để ghi vào dữ liệu (xác nhận, hủy...): nhân viên (Hr) nếu có, không thì tài khoản</summary>
     public Guid ActorId => user.Access?.EmployeeId ?? user.AccountId ?? Guid.Empty;

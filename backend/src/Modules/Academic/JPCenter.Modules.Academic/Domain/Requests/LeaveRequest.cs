@@ -65,6 +65,14 @@ public sealed class LeaveRequest : AggregateRoot<LeaveRequestId>, IBranchScoped,
         return Result.Success();
     }
 
+    /// <summary>HV / PH đổi hoặc bỏ buổi học bù khi đơn còn chờ duyệt (buổi bù đã kiểm bằng <see cref="MakeupRules"/>)</summary>
+    public Result ChangeMakeup(ClassSessionId? makeupSessionId)
+    {
+        if (!IsPending) return RequestErrors.NotPending;
+        (MakeupSessionId, MakeupResult) = (makeupSessionId, null);
+        return Result.Success();
+    }
+
     /// <summary>Buổi bù đầy khi duyệt (DT-18.E3): vẫn duyệt nghỉ, bỏ đăng ký bù</summary>
     public void DropMakeup() => (MakeupSessionId, MakeupResult) = (null, null);
 

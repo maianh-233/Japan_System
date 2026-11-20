@@ -18,3 +18,9 @@ public sealed record SessionConfirmed(Guid SessionId, Guid ClassId, Guid BranchI
 
 /// <summary>Bỏ xác nhận (DT-15) — Finance bỏ buổi khỏi bảng lương chưa chốt.</summary>
 public sealed record SessionUnconfirmed(Guid SessionId, Guid ClassId, DateOnly Date) : IIntegrationEvent;
+
+/// <summary>Lưu điểm danh HV của 1 buổi (DT-09) — Students tính lại nguy cơ bỏ học cho các HV này (HV-14.E6), Notifications báo PH.</summary>
+public sealed record AttendanceRecorded(Guid SessionId, Guid ClassId, Guid BranchId, DateOnly Date, IReadOnlyList<Guid> StudentIds) : IIntegrationEvent;
+
+/// <summary>GV nhận lời mời dạy thay (DT-16) — Notifications báo HV / PH đổi GV.</summary>
+public sealed record SubstituteAccepted(Guid SessionId, Guid ClassId, Guid FromTeacherId, Guid ToTeacherId) : IIntegrationEvent;

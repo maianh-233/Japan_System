@@ -1,6 +1,7 @@
 using JPCenter.Api.Common.Http;
 using JPCenter.Api.Common.Middleware;
 using JPCenter.Api.Common.RateLimiting;
+using JPCenter.Api.Common.Realtime;
 using JPCenter.Api.Common.Security;
 using JPCenter.Application.Common.Security;
 using Microsoft.AspNetCore.Builder;
@@ -53,6 +54,7 @@ public static class RequestPipelineExtensions
 
         services.AddJpAuthentication(configuration);
         services.AddJpRateLimiting(configuration);
+        services.AddRealtime();
         return services;
     }
 

@@ -1,10 +1,12 @@
 using JPCenter.Api;
 using JPCenter.Api.Common;
 using JPCenter.Api.Common.Modules;
+using JPCenter.Api.Common.Realtime;
 using JPCenter.Application.Common.Messaging;
 using JPCenter.Infrastructure.Common.Jobs;
 using JPCenter.Infrastructure.Common.Persistence;
 using JPCenter.Modules.Academic;
+using JPCenter.Modules.Crm;
 using JPCenter.Modules.Hr;
 using JPCenter.Modules.Students;
 using JPCenter.Modules.System;
@@ -31,6 +33,7 @@ builder.Services
     .AddScheduledJobs(builder.Configuration)
     .AddModules(builder.Configuration,
         new AcademicModule(),
+        new CrmModule(),
         new HrModule(),
         new StudentsModule(),
         new SystemModule());
@@ -42,6 +45,7 @@ app.UseSerilogRequestLogging();
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" })).AllowAnonymous();
 app.MapModules();
+app.MapRealtimeHub();
 
 if (app.Environment.IsDevelopment()) await app.Services.InitializeDatabaseAsync();
 

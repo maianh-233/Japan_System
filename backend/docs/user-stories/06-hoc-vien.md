@@ -459,3 +459,12 @@ Code: `src/Modules/Students/JPCenter.Modules.Students/Application/{Students,Enro
   cho nghỉ, chuyển lớp (đơn + hàng loạt = 1 request). Hủy / kết thúc lớp: server cập nhật ghi danh (chạy nền) → trang tải lại sau ~2,5 giây.
 - ⏳ Hóa đơn còn giả: ghi danh / chuyển lớp tạo hóa đơn giả ở trình duyệt, cho nghỉ / chuyển / hủy lớp hủy công nợ hóa đơn giả (mất khi tải lại trang).
 - ⏳ Còn chạy dữ liệu giả: tạo HV từ lead (CRM-07), ghi danh từ lead, lên lớp (giai đoạn 15 / 16), chứng nhận, JLPT, du học.
+
+## Đã làm — HV-14 (giai đoạn 15 phase 3, 2026-11-20)
+
+| Story | API (`/api/v1/students/...`) | Quyền |
+|---|---|---|
+| HV-14 | `GET at-risk?branchId=&classId=&studentId=&level=&status=&includeResolved=` · `PUT at-risk/{id}` `{ assigneeId, status, nextAt }` · `POST at-risk/{id}/logs` `{ channel, note }` · `POST at-risk/recalculate` · `GET care-logs?classId=&studentId=` | `students.at-risk.*` (nhật ký: hoặc `academic.classes.view`) |
+
+- Tính nguy cơ: job hằng đêm 02:00 + ngay khi Academic phát `AttendanceRecorded`; chuyên cần qua `Academic.Contracts.IAttendanceStats`.
+- ⏳ Bài tập / điểm thi / nợ quá hạn tạm tính 0 (chưa có API); ngưỡng dùng mặc định tới khi Cài đặt chung lưu `atRisk`.
