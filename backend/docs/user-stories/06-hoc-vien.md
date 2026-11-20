@@ -418,3 +418,14 @@ Phát `EnrollmentCompleted` → cổng HV hiện "Đã học xong", trang Chứn
 - **Job:** nhắc hết hạn bảo lưu (hằng ngày, HV-07.E3) · tính cảnh báo bỏ học (hằng đêm, HV-14.E4).
 - **Mã lỗi cần thêm vào Domain** (chưa có): `students.student.invalid_dob`, `students.enrollment.duplicate`, `students.enrollment.invalid_reserve_until`,
   `students.enrollment.same_class`.
+
+## Phạm vi giai đoạn 14 (chốt 2026-11-20)
+
+- **Làm:** HV-01 → HV-11 (danh sách, hồ sơ, sửa, nhập Excel, ẩn, ghi danh, bảo lưu, học lại, chuyển lớp, cho nghỉ, hoàn thành khi lớp kết thúc),
+  sĩ số lớp cho Academic (`IEnrollmentLookup`), HV-13 dùng lại API tài khoản cổng đã có ở System.
+- **Chờ module khác:** HV-12 phụ huynh (dữ liệu ở Crm — giai đoạn 16), HV-14 cảnh báo bỏ học (cần điểm danh — giai đoạn 15),
+  hóa đơn của ghi danh (Finance — giai đoạn 17; Students phát event, chưa ai nghe).
+- **Làm sau (nhóm riêng):** HV-15 chứng nhận, HV-16 JLPT, HV-17 du học / XKLĐ.
+- **Domain (phase 1):** `Student.Create / Update` kiểm họ tên, ngày sinh không ở tương lai, SĐT 10 số bắt đầu bằng 0 (+84 → 0), email; `Hide` nêu lớp còn học.
+  `Enrollment`: bảo lưu cần lý do + hạn sau hôm nay ≤ 6 tháng, cho nghỉ / chuyển lớp cần lý do, hoàn thành chỉ từ "đang học"; ghi chú giống frontend
+  ("Bảo lưu đến dd/MM/yyyy — …", "Học lại từ …", "Chuyển sang lớp … — …").

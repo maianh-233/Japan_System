@@ -1,13 +1,14 @@
+using System.Text.RegularExpressions;
 using JPCenter.SharedKernel.Domain;
 using JPCenter.SharedKernel.Primitives;
 
 namespace JPCenter.Modules.Students.Domain.Students;
 
 /// <summary>
-/// Hồ sơ học viên (bản ghi riêng, có thể tạo từ lead). Lớp đang học / trạng thái học suy ra từ ghi danh.
-/// Bảng: students.students. Chỉ ẩn được khi không còn ghi danh Đang học / Bảo lưu (kiểm tra ở Application).
+/// Hồ sơ học viên (bản ghi riêng, có thể tạo từ lead hoặc nhập Excel). Lớp đang học / trạng thái học SUY RA từ ghi danh (không lưu cột riêng).
+/// Bảng: students.students. Không xóa — chỉ ẩn, và chỉ khi không còn ghi danh Đang học / Bảo lưu (HV-05).
 /// </summary>
-public sealed class Student : AggregateRoot<StudentId>, IBranchScoped, IAuditable, ISoftDeletable
+public sealed partial class Student : AggregateRoot<StudentId>, IBranchScoped, IAuditable, ISoftDeletable
 {
     private Student() { }
 
@@ -19,27 +20,43 @@ public sealed class Student : AggregateRoot<StudentId>, IBranchScoped, IAuditabl
     public string? Phone { get; private set; }
     public string? Email { get; private set; }
     public string? Address { get; private set; }
+    /// <summary>Ghi chú nội bộ — không trả về cổng GV / HV / PH</summary>
     public string? Note { get; private set; }
     public BranchId BranchId { get; private set; }
     public DateOnly JoinedAt { get; private set; }
     public bool Hidden { get; private set; }
     public DateTimeOffset? HiddenAt { get; private set; }
 
+    /// <summary>Mã HV theo số thứ tự: 1000 → HV1000</summary>
+    public static string CodeFor(int number) => $"HV{number}";
+
+    /// <param name="today">Hôm nay (giờ VN) — kiểm ngày sinh không ở tương lai</param>
     public static Result<Student> Create(string code, string fullName, Gender? gender, DateOnly? dob, string? phone, string? email,
-        string? address, BranchId branchId, DateOnly joinedAt)
+        string? address, string? note, BranchId branchId, DateOnly joinedAt, DateOnly today)
     {
-        if (string.IsNullOrWhiteSpace(fullName)) return Error.Validation("students.student.name_required", "Chưa nhập họ tên học viên");
-        return new Student
-        {
-            Id = StudentId.New(), Code = code, FullName = fullName.Trim(), Gender = gender, Dob = dob, Phone = phone, Email = email,
-            Address = address, BranchId = branchId, JoinedAt = joinedAt,
-        };
+        var s = new Student { Id = StudentId.New(), Code = code, JoinedAt = joinedAt };
+        var set = s.Update(fullName, gender, dob, phone, email, address, note, branchId, today);
+        return set.IsFailure ? set.Error : s;
     }
 
-    public void UpdateProfile(string fullName, Gender? gender, DateOnly? dob, string? phone, string? email, string? address, string? note) =>
-        (FullName, Gender, Dob, Phone, Email, Address, Note) = (fullName, gender, dob, phone, email, address, note);
+    /// <summary>HV-03 — sửa hồ sơ (họ tên bắt buộc; ngày sinh không ở tương lai; SĐT 10 số bắt đầu bằng 0; email hợp lệ)</summary>
+    public Result Update(string fullName, Gender? gender, DateOnly? dob, string? phone, string? email, string? address, string? note,
+        BranchId branchId, DateOnly today)
+    {
+        if (string.IsNullOrWhiteSpace(fullName)) return StudentErrors.NameRequired;
+        if (dob is { } d && d > today) return StudentErrors.InvalidDob;
+        var cleanPhone = NormalizePhone(phone);
+        if (cleanPhone is not null && !PhonePattern().IsMatch(cleanPhone)) return StudentErrors.InvalidPhone;
+        var cleanEmail = Clean(email)?.ToLowerInvariant();
+        if (cleanEmail is not null && !EmailPattern().IsMatch(cleanEmail)) return StudentErrors.InvalidEmail;
 
-    /// <summary>Tuổi tại ngày cho trước — dùng xác định người quyết định (HV nhỏ → phụ huynh)</summary>
+        FullName = CollapseSpaces(fullName);
+        (Gender, Dob, Phone, Email) = (gender, dob, cleanPhone, cleanEmail);
+        (Address, Note, BranchId) = (Clean(address), Clean(note), branchId);
+        return Result.Success();
+    }
+
+    /// <summary>Tuổi tại ngày cho trước — dùng xác định người quyết định (HV dưới 18 → phụ huynh)</summary>
     public int? AgeAt(DateOnly date)
     {
         if (Dob is not { } dob) return null;
@@ -47,13 +64,36 @@ public sealed class Student : AggregateRoot<StudentId>, IBranchScoped, IAuditabl
         return dob.AddYears(age) > date ? age - 1 : age;
     }
 
-    /// <param name="hasActiveEnrollment">Còn ghi danh Đang học / Bảo lưu</param>
-    public Result Hide(bool hasActiveEnrollment, DateTimeOffset at)
+    /// <param name="activeClasses">Mã lớp còn ghi danh Đang học / Bảo lưu — rỗng mới ẩn được</param>
+    public Result Hide(IReadOnlyCollection<string> activeClasses, DateTimeOffset at)
     {
-        if (hasActiveEnrollment) return Error.Conflict("students.student.still_studying", "Học viên còn đang học hoặc bảo lưu, không ẩn được");
-        (Hidden, HiddenAt) = (true, at);
+        if (activeClasses.Count > 0) return StudentErrors.StillStudying(string.Join(", ", activeClasses));
+        if (!Hidden) (Hidden, HiddenAt) = (true, at);
         return Result.Success();
     }
 
+    /// <summary>Bỏ ẩn (tự gọi khi ghi danh HV đã ẩn — HV-06.E5)</summary>
     public void Unhide() => (Hidden, HiddenAt) = (false, null);
+
+    /// <summary>Bỏ khoảng trắng, dấu chấm, gạch; +84 → 0</summary>
+    public static string? NormalizePhone(string? phone)
+    {
+        var p = Clean(phone);
+        if (p is null) return null;
+        p = new string(p.Where(c => char.IsDigit(c) || c == '+').ToArray());
+        return p.StartsWith("+84", StringComparison.Ordinal) ? "0" + p[3..] : p;
+    }
+
+    private static string? Clean(string? s) => string.IsNullOrWhiteSpace(s) ? null : s.Trim();
+
+    private static string CollapseSpaces(string s) => SpacesPattern().Replace(s.Trim(), " ");
+
+    [GeneratedRegex(@"^0\d{9}$")]
+    private static partial Regex PhonePattern();
+
+    [GeneratedRegex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$")]
+    private static partial Regex EmailPattern();
+
+    [GeneratedRegex(@"\s+")]
+    private static partial Regex SpacesPattern();
 }
