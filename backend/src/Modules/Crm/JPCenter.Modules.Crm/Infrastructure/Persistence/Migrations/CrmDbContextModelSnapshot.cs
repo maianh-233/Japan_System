@@ -82,6 +82,395 @@ namespace JPCenter.Modules.Crm.Infrastructure.Persistence.Migrations
                     b.ToTable("outbox_messages", "crm");
                 });
 
+            modelBuilder.Entity("JPCenter.Modules.Crm.Domain.Appointments.Appointment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<string>("CancelReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("cancel_reason");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset>("End")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("end");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("kind");
+
+                    b.Property<Guid>("LeadId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("lead_id");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("note");
+
+                    b.Property<string>("Outcome")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("outcome");
+
+                    b.Property<DateTimeOffset?>("RemindedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("reminded_at");
+
+                    b.Property<Guid?>("RoomId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("room_id");
+
+                    b.Property<Guid>("StaffId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("staff_id");
+
+                    b.Property<DateTimeOffset>("Start")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("start");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_appointments");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_appointments_code");
+
+                    b.HasIndex("LeadId")
+                        .HasDatabaseName("ix_appointments_lead_id");
+
+                    b.HasIndex("BranchId", "Start")
+                        .HasDatabaseName("ix_appointments_branch_id_start");
+
+                    b.HasIndex("StaffId", "Start")
+                        .HasDatabaseName("ix_appointments_staff_id_start");
+
+                    b.HasIndex("Status", "Start")
+                        .HasDatabaseName("ix_appointments_status_start");
+
+                    b.ToTable("appointments", "crm");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Crm.Domain.Campaigns.Campaign", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid[]>("BranchIds")
+                        .IsRequired()
+                        .HasColumnType("uuid[]")
+                        .HasColumnName("branch_ids");
+
+                    b.Property<decimal>("Budget")
+                        .HasPrecision(18)
+                        .HasColumnType("numeric(18,0)")
+                        .HasColumnName("budget");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("channel");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("code");
+
+                    b.PrimitiveCollection<List<Guid>>("CourseIds")
+                        .IsRequired()
+                        .HasColumnType("uuid[]")
+                        .HasColumnName("course_ids");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("end_date");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("note");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_id");
+
+                    b.Property<decimal>("Spent")
+                        .HasPrecision(18)
+                        .HasColumnType("numeric(18,0)")
+                        .HasColumnName("spent");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<int?>("TargetLeads")
+                        .HasColumnType("integer")
+                        .HasColumnName("target_leads");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<string>("Utm")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("utm");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_campaigns");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_campaigns_code")
+                        .HasFilter("is_deleted = false");
+
+                    b.HasIndex("Utm")
+                        .IsUnique()
+                        .HasDatabaseName("ix_campaigns_utm")
+                        .HasFilter("is_deleted = false AND utm IS NOT NULL");
+
+                    b.ToTable("campaigns", "crm");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Crm.Domain.LeadRules.LeadAssignmentLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("At")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("at");
+
+                    b.Property<Guid>("LeadId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("lead_id");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("reason");
+
+                    b.Property<Guid?>("RuleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("rule_id");
+
+                    b.Property<Guid?>("SaleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("sale_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_lead_assignment_logs");
+
+                    b.HasIndex("At")
+                        .HasDatabaseName("ix_lead_assignment_logs_at");
+
+                    b.HasIndex("LeadId")
+                        .HasDatabaseName("ix_lead_assignment_logs_lead_id");
+
+                    b.HasIndex("RuleId")
+                        .HasDatabaseName("ix_lead_assignment_logs_rule_id");
+
+                    b.ToTable("lead_assignment_logs", "crm");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Crm.Domain.LeadRules.LeadRule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("boolean")
+                        .HasColumnName("active");
+
+                    b.Property<Guid[]>("BranchIds")
+                        .IsRequired()
+                        .HasColumnType("uuid[]")
+                        .HasColumnName("branch_ids");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<int>("Cursor")
+                        .HasColumnType("integer")
+                        .HasColumnName("cursor");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.PrimitiveCollection<List<Guid>>("EscalateToIds")
+                        .IsRequired()
+                        .HasColumnType("uuid[]")
+                        .HasColumnName("escalate_to_ids");
+
+                    b.PrimitiveCollection<List<string>>("Interests")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("interests");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("method");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
+
+                    b.Property<bool>("OnlyOnShift")
+                        .HasColumnType("boolean")
+                        .HasColumnName("only_on_shift");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("integer")
+                        .HasColumnName("priority");
+
+                    b.Property<bool>("ReassignOnBreach")
+                        .HasColumnType("boolean")
+                        .HasColumnName("reassign_on_breach");
+
+                    b.PrimitiveCollection<List<Guid>>("SaleIds")
+                        .IsRequired()
+                        .HasColumnType("uuid[]")
+                        .HasColumnName("sale_ids");
+
+                    b.Property<int>("SlaMinutes")
+                        .HasColumnType("integer")
+                        .HasColumnName("sla_minutes");
+
+                    b.Property<string[]>("Sources")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("sources");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_lead_rules");
+
+                    b.HasIndex("Priority")
+                        .HasDatabaseName("ix_lead_rules_priority");
+
+                    b.ToTable("lead_rules", "crm");
+                });
+
             modelBuilder.Entity("JPCenter.Modules.Crm.Domain.Leads.Lead", b =>
                 {
                     b.Property<Guid>("Id")
@@ -219,6 +608,9 @@ namespace JPCenter.Modules.Crm.Infrastructure.Persistence.Migrations
                     b.HasIndex("AssigneeId")
                         .HasDatabaseName("ix_leads_assignee_id");
 
+                    b.HasIndex("CampaignId")
+                        .HasDatabaseName("ix_leads_campaign_id");
+
                     b.HasIndex("Code")
                         .IsUnique()
                         .HasDatabaseName("ix_leads_code");
@@ -232,8 +624,405 @@ namespace JPCenter.Modules.Crm.Infrastructure.Persistence.Migrations
                     b.ToTable("leads", "crm");
                 });
 
+            modelBuilder.Entity("JPCenter.Modules.Crm.Domain.Messages.MessageLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Auto")
+                        .HasColumnType("boolean")
+                        .HasColumnName("auto");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("body");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("channel");
+
+                    b.Property<Guid?>("LeadId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("lead_id");
+
+                    b.Property<string>("Scenario")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("scenario");
+
+                    b.Property<DateTimeOffset>("SentAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sent_at");
+
+                    b.Property<Guid?>("SentBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("sent_by");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<Guid?>("StudentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("student_id");
+
+                    b.Property<Guid?>("TemplateId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("template_id");
+
+                    b.Property<string>("ToName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("to_name");
+
+                    b.Property<string>("ToPhone")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("to_phone");
+
+                    b.HasKey("Id")
+                        .HasName("pk_message_logs");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("ix_message_logs_status");
+
+                    b.HasIndex("TemplateId")
+                        .HasDatabaseName("ix_message_logs_template_id");
+
+                    b.HasIndex("LeadId", "SentAt")
+                        .HasDatabaseName("ix_message_logs_lead_id_sent_at");
+
+                    b.HasIndex("StudentId", "SentAt")
+                        .HasDatabaseName("ix_message_logs_student_id_sent_at");
+
+                    b.ToTable("message_logs", "crm");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Crm.Domain.Messages.MessageTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("boolean")
+                        .HasColumnName("active");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("body");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("channel");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Scenario")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("scenario");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_message_templates");
+
+                    b.HasIndex("Scenario")
+                        .HasDatabaseName("ix_message_templates_scenario");
+
+                    b.ToTable("message_templates", "crm");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Crm.Domain.PlacementTests.PlacementAttempt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Answers")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("answers");
+
+                    b.Property<string>("BySkill")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("by_skill");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("channel");
+
+                    b.Property<int?>("Correct")
+                        .HasColumnType("integer")
+                        .HasColumnName("correct");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.Property<Guid>("LeadId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("lead_id");
+
+                    b.Property<bool>("Logged")
+                        .HasColumnType("boolean")
+                        .HasColumnName("logged");
+
+                    b.Property<DateTimeOffset>("SentAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sent_at");
+
+                    b.Property<Guid>("SentBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("sent_by");
+
+                    b.Property<DateTimeOffset?>("StartedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset?>("SubmittedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("submitted_at");
+
+                    b.Property<string>("SuggestedCourse")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("suggested_course");
+
+                    b.Property<string>("SuggestedLevel")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("suggested_level");
+
+                    b.Property<Guid>("TestId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("test_id");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("token");
+
+                    b.Property<int?>("Total")
+                        .HasColumnType("integer")
+                        .HasColumnName("total");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_placement_attempts");
+
+                    b.HasIndex("LeadId")
+                        .HasDatabaseName("ix_placement_attempts_lead_id");
+
+                    b.HasIndex("TestId")
+                        .HasDatabaseName("ix_placement_attempts_test_id");
+
+                    b.HasIndex("Token")
+                        .IsUnique()
+                        .HasDatabaseName("ix_placement_attempts_token");
+
+                    b.HasIndex("Status", "ExpiresAt")
+                        .HasDatabaseName("ix_placement_attempts_status_expires_at");
+
+                    b.ToTable("placement_attempts", "crm");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Crm.Domain.PlacementTests.PlacementTest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("author_id");
+
+                    b.Property<string>("Bands")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("bands");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("integer")
+                        .HasColumnName("duration_minutes");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
+
+                    b.PrimitiveCollection<List<Guid>>("QuestionIds")
+                        .IsRequired()
+                        .HasColumnType("uuid[]")
+                        .HasColumnName("question_ids");
+
+                    b.Property<string>("Sections")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("sections");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_placement_tests");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_placement_tests_code");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("ix_placement_tests_status");
+
+                    b.ToTable("placement_tests", "crm");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Crm.Domain.Appointments.Appointment", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Crm.Domain.Leads.Lead", null)
+                        .WithMany()
+                        .HasForeignKey("LeadId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_appointments_leads_lead_id");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Crm.Domain.LeadRules.LeadAssignmentLog", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Crm.Domain.Leads.Lead", null)
+                        .WithMany()
+                        .HasForeignKey("LeadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_lead_assignment_logs_leads_lead_id");
+
+                    b.HasOne("JPCenter.Modules.Crm.Domain.LeadRules.LeadRule", null)
+                        .WithMany()
+                        .HasForeignKey("RuleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_lead_assignment_logs_lead_rules_rule_id");
+                });
+
             modelBuilder.Entity("JPCenter.Modules.Crm.Domain.Leads.Lead", b =>
                 {
+                    b.HasOne("JPCenter.Modules.Crm.Domain.Campaigns.Campaign", null)
+                        .WithMany()
+                        .HasForeignKey("CampaignId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_leads_campaigns_campaign_id");
+
                     b.OwnsMany("JPCenter.Modules.Crm.Domain.Leads.Consultation", "Consultations", b1 =>
                         {
                             b1.Property<Guid>("Id")
@@ -343,6 +1132,38 @@ namespace JPCenter.Modules.Crm.Infrastructure.Persistence.Migrations
                     b.Navigation("Consultations");
 
                     b.Navigation("StudentLinks");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Crm.Domain.Messages.MessageLog", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Crm.Domain.Leads.Lead", null)
+                        .WithMany()
+                        .HasForeignKey("LeadId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_message_logs_leads_lead_id");
+
+                    b.HasOne("JPCenter.Modules.Crm.Domain.Messages.MessageTemplate", null)
+                        .WithMany()
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_message_logs_message_templates_template_id");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Crm.Domain.PlacementTests.PlacementAttempt", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Crm.Domain.Leads.Lead", null)
+                        .WithMany()
+                        .HasForeignKey("LeadId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_placement_attempts_leads_lead_id");
+
+                    b.HasOne("JPCenter.Modules.Crm.Domain.PlacementTests.PlacementTest", null)
+                        .WithMany()
+                        .HasForeignKey("TestId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_placement_attempts_placement_tests_test_id");
                 });
 #pragma warning restore 612, 618
         }

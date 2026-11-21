@@ -64,7 +64,7 @@
 | `.HasJsonConversion()` (`JsonColumnExtensions`) | Thuộc tính có cấu trúc (dictionary, danh sách record) → cột `jsonb` | ✅ |
 | `EnumListConverter` (tự áp cho mọi `List<Enum>`) | Danh sách enum → `text[]` snake_case | ✅ |
 | `SnakeCaseEnumConverter<T>.ToText()` / `.Parse()` | Đổi enum ↔ chuỗi DB / frontend ngoài EF (DTO Contracts, đọc seed) | ✅ |
-| `SeedData.IdOf(mockId)`, `SeedData.Read<T>()`, `db.AddWithId(entity, id)` | Nạp dữ liệu mẫu xuất từ mock frontend (`npm run export-seed`) với Id cố định giữa các module | ✅ |
+| `SeedData.IdOf(mockId)`, `SeedData.Read<T>()`, `db.AddWithId(entity, id)`, `db.SetCreatedAt(entity, at)` (giữ ngày tạo theo mock — interceptor không ghi đè giá trị đặt sẵn) | Nạp dữ liệu mẫu xuất từ mock frontend (`npm run export-seed`) với Id cố định giữa các module | ✅ |
 | `DataChangeAuditInterceptor` + `AuditChangeCollector` (`Auditing/`) | Gom before → after (che mật khẩu / token / khóa) vào dòng nhật ký của hành động | ✅ |
 | `ChannelAuditWriter` + `AuditBackgroundWriter` (`Auditing/`) | Hàng đợi nhật ký ghi nền theo lô 200 dòng, không làm chậm request | ✅ |
 | `LoggingAuditSink`, `InMemoryIdempotencyStore` | Mặc định khi chưa có module System (System thay bằng bản PostgreSQL) | ✅ |

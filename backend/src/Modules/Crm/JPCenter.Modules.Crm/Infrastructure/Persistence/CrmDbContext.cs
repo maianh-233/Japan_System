@@ -1,13 +1,18 @@
 using JPCenter.Infrastructure.Common.Persistence;
 using JPCenter.Modules.Crm.Application.Abstractions;
+using JPCenter.Modules.Crm.Domain.Appointments;
+using JPCenter.Modules.Crm.Domain.Campaigns;
+using JPCenter.Modules.Crm.Domain.LeadRules;
 using JPCenter.Modules.Crm.Domain.Leads;
+using JPCenter.Modules.Crm.Domain.Messages;
+using JPCenter.Modules.Crm.Domain.PlacementTests;
 using Microsoft.EntityFrameworkCore;
 
 namespace JPCenter.Modules.Crm.Infrastructure.Persistence;
 
 /// <summary>
-/// DbContext module Crm — schema <c>crm</c>. Giai đoạn 15 mới lưu lead + lịch sử tư vấn + liên kết lead ↔ học viên
-/// (cổng PH thấy con mình); lịch hẹn, chiến dịch, quy tắc chia lead, test xếp lớp, tin nhắn thêm ở giai đoạn 18.
+/// DbContext module Crm — schema <c>crm</c>: lead (+ lịch sử tư vấn, liên kết học viên), quy tắc chia lead + nhật ký, test xếp lớp + lượt làm,
+/// lịch hẹn, chiến dịch, mẫu tin + nhật ký tin (user story 05).
 /// </summary>
 public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options) : ModuleDbContextBase(options), ICrmDbContext
 {
@@ -16,4 +21,12 @@ public sealed class CrmDbContext(DbContextOptions<CrmDbContext> options) : Modul
     protected override string Schema => SchemaName;
 
     public DbSet<Lead> Leads => Set<Lead>();
+    public DbSet<LeadRule> LeadRules => Set<LeadRule>();
+    public DbSet<LeadAssignmentLog> LeadAssignmentLogs => Set<LeadAssignmentLog>();
+    public DbSet<PlacementTest> PlacementTests => Set<PlacementTest>();
+    public DbSet<PlacementAttempt> PlacementAttempts => Set<PlacementAttempt>();
+    public DbSet<Appointment> Appointments => Set<Appointment>();
+    public DbSet<Campaign> Campaigns => Set<Campaign>();
+    public DbSet<MessageTemplate> MessageTemplates => Set<MessageTemplate>();
+    public DbSet<MessageLog> MessageLogs => Set<MessageLog>();
 }

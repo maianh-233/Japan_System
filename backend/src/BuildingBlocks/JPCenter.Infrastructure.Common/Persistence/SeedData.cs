@@ -45,4 +45,11 @@ public static class SeedData
         db.Add(entity);
         return entity;
     }
+
+    /// <summary>
+    /// Đặt thời điểm tạo (cột chung created_at) theo dữ liệu mẫu — interceptor giữ nguyên giá trị đã đặt.
+    /// Gọi SAU khi entity đã được Add. Chỉ dùng khi nạp dữ liệu mẫu.
+    /// </summary>
+    public static void SetCreatedAt(this DbContext db, object entity, DateTimeOffset createdAt) =>
+        db.Entry(entity).Property(ShadowColumns.CreatedAt).CurrentValue = createdAt;
 }

@@ -16,7 +16,7 @@ import { MOCK_CLASSES } from '@/mocks/data/classes';
 import { MOCK_SESSIONS } from '@/mocks/data/attendance';
 import { MOCK_ROOM_ISSUES, MOCK_ROOMS } from '@/mocks/data/rooms';
 import { MOCK_QUESTIONS } from '@/mocks/data/questions';
-import { MOCK_LEADS, MOCK_LINKS } from '@/mocks/data/crm';
+import { MOCK_CONSULTATIONS, MOCK_LEADS, MOCK_LINKS } from '@/mocks/data/crm';
 import { MOCK_ACCOUNTS as PORTAL_ACCOUNTS, MOCK_ENROLLMENTS, MOCK_STUDENTS } from '@/mocks/data/students';
 import {
   MOCK_AUDIT_LOGS,
@@ -141,7 +141,10 @@ write(resolve(backend, 'Academic', 'JPCenter.Modules.Academic', 'Infrastructure'
   evaluations: MOCK_EVALUATIONS,
 });
 
-// Lead + liên kết lead ↔ học viên (phụ huynh – con): cổng PH thấy con mình (giai đoạn 15). Lịch sử tư vấn, lịch hẹn… làm ở giai đoạn 16
+// Tuyển sinh (user story 05 — giai đoạn 18): lead, lịch sử tư vấn, liên kết HV, quy tắc chia lead, test xếp lớp, lịch hẹn, chiến dịch, mẫu tin
+const { MOCK_ASSIGN_LOGS, MOCK_ATTEMPTS, MOCK_CAMPAIGNS, MOCK_LEAD_RULES, MOCK_PLACEMENT_TESTS } = await import('@/mocks/data/admissions');
+const { useAppointmentStore } = await import('@/features/crm/appointments/appointments');
+const { useMessageStore } = await import('@/features/crm/messages/messages');
 write(resolve(backend, 'Crm', 'JPCenter.Modules.Crm', 'Infrastructure', 'Persistence', 'Seed', 'crm.seed.json'), crmSeed());
 
 // Cảnh báo bỏ học (HV-14): trường hợp đã giao người chăm sóc + nhật ký liên hệ. Mức rủi ro / dấu hiệu do job backend tính lại
@@ -174,13 +177,28 @@ write(resolve(backend, 'System', 'JPCenter.Modules.System', 'Infrastructure', 'P
 });
 
 function crmSeed() {
+  // Mã khóa quan tâm của mock ("n5", "kaiwa", "kids"…) → khóa học đầu tiên khớp (nhóm, hoặc JLPT theo trình độ đích)
+  const courseOf = (code: string) =>
+    MOCK_COURSES.find((c) => c.category === code || (c.category === 'jlpt' && c.levelTo.toLowerCase() === code))?.id ?? null;
   return {
     generatedAt: new Date().toISOString(),
     leads: MOCK_LEADS.map((l) => ({
       id: l.id, code: l.code, fullName: l.fullName, phone: l.phone, email: l.email, source: l.source, status: l.status, branchId: l.branchId,
       assigneeId: l.assigneeId, interest: l.interest, note: l.note, lostReason: l.lostReason, hidden: l.hidden, hiddenAt: l.hiddenAt,
+      createdAt: l.createdAt, nextFollowUpAt: l.nextFollowUpAt, notifyChannels: l.notifyChannels ?? [], campaignId: l.campaignId,
+      slaEscalatedAt: l.slaEscalatedAt, slaReassignedAt: l.slaReassignedAt,
     })),
-    links: MOCK_LINKS,
+    consultations: MOCK_CONSULTATIONS.map((c) => ({ ...c, staffId: personId(c.staffName) })),
+    links: MOCK_LINKS.map((k) => ({ ...k, studentName: studentName.get(k.studentId) ?? k.studentId })),
+    rules: MOCK_LEAD_RULES.map((r) => ({ ...r, escalateToIds: r.escalateTo.map(personId).filter(Boolean) })),
+    assignmentLogs: MOCK_ASSIGN_LOGS,
+    placementTests: MOCK_PLACEMENT_TESTS.map((t) => ({ ...t, authorId: personId(t.author) })),
+    attempts: MOCK_ATTEMPTS.map((a) => ({ ...a, sentById: personId(a.sentBy) })),
+    appointments: useAppointmentStore.getState().appointments,
+    campaigns: MOCK_CAMPAIGNS.map((c) => ({
+      ...c, ownerId: personId(c.owner), courseIds: c.courses.map(courseOf).filter(Boolean),
+    })),
+    templates: useMessageStore.getState().templates,
   };
 }
 
@@ -212,6 +230,12 @@ const seedIds = [
   ...MOCK_EVALUATIONS.map((x) => x.id),
   ...MOCK_CARE_LOGS.map((x) => x.id),
   ...MOCK_QUESTIONS.map((x) => x.id),
+  ...MOCK_LEAD_RULES.map((x) => x.id),
+  ...MOCK_PLACEMENT_TESTS.map((x) => x.id),
+  ...MOCK_ATTEMPTS.map((x) => x.id),
+  ...MOCK_CAMPAIGNS.map((x) => x.id),
+  ...useAppointmentStore.getState().appointments.map((x) => x.id),
+  ...useMessageStore.getState().templates.map((x) => x.id),
 ];
 const idPath = resolve(process.cwd(), 'src', 'lib', 'api', 'seedIds.generated.ts');
 mkdirSync(dirname(idPath), { recursive: true });

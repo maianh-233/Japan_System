@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T11:45:12.575Z",
+  "generatedAt": "2026-11-21T05:41:42.983Z",
   "leads": [
     {
       "id": "L-0001",
@@ -13,7 +13,12 @@
       "assigneeId": "e-tung",
       "interest": "kids",
       "note": "Phụ huynh đăng ký cho 2 con. Con lớn học N3, con nhỏ học lớp thiếu nhi.",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-09-22T05:41:42.947Z",
+      "notifyChannels": [
+        "zalo",
+        "email"
+      ]
     },
     {
       "id": "L-0002",
@@ -26,7 +31,12 @@
       "assigneeId": "e-bao",
       "interest": "n3",
       "note": "Mẹ của bé An — hỏi lịch học cuối tuần.",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-09-12T05:41:42.947Z",
+      "notifyChannels": [
+        "zalo"
+      ],
+      "campaignId": "CP-01"
     },
     {
       "id": "L-0003",
@@ -40,7 +50,10 @@
       "assigneeId": "e-khoa",
       "interest": "n2",
       "note": "Đi làm công ty Nhật, cần N2 trong 1 năm.",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-10-22T05:41:42.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-04"
     },
     {
       "id": "L-0004",
@@ -52,7 +65,10 @@
       "branchId": "q1",
       "assigneeId": "e-khoa",
       "interest": "n5",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-21T04:53:42.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-01"
     },
     {
       "id": "L-0005",
@@ -64,7 +80,10 @@
       "branchId": "cg",
       "assigneeId": "e-tung",
       "interest": "kaiwa",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-21T05:35:42.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-02"
     },
     {
       "id": "L-0006",
@@ -78,7 +97,9 @@
       "interest": "xkld",
       "note": "Lead trùng — đã gộp, ẩn đi.",
       "hidden": true,
-      "hiddenAt": "2026-11-15T11:45:12.574Z"
+      "hiddenAt": "2026-11-16T05:41:42.947Z",
+      "createdAt": "2026-08-23T05:41:42.947Z",
+      "notifyChannels": []
     },
     {
       "id": "L-0007",
@@ -91,7 +112,10 @@
       "branchId": "cg",
       "assigneeId": "e-tung",
       "interest": "n5",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-21T02:41:42.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-01"
     },
     {
       "id": "L-0008",
@@ -103,7 +127,11 @@
       "branchId": "q1",
       "assigneeId": "e-khoa",
       "interest": "n4",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-20T09:41:42.947Z",
+      "nextFollowUpAt": "2026-11-20T03:00:00.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-04"
     },
     {
       "id": "L-0009",
@@ -115,7 +143,11 @@
       "branchId": "hc",
       "assigneeId": "e-vy",
       "interest": "n3",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-19T16:41:42.947Z",
+      "nextFollowUpAt": "2026-11-21T03:00:00.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-05"
     },
     {
       "id": "L-0010",
@@ -128,7 +160,11 @@
       "branchId": "cg",
       "assigneeId": "e-bao",
       "interest": "n2",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-18T23:41:42.947Z",
+      "nextFollowUpAt": "2026-11-22T03:00:00.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-02"
     },
     {
       "id": "L-0011",
@@ -140,7 +176,9 @@
       "branchId": "q1",
       "assigneeId": "e-han",
       "interest": "kaiwa",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-18T06:41:42.947Z",
+      "notifyChannels": []
     },
     {
       "id": "L-0012",
@@ -153,7 +191,9 @@
       "assigneeId": "e-vy",
       "interest": "xkld",
       "lostReason": "Học phí cao so với ngân sách",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-17T13:41:42.947Z",
+      "notifyChannels": []
     },
     {
       "id": "L-0013",
@@ -166,7 +206,10 @@
       "branchId": "cg",
       "assigneeId": "e-nhu",
       "interest": "n1",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-16T20:41:42.947Z",
+      "nextFollowUpAt": "2026-11-20T03:00:00.947Z",
+      "notifyChannels": []
     },
     {
       "id": "L-0014",
@@ -179,7 +222,10 @@
       "assigneeId": "e-khoa",
       "interest": "n5",
       "hidden": true,
-      "hiddenAt": "2026-11-20T01:45:12.574Z"
+      "hiddenAt": "2026-11-20T19:41:42.947Z",
+      "createdAt": "2026-11-16T03:41:42.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-03"
     },
     {
       "id": "L-0015",
@@ -191,7 +237,11 @@
       "branchId": "hc",
       "assigneeId": "e-vy",
       "interest": "n4",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-15T10:41:42.947Z",
+      "nextFollowUpAt": "2026-11-22T03:00:00.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-01"
     },
     {
       "id": "L-0016",
@@ -204,7 +254,10 @@
       "branchId": "cg",
       "assigneeId": "e-tung",
       "interest": "n3",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-14T17:41:42.947Z",
+      "nextFollowUpAt": "2026-11-23T03:00:00.947Z",
+      "notifyChannels": []
     },
     {
       "id": "L-0017",
@@ -216,7 +269,11 @@
       "branchId": "q1",
       "assigneeId": "e-han",
       "interest": "n2",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-14T00:41:42.947Z",
+      "nextFollowUpAt": "2026-11-19T03:00:00.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-05"
     },
     {
       "id": "L-0018",
@@ -228,7 +285,10 @@
       "branchId": "hc",
       "assigneeId": "e-vy",
       "interest": "kaiwa",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-13T07:41:42.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-02"
     },
     {
       "id": "L-0019",
@@ -242,7 +302,9 @@
       "assigneeId": "e-bao",
       "interest": "xkld",
       "lostReason": "Học phí cao so với ngân sách",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-12T14:41:42.947Z",
+      "notifyChannels": []
     },
     {
       "id": "L-0020",
@@ -254,7 +316,10 @@
       "branchId": "q1",
       "assigneeId": "e-khoa",
       "interest": "n1",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-11T21:41:42.947Z",
+      "nextFollowUpAt": "2026-11-22T03:00:00.947Z",
+      "notifyChannels": []
     },
     {
       "id": "L-0021",
@@ -266,7 +331,9 @@
       "branchId": "hc",
       "assigneeId": "e-vy",
       "interest": "n5",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-11T04:41:42.947Z",
+      "notifyChannels": []
     },
     {
       "id": "L-0022",
@@ -279,7 +346,11 @@
       "branchId": "cg",
       "assigneeId": "e-nhu",
       "interest": "n4",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-10T11:41:42.947Z",
+      "nextFollowUpAt": "2026-11-19T03:00:00.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-03"
     },
     {
       "id": "L-0023",
@@ -291,7 +362,11 @@
       "branchId": "q1",
       "assigneeId": "e-han",
       "interest": "n3",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-09T18:41:42.947Z",
+      "nextFollowUpAt": "2026-11-20T03:00:00.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-01"
     },
     {
       "id": "L-0024",
@@ -303,7 +378,11 @@
       "branchId": "hc",
       "assigneeId": "e-vy",
       "interest": "n2",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-09T01:41:42.947Z",
+      "nextFollowUpAt": "2026-11-21T03:00:00.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-04"
     },
     {
       "id": "L-0025",
@@ -316,7 +395,10 @@
       "branchId": "cg",
       "assigneeId": "e-tung",
       "interest": "kaiwa",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-08T08:41:42.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-05"
     },
     {
       "id": "L-0026",
@@ -329,7 +411,10 @@
       "assigneeId": "e-khoa",
       "interest": "xkld",
       "lostReason": "Học phí cao so với ngân sách",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-07T15:41:42.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-02"
     },
     {
       "id": "L-0027",
@@ -341,7 +426,10 @@
       "branchId": "hc",
       "assigneeId": "e-vy",
       "interest": "n1",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-06T22:41:42.947Z",
+      "nextFollowUpAt": "2026-11-19T03:00:00.947Z",
+      "notifyChannels": []
     },
     {
       "id": "L-0028",
@@ -354,7 +442,9 @@
       "branchId": "cg",
       "assigneeId": "e-bao",
       "interest": "n5",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-06T05:41:42.947Z",
+      "notifyChannels": []
     },
     {
       "id": "L-0029",
@@ -366,7 +456,10 @@
       "branchId": "q1",
       "assigneeId": "e-han",
       "interest": "n4",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-05T12:41:42.947Z",
+      "nextFollowUpAt": "2026-11-21T03:00:00.947Z",
+      "notifyChannels": []
     },
     {
       "id": "L-0030",
@@ -378,7 +471,11 @@
       "branchId": "hc",
       "assigneeId": "e-vy",
       "interest": "n3",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-04T19:41:42.947Z",
+      "nextFollowUpAt": "2026-11-22T03:00:00.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-03"
     },
     {
       "id": "L-0031",
@@ -391,7 +488,11 @@
       "branchId": "cg",
       "assigneeId": "e-nhu",
       "interest": "n2",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-04T02:41:42.947Z",
+      "nextFollowUpAt": "2026-11-23T03:00:00.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-01"
     },
     {
       "id": "L-0032",
@@ -403,7 +504,10 @@
       "branchId": "q1",
       "assigneeId": "e-khoa",
       "interest": "kaiwa",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-03T09:41:42.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-04"
     },
     {
       "id": "L-0033",
@@ -417,7 +521,10 @@
       "interest": "xkld",
       "lostReason": "Học phí cao so với ngân sách",
       "hidden": true,
-      "hiddenAt": "2026-11-20T01:45:12.575Z"
+      "hiddenAt": "2026-11-20T19:41:42.947Z",
+      "createdAt": "2026-11-02T16:41:42.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-05"
     },
     {
       "id": "L-0034",
@@ -430,7 +537,11 @@
       "branchId": "cg",
       "assigneeId": "e-tung",
       "interest": "n1",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-01T23:41:42.947Z",
+      "nextFollowUpAt": "2026-11-21T03:00:00.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-02"
     },
     {
       "id": "L-0035",
@@ -442,7 +553,9 @@
       "branchId": "q1",
       "assigneeId": "e-han",
       "interest": "n5",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-11-01T06:41:42.947Z",
+      "notifyChannels": []
     },
     {
       "id": "L-0036",
@@ -454,7 +567,10 @@
       "branchId": "hc",
       "assigneeId": "e-vy",
       "interest": "n4",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-10-31T13:41:42.947Z",
+      "nextFollowUpAt": "2026-11-23T03:00:00.947Z",
+      "notifyChannels": []
     },
     {
       "id": "L-0037",
@@ -467,7 +583,10 @@
       "branchId": "cg",
       "assigneeId": "e-bao",
       "interest": "n3",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-10-30T20:41:42.947Z",
+      "nextFollowUpAt": "2026-11-19T03:00:00.947Z",
+      "notifyChannels": []
     },
     {
       "id": "L-0038",
@@ -479,7 +598,11 @@
       "branchId": "q1",
       "assigneeId": "e-khoa",
       "interest": "n2",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-10-30T03:41:42.947Z",
+      "nextFollowUpAt": "2026-11-20T03:00:00.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-03"
     },
     {
       "id": "L-0039",
@@ -491,7 +614,10 @@
       "branchId": "hc",
       "assigneeId": "e-vy",
       "interest": "kaiwa",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-10-29T10:41:42.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-01"
     },
     {
       "id": "L-0040",
@@ -505,7 +631,9 @@
       "assigneeId": "e-nhu",
       "interest": "xkld",
       "lostReason": "Học phí cao so với ngân sách",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-10-28T17:41:42.947Z",
+      "notifyChannels": []
     },
     {
       "id": "L-0041",
@@ -517,7 +645,11 @@
       "branchId": "q1",
       "assigneeId": "e-han",
       "interest": "n1",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-10-28T00:41:42.947Z",
+      "nextFollowUpAt": "2026-11-23T03:00:00.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-05"
     },
     {
       "id": "L-0042",
@@ -529,7 +661,10 @@
       "branchId": "hc",
       "assigneeId": "e-vy",
       "interest": "n5",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-10-27T07:41:42.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-02"
     },
     {
       "id": "L-0043",
@@ -542,7 +677,10 @@
       "branchId": "cg",
       "assigneeId": "e-tung",
       "interest": "n4",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-10-26T14:41:42.947Z",
+      "nextFollowUpAt": "2026-11-20T03:00:00.947Z",
+      "notifyChannels": []
     },
     {
       "id": "L-0044",
@@ -554,7 +692,10 @@
       "branchId": "q1",
       "assigneeId": "e-khoa",
       "interest": "n3",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-10-25T21:41:42.947Z",
+      "nextFollowUpAt": "2026-11-21T03:00:00.947Z",
+      "notifyChannels": []
     },
     {
       "id": "L-0045",
@@ -566,7 +707,10 @@
       "branchId": "hc",
       "assigneeId": "e-vy",
       "interest": "n2",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-10-25T04:41:42.947Z",
+      "nextFollowUpAt": "2026-11-22T03:00:00.947Z",
+      "notifyChannels": []
     },
     {
       "id": "L-0046",
@@ -579,7 +723,10 @@
       "branchId": "cg",
       "assigneeId": "e-bao",
       "interest": "kaiwa",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-10-24T11:41:42.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-03"
     },
     {
       "id": "L-0047",
@@ -592,7 +739,10 @@
       "assigneeId": "e-han",
       "interest": "xkld",
       "lostReason": "Học phí cao so với ngân sách",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-10-23T18:41:42.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-01"
     },
     {
       "id": "L-0048",
@@ -604,7 +754,673 @@
       "branchId": "hc",
       "assigneeId": "e-vy",
       "interest": "n1",
-      "hidden": false
+      "hidden": false,
+      "createdAt": "2026-10-23T01:41:42.947Z",
+      "nextFollowUpAt": "2026-11-20T03:00:00.947Z",
+      "notifyChannels": [],
+      "campaignId": "CP-04"
+    }
+  ],
+  "consultations": [
+    {
+      "id": "C-1",
+      "leadId": "L-0001",
+      "channel": "call",
+      "result": "interested",
+      "content": "Phụ huynh hỏi lớp thiếu nhi cho con nhỏ (9 tuổi) và lớp N3 cho con lớn.",
+      "staffName": "Nguyễn Thanh Tùng",
+      "createdAt": "2026-09-24T05:41:42.948Z",
+      "staffId": "e-tung"
+    },
+    {
+      "id": "C-2",
+      "leadId": "L-0001",
+      "channel": "meeting",
+      "result": "test_booked",
+      "content": "Đưa 2 con đến test đầu vào. Con lớn đạt mức N4, xếp lớp N3 sau 1 tháng ôn.",
+      "staffName": "Nguyễn Thanh Tùng",
+      "createdAt": "2026-10-02T05:41:42.948Z",
+      "staffId": "e-tung"
+    },
+    {
+      "id": "C-3",
+      "leadId": "L-0001",
+      "channel": "zalo",
+      "result": "enrolled",
+      "content": "Đã đóng học phí đợt 1 cho cả 2 con, ưu đãi anh chị em 10%.",
+      "staffName": "Nguyễn Thanh Tùng",
+      "createdAt": "2026-11-01T05:41:42.948Z",
+      "staffId": "e-tung"
+    },
+    {
+      "id": "C-4",
+      "leadId": "L-0002",
+      "channel": "message",
+      "result": "thinking",
+      "content": "Hỏi lịch học cuối tuần cho con. Hẹn trao đổi thêm với chồng.",
+      "staffName": "Đinh Quốc Bảo",
+      "createdAt": "2026-09-13T05:41:42.948Z",
+      "staffId": "e-bao"
+    },
+    {
+      "id": "C-5",
+      "leadId": "L-0003",
+      "channel": "call",
+      "result": "enrolled",
+      "content": "Chốt khóa N2 buổi tối, đóng 1 lần.",
+      "staffName": "Trần Minh Khoa",
+      "createdAt": "2026-11-11T05:41:42.948Z",
+      "staffId": "e-khoa"
+    },
+    {
+      "id": "C-g1-0",
+      "leadId": "L-0008",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Trần Minh Khoa",
+      "createdAt": "2026-11-20T23:41:42.947Z",
+      "staffId": "e-khoa"
+    },
+    {
+      "id": "C-g2-0",
+      "leadId": "L-0009",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Lý Thanh Vy",
+      "createdAt": "2026-11-19T17:53:42.947Z",
+      "staffId": "e-vy"
+    },
+    {
+      "id": "C-g3-0",
+      "leadId": "L-0010",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Đinh Quốc Bảo",
+      "createdAt": "2026-11-19T00:08:42.947Z",
+      "staffId": "e-bao"
+    },
+    {
+      "id": "C-g3-1",
+      "leadId": "L-0010",
+      "channel": "zalo",
+      "result": "test_booked",
+      "content": "Hẹn test xếp lớp tại trung tâm.",
+      "staffName": "Đinh Quốc Bảo",
+      "createdAt": "2026-11-21T00:17:42.947Z",
+      "staffId": "e-bao"
+    },
+    {
+      "id": "C-g4-0",
+      "leadId": "L-0011",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Bùi Ngọc Hân",
+      "createdAt": "2026-11-18T07:01:42.947Z",
+      "staffId": "e-han"
+    },
+    {
+      "id": "C-g4-1",
+      "leadId": "L-0011",
+      "channel": "meeting",
+      "result": "enrolled",
+      "content": "Chốt khóa học, đóng học phí đợt 1.",
+      "staffName": "Bùi Ngọc Hân",
+      "createdAt": "2026-11-20T22:35:42.947Z",
+      "staffId": "e-han"
+    },
+    {
+      "id": "C-g5-0",
+      "leadId": "L-0012",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Lý Thanh Vy",
+      "createdAt": "2026-11-17T15:20:42.947Z",
+      "staffId": "e-vy"
+    },
+    {
+      "id": "C-g5-1",
+      "leadId": "L-0012",
+      "channel": "call",
+      "result": "not_interested",
+      "content": "Khách chê học phí cao, chưa có nhu cầu.",
+      "staffName": "Lý Thanh Vy",
+      "createdAt": "2026-11-19T20:08:42.947Z",
+      "staffId": "e-vy"
+    },
+    {
+      "id": "C-g6-0",
+      "leadId": "L-0013",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Hồ Quỳnh Như",
+      "createdAt": "2026-11-16T21:39:42.947Z",
+      "staffId": "e-nhu"
+    },
+    {
+      "id": "C-g8-0",
+      "leadId": "L-0015",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Lý Thanh Vy",
+      "createdAt": "2026-11-15T12:47:42.947Z",
+      "staffId": "e-vy"
+    },
+    {
+      "id": "C-g9-0",
+      "leadId": "L-0016",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Nguyễn Thanh Tùng",
+      "createdAt": "2026-11-14T17:55:42.947Z",
+      "staffId": "e-tung"
+    },
+    {
+      "id": "C-g10-0",
+      "leadId": "L-0017",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Bùi Ngọc Hân",
+      "createdAt": "2026-11-14T01:23:42.947Z",
+      "staffId": "e-han"
+    },
+    {
+      "id": "C-g10-1",
+      "leadId": "L-0017",
+      "channel": "zalo",
+      "result": "test_booked",
+      "content": "Hẹn test xếp lớp tại trung tâm.",
+      "staffName": "Bùi Ngọc Hân",
+      "createdAt": "2026-11-16T20:35:42.947Z",
+      "staffId": "e-han"
+    },
+    {
+      "id": "C-g11-0",
+      "leadId": "L-0018",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Lý Thanh Vy",
+      "createdAt": "2026-11-13T08:53:42.947Z",
+      "staffId": "e-vy"
+    },
+    {
+      "id": "C-g11-1",
+      "leadId": "L-0018",
+      "channel": "zalo",
+      "result": "test_booked",
+      "content": "Hẹn test xếp lớp tại trung tâm.",
+      "staffName": "Lý Thanh Vy",
+      "createdAt": "2026-11-15T18:29:42.947Z",
+      "staffId": "e-vy"
+    },
+    {
+      "id": "C-g11-2",
+      "leadId": "L-0018",
+      "channel": "meeting",
+      "result": "enrolled",
+      "content": "Chốt khóa học, đóng học phí đợt 1.",
+      "staffName": "Lý Thanh Vy",
+      "createdAt": "2026-11-18T23:17:42.947Z",
+      "staffId": "e-vy"
+    },
+    {
+      "id": "C-g12-0",
+      "leadId": "L-0019",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Đinh Quốc Bảo",
+      "createdAt": "2026-11-12T16:05:42.947Z",
+      "staffId": "e-bao"
+    },
+    {
+      "id": "C-g12-1",
+      "leadId": "L-0019",
+      "channel": "zalo",
+      "result": "test_booked",
+      "content": "Hẹn test xếp lớp tại trung tâm.",
+      "staffName": "Đinh Quốc Bảo",
+      "createdAt": "2026-11-18T23:22:42.947Z",
+      "staffId": "e-bao"
+    },
+    {
+      "id": "C-g12-2",
+      "leadId": "L-0019",
+      "channel": "call",
+      "result": "not_interested",
+      "content": "Khách chê học phí cao, chưa có nhu cầu.",
+      "staffName": "Đinh Quốc Bảo",
+      "createdAt": "2026-11-20T08:59:42.947Z",
+      "staffId": "e-bao"
+    },
+    {
+      "id": "C-g13-0",
+      "leadId": "L-0020",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Trần Minh Khoa",
+      "createdAt": "2026-11-12T17:41:42.947Z",
+      "staffId": "e-khoa"
+    },
+    {
+      "id": "C-g15-0",
+      "leadId": "L-0022",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Hồ Quỳnh Như",
+      "createdAt": "2026-11-10T12:39:42.947Z",
+      "staffId": "e-nhu"
+    },
+    {
+      "id": "C-g16-0",
+      "leadId": "L-0023",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Bùi Ngọc Hân",
+      "createdAt": "2026-11-09T19:59:42.947Z",
+      "staffId": "e-han"
+    },
+    {
+      "id": "C-g17-0",
+      "leadId": "L-0024",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Lý Thanh Vy",
+      "createdAt": "2026-11-09T03:47:42.947Z",
+      "staffId": "e-vy"
+    },
+    {
+      "id": "C-g17-1",
+      "leadId": "L-0024",
+      "channel": "zalo",
+      "result": "test_booked",
+      "content": "Hẹn test xếp lớp tại trung tâm.",
+      "staffName": "Lý Thanh Vy",
+      "createdAt": "2026-11-13T08:35:42.947Z",
+      "staffId": "e-vy"
+    },
+    {
+      "id": "C-g18-0",
+      "leadId": "L-0025",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Nguyễn Thanh Tùng",
+      "createdAt": "2026-11-08T08:55:42.947Z",
+      "staffId": "e-tung"
+    },
+    {
+      "id": "C-g18-1",
+      "leadId": "L-0025",
+      "channel": "zalo",
+      "result": "test_booked",
+      "content": "Hẹn test xếp lớp tại trung tâm.",
+      "staffName": "Nguyễn Thanh Tùng",
+      "createdAt": "2026-11-09T13:43:42.947Z",
+      "staffId": "e-tung"
+    },
+    {
+      "id": "C-g18-2",
+      "leadId": "L-0025",
+      "channel": "meeting",
+      "result": "enrolled",
+      "content": "Chốt khóa học, đóng học phí đợt 1.",
+      "staffName": "Nguyễn Thanh Tùng",
+      "createdAt": "2026-11-11T08:55:42.947Z",
+      "staffId": "e-tung"
+    },
+    {
+      "id": "C-g19-0",
+      "leadId": "L-0026",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Trần Minh Khoa",
+      "createdAt": "2026-11-08T05:41:42.947Z",
+      "staffId": "e-khoa"
+    },
+    {
+      "id": "C-g19-1",
+      "leadId": "L-0026",
+      "channel": "call",
+      "result": "not_interested",
+      "content": "Khách chê học phí cao, chưa có nhu cầu.",
+      "staffName": "Trần Minh Khoa",
+      "createdAt": "2026-11-09T15:17:42.947Z",
+      "staffId": "e-khoa"
+    },
+    {
+      "id": "C-g20-0",
+      "leadId": "L-0027",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Lý Thanh Vy",
+      "createdAt": "2026-11-06T23:53:42.947Z",
+      "staffId": "e-vy"
+    },
+    {
+      "id": "C-g22-0",
+      "leadId": "L-0029",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Bùi Ngọc Hân",
+      "createdAt": "2026-11-05T13:41:42.947Z",
+      "staffId": "e-han"
+    },
+    {
+      "id": "C-g23-0",
+      "leadId": "L-0030",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Lý Thanh Vy",
+      "createdAt": "2026-11-04T21:20:42.947Z",
+      "staffId": "e-vy"
+    },
+    {
+      "id": "C-g24-0",
+      "leadId": "L-0031",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Hồ Quỳnh Như",
+      "createdAt": "2026-11-04T03:39:42.947Z",
+      "staffId": "e-nhu"
+    },
+    {
+      "id": "C-g24-1",
+      "leadId": "L-0031",
+      "channel": "zalo",
+      "result": "test_booked",
+      "content": "Hẹn test xếp lớp tại trung tâm.",
+      "staffName": "Hồ Quỳnh Như",
+      "createdAt": "2026-11-07T18:03:42.947Z",
+      "staffId": "e-nhu"
+    },
+    {
+      "id": "C-g25-0",
+      "leadId": "L-0032",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Trần Minh Khoa",
+      "createdAt": "2026-11-04T11:41:42.947Z",
+      "staffId": "e-khoa"
+    },
+    {
+      "id": "C-g25-1",
+      "leadId": "L-0032",
+      "channel": "zalo",
+      "result": "test_booked",
+      "content": "Hẹn test xếp lớp tại trung tâm.",
+      "staffName": "Trần Minh Khoa",
+      "createdAt": "2026-11-08T09:17:42.947Z",
+      "staffId": "e-khoa"
+    },
+    {
+      "id": "C-g25-2",
+      "leadId": "L-0032",
+      "channel": "meeting",
+      "result": "enrolled",
+      "content": "Chốt khóa học, đóng học phí đợt 1.",
+      "staffName": "Trần Minh Khoa",
+      "createdAt": "2026-11-12T06:53:42.947Z",
+      "staffId": "e-khoa"
+    },
+    {
+      "id": "C-g26-0",
+      "leadId": "L-0033",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Lý Thanh Vy",
+      "createdAt": "2026-11-02T18:47:42.947Z",
+      "staffId": "e-vy"
+    },
+    {
+      "id": "C-g26-1",
+      "leadId": "L-0033",
+      "channel": "zalo",
+      "result": "test_booked",
+      "content": "Hẹn test xếp lớp tại trung tâm.",
+      "staffName": "Lý Thanh Vy",
+      "createdAt": "2026-11-06T23:35:42.947Z",
+      "staffId": "e-vy"
+    },
+    {
+      "id": "C-g26-2",
+      "leadId": "L-0033",
+      "channel": "call",
+      "result": "not_interested",
+      "content": "Khách chê học phí cao, chưa có nhu cầu.",
+      "staffName": "Lý Thanh Vy",
+      "createdAt": "2026-11-09T18:47:42.947Z",
+      "staffId": "e-vy"
+    },
+    {
+      "id": "C-g27-0",
+      "leadId": "L-0034",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Nguyễn Thanh Tùng",
+      "createdAt": "2026-11-01T23:55:42.947Z",
+      "staffId": "e-tung"
+    },
+    {
+      "id": "C-g29-0",
+      "leadId": "L-0036",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Lý Thanh Vy",
+      "createdAt": "2026-10-31T14:53:42.947Z",
+      "staffId": "e-vy"
+    },
+    {
+      "id": "C-g30-0",
+      "leadId": "L-0037",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Đinh Quốc Bảo",
+      "createdAt": "2026-10-30T22:29:42.947Z",
+      "staffId": "e-bao"
+    },
+    {
+      "id": "C-g31-0",
+      "leadId": "L-0038",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Trần Minh Khoa",
+      "createdAt": "2026-10-30T23:41:42.947Z",
+      "staffId": "e-khoa"
+    },
+    {
+      "id": "C-g31-1",
+      "leadId": "L-0038",
+      "channel": "zalo",
+      "result": "test_booked",
+      "content": "Hẹn test xếp lớp tại trung tâm.",
+      "staffName": "Trần Minh Khoa",
+      "createdAt": "2026-11-02T23:41:42.947Z",
+      "staffId": "e-khoa"
+    },
+    {
+      "id": "C-g32-0",
+      "leadId": "L-0039",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Lý Thanh Vy",
+      "createdAt": "2026-10-29T12:20:42.947Z",
+      "staffId": "e-vy"
+    },
+    {
+      "id": "C-g32-1",
+      "leadId": "L-0039",
+      "channel": "meeting",
+      "result": "enrolled",
+      "content": "Chốt khóa học, đóng học phí đợt 1.",
+      "staffName": "Lý Thanh Vy",
+      "createdAt": "2026-11-02T21:56:42.947Z",
+      "staffId": "e-vy"
+    },
+    {
+      "id": "C-g33-0",
+      "leadId": "L-0040",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Hồ Quỳnh Như",
+      "createdAt": "2026-10-28T18:39:42.947Z",
+      "staffId": "e-nhu"
+    },
+    {
+      "id": "C-g33-1",
+      "leadId": "L-0040",
+      "channel": "call",
+      "result": "not_interested",
+      "content": "Khách chê học phí cao, chưa có nhu cầu.",
+      "staffName": "Hồ Quỳnh Như",
+      "createdAt": "2026-10-31T04:15:42.947Z",
+      "staffId": "e-nhu"
+    },
+    {
+      "id": "C-g34-0",
+      "leadId": "L-0041",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Bùi Ngọc Hân",
+      "createdAt": "2026-10-28T01:59:42.947Z",
+      "staffId": "e-han"
+    },
+    {
+      "id": "C-g36-0",
+      "leadId": "L-0043",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Nguyễn Thanh Tùng",
+      "createdAt": "2026-10-26T14:55:42.947Z",
+      "staffId": "e-tung"
+    },
+    {
+      "id": "C-g37-0",
+      "leadId": "L-0044",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Trần Minh Khoa",
+      "createdAt": "2026-10-26T11:41:42.947Z",
+      "staffId": "e-khoa"
+    },
+    {
+      "id": "C-g38-0",
+      "leadId": "L-0045",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Lý Thanh Vy",
+      "createdAt": "2026-10-25T05:53:42.947Z",
+      "staffId": "e-vy"
+    },
+    {
+      "id": "C-g38-1",
+      "leadId": "L-0045",
+      "channel": "zalo",
+      "result": "test_booked",
+      "content": "Hẹn test xếp lớp tại trung tâm.",
+      "staffName": "Lý Thanh Vy",
+      "createdAt": "2026-10-27T15:29:42.947Z",
+      "staffId": "e-vy"
+    },
+    {
+      "id": "C-g39-0",
+      "leadId": "L-0046",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Đinh Quốc Bảo",
+      "createdAt": "2026-10-24T13:29:42.947Z",
+      "staffId": "e-bao"
+    },
+    {
+      "id": "C-g39-1",
+      "leadId": "L-0046",
+      "channel": "zalo",
+      "result": "test_booked",
+      "content": "Hẹn test xếp lớp tại trung tâm.",
+      "staffName": "Đinh Quốc Bảo",
+      "createdAt": "2026-11-01T15:53:42.947Z",
+      "staffId": "e-bao"
+    },
+    {
+      "id": "C-g39-2",
+      "leadId": "L-0046",
+      "channel": "meeting",
+      "result": "enrolled",
+      "content": "Chốt khóa học, đóng học phí đợt 1.",
+      "staffName": "Đinh Quốc Bảo",
+      "createdAt": "2026-11-05T06:17:42.947Z",
+      "staffId": "e-bao"
+    },
+    {
+      "id": "C-g40-0",
+      "leadId": "L-0047",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Bùi Ngọc Hân",
+      "createdAt": "2026-10-23T19:41:42.947Z",
+      "staffId": "e-han"
+    },
+    {
+      "id": "C-g40-1",
+      "leadId": "L-0047",
+      "channel": "zalo",
+      "result": "test_booked",
+      "content": "Hẹn test xếp lớp tại trung tâm.",
+      "staffName": "Bùi Ngọc Hân",
+      "createdAt": "2026-10-27T19:41:42.947Z",
+      "staffId": "e-han"
+    },
+    {
+      "id": "C-g40-2",
+      "leadId": "L-0047",
+      "channel": "call",
+      "result": "not_interested",
+      "content": "Khách chê học phí cao, chưa có nhu cầu.",
+      "staffName": "Bùi Ngọc Hân",
+      "createdAt": "2026-10-29T19:41:42.947Z",
+      "staffId": "e-han"
+    },
+    {
+      "id": "C-g41-0",
+      "leadId": "L-0048",
+      "channel": "call",
+      "result": "interested",
+      "content": "Gọi lần đầu: tư vấn lộ trình, gửi bảng giá và lịch khai giảng.",
+      "staffName": "Lý Thanh Vy",
+      "createdAt": "2026-10-23T03:20:42.947Z",
+      "staffId": "e-vy"
     }
   ],
   "links": [
@@ -612,85 +1428,1044 @@
       "leadId": "L-0001",
       "studentId": "ST-1",
       "relationship": "child",
-      "createdAt": "2026-10-31T11:45:12.575Z",
+      "createdAt": "2026-11-01T05:41:42.948Z",
       "primary": true,
       "billing": true,
-      "notify": true
+      "notify": true,
+      "studentName": "Nguyễn Văn An"
     },
     {
       "leadId": "L-0001",
       "studentId": "ST-2",
       "relationship": "child",
-      "createdAt": "2026-10-31T11:45:12.575Z",
+      "createdAt": "2026-11-01T05:41:42.948Z",
       "primary": true,
       "billing": true,
-      "notify": true
+      "notify": true,
+      "studentName": "Nguyễn Gia Bảo"
     },
     {
       "leadId": "L-0002",
       "studentId": "ST-1",
       "relationship": "child",
-      "createdAt": "2026-11-01T11:45:12.575Z",
-      "notify": true
+      "createdAt": "2026-11-02T05:41:42.948Z",
+      "notify": true,
+      "studentName": "Nguyễn Văn An"
     },
     {
       "leadId": "L-0003",
       "studentId": "ST-3",
       "relationship": "self",
-      "createdAt": "2026-11-10T11:45:12.575Z"
+      "createdAt": "2026-11-11T05:41:42.948Z",
+      "studentName": "Lê Hoàng Phúc"
     },
     {
       "leadId": "L-0006",
       "studentId": "ST-4",
       "relationship": "self",
-      "createdAt": "2026-09-01T11:45:12.575Z"
+      "createdAt": "2026-09-02T05:41:42.948Z",
+      "studentName": "Đỗ Minh Tuấn"
     },
     {
       "leadId": "L-0011",
       "studentId": "ST-6",
       "relationship": "child",
-      "createdAt": "2026-09-21T02:00:00.574Z",
+      "createdAt": "2026-09-22T02:00:00.936Z",
       "primary": true,
       "billing": true,
-      "notify": true
+      "notify": true,
+      "studentName": "Nguyễn Văn Anh"
     },
     {
       "leadId": "L-0018",
       "studentId": "ST-9",
       "relationship": "child",
-      "createdAt": "2026-08-22T02:00:00.574Z",
+      "createdAt": "2026-08-23T02:00:00.936Z",
       "primary": true,
       "billing": true,
-      "notify": true
+      "notify": true,
+      "studentName": "Trần Thị Bích"
     },
     {
       "leadId": "L-0025",
       "studentId": "ST-9",
       "relationship": "sibling",
-      "createdAt": "2026-09-01T02:00:00.574Z",
-      "notify": true
+      "createdAt": "2026-09-02T02:00:00.936Z",
+      "notify": true,
+      "studentName": "Trần Thị Bích"
     },
     {
       "leadId": "L-0032",
       "studentId": "ST-13",
       "relationship": "spouse",
-      "createdAt": "2026-10-11T02:00:00.574Z",
-      "notify": true
+      "createdAt": "2026-10-12T02:00:00.936Z",
+      "notify": true,
+      "studentName": "Ngô Ngọc Long"
     },
     {
       "leadId": "L-0039",
       "studentId": "ST-18",
       "relationship": "child",
-      "createdAt": "2026-10-21T02:00:00.574Z",
+      "createdAt": "2026-10-22T02:00:00.936Z",
       "primary": true,
       "billing": true,
-      "notify": true
+      "notify": true,
+      "studentName": "Hoàng Thu Hạnh"
     },
     {
       "leadId": "L-0046",
       "studentId": "ST-21",
       "relationship": "other",
-      "createdAt": "2026-10-01T02:00:00.574Z"
+      "createdAt": "2026-10-02T02:00:00.936Z",
+      "studentName": "Vũ Ngọc Hiếu"
+    }
+  ],
+  "rules": [
+    {
+      "id": "R-1",
+      "name": "XKLĐ / đi làm → chuyên viên",
+      "active": true,
+      "sources": [],
+      "branchIds": [],
+      "interests": [
+        "xkld"
+      ],
+      "method": "fixed",
+      "saleIds": [
+        "e-vy",
+        "e-bao"
+      ],
+      "onlyOnShift": true,
+      "slaMinutes": 30,
+      "escalateTo": [
+        "Quản lý chi nhánh"
+      ],
+      "reassignOnBreach": false,
+      "cursor": 0,
+      "escalateToIds": []
+    },
+    {
+      "id": "R-2",
+      "name": "Cầu Giấy — xoay vòng trong ca",
+      "active": true,
+      "sources": [],
+      "branchIds": [
+        "cg"
+      ],
+      "interests": [],
+      "method": "round_robin",
+      "saleIds": [
+        "e-tung",
+        "e-bao",
+        "e-nhu"
+      ],
+      "onlyOnShift": true,
+      "slaMinutes": 15,
+      "escalateTo": [
+        "Trưởng nhóm Sale",
+        "Quản lý chi nhánh"
+      ],
+      "reassignOnBreach": true,
+      "cursor": 1,
+      "escalateToIds": []
+    },
+    {
+      "id": "R-3",
+      "name": "Quận 1 — theo tải",
+      "active": true,
+      "sources": [],
+      "branchIds": [
+        "q1"
+      ],
+      "interests": [],
+      "method": "least_load",
+      "saleIds": [
+        "e-khoa",
+        "e-han"
+      ],
+      "onlyOnShift": true,
+      "slaMinutes": 15,
+      "escalateTo": [
+        "Quản lý chi nhánh"
+      ],
+      "reassignOnBreach": false,
+      "cursor": 0,
+      "escalateToIds": []
+    },
+    {
+      "id": "R-4",
+      "name": "Hải Châu",
+      "active": true,
+      "sources": [],
+      "branchIds": [
+        "hc"
+      ],
+      "interests": [],
+      "method": "fixed",
+      "saleIds": [
+        "e-vy"
+      ],
+      "onlyOnShift": false,
+      "slaMinutes": 20,
+      "escalateTo": [
+        "Quản lý chi nhánh"
+      ],
+      "reassignOnBreach": false,
+      "cursor": 0,
+      "escalateToIds": []
+    },
+    {
+      "id": "R-5",
+      "name": "Lead hội thảo — SLA nới",
+      "active": false,
+      "sources": [
+        "event"
+      ],
+      "branchIds": [],
+      "interests": [],
+      "method": "round_robin",
+      "saleIds": [
+        "e-khoa",
+        "e-han",
+        "e-tung",
+        "e-bao",
+        "e-nhu",
+        "e-vy"
+      ],
+      "onlyOnShift": false,
+      "slaMinutes": 120,
+      "escalateTo": [
+        "Giám đốc tuyển sinh"
+      ],
+      "reassignOnBreach": false,
+      "cursor": 0,
+      "escalateToIds": []
+    }
+  ],
+  "assignmentLogs": [
+    {
+      "id": "AL-1",
+      "leadId": "L-0005",
+      "saleId": "e-tung",
+      "ruleId": "R-2",
+      "at": "2026-11-21T05:35:42.977Z",
+      "reason": "Quy tắc \"Cầu Giấy — xoay vòng trong ca\" → Nguyễn Thanh Tùng (1/3 Sale đang trong ca)"
+    },
+    {
+      "id": "AL-2",
+      "leadId": "L-0004",
+      "saleId": "e-khoa",
+      "ruleId": "R-3",
+      "at": "2026-11-21T04:53:42.977Z",
+      "reason": "Quy tắc \"Quận 1 — theo tải\" → Trần Minh Khoa (đang giữ 9 lead mở — ít nhất)"
+    },
+    {
+      "id": "AL-3",
+      "leadId": "L-0007",
+      "saleId": "e-bao",
+      "ruleId": "R-2",
+      "at": "2026-11-21T02:41:42.977Z",
+      "reason": "Quy tắc \"Cầu Giấy — xoay vòng trong ca\" → Đinh Quốc Bảo (2/3 Sale đang trong ca)"
+    },
+    {
+      "id": "AL-4",
+      "leadId": "L-0014",
+      "saleId": "e-tung",
+      "ruleId": "R-2",
+      "at": "2026-11-20T20:41:42.977Z",
+      "reason": "Quy tắc \"Cầu Giấy — xoay vòng trong ca\" → Nguyễn Thanh Tùng (không ai trong ca → chia cho cả nhóm)"
+    },
+    {
+      "id": "AL-5",
+      "leadId": "L-0013",
+      "saleId": "e-vy",
+      "ruleId": "R-1",
+      "at": "2026-11-20T03:41:42.977Z",
+      "reason": "Quy tắc \"XKLĐ / đi làm → chuyên viên\" → Lý Thanh Vy (1/2 Sale đang trong ca)"
+    }
+  ],
+  "placementTests": [
+    {
+      "id": "PT-01",
+      "code": "PT-SC",
+      "name": "Test đầu vào Sơ cấp (N5–N4)",
+      "description": "Cho người đã học qua tiếng Nhật, muốn biết nên vào N5 hay học tiếp N4 / N3.",
+      "sections": [
+        {
+          "level": "N5",
+          "skill": "vocab",
+          "count": 3
+        },
+        {
+          "level": "N5",
+          "skill": "kanji",
+          "count": 2
+        },
+        {
+          "level": "N5",
+          "skill": "grammar",
+          "count": 3
+        },
+        {
+          "level": "N4",
+          "skill": "vocab",
+          "count": 2
+        },
+        {
+          "level": "N4",
+          "skill": "grammar",
+          "count": 3
+        }
+      ],
+      "durationMin": 25,
+      "bands": [
+        {
+          "minPct": 0,
+          "level": "Chưa có nền tảng",
+          "course": "n5"
+        },
+        {
+          "minPct": 45,
+          "level": "Tương đương N5",
+          "course": "n4"
+        },
+        {
+          "minPct": 80,
+          "level": "Tương đương N4",
+          "course": "n3"
+        }
+      ],
+      "status": "active",
+      "author": "Trần Mai Anh",
+      "createdAt": "2026-08-23T05:41:42.977Z",
+      "questionIds": [
+        "Q-4",
+        "Q-5",
+        "Q-1",
+        "Q-2",
+        "Q-6",
+        "Q-8",
+        "Q-9",
+        "Q-15",
+        "Q-17",
+        "Q-18",
+        "Q-19"
+      ],
+      "authorId": "t-anh"
+    },
+    {
+      "id": "PT-02",
+      "code": "PT-TC",
+      "name": "Test đầu vào Trung cấp (N3–N2)",
+      "description": "Cho người đã có N4 trở lên, xếp vào lớp N3 / N2 / N1.",
+      "sections": [
+        {
+          "level": "N4",
+          "skill": "grammar",
+          "count": 1
+        },
+        {
+          "level": "N3",
+          "skill": "vocab",
+          "count": 2
+        },
+        {
+          "level": "N3",
+          "skill": "kanji",
+          "count": 2
+        },
+        {
+          "level": "N3",
+          "skill": "grammar",
+          "count": 3
+        },
+        {
+          "level": "N2",
+          "skill": "vocab",
+          "count": 1
+        },
+        {
+          "level": "N2",
+          "skill": "grammar",
+          "count": 1
+        }
+      ],
+      "durationMin": 30,
+      "bands": [
+        {
+          "minPct": 0,
+          "level": "Dưới N3",
+          "course": "n3"
+        },
+        {
+          "minPct": 50,
+          "level": "Tương đương N3",
+          "course": "n2"
+        },
+        {
+          "minPct": 85,
+          "level": "Tương đương N2",
+          "course": "n1"
+        }
+      ],
+      "status": "active",
+      "author": "Nguyễn Thu Hà",
+      "createdAt": "2026-09-22T05:41:42.977Z",
+      "questionIds": [
+        "Q-17",
+        "Q-25",
+        "Q-23",
+        "Q-24",
+        "Q-27",
+        "Q-28",
+        "Q-29",
+        "Q-33"
+      ],
+      "authorId": "t-ha"
+    },
+    {
+      "id": "PT-03",
+      "code": "PT-KID",
+      "name": "Test thiếu nhi (8–12 tuổi)",
+      "description": "Bài ngắn, chủ yếu từ vựng & chữ cái — đang soạn thêm câu có hình.",
+      "sections": [
+        {
+          "level": "N5",
+          "skill": "vocab",
+          "count": 3
+        },
+        {
+          "level": "N5",
+          "skill": "kanji",
+          "count": 1
+        }
+      ],
+      "durationMin": 15,
+      "bands": [
+        {
+          "minPct": 0,
+          "level": "Mới bắt đầu",
+          "course": "kids"
+        },
+        {
+          "minPct": 70,
+          "level": "Đã biết chữ cái",
+          "course": "kids"
+        }
+      ],
+      "status": "draft",
+      "author": "Trần Mai Anh",
+      "createdAt": "2026-11-17T05:41:42.977Z",
+      "questionIds": [
+        "Q-4",
+        "Q-5",
+        "Q-1"
+      ],
+      "authorId": "t-anh"
+    }
+  ],
+  "attempts": [
+    {
+      "id": "AT-1",
+      "testId": "PT-01",
+      "leadId": "L-0010",
+      "token": "pt-01-0010x52",
+      "channel": "zalo",
+      "sentBy": "Trần Minh Khoa",
+      "sentAt": "2026-11-18T05:41:42.978Z",
+      "expiresAt": "2026-11-21T05:41:42.978Z",
+      "status": "done",
+      "startedAt": "2026-11-18T07:11:42.978Z",
+      "submittedAt": "2026-11-18T07:33:42.978Z",
+      "answers": {
+        "Q-4": 0,
+        "Q-5": 3,
+        "Q-1": 0,
+        "Q-2": 1,
+        "Q-6": 0,
+        "Q-8": 0,
+        "Q-9": -1,
+        "Q-15": 3,
+        "Q-17": 1,
+        "Q-18": 2,
+        "Q-19": 0
+      },
+      "correct": 6,
+      "total": 11,
+      "bySkill": {
+        "vocab": {
+          "correct": 1,
+          "total": 3
+        },
+        "kanji": {
+          "correct": 2,
+          "total": 2
+        },
+        "grammar": {
+          "correct": 3,
+          "total": 6
+        }
+      },
+      "suggestedLevel": "Tương đương N5",
+      "suggestedCourse": "n4",
+      "logged": true,
+      "sentById": "e-khoa"
+    },
+    {
+      "id": "AT-2",
+      "testId": "PT-02",
+      "leadId": "L-0017",
+      "token": "pt-02-0017x36",
+      "channel": "zalo",
+      "sentBy": "Đinh Quốc Bảo",
+      "sentAt": "2026-11-20T09:41:42.978Z",
+      "expiresAt": "2026-11-23T09:41:42.978Z",
+      "status": "done",
+      "startedAt": "2026-11-20T11:11:42.978Z",
+      "submittedAt": "2026-11-20T11:38:42.978Z",
+      "answers": {
+        "Q-17": 1,
+        "Q-25": 3,
+        "Q-23": 0,
+        "Q-24": 0,
+        "Q-27": 3,
+        "Q-28": 3,
+        "Q-29": 1,
+        "Q-33": 1
+      },
+      "correct": 2,
+      "total": 8,
+      "bySkill": {
+        "grammar": {
+          "correct": 0,
+          "total": 5
+        },
+        "vocab": {
+          "correct": 0,
+          "total": 1
+        },
+        "kanji": {
+          "correct": 2,
+          "total": 2
+        }
+      },
+      "suggestedLevel": "Dưới N3",
+      "suggestedCourse": "n3",
+      "logged": false,
+      "sentById": "e-bao"
+    },
+    {
+      "status": "in_progress",
+      "id": "AT-3",
+      "testId": "PT-01",
+      "leadId": "L-0024",
+      "token": "pt-01-0024k7",
+      "channel": "sms",
+      "sentBy": "Lý Thanh Vy",
+      "sentAt": "2026-11-21T04:31:42.978Z",
+      "expiresAt": "2026-11-24T05:41:42.978Z",
+      "startedAt": "2026-11-21T05:32:42.978Z",
+      "sentById": "e-vy"
+    },
+    {
+      "status": "sent",
+      "id": "AT-4",
+      "testId": "PT-01",
+      "leadId": "L-0031",
+      "token": "pt-01-0031q2",
+      "channel": "zalo",
+      "sentBy": "Nguyễn Thanh Tùng",
+      "sentAt": "2026-11-20T03:41:42.978Z",
+      "expiresAt": "2026-11-23T03:41:42.978Z",
+      "sentById": "e-tung"
+    },
+    {
+      "status": "expired",
+      "id": "AT-5",
+      "testId": "PT-02",
+      "leadId": "L-0038",
+      "token": "pt-02-0038m1",
+      "channel": "email",
+      "sentBy": "Trần Minh Khoa",
+      "sentAt": "2026-11-15T05:41:42.978Z",
+      "expiresAt": "2026-11-18T05:41:42.978Z",
+      "sentById": "e-khoa"
+    },
+    {
+      "id": "AT-6",
+      "testId": "PT-01",
+      "leadId": "L-0011",
+      "token": "pt-01-0011x14",
+      "channel": "zalo",
+      "sentBy": "Lý Thanh Vy",
+      "sentAt": "2026-11-09T05:41:42.978Z",
+      "expiresAt": "2026-11-12T05:41:42.978Z",
+      "status": "done",
+      "startedAt": "2026-11-09T07:11:42.978Z",
+      "submittedAt": "2026-11-09T07:33:42.978Z",
+      "answers": {
+        "Q-4": 0,
+        "Q-5": 2,
+        "Q-1": 0,
+        "Q-2": 1,
+        "Q-6": 0,
+        "Q-8": 0,
+        "Q-9": 1,
+        "Q-15": 2,
+        "Q-17": 2,
+        "Q-18": 1,
+        "Q-19": 0
+      },
+      "correct": 6,
+      "total": 11,
+      "bySkill": {
+        "vocab": {
+          "correct": 1,
+          "total": 3
+        },
+        "kanji": {
+          "correct": 2,
+          "total": 2
+        },
+        "grammar": {
+          "correct": 3,
+          "total": 6
+        }
+      },
+      "suggestedLevel": "Tương đương N5",
+      "suggestedCourse": "n4",
+      "logged": true,
+      "sentById": "e-vy"
+    },
+    {
+      "id": "AT-7",
+      "testId": "PT-01",
+      "leadId": "L-0018",
+      "token": "pt-01-0018x59",
+      "channel": "zalo",
+      "sentBy": "Nguyễn Thanh Tùng",
+      "sentAt": "2026-11-12T05:41:42.978Z",
+      "expiresAt": "2026-11-15T05:41:42.978Z",
+      "status": "done",
+      "startedAt": "2026-11-12T07:11:42.978Z",
+      "submittedAt": "2026-11-12T07:33:42.978Z",
+      "answers": {
+        "Q-4": 0,
+        "Q-5": 1,
+        "Q-1": 0,
+        "Q-2": 1,
+        "Q-6": 0,
+        "Q-8": 0,
+        "Q-9": 3,
+        "Q-15": 0,
+        "Q-17": -1,
+        "Q-18": 2,
+        "Q-19": 0
+      },
+      "correct": 9,
+      "total": 11,
+      "bySkill": {
+        "vocab": {
+          "correct": 3,
+          "total": 3
+        },
+        "kanji": {
+          "correct": 2,
+          "total": 2
+        },
+        "grammar": {
+          "correct": 4,
+          "total": 6
+        }
+      },
+      "suggestedLevel": "Tương đương N4",
+      "suggestedCourse": "n3",
+      "logged": true,
+      "sentById": "e-tung"
+    },
+    {
+      "status": "sent",
+      "id": "AT-8",
+      "testId": "PT-02",
+      "leadId": "L-0045",
+      "token": "pt-02-0045z9",
+      "channel": "zalo",
+      "sentBy": "Đinh Quốc Bảo",
+      "sentAt": "2026-11-21T03:41:42.978Z",
+      "expiresAt": "2026-11-24T03:41:42.978Z",
+      "sentById": "e-bao"
+    }
+  ],
+  "appointments": [
+    {
+      "id": "AP-1",
+      "code": "LH0001",
+      "leadId": "L-0003",
+      "kind": "test",
+      "branchId": "cg",
+      "roomId": "R-CG-201",
+      "staffId": "e-nhu",
+      "start": "2026-11-21T06:30:00.000Z",
+      "end": "2026-11-21T07:30:00.000Z",
+      "status": "scheduled",
+      "createdBy": "Hồ Quỳnh Như",
+      "createdAt": "2026-11-19T06:30:00.000Z"
+    },
+    {
+      "id": "AP-2",
+      "code": "LH0002",
+      "leadId": "L-0004",
+      "kind": "consult",
+      "branchId": "cg",
+      "roomId": "R-CG-102",
+      "staffId": "e-tung",
+      "start": "2026-11-21T10:30:00.000Z",
+      "end": "2026-11-21T11:00:00.000Z",
+      "status": "scheduled",
+      "createdBy": "Hồ Quỳnh Như",
+      "createdAt": "2026-11-19T10:30:00.000Z"
+    },
+    {
+      "id": "AP-3",
+      "code": "LH0003",
+      "leadId": "L-0005",
+      "kind": "test",
+      "branchId": "cg",
+      "roomId": "R-CG-201",
+      "staffId": "e-bao",
+      "start": "2026-11-22T02:00:00.000Z",
+      "end": "2026-11-22T03:00:00.000Z",
+      "status": "scheduled",
+      "createdBy": "Hồ Quỳnh Như",
+      "createdAt": "2026-11-20T02:00:00.000Z"
+    },
+    {
+      "id": "AP-4",
+      "code": "LH0004",
+      "leadId": "L-0006",
+      "kind": "consult",
+      "branchId": "q1",
+      "roomId": "R-Q1-101",
+      "staffId": "e-khoa",
+      "start": "2026-11-22T11:00:00.000Z",
+      "end": "2026-11-22T11:30:00.000Z",
+      "status": "scheduled",
+      "createdBy": "Hồ Quỳnh Như",
+      "createdAt": "2026-11-20T11:00:00.000Z"
+    },
+    {
+      "id": "AP-5",
+      "code": "LH0005",
+      "leadId": "L-0007",
+      "kind": "test",
+      "branchId": "cg",
+      "roomId": "R-CG-201",
+      "staffId": "e-nhu",
+      "start": "2026-11-23T07:00:00.000Z",
+      "end": "2026-11-23T08:00:00.000Z",
+      "status": "scheduled",
+      "createdBy": "Hồ Quỳnh Như",
+      "createdAt": "2026-11-21T07:00:00.000Z"
+    },
+    {
+      "id": "AP-6",
+      "code": "LH0006",
+      "leadId": "L-0008",
+      "kind": "consult",
+      "branchId": "cg",
+      "staffId": "e-tung",
+      "start": "2026-11-20T03:00:00.000Z",
+      "end": "2026-11-20T03:30:00.000Z",
+      "status": "done",
+      "createdBy": "Hồ Quỳnh Như",
+      "createdAt": "2026-11-18T03:00:00.000Z",
+      "outcome": "Khách ưng lớp N4 tối 2-4-6, hẹn test thứ 7."
+    },
+    {
+      "id": "AP-7",
+      "code": "LH0007",
+      "leadId": "L-0009",
+      "kind": "test",
+      "branchId": "cg",
+      "roomId": "R-CG-201",
+      "staffId": "e-bao",
+      "start": "2026-11-19T02:00:00.000Z",
+      "end": "2026-11-19T03:00:00.000Z",
+      "status": "no_show",
+      "createdBy": "Hồ Quỳnh Như",
+      "createdAt": "2026-11-17T02:00:00.000Z"
+    },
+    {
+      "id": "AP-8",
+      "code": "LH0008",
+      "leadId": "L-0010",
+      "kind": "consult",
+      "branchId": "hc",
+      "staffId": "e-vy",
+      "start": "2026-11-24T08:00:00.000Z",
+      "end": "2026-11-24T08:30:00.000Z",
+      "status": "scheduled",
+      "createdBy": "Hồ Quỳnh Như",
+      "createdAt": "2026-11-22T08:00:00.000Z"
+    }
+  ],
+  "campaigns": [
+    {
+      "id": "CP-01",
+      "code": "FB-N5-T11",
+      "name": "Facebook Lead Ads — Khai giảng N5 tháng 11",
+      "channel": "facebook",
+      "branchIds": [
+        "cg",
+        "q1",
+        "hc"
+      ],
+      "startDate": "2026-10-17",
+      "endDate": "2026-12-06",
+      "budget": 6000000,
+      "spent": 3850000,
+      "targetLeads": 12,
+      "status": "running",
+      "owner": "Ngô Bảo Anh",
+      "utm": "fb_n5_t11",
+      "courses": [
+        "n5"
+      ],
+      "note": "Ưu đãi giảm 10% đăng ký trước khai giảng 7 ngày.",
+      "createdAt": "2026-10-12T05:41:42.978Z",
+      "ownerId": "e-baoanh",
+      "courseIds": [
+        "CRS-01"
+      ]
+    },
+    {
+      "id": "CP-02",
+      "code": "TT-KAIWA",
+      "name": "TikTok — Kaiwa cho người đi làm",
+      "channel": "tiktok",
+      "branchIds": [
+        "cg",
+        "q1"
+      ],
+      "startDate": "2026-10-24",
+      "endDate": "2026-11-23",
+      "budget": 4000000,
+      "spent": 2640000,
+      "targetLeads": 10,
+      "status": "running",
+      "owner": "Ngô Bảo Anh",
+      "utm": "tt_kaiwa",
+      "courses": [
+        "kaiwa"
+      ],
+      "createdAt": "2026-10-22T05:41:42.978Z",
+      "ownerId": "e-baoanh",
+      "courseIds": [
+        "CRS-05"
+      ]
+    },
+    {
+      "id": "CP-03",
+      "code": "EV-DUHOC-10",
+      "name": "Hội thảo Du học & Việc làm Nhật Bản",
+      "channel": "event",
+      "branchIds": [
+        "cg",
+        "hc"
+      ],
+      "startDate": "2026-10-07",
+      "endDate": "2026-11-01",
+      "budget": 5000000,
+      "spent": 4920000,
+      "targetLeads": 8,
+      "status": "ended",
+      "owner": "Ngô Đức Thịnh",
+      "courses": [
+        "xkld",
+        "n4"
+      ],
+      "note": "Thuê hội trường + in tài liệu + quà tặng.",
+      "createdAt": "2026-09-22T05:41:42.978Z",
+      "ownerId": null,
+      "courseIds": [
+        "CRS-07",
+        "CRS-02"
+      ]
+    },
+    {
+      "id": "CP-04",
+      "code": "GG-SEARCH",
+      "name": "Google Ads — từ khóa \"học tiếng Nhật\"",
+      "channel": "website",
+      "branchIds": [
+        "cg",
+        "q1",
+        "hc"
+      ],
+      "startDate": "2026-09-22",
+      "endDate": "2026-12-21",
+      "budget": 5000000,
+      "spent": 1980000,
+      "targetLeads": 6,
+      "status": "running",
+      "owner": "Ngô Đức Thịnh",
+      "utm": "gg_search",
+      "courses": [
+        "n5",
+        "n4",
+        "n3"
+      ],
+      "createdAt": "2026-09-20T05:41:42.978Z",
+      "ownerId": null,
+      "courseIds": [
+        "CRS-01",
+        "CRS-02",
+        "CRS-03"
+      ]
+    },
+    {
+      "id": "CP-05",
+      "code": "ZL-REF",
+      "name": "Zalo OA — Học viên cũ giới thiệu bạn",
+      "channel": "zalo",
+      "branchIds": [
+        "cg",
+        "q1",
+        "hc"
+      ],
+      "startDate": "2026-10-22",
+      "endDate": "2026-12-21",
+      "budget": 1500000,
+      "spent": 600000,
+      "targetLeads": 8,
+      "status": "paused",
+      "owner": "Ngô Bảo Anh",
+      "utm": "zl_ref",
+      "courses": [],
+      "note": "Tạm dừng chờ duyệt mẫu tin ZNS mới.",
+      "createdAt": "2026-10-21T05:41:42.978Z",
+      "ownerId": "e-baoanh",
+      "courseIds": []
+    },
+    {
+      "id": "CP-06",
+      "code": "FB-TET27",
+      "name": "Tết 2027 — Early bird khóa N4/N3",
+      "channel": "facebook",
+      "branchIds": [
+        "cg",
+        "q1"
+      ],
+      "startDate": "2026-12-11",
+      "endDate": "2027-02-04",
+      "budget": 10000000,
+      "spent": 0,
+      "targetLeads": 25,
+      "status": "planned",
+      "owner": "Ngô Bảo Anh",
+      "utm": "fb_tet27",
+      "courses": [
+        "n4",
+        "n3"
+      ],
+      "createdAt": "2026-11-19T05:41:42.978Z",
+      "ownerId": "e-baoanh",
+      "courseIds": [
+        "CRS-02",
+        "CRS-03"
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "MT-1",
+      "scenario": "welcome",
+      "name": "Chào lead mới (Zalo)",
+      "channel": "zalo",
+      "body": "Chào {ten}! Mình là {sale} từ JP Center chi nhánh {chi_nhanh}. Cảm ơn bạn đã quan tâm khóa {khoa_hoc}. Mình sẽ gọi tư vấn cho bạn trong ít phút nữa, hoặc bạn nhắn lại thời gian thuận tiện nhé. Hotline: {hotline}.",
+      "active": true,
+      "updatedAt": "2026-11-01T09:00:00.000Z",
+      "updatedBy": "Phạm Thu Trang"
+    },
+    {
+      "id": "MT-2",
+      "scenario": "welcome",
+      "name": "Chào lead mới (SMS ngắn)",
+      "channel": "sms",
+      "body": "JP Center: Chao {ten}, cam on ban da quan tam khoa {khoa_hoc}. Tu van vien {sale} se goi lai som. Hotline {hotline}.",
+      "active": true,
+      "updatedAt": "2026-11-01T09:00:00.000Z",
+      "updatedBy": "Phạm Thu Trang"
+    },
+    {
+      "id": "MT-3",
+      "scenario": "test_reminder",
+      "name": "Nhắc lịch test xếp lớp",
+      "channel": "zalo",
+      "body": "Chào {ten}, JP Center nhắc bạn lịch TEST XẾP LỚP lúc {gio} {ngay} tại phòng {phong}, {dia_chi}. Bài test khoảng 45 phút, bạn mang theo bút và đến sớm 10 phút nhé. Cần đổi lịch, gọi {hotline}.",
+      "active": true,
+      "updatedAt": "2026-11-01T09:00:00.000Z",
+      "updatedBy": "Phạm Thu Trang"
+    },
+    {
+      "id": "MT-4",
+      "scenario": "consult_reminder",
+      "name": "Nhắc lịch tư vấn tại trung tâm",
+      "channel": "zalo",
+      "body": "Chào {ten}, {sale} hẹn gặp bạn lúc {gio} {ngay} tại JP Center {chi_nhanh} ({dia_chi}) để tư vấn lộ trình học. Hẹn gặp bạn! Hotline: {hotline}.",
+      "active": true,
+      "updatedAt": "2026-11-01T09:00:00.000Z",
+      "updatedBy": "Phạm Thu Trang"
+    },
+    {
+      "id": "MT-5",
+      "scenario": "tuition",
+      "name": "Nhắc học phí",
+      "channel": "zalo",
+      "body": "Chào {ten}, JP Center xin nhắc học phí lớp {lop} của {hoc_vien} còn {so_tien}, hạn đóng {han_dong}. Bạn có thể chuyển khoản / quét VietQR trên Cổng học viên hoặc đóng tại quầy. Cảm ơn bạn!",
+      "active": true,
+      "updatedAt": "2026-11-01T09:00:00.000Z",
+      "updatedBy": "Phạm Thu Trang"
+    },
+    {
+      "id": "MT-6",
+      "scenario": "class_off",
+      "name": "Báo nghỉ học",
+      "channel": "zalo",
+      "body": "Chào {ten}, lớp {lop} của {hoc_vien} NGHỈ buổi {ngay} ({gio}). Buổi học bù sẽ được thông báo sau. Xin lỗi vì sự bất tiện. Hotline: {hotline}.",
+      "active": true,
+      "updatedAt": "2026-11-01T09:00:00.000Z",
+      "updatedBy": "Phạm Thu Trang"
+    },
+    {
+      "id": "MT-7",
+      "scenario": "arrival",
+      "name": "Con đã đến lớp",
+      "channel": "zalo",
+      "body": "JP Center: {hoc_vien} đã đến lớp {lop} lúc {gio_vao} ({tinh_trang}). Buổi học {gio}.",
+      "active": true,
+      "updatedAt": "2026-11-01T09:00:00.000Z",
+      "updatedBy": "Phạm Thu Trang"
+    },
+    {
+      "id": "MT-8",
+      "scenario": "absent_alert",
+      "name": "Con chưa đến lớp",
+      "channel": "zalo",
+      "body": "JP Center: Lớp {lop} bắt đầu lúc {gio} nhưng trung tâm chưa thấy {hoc_vien} đến lớp. Nếu con nghỉ, phụ huynh vui lòng báo lại giúp trung tâm. Hotline: {hotline}.",
+      "active": true,
+      "updatedAt": "2026-11-01T09:00:00.000Z",
+      "updatedBy": "Phạm Thu Trang"
+    },
+    {
+      "id": "MT-9",
+      "scenario": "weekly_report",
+      "name": "Báo cáo tuần",
+      "channel": "zalo",
+      "body": "JP Center — Báo cáo tuần {tuan} của {hoc_vien} (lớp {lop}): {tom_tat}. Xem chi tiết: {link}",
+      "active": true,
+      "updatedAt": "2026-11-01T09:00:00.000Z",
+      "updatedBy": "Phạm Thu Trang"
     }
   ]
 }

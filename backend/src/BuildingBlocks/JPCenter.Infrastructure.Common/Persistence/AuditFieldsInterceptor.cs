@@ -45,7 +45,9 @@ public sealed class AuditFieldsInterceptor(IClock clock, ICurrentUser user) : Sa
             if (entry.Entity is not IAuditable) continue;
             if (entry.State == EntityState.Added)
             {
-                entry.Property(ShadowColumns.CreatedAt).CurrentValue = now;
+                // Dữ liệu mẫu đặt sẵn thời điểm tạo (SeedData.SetCreatedAt) → giữ nguyên; luồng thường không đặt → lấy giờ hiện tại
+                var created = entry.Property(ShadowColumns.CreatedAt);
+                if (created.CurrentValue is not DateTimeOffset preset || preset == default) created.CurrentValue = now;
                 entry.Property(ShadowColumns.CreatedBy).CurrentValue = by;
             }
             else if (entry.State == EntityState.Modified)

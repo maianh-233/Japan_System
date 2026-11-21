@@ -366,7 +366,7 @@ Khóa chính (scope, key).
 | hidden | bool | Đã ẩn (học viên liên kết không bị ảnh hưởng) |
 | hidden_at | timestamptz? | Lúc ẩn |
 | notify_channels | text[] | Kênh nhận thông báo khi là phụ huynh: `zalo` · `sms` · `email` |
-| campaign_id | uuid? FK | Chiến dịch mang lead về → campaigns |
+| campaign_id | uuid? FK | Chiến dịch mang lead về → campaigns (không xóa chiến dịch đang có lead) |
 | sla_escalated_at | timestamptz? | Đã gửi cảnh báo quá SLA (1 lần) |
 | sla_reassigned_at | timestamptz? | Đã tự chuyển Sale do quá 2×SLA (1 lần) |
 
@@ -1874,4 +1874,5 @@ sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đ�
 | 2026-11-20 | Giai đoạn 17 phase 1 (user story 11): `questions` + `audio_name` (tên file nghe gốc); `options` đúng 4, `review_note` ghi cả lý do ngừng dùng |
 | 2026-11-20 | Giai đoạn 17 phase 2: tạo bảng `academic.questions` (FK `curriculum_id` → curricula; chỉ mục `code` UQ, (`status`, `level`, `skill`), `author_id`, `curriculum_id`, GIN `lesson_ids`) — migration `AcademicQuestions`. Dữ liệu: 36 câu mẫu từ mock (`questions.seed.json`), file nghe mẫu dùng chung |
 | 2026-11-21 | Giai đoạn 18 phase 1 (user story 05): `message_logs` + `status` (`pending` / `sent` / `failed`); `lead_rules.cursor` bắt đầu -1; `leads.phone` luôn lưu dạng chuẩn hóa 0xxxxxxxxx, `campaigns.code` chữ hoa, `campaigns.utm` chữ thường; `placement_tests.bands` xếp mốc tăng dần, bắt buộc mốc 0% |
+| 2026-11-21 | Giai đoạn 18 phase 2: tạo bảng `crm.lead_rules`, `lead_assignment_logs`, `placement_tests`, `placement_attempts`, `appointments`, `campaigns` (UQ `code`, `utm` trong số chưa xóa), `message_templates`, `message_logs` — migration `CrmAdmissions`; `leads.campaign_id` thêm FK → campaigns. Dữ liệu: tuyển sinh mẫu từ mock (`crm.seed.json`), DB đã có lead thì chỉ bổ sung lịch sử tư vấn / chiến dịch / ngày tạo. `created_at` giữ giá trị dữ liệu mẫu đặt sẵn (`SeedData.SetCreatedAt`) |
 | 2026-11-17 | Chốt thiết kế (user story 08): `invoices.status` chỉ lưu `open` / `cancelled` / `voided`, các trạng thái tiền tính khi đọc; `payments.method` dùng `vietqr` (không `viet_qr`). Domain `InvoiceStatus`, `PaymentMethod` sửa theo khi code module Tài chính |
