@@ -1,4 +1,4 @@
-import { useMemo, useState, type Key } from 'react';
+import { useEffect, useMemo, useState, type Key } from 'react';
 import { Tooltip } from 'antd';
 import { Archive, CheckCircle2, FileQuestion, FileSpreadsheet, Hourglass, Link2Off, Send, TrendingDown } from 'lucide-react';
 import { Button, DataTable, DrawerForm, PageHeader, Select, StatCard, StatusTag, useConfirm, useNotify, type DataColumn } from '@/components/common';
@@ -9,6 +9,9 @@ import { QuestionDetailDrawer } from '@/features/academic/questions/QuestionDeta
 import { QuestionImportDialog } from '@/features/academic/questions/QuestionImportDialog';
 import { QuestionFormFields, type QuestionFormValues } from '@/features/academic/questions/QuestionFormFields';
 import { useQuestionStore, type QuestionInput } from '@/features/academic/questions/questionStore';
+import { changeStatus, createQuestion, loadQuestions, updateQuestion, uploadAudio, type BulkOutcome } from '@/features/academic/questions/questionApi';
+import { USE_API } from '@/lib/api/config';
+import { ApiError } from '@/lib/api/http';
 import type { QLevel, Question } from '@/features/academic/questions/types';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/cn';
@@ -23,9 +26,12 @@ type Dialog = { kind: 'create' } | { kind: 'edit'; id: string } | null;
 
 const NEW_Q: Partial<QuestionFormValues> = { level: 'N5', skill: 'vocab', format: 'choice', difficulty: 'medium', options: ['', '', '', ''], answer: 0, lessonIds: [], tags: [] };
 
-/** Ngân hàng câu hỏi — DỮ LIỆU GIẢ. Câu đã duyệt được bốc vào bài tập trắc nghiệm, kỳ thi, test xếp lớp. */
+/**
+ * Ngân hàng câu hỏi — câu đã duyệt được bốc vào bài tập trắc nghiệm, kỳ thi, test xếp lớp.
+ * Chế độ API: tải cả ngân hàng trong phạm vi quyền khi mở trang, lọc / tìm tại chỗ; thêm / sửa / duyệt gọi server (user story 11).
+ */
 export default function QuestionsPage() {
-  const { user, can } = useAuth();
+  const { user, can, canDo } = useAuth();
   const notify = useNotify();
   const { confirm, confirmDialog } = useConfirm();
   const questions = useQuestionStore((s) => s.questions);
@@ -33,7 +39,16 @@ export default function QuestionsPage() {
   const update = useQuestionStore((s) => s.update);
   const setStatus = useQuestionStore((s) => s.setStatus);
   const curricula = useCurriculumStore((s) => s.curricula);
-  const editable = can('academic.questions');
+  const editable = USE_API ? canDo('academic.questions', 'create') || canDo('academic.questions', 'update') : can('academic.questions');
+  const approver = USE_API ? canDo('academic.questions', 'approve') : editable;
+  const [loading, setLoading] = useState(USE_API);
+  useEffect(() => {
+    if (!USE_API) return;
+    loadQuestions()
+      .catch((e) => notify.toast.error(e instanceof ApiError ? e.message : 'Không tải được ngân hàng câu hỏi'))
+      .finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [level, setLevel] = useState<QLevel | 'all'>('all');
   const [skill, setSkill] = useState<string>();
@@ -199,12 +214,34 @@ export default function QuestionsPage() {
 
   const editing = dialog?.kind === 'edit' ? questions.find((q) => q.id === dialog.id) : undefined;
 
+  /** Kết quả lô từ server: báo câu bị bỏ qua (sai trạng thái, tự duyệt…) */
+  const report = (r: BulkOutcome) => {
+    if (r.done) notify.toast.success(`Đã cập nhật ${r.done} câu`);
+    if (r.skipped.length)
+      notify.toast.warning(`Bỏ qua ${r.skipped.length} câu: ${[...new Set(r.skipped.map((x) => x.reason))].join('; ')}`);
+  };
+
   const bulk = async (kind: 'approve' | 'review' | 'retire') => {
     const ids = selected.map(String);
     const list = questions.filter((q) => ids.includes(q.id));
     const ok = list.filter((q) => (kind === 'approve' ? q.status === 'review' : kind === 'review' ? q.status === 'draft' : q.status === 'approved'));
     if (!ok.length) {
       notify.toast.warning(kind === 'approve' ? 'Chỉ duyệt được câu đang "Chờ duyệt"' : kind === 'review' ? 'Chỉ gửi duyệt câu "Nháp"' : 'Chỉ ngừng dùng câu "Đã duyệt"');
+      return;
+    }
+    if (USE_API) {
+      let note: string | undefined;
+      if (kind === 'retire') {
+        const res = await confirm({ title: `Ngừng dùng ${ok.length} câu hỏi?`, tone: 'danger', confirmAction: 'reject', confirmText: 'Ngừng dùng', requireReason: { label: 'Lý do', placeholder: 'VD: lộ đề' } });
+        if (!res) return;
+        note = res.reason;
+      }
+      try {
+        report(await changeStatus(kind === 'review' ? 'submit' : kind, ok.map((q) => q.id), note));
+        setSelected([]);
+      } catch (e) {
+        notify.toast.error(e instanceof ApiError ? e.message : 'Không cập nhật được câu hỏi');
+      }
       return;
     }
     if (kind === 'retire') {
@@ -278,6 +315,7 @@ export default function QuestionsPage() {
         columns={columns}
         data={data}
         rowKey="id"
+        loading={loading}
         unitLabel="câu hỏi"
         searchKeys={['plain', 'code', 'explanation', 'author']}
         onRowClick={(q) => setOpenId(q.id)}
@@ -290,12 +328,16 @@ export default function QuestionsPage() {
                   <Button icon={Send} size="sm" variant="soft" onClick={() => bulk('review')}>
                     Gửi duyệt
                   </Button>
-                  <Button icon={CheckCircle2} size="sm" tone="success" variant="soft" onClick={() => bulk('approve')}>
-                    Duyệt
-                  </Button>
-                  <Button icon={Archive} size="sm" tone="danger" variant="soft" onClick={() => bulk('retire')}>
-                    Ngừng dùng
-                  </Button>
+                  {approver && (
+                    <>
+                      <Button icon={CheckCircle2} size="sm" tone="success" variant="soft" onClick={() => bulk('approve')}>
+                        Duyệt
+                      </Button>
+                      <Button icon={Archive} size="sm" tone="danger" variant="soft" onClick={() => bulk('retire')}>
+                        Ngừng dùng
+                      </Button>
+                    </>
+                  )}
                 </>
               )
             : undefined
@@ -361,6 +403,19 @@ export default function QuestionsPage() {
         successMessage={editing ? 'Đã lưu câu hỏi' : 'Đã thêm câu hỏi — chờ duyệt'}
         initialValues={editing ? { ...editing, audioFiles: editing.audio ? [{ uid: 'a', name: editing.audio.name, size: 0, status: 'done' }] : undefined } : NEW_Q}
         onSubmit={async (v) => {
+          if (USE_API) {
+            const input = toInput(v);
+            const newFile = v.skill === 'listening' ? v.audioFiles?.[0]?.file : undefined;
+            // Câu nghe hiểu: tạo nháp → tải file nghe → gửi duyệt (server chỉ cho gửi duyệt khi đã có file)
+            let q = editing ? await updateQuestion(editing.id, input) : await createQuestion(input, v.skill !== 'listening');
+            if (newFile) q = await uploadAudio(q.id, newFile);
+            if (!editing && v.skill === 'listening') {
+              const r = await changeStatus('submit', [q.id]);
+              if (r.skipped.length) notify.toast.warning(`Chưa gửi duyệt: ${r.skipped[0].reason}`);
+            }
+            if (!editing) setTimeout(() => setOpenId(q.id), 300);
+            return;
+          }
           await new Promise((r) => setTimeout(r, 400));
           if (editing) update(editing.id, toInput(v));
           else {
@@ -372,7 +427,7 @@ export default function QuestionsPage() {
         <QuestionFormFields />
       </DrawerForm>
 
-      <QuestionDetailDrawer questionId={openId} editable={editable} onClose={() => setOpenId(null)} onEdit={(id) => setDialog({ kind: 'edit', id })} onOpen={setOpenId} />
+      <QuestionDetailDrawer questionId={openId} editable={editable} approver={approver} onClose={() => setOpenId(null)} onEdit={(id) => setDialog({ kind: 'edit', id })} onOpen={setOpenId} />
       {confirmDialog}
       <QuestionImportDialog open={importing} onClose={() => setImporting(false)} />
     </>

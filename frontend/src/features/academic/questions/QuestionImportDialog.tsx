@@ -6,6 +6,8 @@ import { matchOption } from '@/lib/spreadsheet';
 import { normalizeText } from '@/lib/text';
 import { Q_DIFFICULTY, Q_FORMATS, Q_LEVELS, Q_SKILLS } from './constants';
 import { useQuestionStore, type QuestionInput } from './questionStore';
+import { importQuestions } from './questionApi';
+import { USE_API } from '@/lib/api/config';
 import type { QDifficulty, QFormat, QSkill, QStatus } from './types';
 
 const COLUMNS: ImportColumn[] = [
@@ -124,6 +126,16 @@ export function QuestionImportDialog({ open, onClose }: { open: boolean; onClose
       }
       notes="Câu nhập vào chưa gắn bài học — lọc “Chưa gắn bài” để gắn sau. Trùng = cùng cấp độ, đề bài và 4 đáp án với câu đang dùng."
       onImport={async (values) => {
+        if (USE_API) {
+          // 1 request; server kiểm lại từng câu. Số thứ tự = vị trí trong các dòng hợp lệ ở bước xem trước
+          const r = await importQuestions(values.map((input, i) => ({ row: i + 1, input })), status === 'review');
+          const notes = [
+            r.draftListening ? `${r.draftListening} câu nghe hiểu để Nháp — tải file nghe rồi gửi duyệt.` : '',
+            r.errors.length ? `${r.errors.length} câu bị từ chối: ${r.errors.slice(0, 3).map((e) => `câu ${e.row} — ${e.messages.join(', ')}`).join('; ')}` : '',
+          ].filter(Boolean);
+          notify.success({ title: `Đã nhập ${r.created} câu hỏi`, description: notes.join(' ') || (status === 'review' ? 'Đang chờ tổ chuyên môn duyệt.' : 'Ở trạng thái Nháp.') });
+          return r.created;
+        }
         await new Promise((r) => setTimeout(r, 500)); // giả lập gọi API
         values.forEach((v) => add(v, user?.fullName ?? 'Nhập từ Excel', status));
         notify.success({ title: `Đã nhập ${values.length} câu hỏi`, description: status === 'review' ? 'Đang chờ tổ chuyên môn duyệt.' : 'Ở trạng thái Nháp.' });

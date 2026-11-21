@@ -192,3 +192,12 @@ Test: `tests/JPCenter.IntegrationTests/Academic/{QuestionFlowTests,QuestionSeedT
 - File nghe: `FilePolicy.Audio` (mp3 / wav / m4a ≤ 20 MB, kiểm nội dung), thư mục `academic/questions`; thay / bỏ file → xóa file cũ nếu không câu nào
   dùng chung (nhân bản dùng chung khóa file); file mẫu `academic/questions/demo` không bao giờ xóa.
 - Bốc câu: `random()` của PostgreSQL trong câu đã duyệt, tối đa 200 câu / lần, loại trừ theo Id; tăng `used_count` khi bốc.
+
+### Frontend (giai đoạn 17 phase 4, 2026-11-21)
+- `features/academic/questions/questionApi.ts`: trang Ngân hàng câu hỏi tải cả ngân hàng (phạm vi quyền) khi mở trang, lọc / tìm / thống kê tại chỗ như cũ;
+  thêm / sửa (chống sửa đè), gửi duyệt / duyệt / trả lại / ngừng dùng / mở lại (lẻ + hàng loạt, báo câu bị bỏ qua), nhân bản, nhập Excel 1 request,
+  tải file nghe (độ dài đọc bằng trình duyệt) + nút "Nghe thử" (link tạm). Câu nghe hiểu mới: tạo nháp → tải file → gửi duyệt.
+- Nút Duyệt / Trả lại / Ngừng dùng / Mở lại chỉ hiện khi có quyền `approve`.
+- Id câu mẫu đổi 2 chiều qua `seedIds` ("Q-3" ↔ GUID) → Test xếp lớp, bài tập / bài thi của HV (còn mock tới giai đoạn 18, 20) vẫn tham chiếu đúng câu.
+- Kiểm tra tay (Playwright): danh sách 36 câu thật + thống kê + bài học; gửi duyệt → duyệt (lưu DB); thêm câu qua form; Admin tự duyệt câu mình soạn bị chặn.
+- `npm run export-seed`: gán `import.meta.env` khi chạy bằng Node (code frontend đọc chế độ API).

@@ -2,7 +2,9 @@ import { create } from 'zustand';
 import { MOCK_QUESTIONS } from '@/mocks/data/questions';
 import type { QStatus, Question } from './types';
 
-/** Store NGÂN HÀNG CÂU HỎI giả lập. Khi có backend: thay hàm bằng gọi API, giữ nguyên chữ ký. */
+/**
+ * Store NGÂN HÀNG CÂU HỎI. Chế độ API: dữ liệu nạp / cập nhật qua `questionApi.ts`; các hàm dưới chỉ dùng ở chế độ mock.
+ */
 
 export type QuestionInput = Omit<Question, 'id' | 'code' | 'createdAt' | 'updatedAt' | 'stats' | 'review' | 'status' | 'author'>;
 
@@ -20,6 +22,8 @@ const now = () => new Date().toISOString();
 const codeOf = (q: Pick<Question, 'level' | 'skill'>) => `${q.level}-${q.skill.slice(0, 2).toUpperCase()}-${String(++seq).padStart(4, '0')}`;
 
 export const useQuestionStore = create<QuestionState>((set, get) => ({
+  // Chế độ API vẫn khởi tạo bằng mock: Test xếp lớp, bài tập / bài thi (chưa có backend) tham chiếu câu theo Id mock;
+  // trang Ngân hàng câu hỏi nạp dữ liệu thật đè lên (Id câu mẫu đổi về Id mock qua seedIds)
   questions: MOCK_QUESTIONS,
 
   add: (input, author, status) => {

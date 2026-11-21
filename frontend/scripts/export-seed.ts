@@ -211,6 +211,7 @@ const seedIds = [
   ...MOCK_PROMOTIONS.map((x) => x.id),
   ...MOCK_EVALUATIONS.map((x) => x.id),
   ...MOCK_CARE_LOGS.map((x) => x.id),
+  ...MOCK_QUESTIONS.map((x) => x.id),
 ];
 const idPath = resolve(process.cwd(), 'src', 'lib', 'api', 'seedIds.generated.ts');
 mkdirSync(dirname(idPath), { recursive: true });

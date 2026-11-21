@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { Drawer, Switch } from 'antd';
-import { Archive, CheckCircle2, Copy, RotateCcw, Send, Undo2 } from 'lucide-react';
+import { Archive, CheckCircle2, Copy, RotateCcw, Send, Undo2, Headphones } from 'lucide-react';
 import { Button, StatusTag, useConfirm, useNotify } from '@/components/common';
 import { useAuth } from '@/hooks/useAuth';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
@@ -11,17 +11,23 @@ import { correctRate, Q_DIFFICULTY, Q_FORMATS, Q_SKILLS, Q_STATUS, rateTone } fr
 import { Furigana } from './Furigana';
 import { QuestionCard } from './QuestionCard';
 import { useQuestionStore } from './questionStore';
+import { audioLink, changeStatus, duplicateQuestion, type QuestionAction } from './questionApi';
+import { USE_API } from '@/lib/api/config';
+import { ApiError } from '@/lib/api/http';
+import type { QStatus } from './types';
 
 interface Props {
   questionId: string | null;
   editable: boolean;
+  /** Được duyệt / trả lại / ngừng dùng / mở lại (chế độ API: quyền approve) — mặc định = editable */
+  approver?: boolean;
   onClose: () => void;
   onEdit: (id: string) => void;
   onOpen: (id: string) => void;
 }
 
 /** Chi tiết câu hỏi: xem trước (bật/tắt furigana, đáp án) · thống kê làm bài · duyệt / trả lại / ngừng dùng */
-export function QuestionDetailDrawer({ questionId, editable, onClose, onEdit, onOpen }: Props) {
+export function QuestionDetailDrawer({ questionId, editable, approver = editable, onClose, onEdit, onOpen }: Props) {
   const { isMobile } = useBreakpoint();
   const { user } = useAuth();
   const notify = useNotify();
@@ -45,6 +51,29 @@ export function QuestionDetailDrawer({ questionId, editable, onClose, onEdit, on
     return i >= 0 ? `Bài ${i + 1}: ${cur!.lessons[i].title}` : id;
   });
 
+  /** Chế độ API: đổi trạng thái qua server, báo lý do nếu bị bỏ qua (vd tự duyệt câu của mình) */
+  const act = async (action: QuestionAction, note?: string, success?: string) => {
+    try {
+      const r = await changeStatus(action, [q.id], note);
+      if (r.skipped.length) notify.toast.warning(r.skipped[0].reason);
+      else if (success) notify.toast.success(success);
+    } catch (e) {
+      notify.toast.error(e instanceof ApiError ? e.message : 'Không cập nhật được câu hỏi');
+    }
+  };
+  const doStatus = (status: QStatus, action: QuestionAction, success?: string, note?: string) => {
+    if (USE_API) return void act(action, note, success);
+    setStatus([q.id], status, action === 'approve' || note ? { by: me, note } : undefined);
+    if (success) notify.toast.success(success);
+  };
+  const playAudio = async () => {
+    try {
+      window.open(await audioLink(q.id), '_blank', 'noopener');
+    } catch (e) {
+      notify.toast.error(e instanceof ApiError ? e.message : 'Không mở được file nghe');
+    }
+  };
+
   const returnBack = async () => {
     const res = await confirm({
       title: 'Trả lại câu hỏi cho người soạn?',
@@ -54,8 +83,7 @@ export function QuestionDetailDrawer({ questionId, editable, onClose, onEdit, on
       requireReason: { label: 'Cần sửa gì', placeholder: 'VD: đáp án 3 cũng đúng, cần đổi đáp án nhiễu' },
     });
     if (!res) return;
-    setStatus([q.id], 'draft', { by: me, note: res.reason });
-    notify.toast.info('Đã trả lại câu hỏi');
+    doStatus('draft', 'return', 'Đã trả lại câu hỏi', res.reason);
   };
   const retire = async () => {
     const res = await confirm({
@@ -67,7 +95,7 @@ export function QuestionDetailDrawer({ questionId, editable, onClose, onEdit, on
       requireReason: { label: 'Lý do', placeholder: 'VD: lộ đề, nội dung lỗi thời' },
     });
     if (!res) return;
-    setStatus([q.id], 'retired', { by: me, note: res.reason });
+    doStatus('retired', 'retire', 'Đã ngừng dùng câu hỏi', res.reason);
   };
 
   const meta: [string, ReactNode][] = [
@@ -110,16 +138,25 @@ export function QuestionDetailDrawer({ questionId, editable, onClose, onEdit, on
               tone="neutral"
               variant="outline"
               collapseOnMobile
-              onClick={() => {
-                const c = duplicate(q.id, me);
-                if (c) {
-                  notify.toast.success(`Đã nhân bản → ${c.code} (nháp)`);
-                  onOpen(c.id);
+              onClick={async () => {
+                try {
+                  const c = USE_API ? await duplicateQuestion(q.id) : duplicate(q.id, me);
+                  if (c) {
+                    notify.toast.success(`Đã nhân bản → ${c.code} (nháp)`);
+                    onOpen(c.id);
+                  }
+                } catch (e) {
+                  notify.toast.error(e instanceof ApiError ? e.message : 'Không nhân bản được');
                 }
               }}
             >
               Nhân bản
             </Button>
+            {USE_API && q.audio && (
+              <Button icon={Headphones} size="sm" tone="neutral" variant="outline" collapseOnMobile onClick={() => void playAudio()}>
+                Nghe thử
+              </Button>
+            )}
             <Button action="edit" size="sm" collapseOnMobile onClick={() => onEdit(q.id)} />
           </div>
         )
@@ -189,27 +226,27 @@ export function QuestionDetailDrawer({ questionId, editable, onClose, onEdit, on
         {editable && (
           <div className="flex flex-wrap justify-end gap-2 border-t border-line pt-4">
             {q.status === 'draft' && (
-              <Button icon={Send} onClick={() => (setStatus([q.id], 'review'), notify.toast.success('Đã gửi duyệt'))}>
+              <Button icon={Send} onClick={() => doStatus('review', 'submit', 'Đã gửi duyệt')}>
                 Gửi duyệt
               </Button>
             )}
-            {q.status === 'review' && (
+            {q.status === 'review' && approver && (
               <>
                 <Button icon={Undo2} tone="warning" variant="outline" onClick={returnBack}>
                   Trả lại
                 </Button>
-                <Button icon={CheckCircle2} tone="success" onClick={() => (setStatus([q.id], 'approved', { by: me }), notify.toast.success('Đã duyệt — câu được dùng trong đề'))}>
+                <Button icon={CheckCircle2} tone="success" onClick={() => doStatus('approved', 'approve', 'Đã duyệt — câu được dùng trong đề')}>
                   Duyệt
                 </Button>
               </>
             )}
-            {q.status === 'approved' && (
+            {q.status === 'approved' && approver && (
               <Button icon={Archive} tone="danger" variant="soft" onClick={retire}>
                 Ngừng dùng
               </Button>
             )}
-            {q.status === 'retired' && (
-              <Button icon={RotateCcw} variant="outline" onClick={() => setStatus([q.id], 'review')}>
+            {q.status === 'retired' && approver && (
+              <Button icon={RotateCcw} variant="outline" onClick={() => doStatus('review', 'reopen', 'Đã mở lại — chờ duyệt')}>
                 Mở lại (chờ duyệt)
               </Button>
             )}
