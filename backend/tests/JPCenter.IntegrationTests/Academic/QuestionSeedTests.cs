@@ -19,7 +19,9 @@ public sealed class QuestionSeedTests(SeededApiFactory api)
     {
         await using var scope = api.Scope();
         var db = scope.ServiceProvider.GetRequiredService<AcademicDbContext>();
-        var all = await db.Questions.AsNoTracking().Where(q => q.Code.Length == 10).ToListAsync(Ct); // mã mẫu "N5-KA-0001"
+        // Chỉ câu mẫu (Id cố định từ mock "Q-1" … "Q-36") — test khác cùng DB có thể đã thêm / sửa câu
+        var seeded = Enumerable.Range(1, 36).Select(i => new QuestionId(SeedData.IdOf($"Q-{i}"))).ToList();
+        var all = await db.Questions.AsNoTracking().Where(q => seeded.Contains(q.Id)).ToListAsync(Ct);
 
         all.Count.ShouldBe(36);
         all.GroupBy(q => q.Status).ToDictionary(g => g.Key, g => g.Count())
@@ -37,7 +39,7 @@ public sealed class QuestionSeedTests(SeededApiFactory api)
         var n5 = await db.Curricula.AsNoTracking().FirstAsync(c => c.Id == q1.CurriculumId, Ct);
         q1.LessonIds.ShouldBe([n5.Lessons.OrderBy(l => l.Order).ElementAt(2).Id]);
         q1.AttemptCount.ShouldBeGreaterThan(0);
-        q1.Picks.Sum().ShouldBe(q1.AttemptCount);
+        q1.Picks.Sum().ShouldBeLessThanOrEqualTo(q1.AttemptCount); // lượt bỏ trống không vào picks (test bốc câu có thể ghi thêm)
         q1.CorrectCount.ShouldBe(q1.Picks[q1.Answer]);
         q1.UsedCount.ShouldBeGreaterThan(0);
 

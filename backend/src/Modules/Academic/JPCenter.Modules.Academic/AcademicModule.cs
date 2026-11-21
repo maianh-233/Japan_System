@@ -6,6 +6,7 @@ using JPCenter.Modules.Academic.Application.Abstractions;
 using JPCenter.Modules.Academic.Application.Classes.Common;
 using JPCenter.Modules.Academic.Application.ClassSessions.Common;
 using JPCenter.Modules.Academic.Application.Common;
+using JPCenter.Modules.Academic.Application.Questions.Common;
 using JPCenter.Modules.Academic.Application.Courses.Common;
 using JPCenter.Modules.Academic.Application.Curricula.Common;
 using JPCenter.Modules.Academic.Application.Evaluations.Common;
@@ -50,6 +51,7 @@ public sealed class AcademicModule : IModule
         // Dùng chung giữa các use case (user story 07 — lớp, buổi, phòng)
         services.AddScoped<AcademicAccess>();
         services.AddScoped<AcademicNotices>();
+        services.AddScoped<QuestionBank>();
         services.AddScoped<PeopleNames>();
         services.AddScoped<RoomReader>();
         services.AddScoped<RoomRules>();
@@ -72,6 +74,7 @@ public sealed class AcademicModule : IModule
         services.AddScoped<PromotionReader>();
         services.AddScoped<EvaluationReader>();
         services.AddScoped<IAttendanceStats, AttendanceStats>();
+        services.AddScoped<IQuestionPicker, QuestionPicker>();
 
         services.AddScoped<IDataSeeder, AcademicSeeder>();
         services.AddScoped<IDataSeeder, ClassSeeder>();

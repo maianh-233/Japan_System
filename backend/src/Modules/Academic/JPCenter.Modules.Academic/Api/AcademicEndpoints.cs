@@ -10,6 +10,7 @@ public static class AcademicEndpoints
     {
         CourseEndpoints.Map(academic);
         CurriculumEndpoints.Map(academic);
+        QuestionEndpoints.Map(academic);
         RoomEndpoints.Map(academic);
         ClassEndpoints.Map(academic);
         ClassSessionEndpoints.Map(academic);

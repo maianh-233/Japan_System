@@ -169,3 +169,26 @@ Phạm vi `own` = chỉ câu mình soạn; `branch` / `all` = mọi câu (ngân 
 
 - **Làm:** NH-01 → NH-09 (API + nối frontend), NH-10 phần domain + contract. Dữ liệu mẫu từ `mocks/data/questions.ts`.
 - **Chưa làm:** đề thi / quiz / test xếp lớp dùng `IQuestionPicker` (giai đoạn 18, 20). Câu hỏi không vào Thùng rác (không xóa, chỉ ngừng dùng).
+
+## Đã làm — backend (giai đoạn 17 phase 3, 2026-11-21)
+
+Code: `src/Modules/Academic/JPCenter.Modules.Academic/Application/Questions/` · `Infrastructure/Services/QuestionPicker.cs` ·
+Test: `tests/JPCenter.IntegrationTests/Academic/{QuestionFlowTests,QuestionSeedTests}.cs`, `tests/Modules/Academic/…/Domain/QuestionTests.cs`.
+
+| Story | API (`/api/v1/academic/questions`) | Quyền |
+|---|---|---|
+| NH-01 | `GET ?level=&skill=&format=&difficulty=&status=&curriculumId=&lessonId=&tag=&authorId=&q=` (trả đủ, không phân trang) · `GET {id}` · `GET stats` | `view` |
+| NH-02 | `POST` `{ …nội dung, submit }` → 201 | `create` |
+| NH-03 | `PUT {id}` `{ …nội dung, rowVersion }` | `update` |
+| NH-04 | `POST {id}/audio` (multipart `file`, `durationSec`) · `GET {id}/audio-link` → `{ url, expiresAt }` | `update` / `view` |
+| NH-05, 06 | `POST submit` (`update`) · `approve` · `return` · `retire` · `reopen` (`approve`) `{ ids, note }` → `{ done[], skipped[{ id, code, reason }] }` | |
+| NH-07 | `POST {id}/duplicate` → 201 | `create` |
+| NH-08 | `POST import` `{ rows[{ row, …nội dung }], submit }` → `{ created[], errors[{ row, messages[] }], draftListening }` (≤ 500 dòng, body ≤ 5 MB) | `create` |
+| NH-09, 10 | `Academic.Contracts.IQuestionPicker`: `PickAsync` · `GetAsync` · `AnswersAsync` · `RecordAnswersAsync` | (module khác) |
+
+**Chốt khi code:**
+- Phạm vi `own` theo từng hành động (xem / sửa / duyệt): chỉ câu mình soạn; ngoài phạm vi → 404 / bỏ qua trong lô.
+- Người thao tác = nhân viên (Hr) của tài khoản. Duyệt hàng loạt lưu 1 lần, ghi 1 dòng nhật ký.
+- File nghe: `FilePolicy.Audio` (mp3 / wav / m4a ≤ 20 MB, kiểm nội dung), thư mục `academic/questions`; thay / bỏ file → xóa file cũ nếu không câu nào
+  dùng chung (nhân bản dùng chung khóa file); file mẫu `academic/questions/demo` không bao giờ xóa.
+- Bốc câu: `random()` của PostgreSQL trong câu đã duyệt, tối đa 200 câu / lần, loại trừ theo Id; tăng `used_count` khi bốc.
