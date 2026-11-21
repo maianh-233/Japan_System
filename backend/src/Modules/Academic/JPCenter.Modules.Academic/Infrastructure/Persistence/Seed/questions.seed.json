@@ -1,0 +1,1484 @@
+{
+  "generatedAt": "2026-11-20T14:26:09.691Z",
+  "questions": [
+    {
+      "id": "Q-1",
+      "code": "N5-KA-0001",
+      "level": "N5",
+      "skill": "kanji",
+      "format": "choice",
+      "difficulty": "easy",
+      "stem": "**学校**へ　いきます。",
+      "options": [
+        "がっこう",
+        "がこう",
+        "がっこ",
+        "かっこう"
+      ],
+      "answer": 0,
+      "explanation": "学校（がっこう）: trường học. Chú ý âm ngắt っ.",
+      "curriculumId": "CUR-N5-V2",
+      "lessonIds": [
+        "CUR-N5-V2-L3"
+      ],
+      "tags": [
+        "Đọc Kanji"
+      ],
+      "status": "approved",
+      "authorId": "t-anh",
+      "createdAt": "2026-05-04T03:00:00.671Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-05-26T03:00:00.671Z"
+      },
+      "stats": {
+        "used": 1,
+        "attempts": 30,
+        "correct": 23,
+        "picks": [
+          23,
+          4,
+          2,
+          1
+        ]
+      }
+    },
+    {
+      "id": "Q-2",
+      "code": "N5-KA-0002",
+      "level": "N5",
+      "skill": "kanji",
+      "format": "choice",
+      "difficulty": "easy",
+      "stem": "にちようびに　**山**に　のぼりました。",
+      "options": [
+        "かわ",
+        "やま",
+        "うみ",
+        "そら"
+      ],
+      "answer": 1,
+      "explanation": "山（やま）: núi. 川 = かわ, 海 = うみ, 空 = そら.",
+      "curriculumId": "CUR-N5-V2",
+      "lessonIds": [
+        "CUR-N5-V2-L5"
+      ],
+      "tags": [
+        "Đọc Kanji"
+      ],
+      "status": "approved",
+      "authorId": "t-anh",
+      "createdAt": "2026-05-09T03:00:00.671Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-05-31T03:00:00.671Z"
+      },
+      "stats": {
+        "used": 8,
+        "attempts": 67,
+        "correct": 61,
+        "picks": [
+          3,
+          61,
+          2,
+          1
+        ]
+      }
+    },
+    {
+      "id": "Q-3",
+      "code": "N5-KA-0003",
+      "level": "N5",
+      "skill": "kanji",
+      "format": "choice",
+      "difficulty": "medium",
+      "stem": "まいにち　**しんぶん**を　よみます。",
+      "options": [
+        "新文",
+        "新聞",
+        "親聞",
+        "新問"
+      ],
+      "answer": 1,
+      "explanation": "しんぶん = 新聞 (tờ báo). 聞 gồm bộ 門 + 耳.",
+      "curriculumId": "CUR-N5-V2",
+      "lessonIds": [
+        "CUR-N5-V2-L6"
+      ],
+      "tags": [
+        "Viết Kanji",
+        "Dễ nhầm"
+      ],
+      "status": "approved",
+      "authorId": "t-anh",
+      "createdAt": "2026-05-14T03:00:00.671Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-06-05T03:00:00.671Z"
+      },
+      "stats": {
+        "used": 6,
+        "attempts": 104,
+        "correct": 67,
+        "picks": [
+          20,
+          67,
+          11,
+          6
+        ]
+      }
+    },
+    {
+      "id": "Q-4",
+      "code": "N5-VO-0004",
+      "level": "N5",
+      "skill": "vocab",
+      "format": "choice",
+      "difficulty": "easy",
+      "stem": "へやが　くらいですから、でんきを（　　）ください。",
+      "options": [
+        "つけて",
+        "けして",
+        "しめて",
+        "あけて"
+      ],
+      "answer": 0,
+      "explanation": "Phòng tối → bật đèn: でんきを つける. けす = tắt.",
+      "curriculumId": "CUR-N5-V2",
+      "lessonIds": [
+        "CUR-N5-V2-L7"
+      ],
+      "tags": [
+        "Động từ"
+      ],
+      "status": "approved",
+      "authorId": "t-anh",
+      "createdAt": "2026-05-19T03:00:00.671Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-06-10T03:00:00.671Z"
+      },
+      "stats": {
+        "used": 4,
+        "attempts": 141,
+        "correct": 117,
+        "picks": [
+          117,
+          13,
+          7,
+          4
+        ]
+      }
+    },
+    {
+      "id": "Q-5",
+      "code": "N5-VO-0005",
+      "level": "N5",
+      "skill": "vocab",
+      "format": "choice",
+      "difficulty": "easy",
+      "stem": "この　りんごは　（　　）です。ひとつ　50えんです。",
+      "options": [
+        "たかい",
+        "やすい",
+        "おもい",
+        "ひろい"
+      ],
+      "answer": 1,
+      "explanation": "50 yên một quả → rẻ (やすい).",
+      "curriculumId": "CUR-N5-V2",
+      "lessonIds": [],
+      "tags": [
+        "Tính từ"
+      ],
+      "status": "approved",
+      "authorId": "t-anh",
+      "createdAt": "2026-05-24T03:00:00.671Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-06-15T03:00:00.671Z"
+      },
+      "stats": {
+        "used": 2,
+        "attempts": 178,
+        "correct": 141,
+        "picks": [
+          20,
+          141,
+          11,
+          6
+        ]
+      }
+    },
+    {
+      "id": "Q-6",
+      "code": "N5-GR-0006",
+      "level": "N5",
+      "skill": "grammar",
+      "format": "choice",
+      "difficulty": "easy",
+      "stem": "わたしは　毎朝{まいあさ}　コーヒー（　　）飲{の}みます。",
+      "options": [
+        "を",
+        "に",
+        "が",
+        "で"
+      ],
+      "answer": 0,
+      "explanation": "Tân ngữ trực tiếp của 飲みます dùng trợ từ を.",
+      "curriculumId": "CUR-N5-V2",
+      "lessonIds": [
+        "CUR-N5-V2-L6"
+      ],
+      "tags": [
+        "Trợ từ"
+      ],
+      "status": "approved",
+      "authorId": "t-anh",
+      "createdAt": "2026-05-29T03:00:00.671Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-06-20T03:00:00.671Z"
+      },
+      "stats": {
+        "used": 9,
+        "attempts": 215,
+        "correct": 198,
+        "picks": [
+          198,
+          9,
+          5,
+          3
+        ]
+      }
+    },
+    {
+      "id": "Q-7",
+      "code": "N5-GR-0007",
+      "level": "N5",
+      "skill": "grammar",
+      "format": "choice",
+      "difficulty": "easy",
+      "stem": "きのうは　雨{あめ}（　　）。",
+      "options": [
+        "です",
+        "でした",
+        "だ",
+        "ではありません"
+      ],
+      "answer": 1,
+      "explanation": "きのう (hôm qua) → thể quá khứ でした.",
+      "curriculumId": "CUR-N5-V2",
+      "lessonIds": [
+        "CUR-N5-V2-L4"
+      ],
+      "tags": [
+        "Thì quá khứ"
+      ],
+      "status": "retired",
+      "authorId": "t-anh",
+      "createdAt": "2026-06-03T03:00:00.671Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-06-28T03:00:00.671Z",
+        "note": "Lộ đề — câu xuất hiện trong nhóm Zalo học viên, thay bằng câu tương đương."
+      },
+      "stats": {
+        "used": 7,
+        "attempts": 252,
+        "correct": 222,
+        "picks": [
+          17,
+          222,
+          9,
+          4
+        ]
+      }
+    },
+    {
+      "id": "Q-8",
+      "code": "N5-GR-0008",
+      "level": "N5",
+      "skill": "grammar",
+      "format": "choice",
+      "difficulty": "medium",
+      "stem": "図書館{としょかん}（　　）本{ほん}を　読{よ}みます。",
+      "options": [
+        "で",
+        "に",
+        "へ",
+        "を"
+      ],
+      "answer": 0,
+      "explanation": "Nơi diễn ra hành động dùng で.",
+      "curriculumId": "CUR-N5-V2",
+      "lessonIds": [
+        "CUR-N5-V2-L6"
+      ],
+      "tags": [
+        "Trợ từ"
+      ],
+      "status": "approved",
+      "authorId": "t-anh",
+      "createdAt": "2026-06-08T03:00:00.671Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-06-30T03:00:00.671Z"
+      },
+      "stats": {
+        "used": 5,
+        "attempts": 289,
+        "correct": 176,
+        "picks": [
+          176,
+          62,
+          34,
+          17
+        ]
+      }
+    },
+    {
+      "id": "Q-9",
+      "code": "N5-GR-0009",
+      "level": "N5",
+      "skill": "grammar",
+      "format": "star",
+      "difficulty": "medium",
+      "stem": "この　＿＿　＿＿　★　＿＿　ですか。",
+      "options": [
+        "は",
+        "かばん",
+        "の",
+        "だれ"
+      ],
+      "answer": 3,
+      "explanation": "この かばん は だれ の ですか → vị trí ★ là だれ.",
+      "curriculumId": "CUR-N5-V2",
+      "lessonIds": [
+        "CUR-N5-V2-L2"
+      ],
+      "tags": [
+        "Sắp xếp câu"
+      ],
+      "status": "approved",
+      "authorId": "t-anh",
+      "createdAt": "2026-06-13T03:00:00.671Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-07-05T03:00:00.671Z"
+      },
+      "stats": {
+        "used": 3,
+        "attempts": 66,
+        "correct": 38,
+        "picks": [
+          15,
+          8,
+          5,
+          38
+        ]
+      }
+    },
+    {
+      "id": "Q-10",
+      "code": "N5-RE-0010",
+      "level": "N5",
+      "skill": "reading",
+      "format": "choice",
+      "difficulty": "easy",
+      "stem": "この人は　何時{なんじ}に　うちを　出{で}ますか。",
+      "passage": "わたしは　毎朝{まいあさ}　7時{じ}に　起{お}きます。朝{あさ}ごはんを　食{た}べてから、8時{じ}に　うちを　出{で}ます。会社{かいしゃ}まで　電車{でんしゃ}で　30分{ぷん}です。",
+      "options": [
+        "7時",
+        "7時半",
+        "8時",
+        "8時半"
+      ],
+      "answer": 2,
+      "explanation": "「8時に うちを 出ます」. 8時半 là giờ đến công ty (8時 + 30分).",
+      "curriculumId": "CUR-N5-V2",
+      "lessonIds": [
+        "CUR-N5-V2-L4"
+      ],
+      "tags": [
+        "Đọc ngắn"
+      ],
+      "status": "approved",
+      "authorId": "t-anh",
+      "createdAt": "2026-06-18T03:00:00.671Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-07-10T03:00:00.671Z"
+      },
+      "stats": {
+        "used": 1,
+        "attempts": 103,
+        "correct": 96,
+        "picks": [
+          4,
+          2,
+          96,
+          1
+        ]
+      }
+    },
+    {
+      "id": "Q-11",
+      "code": "N5-LI-0011",
+      "level": "N5",
+      "skill": "listening",
+      "format": "choice",
+      "difficulty": "medium",
+      "stem": "女{おんな}の人{ひと}は　いくら　はらいますか。",
+      "audio": {
+        "name": "N5-nghe-01.mp3",
+        "durationSec": 42
+      },
+      "transcript": "女：すみません、このノートはいくらですか。\n男：ひとつ120円です。三つで300円です。\n女：じゃあ、三つください。",
+      "options": [
+        "120円",
+        "240円",
+        "300円",
+        "360円"
+      ],
+      "answer": 2,
+      "explanation": "Mua 3 quyển với giá combo 300 yên (không phải 120 × 3 = 360).",
+      "curriculumId": "CUR-N5-V2",
+      "lessonIds": [
+        "CUR-N5-V2-L11"
+      ],
+      "tags": [
+        "Nghe số"
+      ],
+      "status": "approved",
+      "authorId": "t-anh",
+      "createdAt": "2026-06-23T03:00:00.671Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-07-15T03:00:00.671Z"
+      },
+      "stats": {
+        "used": 8,
+        "attempts": 140,
+        "correct": 92,
+        "picks": [
+          26,
+          14,
+          92,
+          8
+        ]
+      }
+    },
+    {
+      "id": "Q-12",
+      "code": "N5-VO-0012",
+      "level": "N5",
+      "skill": "vocab",
+      "format": "choice",
+      "difficulty": "medium",
+      "stem": "あした　ともだちに　てがみを　（　　）。",
+      "options": [
+        "かきます",
+        "ききます",
+        "よみます",
+        "みます"
+      ],
+      "answer": 0,
+      "curriculumId": "CUR-N5-V2",
+      "lessonIds": [
+        "CUR-N5-V2-L7"
+      ],
+      "tags": [
+        "Động từ"
+      ],
+      "status": "draft",
+      "authorId": "t-anh",
+      "createdAt": "2026-06-28T03:00:00.671Z",
+      "review": null,
+      "stats": {
+        "used": 0,
+        "attempts": 0,
+        "correct": 0
+      }
+    },
+    {
+      "id": "Q-13",
+      "code": "N4-KA-0013",
+      "level": "N4",
+      "skill": "kanji",
+      "format": "choice",
+      "difficulty": "easy",
+      "stem": "週末{しゅうまつ}は　**家族**と　旅行{りょこう}します。",
+      "options": [
+        "かぞく",
+        "かそく",
+        "がぞく",
+        "かぞう"
+      ],
+      "answer": 0,
+      "curriculumId": "CUR-N4-V2",
+      "lessonIds": [
+        "CUR-N4-V2-L1"
+      ],
+      "tags": [
+        "Đọc Kanji"
+      ],
+      "status": "approved",
+      "authorId": "t-long",
+      "createdAt": "2026-07-03T03:00:00.671Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-07-25T03:00:00.671Z"
+      },
+      "stats": {
+        "used": 4,
+        "attempts": 214,
+        "correct": 173,
+        "picks": [
+          173,
+          23,
+          12,
+          6
+        ]
+      }
+    },
+    {
+      "id": "Q-14",
+      "code": "N4-KA-0014",
+      "level": "N4",
+      "skill": "kanji",
+      "format": "choice",
+      "difficulty": "medium",
+      "stem": "この　店{みせ}には　**特別**な　料理{りょうり}が　あります。",
+      "options": [
+        "とくへつ",
+        "どくべつ",
+        "とくべつ",
+        "とっべつ"
+      ],
+      "answer": 2,
+      "explanation": "特別（とくべつ）: đặc biệt — chú ý べ có dakuten.",
+      "curriculumId": "CUR-N4-V2",
+      "lessonIds": [],
+      "tags": [
+        "Đọc Kanji",
+        "Âm đục"
+      ],
+      "status": "approved",
+      "authorId": "t-long",
+      "createdAt": "2026-07-08T03:00:00.671Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-07-30T03:00:00.671Z"
+      },
+      "stats": {
+        "used": 2,
+        "attempts": 251,
+        "correct": 178,
+        "picks": [
+          40,
+          22,
+          178,
+          11
+        ]
+      }
+    },
+    {
+      "id": "Q-15",
+      "code": "N4-VO-0015",
+      "level": "N4",
+      "skill": "vocab",
+      "format": "choice",
+      "difficulty": "easy",
+      "stem": "かぜを　ひいて、ねつが（　　）。",
+      "options": [
+        "でました",
+        "なりました",
+        "きました",
+        "はいりました"
+      ],
+      "answer": 0,
+      "explanation": "Cụm cố định: ねつが でる (bị sốt).",
+      "curriculumId": "CUR-N4-V2",
+      "lessonIds": [
+        "CUR-N4-V2-L2"
+      ],
+      "tags": [
+        "Cụm cố định"
+      ],
+      "status": "approved",
+      "authorId": "t-long",
+      "createdAt": "2026-07-13T03:00:00.671Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-08-04T03:00:00.671Z"
+      },
+      "stats": {
+        "used": 9,
+        "attempts": 288,
+        "correct": 259,
+        "picks": [
+          259,
+          16,
+          9,
+          4
+        ]
+      }
+    },
+    {
+      "id": "Q-16",
+      "code": "N4-VO-0016",
+      "level": "N4",
+      "skill": "vocab",
+      "format": "choice",
+      "difficulty": "medium",
+      "stem": "あしたの　会議{かいぎ}に　（　　）するか　どうか、メールで　知{し}らせて　ください。",
+      "options": [
+        "しゅっせき",
+        "しゅっぱつ",
+        "しゅうり",
+        "しょうたい"
+      ],
+      "answer": 0,
+      "explanation": "出席（しゅっせき）: tham dự.",
+      "curriculumId": "CUR-N4-V2",
+      "lessonIds": [
+        "CUR-N4-V2-L6"
+      ],
+      "tags": [
+        "Danh từ する"
+      ],
+      "status": "review",
+      "authorId": "t-long",
+      "createdAt": "2026-07-18T03:00:00.671Z",
+      "review": null,
+      "stats": {
+        "used": 0,
+        "attempts": 0,
+        "correct": 0
+      }
+    },
+    {
+      "id": "Q-17",
+      "code": "N4-GR-0017",
+      "level": "N4",
+      "skill": "grammar",
+      "format": "choice",
+      "difficulty": "easy",
+      "stem": "雨{あめ}が　降{ふ}って　いる（　　）、出{で}かけません。",
+      "options": [
+        "ので",
+        "のに",
+        "けど",
+        "でも"
+      ],
+      "answer": 0,
+      "explanation": "ので: chỉ nguyên nhân khách quan.",
+      "curriculumId": "CUR-N4-V2",
+      "lessonIds": [
+        "CUR-N4-V2-L4"
+      ],
+      "tags": [
+        "Liên từ"
+      ],
+      "status": "approved",
+      "authorId": "t-long",
+      "createdAt": "2026-07-23T03:00:00.671Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-08-14T03:00:00.671Z"
+      },
+      "stats": {
+        "used": 5,
+        "attempts": 102,
+        "correct": 84,
+        "picks": [
+          84,
+          10,
+          5,
+          3
+        ]
+      }
+    },
+    {
+      "id": "Q-18",
+      "code": "N4-GR-0018",
+      "level": "N4",
+      "skill": "grammar",
+      "format": "choice",
+      "difficulty": "medium",
+      "stem": "この　本{ほん}は　先生{せんせい}に　（　　）。",
+      "options": [
+        "いただきました",
+        "くださいました",
+        "さしあげました",
+        "やりました"
+      ],
+      "answer": 0,
+      "explanation": "Nhận từ người trên: 先生に いただきました. くださいました đi với 先生が.",
+      "curriculumId": "CUR-N4-V2",
+      "lessonIds": [
+        "CUR-N4-V2-L7"
+      ],
+      "tags": [
+        "Kính ngữ",
+        "Cho nhận"
+      ],
+      "status": "approved",
+      "authorId": "t-long",
+      "createdAt": "2026-07-28T03:00:00.671Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-08-19T03:00:00.671Z"
+      },
+      "stats": {
+        "used": 3,
+        "attempts": 139,
+        "correct": 76,
+        "picks": [
+          76,
+          35,
+          19,
+          9
+        ]
+      }
+    },
+    {
+      "id": "Q-19",
+      "code": "N4-GR-0019",
+      "level": "N4",
+      "skill": "grammar",
+      "format": "choice",
+      "difficulty": "easy",
+      "stem": "日本{にほん}へ　行{い}った（　　）が　あります。",
+      "options": [
+        "こと",
+        "もの",
+        "ところ",
+        "はず"
+      ],
+      "answer": 0,
+      "explanation": "Vた ことが あります: đã từng làm gì.",
+      "curriculumId": "CUR-N4-V2",
+      "lessonIds": [
+        "CUR-N4-V2-L3"
+      ],
+      "tags": [
+        "Kinh nghiệm"
+      ],
+      "status": "approved",
+      "authorId": "t-long",
+      "createdAt": "2026-08-02T03:00:00.671Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-08-24T03:00:00.671Z"
+      },
+      "stats": {
+        "used": 1,
+        "attempts": 176,
+        "correct": 160,
+        "picks": [
+          160,
+          9,
+          5,
+          2
+        ]
+      }
+    },
+    {
+      "id": "Q-20",
+      "code": "N4-GR-0020",
+      "level": "N4",
+      "skill": "grammar",
+      "format": "star",
+      "difficulty": "hard",
+      "stem": "駅{えき}に　＿＿　＿＿　★　＿＿　電話{でんわ}して　ください。",
+      "options": [
+        "ら",
+        "着{つ}いた",
+        "すぐ",
+        "わたしに"
+      ],
+      "answer": 2,
+      "explanation": "駅に 着いた ら すぐ わたしに 電話してください → ★ là すぐ.",
+      "curriculumId": "CUR-N4-V2",
+      "lessonIds": [
+        "CUR-N4-V2-L8"
+      ],
+      "tags": [
+        "Sắp xếp câu",
+        "Điều kiện たら"
+      ],
+      "status": "approved",
+      "authorId": "t-long",
+      "createdAt": "2026-08-07T03:00:00.671Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-08-29T03:00:00.672Z"
+      },
+      "stats": {
+        "used": 8,
+        "attempts": 213,
+        "correct": 75,
+        "picks": [
+          76,
+          41,
+          75,
+          21
+        ]
+      }
+    },
+    {
+      "id": "Q-21",
+      "code": "N4-RE-0021",
+      "level": "N4",
+      "skill": "reading",
+      "format": "choice",
+      "difficulty": "medium",
+      "stem": "祭{まつ}りに　参加{さんか}したい　人{ひと}は　どう　しなければ　なりませんか。",
+      "passage": "来週{らいしゅう}の　日曜日{にちようび}に　公園{こうえん}で　さくら祭{まつ}りが　あります。雨{あめ}の　場合{ばあい}は　次{つぎ}の　週{しゅう}に　なります。参加{さんか}したい　人{ひと}は　金曜日{きんようび}までに　事務所{じむしょ}に　申{もう}し込{こ}んで　ください。",
+      "options": [
+        "日曜日に公園へ行く",
+        "金曜日までに事務所に申し込む",
+        "雨の日に事務所に電話する",
+        "次の週に申し込む"
+      ],
+      "answer": 1,
+      "curriculumId": "CUR-N4-V2",
+      "lessonIds": [
+        "CUR-N4-V2-L9"
+      ],
+      "tags": [
+        "Thông báo"
+      ],
+      "status": "approved",
+      "authorId": "t-long",
+      "createdAt": "2026-08-12T03:00:00.672Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-09-03T03:00:00.672Z"
+      },
+      "stats": {
+        "used": 6,
+        "attempts": 250,
+        "correct": 150,
+        "picks": [
+          55,
+          150,
+          30,
+          15
+        ]
+      }
+    },
+    {
+      "id": "Q-22",
+      "code": "N4-LI-0022",
+      "level": "N4",
+      "skill": "listening",
+      "format": "choice",
+      "difficulty": "medium",
+      "stem": "会議{かいぎ}は　何時{なんじ}からですか。",
+      "audio": {
+        "name": "N4-nghe-03.mp3",
+        "durationSec": 58
+      },
+      "transcript": "男：あしたの会議、10時からでしたよね。\n女：いえ、部長が午前中出張なので、午後2時からに変わりました。\n男：わかりました。資料は何部必要ですか。\n女：8部お願いします。",
+      "options": [
+        "10時",
+        "12時",
+        "2時",
+        "8時"
+      ],
+      "answer": 2,
+      "explanation": "Đổi sang 午後2時. \"8部\" là số bản tài liệu — bẫy.",
+      "curriculumId": "CUR-N4-V2",
+      "lessonIds": [
+        "CUR-N4-V2-L10"
+      ],
+      "tags": [
+        "Nghe bẫy số"
+      ],
+      "status": "approved",
+      "authorId": "t-long",
+      "createdAt": "2026-08-17T03:00:00.672Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-09-08T03:00:00.672Z"
+      },
+      "stats": {
+        "used": 4,
+        "attempts": 287,
+        "correct": 161,
+        "picks": [
+          69,
+          38,
+          161,
+          19
+        ]
+      }
+    },
+    {
+      "id": "Q-23",
+      "code": "N3-KA-0023",
+      "level": "N3",
+      "skill": "kanji",
+      "format": "choice",
+      "difficulty": "easy",
+      "stem": "彼{かれ}の　意見{いけん}に　**賛成**です。",
+      "options": [
+        "さんせい",
+        "さんぜい",
+        "さんせ",
+        "ざんせい"
+      ],
+      "answer": 0,
+      "curriculumId": "CUR-N3-V1",
+      "lessonIds": [],
+      "tags": [
+        "Đọc Kanji"
+      ],
+      "status": "approved",
+      "authorId": "t-ha",
+      "createdAt": "2026-08-22T03:00:00.672Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-09-13T03:00:00.672Z"
+      },
+      "stats": {
+        "used": 2,
+        "attempts": 64,
+        "correct": 59,
+        "picks": [
+          59,
+          3,
+          2,
+          0
+        ]
+      }
+    },
+    {
+      "id": "Q-24",
+      "code": "N3-KA-0024",
+      "level": "N3",
+      "skill": "kanji",
+      "format": "choice",
+      "difficulty": "medium",
+      "stem": "**努力**した　結果{けっか}、試験{しけん}に　合格{ごうかく}できた。",
+      "options": [
+        "どりょく",
+        "どうりょく",
+        "どりき",
+        "とりょく"
+      ],
+      "answer": 0,
+      "explanation": "努力（どりょく）: nỗ lực — không có trường âm.",
+      "curriculumId": "CUR-N3-V1",
+      "lessonIds": [
+        "CUR-N3-V1-L3"
+      ],
+      "tags": [
+        "Đọc Kanji",
+        "Trường âm"
+      ],
+      "status": "approved",
+      "authorId": "t-ha",
+      "createdAt": "2026-08-27T03:00:00.672Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-09-18T03:00:00.672Z"
+      },
+      "stats": {
+        "used": 9,
+        "attempts": 101,
+        "correct": 66,
+        "picks": [
+          66,
+          19,
+          11,
+          5
+        ]
+      }
+    },
+    {
+      "id": "Q-25",
+      "code": "N3-VO-0025",
+      "level": "N3",
+      "skill": "vocab",
+      "format": "choice",
+      "difficulty": "medium",
+      "stem": "約束{やくそく}の　時間{じかん}に　（　　）しまい、友達{ともだち}を　待{ま}たせた。",
+      "options": [
+        "遅れて",
+        "遅くて",
+        "延ばして",
+        "過ぎて"
+      ],
+      "answer": 0,
+      "explanation": "時間に遅れる: trễ giờ.",
+      "curriculumId": "CUR-N3-V1",
+      "lessonIds": [
+        "CUR-N3-V1-L4"
+      ],
+      "tags": [
+        "Động từ"
+      ],
+      "status": "approved",
+      "authorId": "t-ha",
+      "createdAt": "2026-09-01T03:00:00.672Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-09-23T03:00:00.672Z"
+      },
+      "stats": {
+        "used": 7,
+        "attempts": 138,
+        "correct": 84,
+        "picks": [
+          84,
+          30,
+          16,
+          8
+        ]
+      }
+    },
+    {
+      "id": "Q-26",
+      "code": "N3-VO-0026",
+      "level": "N3",
+      "skill": "vocab",
+      "format": "choice",
+      "difficulty": "medium",
+      "stem": "この　仕事{しごと}には　ある程度{ていど}の　（　　）が　必要{ひつよう}だ。",
+      "options": [
+        "経験",
+        "経済",
+        "経由",
+        "経営"
+      ],
+      "answer": 0,
+      "explanation": "経験（けいけん）: kinh nghiệm.",
+      "curriculumId": "CUR-N3-V1",
+      "lessonIds": [
+        "CUR-N3-V1-L5"
+      ],
+      "tags": [
+        "Danh từ Hán"
+      ],
+      "status": "review",
+      "authorId": "t-ha",
+      "createdAt": "2026-09-06T03:00:00.672Z",
+      "review": null,
+      "stats": {
+        "used": 0,
+        "attempts": 0,
+        "correct": 0
+      }
+    },
+    {
+      "id": "Q-27",
+      "code": "N3-GR-0027",
+      "level": "N3",
+      "skill": "grammar",
+      "format": "choice",
+      "difficulty": "hard",
+      "stem": "忙{いそが}しい（　　）、毎日{まいにち}　日本語{にほんご}を　勉強{べんきょう}して　いる。",
+      "options": [
+        "にもかかわらず",
+        "によって",
+        "について",
+        "にとって"
+      ],
+      "answer": 0,
+      "explanation": "にもかかわらず: mặc dù... (trang trọng).",
+      "curriculumId": "CUR-N3-V1",
+      "lessonIds": [
+        "CUR-N3-V1-L6"
+      ],
+      "tags": [
+        "Mẫu câu N3"
+      ],
+      "status": "approved",
+      "authorId": "t-ha",
+      "createdAt": "2026-09-11T03:00:00.672Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-10-03T03:00:00.672Z"
+      },
+      "stats": {
+        "used": 3,
+        "attempts": 212,
+        "correct": 87,
+        "picks": [
+          87,
+          69,
+          38,
+          18
+        ]
+      }
+    },
+    {
+      "id": "Q-28",
+      "code": "N3-GR-0028",
+      "level": "N3",
+      "skill": "grammar",
+      "format": "choice",
+      "difficulty": "medium",
+      "stem": "先生{せんせい}の　説明{せつめい}の　（　　）、やっと　わかった。",
+      "options": [
+        "おかげで",
+        "せいで",
+        "ために",
+        "ように"
+      ],
+      "answer": 0,
+      "explanation": "Kết quả tích cực nhờ ai → おかげで. せいで dùng cho kết quả xấu.",
+      "curriculumId": "CUR-N3-V1",
+      "lessonIds": [
+        "CUR-N3-V1-L6"
+      ],
+      "tags": [
+        "Mẫu câu N3",
+        "Dễ nhầm"
+      ],
+      "status": "approved",
+      "authorId": "t-ha",
+      "createdAt": "2026-09-16T03:00:00.672Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-10-08T03:00:00.672Z"
+      },
+      "stats": {
+        "used": 1,
+        "attempts": 249,
+        "correct": 164,
+        "picks": [
+          164,
+          47,
+          26,
+          12
+        ]
+      }
+    },
+    {
+      "id": "Q-29",
+      "code": "N3-GR-0029",
+      "level": "N3",
+      "skill": "grammar",
+      "format": "star",
+      "difficulty": "hard",
+      "stem": "この　問題{もんだい}は　＿＿　＿＿　★　＿＿　難{むずか}しい。",
+      "options": [
+        "とって",
+        "子{こ}ども",
+        "かなり",
+        "に"
+      ],
+      "answer": 0,
+      "explanation": "子ども に とって かなり 難しい → ★ là とって.",
+      "curriculumId": "CUR-N3-V1",
+      "lessonIds": [
+        "CUR-N3-V1-L7"
+      ],
+      "tags": [
+        "Sắp xếp câu"
+      ],
+      "status": "approved",
+      "authorId": "t-ha",
+      "createdAt": "2026-09-21T03:00:00.672Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-10-13T03:00:00.672Z"
+      },
+      "stats": {
+        "used": 8,
+        "attempts": 286,
+        "correct": 94,
+        "picks": [
+          94,
+          106,
+          58,
+          28
+        ]
+      }
+    },
+    {
+      "id": "Q-30",
+      "code": "N3-RE-0030",
+      "level": "N3",
+      "skill": "reading",
+      "format": "choice",
+      "difficulty": "medium",
+      "stem": "自宅{じたく}で　働{はたら}く　人{ひと}について、筆者{ひっしゃ}は　何{なに}と　言{い}っていますか。",
+      "passage": "最近{さいきん}、自宅{じたく}で　働{はたら}く　人{ひと}が　増{ふ}えている。通勤{つうきん}の　時間{じかん}が　なくなり、家族{かぞく}と　過{す}ごす　時間{じかん}が　増{ふ}えたという　声{こえ}が　多{おお}い。一方{いっぽう}で、同僚{どうりょう}と　話{はな}す　機会{きかい}が　減{へ}り、孤独{こどく}を　感{かん}じる　人{ひと}も　いる。",
+      "options": [
+        "通勤が楽になったので仕事が増えた",
+        "よい点もあるが、困る点もある",
+        "家族と過ごす時間が減った",
+        "同僚と話す機会が増えた"
+      ],
+      "answer": 1,
+      "explanation": "一方で → đoạn văn nêu cả mặt tốt và mặt chưa tốt.",
+      "curriculumId": "CUR-N3-V1",
+      "lessonIds": [
+        "CUR-N3-V1-L8"
+      ],
+      "tags": [
+        "Đọc ý chính"
+      ],
+      "status": "approved",
+      "authorId": "t-ha",
+      "createdAt": "2026-09-26T03:00:00.672Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-10-18T03:00:00.672Z"
+      },
+      "stats": {
+        "used": 6,
+        "attempts": 63,
+        "correct": 37,
+        "picks": [
+          14,
+          37,
+          8,
+          4
+        ]
+      }
+    },
+    {
+      "id": "Q-31",
+      "code": "N3-LI-0031",
+      "level": "N3",
+      "skill": "listening",
+      "format": "choice",
+      "difficulty": "hard",
+      "stem": "女{おんな}の人{ひと}は　まず　何{なに}を　しますか。",
+      "audio": {
+        "name": "N3-nghe-05.mp3",
+        "durationSec": 71
+      },
+      "transcript": "女：課長、明日の出張ですが、新幹線の切符はもう買いましたか。\n男：いや、まだなんだ。悪いけど、ホテルの予約を先にしてくれる？切符は僕が帰りに買うから。\n女：わかりました。",
+      "options": [
+        "新幹線の切符を買う",
+        "ホテルを予約する",
+        "課長に電話する",
+        "出張の資料を作る"
+      ],
+      "answer": 1,
+      "curriculumId": "CUR-N3-V1",
+      "lessonIds": [
+        "CUR-N3-V1-L9"
+      ],
+      "tags": [
+        "Nghe việc cần làm"
+      ],
+      "status": "approved",
+      "authorId": "t-ha",
+      "createdAt": "2026-10-01T03:00:00.672Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-10-23T03:00:00.672Z"
+      },
+      "stats": {
+        "used": 4,
+        "attempts": 100,
+        "correct": 42,
+        "picks": [
+          32,
+          42,
+          17,
+          9
+        ]
+      }
+    },
+    {
+      "id": "Q-32",
+      "code": "N2-KA-0032",
+      "level": "N2",
+      "skill": "kanji",
+      "format": "choice",
+      "difficulty": "medium",
+      "stem": "経済{けいざい}の　**動向**を　注視{ちゅうし}する。",
+      "options": [
+        "どうこう",
+        "どうむき",
+        "とうこう",
+        "どうごう"
+      ],
+      "answer": 0,
+      "curriculumId": "CUR-N2",
+      "lessonIds": [],
+      "tags": [
+        "Đọc Kanji",
+        "Kinh tế"
+      ],
+      "status": "approved",
+      "authorId": "t-ha",
+      "createdAt": "2026-10-06T03:00:00.672Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-10-28T03:00:00.672Z"
+      },
+      "stats": {
+        "used": 2,
+        "attempts": 137,
+        "correct": 92,
+        "picks": [
+          92,
+          25,
+          14,
+          6
+        ]
+      }
+    },
+    {
+      "id": "Q-33",
+      "code": "N2-GR-0033",
+      "level": "N2",
+      "skill": "grammar",
+      "format": "choice",
+      "difficulty": "hard",
+      "stem": "この　プロジェクトは　彼{かれ}の　協力{きょうりょく}（　　）成功{せいこう}しなかった　だろう。",
+      "options": [
+        "なしには",
+        "ぬきで",
+        "をもとに",
+        "に際して"
+      ],
+      "answer": 0,
+      "explanation": "NなしにはVない: nếu không có N thì không thể V.",
+      "curriculumId": "CUR-N2",
+      "lessonIds": [
+        "CUR-N2-L3"
+      ],
+      "tags": [
+        "Mẫu câu N2"
+      ],
+      "status": "approved",
+      "authorId": "t-ha",
+      "createdAt": "2026-10-11T03:00:00.672Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-11-02T03:00:00.672Z"
+      },
+      "stats": {
+        "used": 9,
+        "attempts": 174,
+        "correct": 59,
+        "picks": [
+          59,
+          63,
+          35,
+          17
+        ]
+      }
+    },
+    {
+      "id": "Q-34",
+      "code": "N2-VO-0034",
+      "level": "N2",
+      "skill": "vocab",
+      "format": "choice",
+      "difficulty": "hard",
+      "stem": "新{あたら}しい　制度{せいど}は　（　　）に　導入{どうにゅう}された。",
+      "options": [
+        "円滑",
+        "円満",
+        "温和",
+        "穏便"
+      ],
+      "answer": 0,
+      "explanation": "円滑（えんかつ）に: một cách suôn sẻ (công việc, thủ tục).",
+      "curriculumId": "CUR-N2",
+      "lessonIds": [
+        "CUR-N2-L4"
+      ],
+      "tags": [
+        "Từ Hán dễ nhầm"
+      ],
+      "status": "review",
+      "authorId": "t-ha",
+      "createdAt": "2026-10-16T03:00:00.672Z",
+      "review": null,
+      "stats": {
+        "used": 0,
+        "attempts": 0,
+        "correct": 0
+      }
+    },
+    {
+      "id": "Q-35",
+      "code": "N1-GR-0035",
+      "level": "N1",
+      "skill": "grammar",
+      "format": "choice",
+      "difficulty": "hard",
+      "stem": "社長{しゃちょう}の　発言{はつげん}は、誤解{ごかい}を　招{まね}き（　　）ものだった。",
+      "options": [
+        "かねない",
+        "かねる",
+        "がたい",
+        "っこない"
+      ],
+      "answer": 0,
+      "explanation": "Vます + かねない: có khả năng gây ra (điều xấu).",
+      "curriculumId": "CUR-N1",
+      "lessonIds": [
+        "CUR-N1-L1"
+      ],
+      "tags": [
+        "Mẫu câu N1"
+      ],
+      "status": "approved",
+      "authorId": "t-sato",
+      "createdAt": "2026-10-21T03:00:00.672Z",
+      "review": {
+        "byId": "t-ha",
+        "at": "2026-11-12T03:00:00.672Z"
+      },
+      "stats": {
+        "used": 5,
+        "attempts": 248,
+        "correct": 64,
+        "picks": [
+          64,
+          101,
+          55,
+          28
+        ]
+      }
+    },
+    {
+      "id": "Q-36",
+      "code": "N1-VO-0036",
+      "level": "N1",
+      "skill": "vocab",
+      "format": "choice",
+      "difficulty": "hard",
+      "stem": "彼{かれ}の　態度{たいど}は　（　　）として　変{か}わらなかった。",
+      "options": [
+        "依然",
+        "断然",
+        "漠然",
+        "歴然"
+      ],
+      "answer": 0,
+      "explanation": "依然として: vẫn như cũ.",
+      "curriculumId": "CUR-N1",
+      "lessonIds": [
+        "CUR-N1-L2"
+      ],
+      "tags": [
+        "Phó từ"
+      ],
+      "status": "draft",
+      "authorId": "t-sato",
+      "createdAt": "2026-10-26T03:00:00.672Z",
+      "review": null,
+      "stats": {
+        "used": 0,
+        "attempts": 0,
+        "correct": 0
+      }
+    }
+  ]
+}

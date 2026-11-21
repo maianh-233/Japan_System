@@ -1,3 +1,4 @@
+using JPCenter.Modules.Academic.Domain.Questions;
 using JPCenter.Modules.Academic.Domain.Classes;
 using JPCenter.Modules.Academic.Domain.ClassSessions;
 using JPCenter.Modules.Academic.Domain.Courses;
@@ -24,6 +25,7 @@ public interface IAcademicDbContext
     DbSet<LeaveRequest> LeaveRequests { get; }
     DbSet<PromotionCandidate> PromotionCandidates { get; }
     DbSet<StudentEvaluation> StudentEvaluations { get; }
+    DbSet<Question> Questions { get; }
 
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

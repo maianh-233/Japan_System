@@ -76,6 +76,7 @@ public sealed class AcademicModule : IModule
         services.AddScoped<IDataSeeder, AcademicSeeder>();
         services.AddScoped<IDataSeeder, ClassSeeder>();
         services.AddScoped<IDataSeeder, RequestSeeder>();
+        services.AddScoped<IDataSeeder, QuestionSeeder>();
 
         if (JobServiceCollectionExtensions.IsEnabled(configuration))
         {

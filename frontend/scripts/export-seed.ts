@@ -15,6 +15,7 @@ import { MOCK_COURSE_CURRICULA, MOCK_CURRICULA } from '@/mocks/data/curricula';
 import { MOCK_CLASSES } from '@/mocks/data/classes';
 import { MOCK_SESSIONS } from '@/mocks/data/attendance';
 import { MOCK_ROOM_ISSUES, MOCK_ROOMS } from '@/mocks/data/rooms';
+import { MOCK_QUESTIONS } from '@/mocks/data/questions';
 import { MOCK_LEADS, MOCK_LINKS } from '@/mocks/data/crm';
 import { MOCK_ACCOUNTS as PORTAL_ACCOUNTS, MOCK_ENROLLMENTS, MOCK_STUDENTS } from '@/mocks/data/students';
 import {
@@ -63,6 +64,19 @@ write(resolve(backend, 'Academic', 'JPCenter.Modules.Academic', 'Infrastructure'
   courses: MOCK_COURSES,
   curricula: MOCK_CURRICULA.map((c) => ({ ...c, authorId: employeeIdByName.get(c.author) ?? null })),
   courseCurricula: MOCK_COURSE_CURRICULA,
+});
+
+// Ngân hàng câu hỏi (user story 11). Người soạn / người duyệt lưu theo TÊN → Id nhân viên; bài học giữ Id mock ("CUR-N5-V2-L3" = bài thứ 3)
+const nameId = (name?: string) => (name ? (employeeIdByName.get(name.replace(/\s*\(.*\)\s*$/, '').trim()) ?? null) : null);
+write(resolve(backend, 'Academic', 'JPCenter.Modules.Academic', 'Infrastructure', 'Persistence', 'Seed', 'questions.seed.json'), {
+  generatedAt: new Date().toISOString(),
+  questions: MOCK_QUESTIONS.map((q) => ({
+    id: q.id, code: q.code, level: q.level, skill: q.skill, format: q.format, difficulty: q.difficulty, stem: q.stem, passage: q.passage,
+    audio: q.audio, transcript: q.transcript, options: q.options, answer: q.answer, explanation: q.explanation, curriculumId: q.curriculumId,
+    lessonIds: q.lessonIds, tags: q.tags, status: q.status, authorId: nameId(q.author), createdAt: q.createdAt,
+    review: q.review ? { byId: nameId(q.review.by), at: q.review.at, note: q.review.note } : null,
+    stats: q.stats,
+  })),
 });
 
 // Phòng, lớp, buổi học (user story 07). Người thao tác lưu theo TÊN ("Phạm Thị Hồng (Giáo vụ)") → Id nhân viên nếu có, không có → null

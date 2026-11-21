@@ -25,6 +25,9 @@ public sealed record FilePolicy(string Name, long MaxBytes, IReadOnlyList<FileTy
         FileTypes.Mp3, FileTypes.Wav, FileTypes.M4a,
     ]);
 
+    /// <summary>File nghe (câu hỏi nghe hiểu, đề nghe) — mp3 / wav / m4a, tối đa 20 MB</summary>
+    public static readonly FilePolicy Audio = new("File nghe", 20 * Mb, [FileTypes.Mp3, FileTypes.Wav, FileTypes.M4a]);
+
     /// <summary>Ảnh (đại diện, ảnh 3×4 hồ sơ JLPT...) — tối đa 5 MB</summary>
     public static readonly FilePolicy Images = new("Ảnh", 5 * Mb, [FileTypes.Jpg, FileTypes.Jpeg, FileTypes.Png, FileTypes.Webp]);
 

@@ -1,5 +1,6 @@
 using JPCenter.Infrastructure.Common.Persistence;
 using JPCenter.Modules.Academic.Application.Abstractions;
+using JPCenter.Modules.Academic.Domain.Questions;
 using JPCenter.Modules.Academic.Domain.Classes;
 using JPCenter.Modules.Academic.Domain.ClassSessions;
 using JPCenter.Modules.Academic.Domain.Courses;
@@ -33,4 +34,5 @@ public sealed class AcademicDbContext(DbContextOptions<AcademicDbContext> option
     public DbSet<LeaveRequest> LeaveRequests => Set<LeaveRequest>();
     public DbSet<PromotionCandidate> PromotionCandidates => Set<PromotionCandidate>();
     public DbSet<StudentEvaluation> StudentEvaluations => Set<StudentEvaluation>();
+    public DbSet<Question> Questions => Set<Question>();
 }

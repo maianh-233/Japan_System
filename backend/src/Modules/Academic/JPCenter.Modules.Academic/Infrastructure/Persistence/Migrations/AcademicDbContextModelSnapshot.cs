@@ -798,6 +798,195 @@ namespace JPCenter.Modules.Academic.Infrastructure.Persistence.Migrations
                     b.ToTable("promotion_candidates", "academic");
                 });
 
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Questions.Question", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("Answer")
+                        .HasColumnType("integer")
+                        .HasColumnName("answer");
+
+                    b.Property<int>("AttemptCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("attempt_count");
+
+                    b.Property<int?>("AudioDurationSec")
+                        .HasColumnType("integer")
+                        .HasColumnName("audio_duration_sec");
+
+                    b.Property<string>("AudioKey")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("audio_key");
+
+                    b.Property<string>("AudioName")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("audio_name");
+
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("author_id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("code");
+
+                    b.Property<int>("CorrectCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("correct_count");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid?>("CurriculumId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("curriculum_id");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<string>("Difficulty")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("difficulty");
+
+                    b.Property<string>("Explanation")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("explanation");
+
+                    b.Property<string>("Format")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("format");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<Guid[]>("LessonIds")
+                        .IsRequired()
+                        .HasColumnType("uuid[]")
+                        .HasColumnName("lesson_ids");
+
+                    b.Property<string>("Level")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("level");
+
+                    b.PrimitiveCollection<List<string>>("Options")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("options");
+
+                    b.Property<string>("Passage")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("passage");
+
+                    b.PrimitiveCollection<List<int>>("Picks")
+                        .IsRequired()
+                        .HasColumnType("integer[]")
+                        .HasColumnName("picks");
+
+                    b.Property<string>("ReviewNote")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("review_note");
+
+                    b.Property<DateTimeOffset?>("ReviewedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("reviewed_at");
+
+                    b.Property<Guid?>("ReviewedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("reviewed_by");
+
+                    b.Property<string>("Skill")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("skill");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Stem")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("stem");
+
+                    b.PrimitiveCollection<List<string>>("Tags")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("tags");
+
+                    b.Property<string>("Transcript")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("transcript");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<int>("UsedCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("used_count");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_questions");
+
+                    b.HasIndex("AuthorId")
+                        .HasDatabaseName("ix_questions_author_id");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_questions_code");
+
+                    b.HasIndex("CurriculumId")
+                        .HasDatabaseName("ix_questions_curriculum_id");
+
+                    b.HasIndex("LessonIds")
+                        .HasDatabaseName("ix_questions_lesson_ids");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("LessonIds"), "gin");
+
+                    b.HasIndex("Status", "Level", "Skill")
+                        .HasDatabaseName("ix_questions_status_level_skill");
+
+                    b.ToTable("questions", "academic");
+                });
+
             modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Requests.LeaveRequest", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2067,6 +2256,15 @@ namespace JPCenter.Modules.Academic.Infrastructure.Persistence.Migrations
                         });
 
                     b.Navigation("Notes");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Questions.Question", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Academic.Domain.Curricula.Curriculum", null)
+                        .WithMany()
+                        .HasForeignKey("CurriculumId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_questions_curricula_curriculum_id");
                 });
 
             modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Requests.LeaveRequest", b =>
