@@ -403,7 +403,7 @@ Phát `EnrollmentCompleted` → cổng HV hiện "Đã học xong", trang Chứn
 | HV-07, 08 | `POST enrollments/{id}/reserve` `{ until, reason }` · `…/resume` | như trên |
 | HV-09 | `GET enrollments/{id}/transfer-quote?targetClassId=` (gợi ý khấu trừ) · `POST enrollments/{id}/transfer` · `POST enrollments/transfer` (hàng loạt) | như trên |
 | HV-10 | `POST enrollments/{id}/drop` `{ reason }` | như trên |
-| HV-12 | `GET guardians?q=&noPrimary=` · `POST guardians` (gọi Crm) | `students.contacts.*` |
+| HV-12 | **Crm** `/api/v1/crm/guardians`: `GET` (lead có liên kết HV khác "Bản thân", phạm vi theo chi nhánh lead HOẶC chi nhánh của con) · `POST` `{ fullName, phone, email, branchId, notifyChannels, note, relationship, studentIds, primary }` → `{ guardian, reused, warnings }` (trùng SĐT → liên kết thêm vào người cũ) · `PUT {id}` `{ …, version }` · `POST/PUT/DELETE {id}/students[/{studentId}]` (luật CRM-08) | `students.contacts.view / create / update` |
 | HV-13 | `POST students/{id}/account` · `POST guardians/{leadId}/account` (gọi System — AUTH-10) | `.update` |
 | HV-14 | `GET at-risk?level=&status=&assignee=` · `PUT care-cases/{id}` · `POST care-cases/{id}/logs` | `students.at-risk.*` |
 | HV-15 | `GET certificates?classId=&eligible=` · `POST enrollments/{id}/certificate` `{ email, exception? }` · `POST certificates/{id}/resend` · công khai `GET public/certificates/{code}` | `students.certificates.*` |

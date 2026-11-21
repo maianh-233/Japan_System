@@ -23,6 +23,11 @@ public static class LeadErrors
     public static readonly Error InvalidAssignee =
         Error.Validation("crm.lead.invalid_assignee", "Sale phụ trách phải còn làm việc và thuộc chi nhánh của lead");
 
+    /// <summary>HV-12.E2</summary>
+    public static readonly Error StudentsRequired = Error.Validation("crm.guardian.students_required", "Chọn ít nhất 1 học viên");
+    public static readonly Error GuardianCannotBeSelf =
+        Error.Validation("crm.guardian.self", "Phụ huynh / người giám hộ phải là người khác học viên (không chọn \"Bản thân\")");
+
     /// <summary>CRM-02.E3 — CẢNH BÁO (không chặn): trùng SĐT với lead khác</summary>
     public static readonly Error DuplicatePhone = Error.Conflict("crm.lead.duplicate_phone", "Số điện thoại trùng với lead khác");
 

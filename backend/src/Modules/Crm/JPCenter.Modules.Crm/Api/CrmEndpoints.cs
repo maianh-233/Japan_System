@@ -15,5 +15,6 @@ public static class CrmEndpoints
         CampaignEndpoints.Map(crm);
         MessageEndpoints.Map(crm);
         FunnelEndpoints.Map(crm);
+        GuardianEndpoints.Map(crm);
     }
 }

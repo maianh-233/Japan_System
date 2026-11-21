@@ -273,4 +273,27 @@ public sealed class LeadTests
         note.IsSystem.ShouldBeTrue();
         note.Content.ShouldBe("Kết quả test \"Test đầu vào\": 14/20 câu (70%) — gợi ý N4 · N4 tối 2-4-6");
     }
+
+    [Fact]
+    public void HV_12_them_phu_huynh_vao_thang_da_chot_kem_lien_ket()
+    {
+        var lead = Lead.CreateGuardian("LD0050", Info("Lê Thị Mai", "0987000111"), [(Kid, "Bé An"), (Kid2, "Bé Bình"), (Kid, "Bé An")],
+            Relationship.Child, isPrimary: true, At).Value;
+        lead.Status.ShouldBe(LeadStatus.Won);
+        lead.StudentLinks.Count.ShouldBe(2);
+        lead.StudentLinks.ShouldAllBe(k => k.Relationship == Relationship.Child && k.IsPrimary && k.Billing && k.Notify);
+        lead.Consultations.ShouldHaveSingleItem().IsSystem.ShouldBeTrue();
+        lead.DomainEvents.OfType<LeadStudentLinked>().Count().ShouldBe(2);
+        lead.DomainEvents.OfType<LeadCreated>().ShouldHaveSingleItem();
+    }
+
+    [Fact]
+    public void HV_12_E2_can_hoc_vien_va_quan_he_khac_ban_than()
+    {
+        Lead.CreateGuardian("x", Info(), [], Relationship.Child, false, At).Error.ShouldBe(LeadErrors.StudentsRequired);
+        Lead.CreateGuardian("x", Info(), [(Kid, "Bé")], Relationship.Self, false, At).Error.ShouldBe(LeadErrors.GuardianCannotBeSelf);
+        Lead.CreateGuardian("x", Info(phone: "123"), [(Kid, "Bé")], Relationship.Other, false, At).Error.ShouldBe(LeadErrors.InvalidPhone);
+        var lead = Lead.CreateGuardian("x", Info(), [(Kid, "Bé")], Relationship.Sibling, false, At).Value;
+        lead.StudentLinks.ShouldHaveSingleItem().Billing.ShouldBeFalse();
+    }
 }

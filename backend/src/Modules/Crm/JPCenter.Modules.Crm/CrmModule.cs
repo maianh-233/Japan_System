@@ -4,6 +4,7 @@ using JPCenter.Infrastructure.Common.Persistence;
 using JPCenter.Modules.Crm.Api;
 using JPCenter.Modules.Crm.Application.Abstractions;
 using JPCenter.Modules.Crm.Application.Common;
+using JPCenter.Modules.Crm.Application.Guardians.Common;
 using JPCenter.Infrastructure.Common.Jobs;
 using JPCenter.Modules.Crm.Application.Appointments.Common;
 using JPCenter.Modules.Crm.Application.Campaigns.Common;
@@ -48,6 +49,7 @@ public sealed class CrmModule : IModule
         services.AddScoped<LeadCodes>();
         services.AddScoped<LeadEditor>();
         services.AddScoped<GuardianLinks>();
+        services.AddScoped<GuardianAccess>();
         services.AddScoped<LeadRuleReader>();
         services.AddScoped<PlacementBank>();
         services.AddScoped<PlacementReader>();

@@ -71,6 +71,30 @@ public sealed partial class Lead : AggregateRoot<LeadId>, IBranchScoped, IAudita
         return lead;
     }
 
+    /// <summary>
+    /// HV-12 — thêm phụ huynh / người giám hộ cho học viên ĐÃ CÓ (trang Học viên › Phụ huynh): người liên hệ vào thẳng "Đã chốt"
+    /// vì đã gắn với HV đang học (khác CRM-02). Bắt buộc ≥ 1 HV (E2), quan hệ không phải "Bản thân"; mỗi liên kết nhận thông báo,
+    /// liên hệ chính = nhận hóa đơn. Application tắt cờ liên hệ chính ở lead khác (CRM-08.E2).
+    /// </summary>
+    public static Result<Lead> CreateGuardian(string code, LeadInfo info, IReadOnlyList<(Guid Id, string Name)> students, Relationship relationship,
+        bool isPrimary, DateTimeOffset at)
+    {
+        if (students.Count == 0) return LeadErrors.StudentsRequired;
+        if (relationship == Relationship.Self) return LeadErrors.GuardianCannotBeSelf;
+        var lead = new Lead { Id = LeadId.New(), Code = code, Status = LeadStatus.Won };
+        var set = lead.Update(info);
+        if (set.IsFailure) return set.Error;
+        lead.Raise(new LeadCreated(lead.Id, lead.BranchId, lead.Source));
+        foreach (var (id, _) in students.DistinctBy(s => s.Id))
+        {
+            lead._studentLinks.Add(new LeadStudentLink(id, relationship, isPrimary, isPrimary, notify: true, at));
+            lead.Raise(new LeadStudentLinked(lead.Id, id));
+        }
+        lead.AddSystemNote($"Người liên hệ ({RelationshipLabel(relationship)}) của {string.Join(", ", students.DistinctBy(s => s.Id).Select(s => s.Name))} — thêm từ trang Phụ huynh",
+            at, ConsultResult.Enrolled);
+        return lead;
+    }
+
     /// <summary>CRM-04 — sửa thông tin (lead đang ẩn vẫn sửa được, vẫn ẩn). Họ tên + SĐT bắt buộc; SĐT chuẩn hóa +84 → 0.</summary>
     public Result Update(LeadInfo info)
     {

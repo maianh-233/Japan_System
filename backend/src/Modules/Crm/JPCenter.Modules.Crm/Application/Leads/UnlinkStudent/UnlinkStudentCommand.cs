@@ -1,6 +1,8 @@
 using JPCenter.Application.Common.Auditing;
 using JPCenter.Application.Common.Messaging;
+using JPCenter.Application.Common.Security;
 using JPCenter.Modules.Crm.Application.Abstractions;
+using JPCenter.Modules.Crm.Application.Guardians.Common;
 using JPCenter.Modules.Crm.Application.Leads.Common;
 using JPCenter.Modules.Crm.Application.Leads.LinkStudent;
 using JPCenter.Modules.Crm.Domain.Leads;
@@ -14,14 +16,15 @@ namespace JPCenter.Modules.Crm.Application.Leads.UnlinkStudent;
 /// CRM-08 bước 4 — gỡ liên kết: hồ sơ HV, lớp, học phí giữ nguyên; PH mất quyền xem HV đó ngay (E5); cảnh báo HV nhỏ tuổi
 /// không còn người quyết định (E3) / không ai nhận hóa đơn (E4) nhưng vẫn cho gỡ.
 /// </summary>
-public sealed record UnlinkStudentCommand(Guid LeadId, Guid StudentId) : ICommand<LeadLinksResult>;
+/// <param name="ViaContacts">Gọi từ trang Phụ huynh (HV-12) — phạm vi <c>students.contacts</c></param>
+public sealed record UnlinkStudentCommand(Guid LeadId, Guid StudentId, bool ViaContacts = false) : ICommand<LeadLinksResult>;
 
-public sealed class UnlinkStudentHandler(ICrmDbContext db, LeadEditor editor, LeadReader reader, GuardianLinks links, IEnrollmentLookup students,
+public sealed class UnlinkStudentHandler(ICrmDbContext db, LeadEditor editor, GuardianAccess guardians, LeadReader reader, GuardianLinks links, IEnrollmentLookup students,
     IClock clock, IAuditTrail audit) : ICommandHandler<UnlinkStudentCommand, LeadLinksResult>
 {
     public async Task<Result<LeadLinksResult>> Handle(UnlinkStudentCommand cmd, CancellationToken ct)
     {
-        var lead = await editor.LoadAsync(cmd.LeadId, ct);
+        var lead = cmd.ViaContacts ? await guardians.LoadAsync(cmd.LeadId, PermissionAction.Update, ct) : await editor.LoadAsync(cmd.LeadId, ct);
         if (lead is null) return LeadErrors.NotFound;
         var name = (await students.NamesAsync([cmd.StudentId], ct)).GetValueOrDefault(cmd.StudentId) ?? "học viên";
         if (lead.UnlinkStudent(cmd.StudentId, name, clock.UtcNow) is { IsFailure: true } bad) return bad.Error;

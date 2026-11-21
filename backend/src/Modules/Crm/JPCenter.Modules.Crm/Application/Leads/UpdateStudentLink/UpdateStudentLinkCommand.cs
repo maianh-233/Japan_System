@@ -1,5 +1,7 @@
 using JPCenter.Application.Common.Messaging;
+using JPCenter.Application.Common.Security;
 using JPCenter.Modules.Crm.Application.Abstractions;
+using JPCenter.Modules.Crm.Application.Guardians.Common;
 using JPCenter.Modules.Crm.Application.Leads.Common;
 using JPCenter.Modules.Crm.Application.Leads.LinkStudent;
 using JPCenter.Modules.Crm.Domain.Leads;
@@ -8,15 +10,16 @@ using JPCenter.SharedKernel.Primitives;
 namespace JPCenter.Modules.Crm.Application.Leads.UpdateStudentLink;
 
 /// <summary>CRM-08 bước 2 — đổi quan hệ / cờ liên hệ chính · nhận hóa đơn · nhận thông báo (E2 tự tắt liên hệ chính ở lead khác, E3 / E4 cảnh báo).</summary>
-public sealed record UpdateStudentLinkCommand(Guid LeadId, Guid StudentId, Relationship Relationship, bool Primary, bool Billing, bool Notify)
-    : ICommand<LeadLinksResult>;
+/// <param name="ViaContacts">Gọi từ trang Phụ huynh (HV-12) — phạm vi <c>students.contacts</c></param>
+public sealed record UpdateStudentLinkCommand(Guid LeadId, Guid StudentId, Relationship Relationship, bool Primary, bool Billing, bool Notify,
+    bool ViaContacts = false) : ICommand<LeadLinksResult>;
 
-public sealed class UpdateStudentLinkHandler(ICrmDbContext db, LeadEditor editor, LeadReader reader, GuardianLinks links)
+public sealed class UpdateStudentLinkHandler(ICrmDbContext db, LeadEditor editor, GuardianAccess guardians, LeadReader reader, GuardianLinks links)
     : ICommandHandler<UpdateStudentLinkCommand, LeadLinksResult>
 {
     public async Task<Result<LeadLinksResult>> Handle(UpdateStudentLinkCommand cmd, CancellationToken ct)
     {
-        var lead = await editor.LoadAsync(cmd.LeadId, ct);
+        var lead = cmd.ViaContacts ? await guardians.LoadAsync(cmd.LeadId, PermissionAction.Update, ct) : await editor.LoadAsync(cmd.LeadId, ct);
         if (lead is null) return LeadErrors.NotFound;
         var wasPrimary = lead.StudentLinks.FirstOrDefault(k => k.StudentId == cmd.StudentId)?.IsPrimary ?? false;
         if (lead.SetLinkFlags(cmd.StudentId, cmd.Relationship, cmd.Primary, cmd.Billing, cmd.Notify) is { IsFailure: true } bad) return bad.Error;
