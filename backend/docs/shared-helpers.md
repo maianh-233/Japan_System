@@ -32,6 +32,7 @@
 | `PageRequest`, `PagedResult<T>`, `ToPagedResultAsync()`, `SortBy(sort, allowed, fallback)` (`Paging/`) | Danh sách có phân trang; `sort` chỉ nhận cột trong danh sách cho phép | ✅ |
 | `ICurrentUser` (`Security/`): `AccountId`, `SessionId`, `Access` (`UserAccess`: cổng, tên, vai trò, EmployeeId, OwnerId, chi nhánh, quyền hiệu lực) | Lấy người đang gọi trong handler | ✅ |
 | `user.Can(page, action)`, `user.Permission(page, action)` → `EffectivePermission(Scope, BranchIds)` (`CurrentUserExtensions`) | Kiểm tra quyền trong handler khi cần chi tiết hơn endpoint (vd lọc theo phạm vi) | ✅ |
+| `user.AllowedBranches(page, action)` (null = mọi chi nhánh, rỗng = không quyền), `user.InBranch(page, action, branchId)` (`CurrentUserExtensions`) | Chi nhánh được thao tác theo phạm vi quyền — Crm, Students, System (tài khoản cổng) dùng chung | ✅ |
 | `PermissionAction`, `Portal` (`Security/`); `PermissionScope` (SharedKernel) | Mã quyền `module.page.action`, cổng staff/teacher/student/parent | ✅ |
 | `IUserAccessProvider` (module System hiện thực), `IUserAccessCache` (`Invalidate` / `InvalidateAll` khi đổi quyền) | Nạp + cache quyền theo tài khoản | ✅ |
 | `IRequestInfo` (IP, thiết bị, traceId) | Ghi phiên đăng nhập / nhật ký | ✅ |

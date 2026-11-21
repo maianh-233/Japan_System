@@ -1,3 +1,4 @@
+using JPCenter.Infrastructure.Common.Persistence;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -296,39 +297,91 @@ public sealed partial class AuthFlowTests(SeededApiFactory api)
         history.GetProperty("recentFailures").GetInt32().ShouldBe(1);
     }
 
-    // ---------- AUTH-10 ----------
+    // ---------- AUTH-10 / HV-13 ----------
+
+    /// <summary>Tạo 1 hồ sơ HV mới (chưa có tài khoản cổng) ở chi nhánh <paramref name="branch"/> qua HV-04</summary>
+    private async Task<Guid> NewStudent(HttpClient client, string branch = "cg")
+    {
+        var name = $"Học viên Cổng {Guid.NewGuid().ToString()[..5]}";
+        var r = await Json(await client.PostAsJsonAsync("/api/v1/students/import",
+            new { rows = new[] { new { fullName = name, branchId = SeedData.IdOf(branch) } }, importDuplicates = true }, Ct));
+        return r.GetProperty("created")[0].GetProperty("id").GetGuid();
+    }
+
+    private static string RandomPhone() => $"09{Random.Shared.Next(10_000_000, 99_999_999)}";
 
     [Fact]
     public async Task Giao_vu_cap_tai_khoan_cong_sale_khong_duoc()
     {
-        var owner = Guid.NewGuid();
         var (giaovu, _) = await SignIn("giaovu@jpcenter.vn");
+        var owner = await NewStudent(giaovu);
         var create = await giaovu.PostAsJsonAsync("/api/v1/system/portal-accounts",
-            new { ownerType = "student", ownerId = owner, displayName = "Học viên Mới", username = $"hv{owner.ToString()[..6]}", email = (string?)null }, Ct);
+            new { ownerType = "student", ownerId = owner, username = $"hv{owner.ToString()[..6]}", email = (string?)null }, Ct);
         create.StatusCode.ShouldBe(HttpStatusCode.Created);
         var body = await Json(create);
         var temp = body.GetProperty("temporaryPassword").GetString()!;
         var username = body.GetProperty("account").GetProperty("username").GetString()!;
+        // Tên chủ tài khoản lấy từ hồ sơ HV, không theo client
+        body.GetProperty("account").GetProperty("displayName").GetString()!.ShouldStartWith("Học viên Cổng");
 
         var first = await Login(api.CreateClient(), username, temp);
         (await Json(first)).GetProperty("user").GetProperty("mustChangePassword").GetBoolean().ShouldBeTrue();
 
         (await Code(await giaovu.PostAsJsonAsync("/api/v1/system/portal-accounts",
-            new { ownerType = "student", ownerId = owner, displayName = "Trùng", username = "khac123", email = (string?)null }, Ct))).ShouldBe("system.portal_account.exists");
+            new { ownerType = "student", ownerId = owner, username = "khac123", email = (string?)null }, Ct))).ShouldBe("system.portal_account.exists");
 
         var (sale, _) = await SignIn("sale@jpcenter.vn");
         (await sale.PostAsJsonAsync("/api/v1/system/portal-accounts",
-            new { ownerType = "student", ownerId = Guid.NewGuid(), displayName = "X", username = "xyz123", email = (string?)null }, Ct))
+            new { ownerType = "student", ownerId = owner, username = "xyz123", email = (string?)null }, Ct))
             .StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task Cap_tai_khoan_cong_chi_cho_chu_tai_khoan_co_that_va_trong_chi_nhanh()
+    {
+        var (giaovu, _) = await SignIn("giaovu@jpcenter.vn");
+        var (admin, _) = await SignIn("admin@jpcenter.vn");
+        // Id không tồn tại / HV chi nhánh khác (giáo vụ Cầu Giấy + HC, HV ở Q1) → 404
+        (await Code(await giaovu.PostAsJsonAsync("/api/v1/system/portal-accounts",
+            new { ownerType = "student", ownerId = Guid.NewGuid(), username = "hvma123" }, Ct))).ShouldBe("system.portal_account.owner_not_found");
+        var q1 = await NewStudent(admin, "q1");
+        (await Code(await giaovu.PostAsJsonAsync("/api/v1/system/portal-accounts",
+            new { ownerType = "student", ownerId = q1, username = $"q{q1.ToString()[..6]}" }, Ct))).ShouldBe("system.portal_account.owner_not_found");
+        // Danh sách chỉ gồm tài khoản trong phạm vi: ST-3 (Q1) có tài khoản nhưng giáo vụ không thấy
+        var st3 = SeedData.IdOf("ST-3");
+        (await Json(await giaovu.GetAsync($"/api/v1/system/portal-accounts?ownerType=student&ownerId={st3}", Ct))).GetArrayLength().ShouldBe(0);
+        (await Json(await admin.GetAsync($"/api/v1/system/portal-accounts?ownerType=student&ownerId={st3}", Ct))).GetArrayLength().ShouldBe(1);
+
+        // Phụ huynh: tạo qua HV-12 rồi cấp tài khoản (tên + email lấy từ Crm); gỡ hết con thì không cấp được
+        var kid = await NewStudent(giaovu);
+        var phone = RandomPhone();
+        var guardian = (await Json(await giaovu.PostAsJsonAsync("/api/v1/crm/guardians", new
+        {
+            fullName = "Phụ huynh Cổng", phone, email = "ph.cong@gmail.com", branchId = SeedData.IdOf("cg"), relationship = "child",
+            studentIds = new[] { kid }, primary = true,
+        }, Ct))).GetProperty("guardian").GetProperty("id").GetGuid();
+        var ph = await Json(await giaovu.PostAsJsonAsync("/api/v1/system/portal-accounts",
+            new { ownerType = "guardian", ownerId = guardian, username = $"ph.{phone}" }, Ct));
+        ph.GetProperty("account").GetProperty("displayName").GetString().ShouldBe("Phụ huynh Cổng");
+        ph.GetProperty("account").GetProperty("email").GetString().ShouldBe("ph.cong@gmail.com");
+
+        var lonely = (await Json(await giaovu.PostAsJsonAsync("/api/v1/crm/guardians", new
+        {
+            fullName = "Phụ huynh Lẻ", phone = RandomPhone(), branchId = SeedData.IdOf("cg"), relationship = "other",
+            studentIds = new[] { kid }, primary = false,
+        }, Ct))).GetProperty("guardian").GetProperty("id").GetGuid();
+        (await giaovu.DeleteAsync($"/api/v1/crm/guardians/{lonely}/students/{kid}", Ct)).StatusCode.ShouldBe(HttpStatusCode.OK);
+        (await Code(await admin.PostAsJsonAsync("/api/v1/system/portal-accounts",
+            new { ownerType = "guardian", ownerId = lonely, username = "ph.le123" }, Ct))).ShouldBe("system.portal_account.no_children");
     }
 
     [Fact]
     public async Task Giao_vu_khoa_mo_khoa_va_dat_lai_mat_khau_tai_khoan_cong()
     {
-        var owner = Guid.NewGuid();
         var (giaovu, _) = await SignIn("giaovu@jpcenter.vn");
+        var owner = await NewStudent(giaovu);
         var created = await Json(await giaovu.PostAsJsonAsync("/api/v1/system/portal-accounts",
-            new { ownerType = "student", ownerId = owner, displayName = "Học viên Khóa", username = $"hk{owner.ToString()[..6]}", email = (string?)null }, Ct));
+            new { ownerType = "student", ownerId = owner, username = $"hk{owner.ToString()[..6]}", email = (string?)null }, Ct));
         var id = created.GetProperty("account").GetProperty("id").GetGuid();
         var username = created.GetProperty("account").GetProperty("username").GetString()!;
         var temp = created.GetProperty("temporaryPassword").GetString()!;
@@ -348,6 +401,12 @@ public sealed partial class AuthFlowTests(SeededApiFactory api)
         newTemp.ShouldNotBe(temp);
         (await Login(api.CreateClient(), username, temp)).StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
         (await Login(api.CreateClient(), username, newTemp)).StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        // Tài khoản của HV ngoài chi nhánh → giáo vụ không khóa được (404)
+        var (admin, _) = await SignIn("admin@jpcenter.vn");
+        var st3Account = (await Json(await admin.GetAsync($"/api/v1/system/portal-accounts?ownerType=student&ownerId={SeedData.IdOf("ST-3")}", Ct)))[0]
+            .GetProperty("id").GetGuid();
+        (await giaovu.PostAsync($"/api/v1/system/portal-accounts/{st3Account}/lock", null, Ct)).StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }
 
     private async Task<string> CurrentRefreshCookie(HttpClient client)

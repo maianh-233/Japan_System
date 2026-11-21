@@ -13,7 +13,13 @@ public interface IGuardianDirectory
     /// HV không có liên hệ chính → không có trong kết quả.
     /// </summary>
     Task<IReadOnlyDictionary<Guid, GuardianContact>> DecidersOfAsync(IReadOnlyCollection<Guid> studentIds, CancellationToken ct);
+
+    /// <summary>Hồ sơ người liên hệ theo Id lead (kể cả đã ẩn) — System cấp / quản lý tài khoản cổng PH (HV-13); không thấy → không có trong kết quả</summary>
+    Task<IReadOnlyList<GuardianProfile>> ProfilesAsync(IReadOnlyCollection<Guid> leadIds, CancellationToken ct);
 }
+
+/// <param name="ChildIds">Học viên đang liên kết (mọi quan hệ)</param>
+public sealed record GuardianProfile(Guid LeadId, string FullName, string Phone, string? Email, Guid BranchId, IReadOnlyList<Guid> ChildIds);
 
 /// <param name="Relationship">"self" · "child" · "sibling" · "spouse" · "other"</param>
 public sealed record GuardianContact(Guid LeadId, string FullName, string Phone, string Relationship);

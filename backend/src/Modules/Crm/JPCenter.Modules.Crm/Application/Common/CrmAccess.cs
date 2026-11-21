@@ -31,15 +31,7 @@ public sealed class CrmAccess(ICurrentUser user)
     public bool Can(string page, PermissionAction action) => user.Can(page, action);
 
     /// <summary>Chi nhánh được thao tác; null = mọi chi nhánh; rỗng = không có quyền</summary>
-    public HashSet<Guid>? Branches(string page, PermissionAction action)
-    {
-        var perm = user.Permission(page, action);
-        if (perm is null) return [];
-        if (perm.Scope == PermissionScope.All) return null;
-        if (perm.BranchIds.Count > 0) return perm.BranchIds.ToHashSet();
-        var me = user.Access;
-        return me is null || me.AllBranches ? null : me.BranchIds.ToHashSet();
-    }
+    public HashSet<Guid>? Branches(string page, PermissionAction action) => user.AllowedBranches(page, action);
 
     public bool InBranch(string page, PermissionAction action, Guid branchId) =>
         Branches(page, action) is not { } allowed || allowed.Contains(branchId);

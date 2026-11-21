@@ -32,4 +32,14 @@ internal sealed class GuardianDirectory(CrmDbContext db) : IGuardianDirectory
             return new GuardianContact(r.LeadId.Value, r.FullName, r.Phone, SnakeCaseEnumConverter<Relationship>.ToText(r.Relationship));
         });
     }
+
+    public async Task<IReadOnlyList<GuardianProfile>> ProfilesAsync(IReadOnlyCollection<Guid> leadIds, CancellationToken ct)
+    {
+        var ids = leadIds.Distinct().Select(id => new LeadId(id)).ToList();
+        if (ids.Count == 0) return [];
+        var rows = await db.Leads.AsNoTracking().IgnoreQueryFilters().Where(l => ids.Contains(l.Id))
+            .Select(l => new { l.Id, l.FullName, l.Phone, l.Email, l.BranchId, Children = l.StudentLinks.Select(k => k.StudentId).ToList() })
+            .ToListAsync(ct);
+        return rows.Select(r => new GuardianProfile(r.Id.Value, r.FullName, r.Phone, r.Email, r.BranchId.Value, r.Children)).ToList();
+    }
 }

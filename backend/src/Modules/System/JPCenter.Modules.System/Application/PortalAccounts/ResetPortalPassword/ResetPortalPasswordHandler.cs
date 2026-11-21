@@ -12,13 +12,14 @@ using Microsoft.EntityFrameworkCore;
 namespace JPCenter.Modules.System.Application.PortalAccounts.ResetPortalPassword;
 
 public sealed class ResetPortalPasswordHandler(
-    ISystemDbContext db, PortalCredentialSender credentials, SessionRevoker revoker, IUserAccessCache accessCache, IAuditTrail audit)
+    ISystemDbContext db, PortalOwnerAccess owners, PortalCredentialSender credentials, SessionRevoker revoker, IUserAccessCache accessCache, IAuditTrail audit)
     : ICommandHandler<ResetPortalPasswordCommand, PortalCredentialDto>
 {
     public async Task<Result<PortalCredentialDto>> Handle(ResetPortalPasswordCommand cmd, CancellationToken ct)
     {
         var account = await db.PortalAccounts.FirstOrDefaultAsync(x => x.Id == new PortalAccountId(cmd.AccountId), ct);
-        if (account is null) return PortalAccountErrors.NotFound;
+        if (account is null || await owners.FindAsync(account.OwnerType, account.OwnerId, PermissionAction.Update, ct) is null)
+            return PortalAccountErrors.NotFound;
 
         await revoker.RevokeAllAsync(AccountKind.Portal, account.Id.Value, "admin", null, ct);
         var result = await credentials.IssueAsync(account, ct, () => db.SaveChangesAsync(ct));

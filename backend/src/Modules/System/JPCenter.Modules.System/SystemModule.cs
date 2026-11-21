@@ -71,6 +71,7 @@ public sealed class SystemModule : IModule
         services.AddScoped<InvitationMailer>();
         services.AddScoped<InvitationLookup>();
         services.AddScoped<PortalCredentialSender>();
+        services.AddScoped<PortalOwnerAccess>();
         services.AddScoped<PermissionChanges>();
         services.AddScoped<SuperAdminGuard>();
         services.AddScoped<RoleReader>();

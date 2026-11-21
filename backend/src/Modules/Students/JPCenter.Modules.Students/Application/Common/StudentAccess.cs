@@ -33,15 +33,7 @@ public sealed class StudentAccess(ICurrentUser user, JPCenter.Modules.Crm.Contra
     public bool Can(string page, PermissionAction action) => user.Can(page, action);
 
     /// <summary>Chi nhánh được thao tác; null = mọi chi nhánh; rỗng = không có quyền</summary>
-    public HashSet<Guid>? Branches(string page, PermissionAction action)
-    {
-        var perm = user.Permission(page, action);
-        if (perm is null) return [];
-        if (perm.Scope == PermissionScope.All) return null;
-        if (perm.BranchIds.Count > 0) return perm.BranchIds.ToHashSet();
-        var me = user.Access;
-        return me is null || me.AllBranches ? null : me.BranchIds.ToHashSet();
-    }
+    public HashSet<Guid>? Branches(string page, PermissionAction action) => user.AllowedBranches(page, action);
 
     /// <summary>Phạm vi <c>own</c>: Id các HV có lead do mình phụ trách; null = không giới hạn theo người</summary>
     public async Task<HashSet<Guid>?> OwnStudentsAsync(string page, PermissionAction action, CancellationToken ct) =>

@@ -11,13 +11,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace JPCenter.Modules.System.Application.PortalAccounts.SetPortalAccountLock;
 
-public sealed class SetPortalAccountLockHandler(ISystemDbContext db, SessionRevoker revoker, IUserAccessCache accessCache, IAuditTrail audit)
+public sealed class SetPortalAccountLockHandler(ISystemDbContext db, PortalOwnerAccess owners, SessionRevoker revoker, IUserAccessCache accessCache, IAuditTrail audit)
     : ICommandHandler<SetPortalAccountLockCommand, PortalAccountDto>
 {
     public async Task<Result<PortalAccountDto>> Handle(SetPortalAccountLockCommand cmd, CancellationToken ct)
     {
         var account = await db.PortalAccounts.FirstOrDefaultAsync(x => x.Id == new PortalAccountId(cmd.AccountId), ct);
-        if (account is null) return PortalAccountErrors.NotFound;
+        if (account is null || await owners.FindAsync(account.OwnerType, account.OwnerId, PermissionAction.Update, ct) is null)
+            return PortalAccountErrors.NotFound;
 
         if (cmd.Locked)
         {
