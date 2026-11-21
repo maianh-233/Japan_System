@@ -65,7 +65,6 @@ export function AccountCard({ account, ownerName, portalLabel, onIssue, compact,
   const rows: [string, ReactNode][] = [
     ['Tên đăng nhập', <span className="font-mono">{account.username}</span>],
     ['Email nhận thông báo', account.email ?? '—'],
-    ['Ngày cấp', account.createdAt ? fmtDateTime(account.createdAt) : '—'],
     ['Đăng nhập gần nhất', account.lastLoginAt ? `${fmtDateTime(account.lastLoginAt)} (${fromNow(account.lastLoginAt)})` : 'Chưa đăng nhập lần nào'],
   ];
 
