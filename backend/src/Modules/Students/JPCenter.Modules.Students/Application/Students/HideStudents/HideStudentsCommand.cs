@@ -46,7 +46,7 @@ public sealed class HideStudentsHandler(IStudentsDbContext db, StudentReader rea
         foreach (var id in cmd.Ids.Distinct())
         {
             var s = students.FirstOrDefault(x => x.Id.Value == id);
-            if (s is null || !access.InBranch(StudentAccess.Profiles, PermissionAction.Update, s.BranchId.Value))
+            if (s is null || !await access.CoversAsync(StudentAccess.Profiles, PermissionAction.Update, s.Id.Value, s.BranchId.Value, ct))
             {
                 skipped.Add(new SkippedStudentDto(id, "", StudentErrors.NotFound.Message));
                 continue;

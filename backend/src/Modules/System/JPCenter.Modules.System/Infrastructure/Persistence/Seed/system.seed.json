@@ -686,7 +686,8 @@
         "hr.requests.view": "own",
         "hr.requests.create": "own",
         "work.tasks.view": "own",
-        "work.tasks.update": "own"
+        "work.tasks.update": "own",
+        "students.profiles.create": "own"
       }
     },
     {

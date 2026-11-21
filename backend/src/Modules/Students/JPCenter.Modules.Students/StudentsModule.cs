@@ -32,6 +32,7 @@ public sealed class StudentsModule : IModule
 
         // Cho module khác (Students.Contracts)
         services.AddScoped<IEnrollmentLookup, EnrollmentLookup>();
+        services.AddScoped<IStudentEnrollmentService, StudentEnrollmentService>();
 
         // Dùng chung giữa các use case (user story 06)
         services.AddScoped<StudentAccess>();

@@ -72,9 +72,11 @@ public sealed class AcademicModule : IModule
         services.AddScoped<MakeupChecker>();
         services.AddScoped<LeaveAccess>();
         services.AddScoped<PromotionReader>();
+        services.AddScoped<SalePromotions>();
         services.AddScoped<EvaluationReader>();
         services.AddScoped<IAttendanceStats, AttendanceStats>();
         services.AddScoped<IQuestionPicker, QuestionPicker>();
+        services.AddScoped<IScheduleLookup, ScheduleLookup>();
 
         services.AddScoped<IDataSeeder, AcademicSeeder>();
         services.AddScoped<IDataSeeder, ClassSeeder>();

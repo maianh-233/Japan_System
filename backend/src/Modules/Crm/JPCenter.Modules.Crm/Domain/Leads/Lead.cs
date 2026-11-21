@@ -82,7 +82,7 @@ public sealed partial class Lead : AggregateRoot<LeadId>, IBranchScoped, IAudita
         if (email is not null && !EmailAddress.IsValid(email)) return LeadErrors.InvalidEmail;
 
         (FullName, Phone, Email) = (Spaces().Replace(info.FullName.Trim(), " "), phone!, email);
-        (Source, BranchId, CampaignId, NextFollowUpAt) = (info.Source, info.BranchId, info.CampaignId, info.NextFollowUpAt);
+        (Source, BranchId, CampaignId, NextFollowUpAt) = (info.Source, info.BranchId, info.CampaignId, info.NextFollowUpAt?.ToUniversalTime());
         (Interest, Note) = (Clean(info.Interest), Clean(info.Note));
         return Result.Success();
     }
@@ -107,6 +107,7 @@ public sealed partial class Lead : AggregateRoot<LeadId>, IBranchScoped, IAudita
         DateTimeOffset at, DateTimeOffset? nextFollowUpAt)
     {
         if (string.IsNullOrWhiteSpace(content)) return LeadErrors.ConsultContentRequired;
+        nextFollowUpAt = nextFollowUpAt?.ToUniversalTime();
         _consultations.Add(new Consultation(channel, result, content.Trim(), staffId, staffName, at, nextFollowUpAt, isSystem: false));
         LastContactAt = at;
         if (nextFollowUpAt is not null) NextFollowUpAt = nextFollowUpAt;
@@ -137,7 +138,7 @@ public sealed partial class Lead : AggregateRoot<LeadId>, IBranchScoped, IAudita
     }
 
     /// <summary>Đặt hẹn gọi lại (vd khách không đến hẹn → gọi lại sau 1 ngày — CRM-15)</summary>
-    public void ScheduleFollowUp(DateTimeOffset at) => NextFollowUpAt = at;
+    public void ScheduleFollowUp(DateTimeOffset at) => NextFollowUpAt = at.ToUniversalTime();
 
     /// <summary>
     /// CRM-04 — chuyển giai đoạn (kéo thả Kanban). "Đã chốt" chỉ qua ghi danh (E2); lead đã chốt không đổi được;

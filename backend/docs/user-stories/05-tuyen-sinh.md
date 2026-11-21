@@ -476,27 +476,32 @@ bảng so sánh theo Sale / nguồn / chiến dịch. **Tính khi đọc** — k
 
 ---
 
-## Dữ liệu / API (đề xuất)
+## Dữ liệu / API (đã làm — giai đoạn 18)
 
 | Story | API (`/api/v1/crm/...`) | Quyền |
 |---|---|---|
-| CRM-01 | `GET leads?status=&source=&branchId=&assigneeId=&campaignId=&slaOverdue=&followUpOverdue=&hidden=&q=&page=` · `GET leads/board` (đếm theo cột) | `crm.leads.view` |
-| CRM-02 | `POST leads` → `{ lead, warnings }` · `GET leads/duplicates?phone=` | `crm.leads.create` |
-| CRM-03 | `POST leads/import` (1 request cả lô) | `crm.leads.create` |
-| CRM-04 | `PUT leads/{id}` `{ …, version }` · `POST leads/{id}/status` `{ status, lostReason? }` · `POST leads/{id}/assign` | `crm.leads.update` |
-| CRM-05 | `GET leads/{id}/consultations` · `POST leads/{id}/consultations` | `.view` / `.update` |
+| CRM-01 | `GET leads?status=&source=&branchId=&assigneeId=&unassigned=&campaignId=&slaOverdue=&followUpOverdue=&hidden=&q=&page=&pageSize=&sort=` · `GET leads/board` (đếm theo cột) · `GET leads/{id}` (thông tin + lịch sử tư vấn + HV liên kết) | `crm.leads.view` |
+| CRM-02 | `POST leads` → `{ lead, warnings }` · `GET leads/duplicates?phone=&exceptId=` | `crm.leads.create` (duplicates: create hoặc update) |
+| CRM-03 | `POST leads/import` `{ rows }` (1 request ≤ 1.000 dòng) → `{ created, leads, errors, warnings }` | `crm.leads.create` |
+| CRM-04 | `PUT leads/{id}` `{ …, version }` · `POST leads/{id}/status` `{ status, lostReason? }` · `POST leads/{id}/assign` `{ saleId, note? }` | `crm.leads.update` |
+| CRM-05 | `POST leads/{id}/consultations` (lịch sử đọc trong `GET leads/{id}`) | `crm.leads.update` |
 | CRM-06 | `POST leads/{id}/hide` · `…/unhide` | `crm.leads.update` |
-| CRM-07 | `POST leads/{id}/enroll` `{ who, student?, classId?, discount, discountCode?, dueDate, payment? }` + `Idempotency-Key` | `crm.leads.update` + `students.profiles.create` |
-| CRM-08 | `POST leads/{id}/students` · `PUT leads/{id}/students/{studentId}` `{ relationship, isPrimary, billing, notify }` · `DELETE …` | `crm.leads.update` |
-| CRM-09 | `GET/POST/PUT/DELETE lead-rules` · `PUT lead-rules/order` · `GET lead-assignment-logs` | `crm.lead-rules.*` |
-| CRM-12 | `GET/POST/PUT placement-tests` · `POST placement-tests/draw` (bốc thử) | `crm.placement-tests.*` |
-| CRM-13 | `POST placement-attempts` · `POST placement-attempts/{id}/log` · **công khai:** `GET public/placement/{token}` · `…/start` · `…/submit` | `.update` / không cần đăng nhập |
-| CRM-14, 15 | `GET appointments?from=&to=&view=` · `POST appointments/check` (trả `conflicts`) · `POST/PUT appointments` · `POST appointments/{id}/done|no-show|cancel` | `crm.appointments.*` |
-| CRM-16 | `GET/POST/PUT campaigns` (kèm `stats`) | `crm.campaigns.*` |
-| CRM-17 | `GET/POST/PUT message-templates` · `POST messages` · `GET messages?leadId=&studentId=` | `crm.message-templates.*` |
-| CRM-18 | `GET funnel?from=&to=&groupBy=sale|source|campaign` | `crm.funnel.view` |
-| CRM-19 | `GET promotions?handedOver=true` · `POST promotions/{id}/notes|confirm|decline|unreachable` | `crm.promotions.*` |
+| CRM-07 | `POST leads/{id}/enroll` `{ who: self·linked·other, studentId?, student?, classId?, amount?, discount, dueDate? }` + `Idempotency-Key` | `crm.leads.update` (+ `students.profiles.create` khi tạo người học mới) |
+| CRM-08 | `POST leads/{id}/students` · `PUT leads/{id}/students/{studentId}` `{ relationship, primary, billing, notify }` · `DELETE …` → `{ students, warnings }` | `crm.leads.update` |
+| CRM-09 | `GET/POST lead-rules` · `PUT/DELETE lead-rules/{id}` · `PUT lead-rules/order` `{ ids }` · `GET lead-assignment-logs?leadId=&page=` | `crm.lead-rules.*` |
+| CRM-12 | `GET/POST placement-tests` · `PUT placement-tests/{id}` `{ …, redraw }` ("Đổi đề") · `POST placement-tests/{id}/status` · `GET placement-tests/{id}/questions` (có đáp án — nhân viên) | `crm.placement-tests.*` |
+| CRM-13 | `GET/POST placement-attempts` · `POST placement-attempts/{id}/log` · **công khai:** `GET public/placement/{token}` · `POST …/start` · `PUT …/answers` (lưu dần) · `POST …/submit` | `.view` / `.create` hoặc `.update` / không cần đăng nhập (giới hạn theo IP) |
+| CRM-14, 15 | `GET appointments?from=&to=&branchId=&leadId=&staffId=&status=` · `POST appointments/check` (trả `[{ kind, message }]`) · `POST appointments` · `PUT appointments/{id}` (đổi lịch) · `POST appointments/{id}/done\|no-show\|cancel` `{ text }` | `crm.appointments.*` |
+| CRM-16 | `GET/POST campaigns` · `PUT campaigns/{id}?version=` · `POST campaigns/{id}/status` (kèm `stats`) | `crm.campaigns.*` |
+| CRM-17 | `GET/POST message-templates` · `PUT/DELETE message-templates/{id}` · `POST messages` · `GET messages?leadId=\|studentId=` | `crm.message-templates.*`; gửi / xem tin theo quyền trang đang đứng |
+| CRM-18 | `GET funnel?from=&to=&branchId=` → hành trình từng lead (frontend gom theo Sale / nguồn / chiến dịch) | `crm.funnel.view` |
+| CRM-19 | **Academic** (dữ liệu lên lớp của Academic): `GET /api/v1/academic/promotions/sale` (kèm người quyết định) · `POST /api/v1/academic/promotions/{id}/notes\|unreachable\|decline\|confirm` | `crm.promotions.*` |
 
+- Trùng lịch hẹn: `409 crm.appointment.conflict` + `errors: { room: […], staff: […], lead: […] }`.
+- Vai trò mẫu Sale có thêm `students.profiles.create` phạm vi own (chốt lead tạo hồ sơ HV) — migration `GrantSaleCreateStudentFromLead`.
+- ⏳ Thu tiền ngay khi chốt (CRM-07 bước 3) làm cùng Tài chính (giai đoạn 19); gửi Zalo / SMS / email thật làm cùng Tích hợp (giai đoạn 22) —
+  tin ghi trạng thái `pending`. "Trong ca" khi chia lead = giờ hành chính tới khi có Xếp ca (giai đoạn 21). Xuất Excel lead (CRM-01.E5) làm ở frontend.
+- Chốt lead = 2 giao dịch nối tiếp (Students tạo HV + ghi danh, rồi Crm liên kết + chốt); Crm lỗi sau đó thì HV vẫn còn — liên kết tay.
 - JSON khớp `frontend/src/features/crm/types.ts` (`Lead`, `Consultation`, `LeadStudentLink`, `LeadRule`, `PlacementTest`, `PlacementAttempt`, `Campaign`).
 - **Job (Quartz):** quét SLA mỗi phút (CRM-11) · nhắc lịch hẹn mỗi 5 phút (CRM-14) · hết hạn link test mỗi giờ (CRM-13.E7).
 - **Cho module khác** (`Crm.Contracts`) 🆕: `IGuardianDirectory` (người liên hệ chính / nhận hóa đơn / nhận thông báo của 1 HV — Finance, Academic, Notifications dùng);

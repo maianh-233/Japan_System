@@ -16,7 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Ev = JPCenter.Modules.Students.Contracts.IntegrationEvents;
 namespace JPCenter.Modules.Students.Application.Students.Common;
 
-/// <summary>Đọc hồ sơ HV ra DTO theo phạm vi <c>students.profiles.view</c> (chi nhánh của HV); trạng thái học suy từ ghi danh.</summary>
+/// <summary>Đọc hồ sơ HV ra DTO theo phạm vi <c>students.profiles.view</c> (chi nhánh của HV; own = HV có lead mình phụ trách); trạng thái học suy từ ghi danh.</summary>
 public sealed class StudentReader(IStudentsDbContext db, StudentAccess access)
 {
     public async Task<IReadOnlyList<StudentDto>> ListAsync(bool includeHidden, Guid? branchId, CancellationToken ct)
@@ -25,14 +25,16 @@ public sealed class StudentReader(IStudentsDbContext db, StudentAccess access)
         var source = db.Students.AsQueryable();
         if (!includeHidden) source = source.Where(s => !s.Hidden);
         if (branchId is { } b) source = source.Where(s => s.BranchId == new BranchId(b));
-        var rows = (await Query(source).ToListAsync(ct)).Where(r => allowed is null || allowed.Contains(r.Student.BranchId.Value)).ToList();
+        var own = await access.OwnStudentsAsync(StudentAccess.Profiles, PermissionAction.View, ct);
+        var rows = (await Query(source).ToListAsync(ct))
+            .Where(r => (allowed is null || allowed.Contains(r.Student.BranchId.Value)) && (own is null || own.Contains(r.Student.Id.Value))).ToList();
         return await ToDtosAsync(rows, ct);
     }
 
     public async Task<StudentDto?> FindAsync(Guid id, CancellationToken ct)
     {
         var row = await Query(db.Students.Where(s => s.Id == new StudentId(id))).FirstOrDefaultAsync(ct);
-        if (row is null || !access.InBranch(StudentAccess.Profiles, PermissionAction.View, row.Student.BranchId.Value)) return null;
+        if (row is null || !await access.CoversAsync(StudentAccess.Profiles, PermissionAction.View, id, row.Student.BranchId.Value, ct)) return null;
         return (await ToDtosAsync([row], ct))[0];
     }
 

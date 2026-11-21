@@ -1,3 +1,4 @@
+using JPCenter.Infrastructure.Common.Persistence.Conversions;
 using JPCenter.Modules.Crm.Contracts;
 using JPCenter.Modules.Crm.Domain.Leads;
 using JPCenter.Modules.Crm.Infrastructure.Persistence;
@@ -16,4 +17,19 @@ internal sealed class GuardianDirectory(CrmDbContext db) : IGuardianDirectory
             .Where(l => l.Id == new LeadId(guardianLeadId))
             .SelectMany(l => l.StudentLinks.Select(k => k.StudentId))
             .ToListAsync(ct);
+
+    public async Task<IReadOnlyDictionary<Guid, GuardianContact>> DecidersOfAsync(IReadOnlyCollection<Guid> studentIds, CancellationToken ct)
+    {
+        var ids = studentIds.Distinct().ToList();
+        if (ids.Count == 0) return new Dictionary<Guid, GuardianContact>();
+        var rows = await db.Leads.AsNoTracking().IgnoreQueryFilters()
+            .SelectMany(l => l.StudentLinks.Where(k => k.IsPrimary && ids.Contains(k.StudentId))
+                .Select(k => new { k.StudentId, LeadId = l.Id, l.FullName, l.Phone, k.Relationship }))
+            .ToListAsync(ct);
+        return rows.GroupBy(r => r.StudentId).ToDictionary(g => g.Key, g =>
+        {
+            var r = g.First();
+            return new GuardianContact(r.LeadId.Value, r.FullName, r.Phone, SnakeCaseEnumConverter<Relationship>.ToText(r.Relationship));
+        });
+    }
 }

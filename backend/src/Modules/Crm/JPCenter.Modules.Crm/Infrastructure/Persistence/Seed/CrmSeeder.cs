@@ -182,7 +182,7 @@ internal sealed class CrmSeeder(CrmDbContext db, IClock clock, ILogger<CrmSeeder
         foreach (var t in data.PlacementTests)
         {
             var created = PlacementTest.Create(t.Code, t.Name, t.Description,
-                t.Sections.Select(s => new PlacementSection(System.Enum.Parse<JlptLevel>(s.Level), Enum<JapaneseSkill>(s.Skill), s.Count)).ToList(),
+                t.Sections.Select(s => new PlacementSection(global::System.Enum.Parse<JlptLevel>(s.Level), Enum<JapaneseSkill>(s.Skill), s.Count)).ToList(),
                 t.DurationMin, t.Bands.Select(b => new PlacementBand(b.MinPct, b.Level, b.Course)).ToList(),
                 t.QuestionIds.Select(SeedData.IdOf).ToList(), Person(t.AuthorId));
             if (Skip(created, t.Code)) continue;
@@ -281,7 +281,7 @@ internal sealed class CrmSeeder(CrmDbContext db, IClock clock, ILogger<CrmSeeder
 
     private static Result Chain(Result first, Func<Result> next) => first.IsFailure ? first : next();
 
-    private static T Enum<T>(string value) where T : struct, System.Enum => SnakeCaseEnumConverter<T>.Parse(value);
+    private static T Enum<T>(string value) where T : struct, global::System.Enum => SnakeCaseEnumConverter<T>.Parse(value);
 
     private static BranchId Branch(string mockId) => new(SeedData.IdOf(mockId));
 

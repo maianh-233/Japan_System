@@ -70,7 +70,7 @@ public sealed class CrmSeedTests(SeededApiFactory api)
 
         rules.Select(r => r.Id).ShouldBe(ids);
         var cg = rules[1];
-        (cg.Method, cg.SlaMinutes, cg.ReassignOnBreach, cg.Cursor, cg.SaleIds.Count).ShouldBe((RouteMethod.RoundRobin, 15, true, 1, 3));
+        (cg.Method, cg.SlaMinutes, cg.ReassignOnBreach, cg.SaleIds.Count).ShouldBe((RouteMethod.RoundRobin, 15, true, 3)); // con trỏ đổi khi test khác chia lead
         rules.Last().Active.ShouldBeFalse();
         rules[0].Interests.ShouldBe(["xkld"]);
 

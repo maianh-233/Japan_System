@@ -49,6 +49,8 @@ internal sealed class LeadConfiguration : IEntityTypeConfiguration<Lead>
             l.WithOwner().HasForeignKey("LeadId");
             l.Property<LeadId>("LeadId");
             l.HasKey("LeadId", nameof(LeadStudentLink.StudentId));
+            // Thuộc khóa chính nhưng không tự sinh — thêm liên kết vào lead có sẵn phải là INSERT (không phải UPDATE 0 dòng)
+            l.Property(x => x.StudentId).ValueGeneratedNever();
             l.HasIndex(x => x.StudentId);
         });
         b.Navigation(x => x.StudentLinks).UsePropertyAccessMode(PropertyAccessMode.Field);

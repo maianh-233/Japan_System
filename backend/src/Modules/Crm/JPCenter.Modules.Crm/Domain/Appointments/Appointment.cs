@@ -44,6 +44,7 @@ public sealed class Appointment : AggregateRoot<AppointmentId>, IBranchScoped, I
         Guid staffId, DateTimeOffset start, DateTimeOffset end, string? note, DateTimeOffset now)
     {
         if (end <= start || start < now) return AppointmentErrors.InvalidTime;
+        (start, end) = (start.ToUniversalTime(), end.ToUniversalTime());
         return new Appointment
         {
             Id = AppointmentId.New(), Code = code, LeadId = leadId, Kind = kind, BranchId = branchId, RoomId = roomId,
@@ -57,7 +58,7 @@ public sealed class Appointment : AggregateRoot<AppointmentId>, IBranchScoped, I
     {
         if (Status != AppointmentStatus.Scheduled) return AppointmentErrors.NotScheduled;
         if (end <= start || start < now) return AppointmentErrors.InvalidTime;
-        (Start, End, RoomId, StaffId, RemindedAt) = (start, end, roomId, staffId, null);
+        (Start, End, RoomId, StaffId, RemindedAt) = (start.ToUniversalTime(), end.ToUniversalTime(), roomId, staffId, null);
         Note = string.IsNullOrWhiteSpace(note) ? null : note.Trim();
         return Result.Success();
     }

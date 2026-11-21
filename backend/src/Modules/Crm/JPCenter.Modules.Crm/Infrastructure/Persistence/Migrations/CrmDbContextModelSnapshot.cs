@@ -1091,7 +1091,6 @@ namespace JPCenter.Modules.Crm.Infrastructure.Persistence.Migrations
                                 .HasColumnName("lead_id");
 
                             b1.Property<Guid>("StudentId")
-                                .ValueGeneratedOnAdd()
                                 .HasColumnType("uuid")
                                 .HasColumnName("student_id");
 

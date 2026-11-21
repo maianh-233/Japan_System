@@ -91,11 +91,12 @@ export const MOCK_ROLES: Role[] = [
   },
   {
     id: 'R-SALE', name: 'Sale', description: 'Tư vấn lead được giao, gửi test xếp lớp.', system: true, ...base,
-    grants: g({
+    // Chốt lead → tạo hồ sơ học viên (CRM-07), phạm vi own = HV có lead mình phụ trách (khác phạm vi "view" nên gán ngoài g())
+    grants: { 'students.profiles.create': 'own', ...g({
       'dashboard.overview': ['view', 'own'], 'crm.leads': ['view,create,update', 'own'], 'crm.placement-tests': ['view,create', 'branch'], 'crm.campaigns': ['view', 'all'],
       'crm.appointments': ['view,create,update', 'branch'], 'crm.funnel': ['view', 'own'], 'crm.message-templates': ['view', 'all'], 'crm.promotions': ['view,update', 'own'],
       'students.profiles': ['view', 'branch'], 'work.shifts': ['view', 'own'], 'work.handover': ['view,create', 'own'], ...SELF,
-    }),
+    }) },
   },
   {
     id: 'R-MKT', name: 'Marketing', description: 'Chiến dịch, nguồn lead, báo cáo chuyển đổi.', system: true, ...base,

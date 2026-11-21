@@ -19,9 +19,9 @@ namespace JPCenter.Modules.Students.Application.Common;
 /// <summary>
 /// Phạm vi quyền Học viên (PQ-10): học viên theo chi nhánh CỦA HỌC VIÊN (HV-02.E2), ghi danh còn xem / thao tác được từ trang Lớp học
 /// theo chi nhánh CỦA LỚP. Thao tác ghi danh đứng ở 2 trang: <c>academic.classes.update</c> (lớp) hoặc <c>students.profiles.update</c> (hồ sơ HV).
-/// <para>⏳ Phạm vi <c>own</c> (HV có lead do mình phụ trách) cần Crm — tạm tính như <c>branch</c>.</para>
+/// Phạm vi <c>own</c> = HV có lead liên kết do mình phụ trách (Crm.Contracts <c>ILeadOwnership</c>) trong chi nhánh được gán.
 /// </summary>
-public sealed class StudentAccess(ICurrentUser user)
+public sealed class StudentAccess(ICurrentUser user, JPCenter.Modules.Crm.Contracts.ILeadOwnership leads)
 {
     public const string Profiles = "students.profiles";
     public const string Classes = "academic.classes";
@@ -42,6 +42,16 @@ public sealed class StudentAccess(ICurrentUser user)
         var me = user.Access;
         return me is null || me.AllBranches ? null : me.BranchIds.ToHashSet();
     }
+
+    /// <summary>Phạm vi <c>own</c>: Id các HV có lead do mình phụ trách; null = không giới hạn theo người</summary>
+    public async Task<HashSet<Guid>?> OwnStudentsAsync(string page, PermissionAction action, CancellationToken ct) =>
+        user.Permission(page, action) is { Scope: PermissionScope.Own }
+            ? (await leads.StudentIdsOfSaleAsync(user.Access?.EmployeeId ?? Guid.Empty, ct)).ToHashSet()
+            : null;
+
+    /// <summary>HV trong phạm vi của hành động: đúng chi nhánh và (phạm vi own) có lead do mình phụ trách</summary>
+    public async Task<bool> CoversAsync(string page, PermissionAction action, Guid studentId, Guid branchId, CancellationToken ct) =>
+        InBranch(page, action, branchId) && (await OwnStudentsAsync(page, action, ct) is not { } own || own.Contains(studentId));
 
     public bool InBranch(string page, PermissionAction action, Guid branchId) =>
         Branches(page, action) is not { } allowed || allowed.Contains(branchId);

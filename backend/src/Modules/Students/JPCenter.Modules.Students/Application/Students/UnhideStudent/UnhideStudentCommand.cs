@@ -25,7 +25,7 @@ public sealed class UnhideStudentHandler(IStudentsDbContext db, StudentReader re
     public async Task<Result<StudentDto>> Handle(UnhideStudentCommand cmd, CancellationToken ct)
     {
         var s = await db.Students.FirstOrDefaultAsync(x => x.Id == new StudentId(cmd.Id), ct);
-        if (s is null || !access.InBranch(StudentAccess.Profiles, PermissionAction.Update, s.BranchId.Value)) return StudentErrors.NotFound;
+        if (s is null || !await access.CoversAsync(StudentAccess.Profiles, PermissionAction.Update, s.Id.Value, s.BranchId.Value, ct)) return StudentErrors.NotFound;
         s.Unhide();
         await db.SaveChangesAsync(ct);
         audit.Record(AuditCategory.Data, AuditSeverity.Info, "Bỏ ẩn học viên", s.FullName, s.Code);

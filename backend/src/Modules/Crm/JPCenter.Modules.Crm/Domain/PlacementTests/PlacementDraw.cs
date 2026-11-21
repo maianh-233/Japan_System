@@ -23,7 +23,7 @@ public static class PlacementDraw
                 missing.Add($"{s.Level} · {SkillLabel(s.Skill)}: cần {s.Count}, chỉ có {pool.Count} câu đã duyệt");
                 continue;
             }
-            if (random is not null) random.Shuffle(System.Runtime.InteropServices.CollectionsMarshal.AsSpan(pool));
+            if (random is not null) random.Shuffle(global::System.Runtime.InteropServices.CollectionsMarshal.AsSpan(pool));
             picked.AddRange(pool.Take(s.Count));
         }
         return missing.Count > 0 ? PlacementTestErrors.NotEnoughQuestions(missing) : picked;
