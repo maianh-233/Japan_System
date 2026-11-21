@@ -507,7 +507,7 @@ bảng so sánh theo Sale / nguồn / chiến dịch. **Tính khi đọc** — k
   Đổi lớp đề xuất khi chốt lên lớp (CRM-19) do giáo vụ làm ở tab Lên lớp — Sale chốt đúng lớp đề xuất.
 - Phụ huynh / người giám hộ (HV-12): API riêng `/api/v1/crm/guardians` quyền `students.contacts` (xem story 06) — `Lead.CreateGuardian` tạo thẳng
   "Đã chốt" vì đã gắn HV đang học (ngoại lệ duy nhất của CRM-02.E4). Frontend `features/student/guardians/guardianApi.ts` (trang Phụ huynh + nhập HV kèm
-  phụ huynh), nạp sau Tuyển sinh và thay hẳn liên kết giả; trang không có quyền xem thì không gọi API. ⏳ Cấp tài khoản cổng (HV-13) ở frontend còn giả.
+  phụ huynh), nạp sau Tuyển sinh và thay hẳn liên kết giả; trang không có quyền xem thì không gọi API. Tài khoản cổng HV / PH (HV-13): `features/student/portalAccountApi.tsx`.
 - Tab "Đã gửi" ở Mẫu tin chỉ hiện tin của lead đã mở (API tin nhắn đọc theo lead / HV).
 - Chốt lead = 2 giao dịch nối tiếp (Students tạo HV + ghi danh, rồi Crm liên kết + chốt); Crm lỗi sau đó thì HV vẫn còn — liên kết tay.
 - JSON khớp `frontend/src/features/crm/types.ts` (`Lead`, `Consultation`, `LeadStudentLink`, `LeadRule`, `PlacementTest`, `PlacementAttempt`, `Campaign`).

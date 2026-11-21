@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
 import { Info, Mail, Phone, Users } from 'lucide-react';
-import { EmptyState, UserCell, useNotify } from '@/components/common';
+import { EmptyState, UserCell } from '@/components/common';
 import { useCrmStore } from '@/features/crm/crmStore';
 import type { Lead, Relationship } from '@/features/crm/types';
 import { GUARDIAN_ROLE } from '../constants';
 import { useStudentStore } from '../studentStore';
+import { usePortalAccountActions } from '../portalAccountApi';
 import { AccountCard } from './AccountCard';
 
 /**
@@ -13,11 +14,10 @@ import { AccountCard } from './AccountCard';
  * Thêm / gỡ liên kết, đặt người liên hệ chính: Học viên → Phụ huynh / Người giám hộ (hoặc Tuyển sinh → Lead).
  */
 export function StudentGuardiansTab({ studentId }: { studentId: string }) {
-  const notify = useNotify();
   const links = useCrmStore((s) => s.links);
   const leads = useCrmStore((s) => s.leads);
   const accounts = useStudentStore((s) => s.accounts);
-  const issueAccount = useStudentStore((s) => s.issueAccount);
+  const { issue: issueAccount } = usePortalAccountActions();
 
   const { guardians, selfLead } = useMemo(() => {
     const mine = links.filter((k) => k.studentId === studentId);
@@ -31,10 +31,8 @@ export function StudentGuardiansTab({ studentId }: { studentId: string }) {
     };
   }, [links, leads, studentId]);
 
-  const issue = (lead: Lead) => {
-    const acc = issueAccount({ ownerType: 'guardian', ownerId: lead.id, username: `ph.${lead.phone}`, email: lead.email });
-    notify.success({ title: 'Đã cấp tài khoản Cổng phụ huynh', description: `Tên đăng nhập ${acc.username} — mật khẩu tạm đã gửi qua SMS` });
-  };
+  const issue = (lead: Lead) =>
+    void issueAccount({ ownerType: 'guardian', ownerId: lead.id, username: `ph.${lead.phone}`, email: lead.email, ownerName: lead.fullName });
 
   return (
     <div className="flex flex-col gap-4">

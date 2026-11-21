@@ -15,6 +15,7 @@ import { AccountCard } from '../components/AccountCard';
 import { GUARDIAN_ROLE, STUDY_STATUS } from '../constants';
 import { useStudentStore } from '../studentStore';
 import { buildChildInfo, GUARDIAN_ROLE_OPTIONS, NOTIFY_CHANNELS, type GuardianRelationship } from './guardianUtils';
+import { usePortalAccountActions } from '../portalAccountApi';
 import { currentFlags, linkGuardianStudent, unlinkGuardianStudent, updateGuardianLink, type LinkFlags } from './guardianApi';
 import { USE_API } from '@/lib/api/config';
 import { ApiError } from '@/lib/api/http';
@@ -69,7 +70,7 @@ export function GuardianDetailDrawer({ leadId, initialTab = 'children', editable
   const enrollments = useStudentStore((s) => s.enrollments);
   const invoices = useStudentStore((s) => s.invoices);
   const accounts = useStudentStore((s) => s.accounts);
-  const issueAccount = useStudentStore((s) => s.issueAccount);
+  const { issue: issueAccount } = usePortalAccountActions();
   const classes = useClassStore((s) => s.classes);
 
   const [tab, setTab] = useState<GuardianTab>(initialTab);
@@ -366,10 +367,7 @@ export function GuardianDetailDrawer({ leadId, initialTab = 'children', editable
                 emptyHint="Chưa có tài khoản Cổng phụ huynh (xem lịch học, chuyên cần, kết quả và học phí của con)."
                 onIssue={
                   editable
-                    ? () => {
-                        const acc = issueAccount({ ownerType: 'guardian', ownerId: lead.id, username: `ph.${lead.phone}`, email: lead.email });
-                        notify.success({ title: 'Đã cấp tài khoản Cổng phụ huynh', description: `Tên đăng nhập ${acc.username} — mật khẩu tạm đã gửi qua SMS` });
-                      }
+                    ? () => void issueAccount({ ownerType: 'guardian', ownerId: lead.id, username: `ph.${lead.phone}`, email: lead.email, ownerName: lead.fullName })
                     : undefined
                 }
               />

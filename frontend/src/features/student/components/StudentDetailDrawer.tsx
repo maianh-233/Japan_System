@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Drawer, Tabs, Tooltip } from 'antd';
 import { Eye, EyeOff, Info, KeyRound, MessageCircle, School, Users } from 'lucide-react';
-import { Button, StatusTag, useNotify } from '@/components/common';
+import { Button, StatusTag } from '@/components/common';
 import { useCrmStore } from '@/features/crm/crmStore';
 import { SendMessageModal } from '@/features/crm/messages/SendMessageModal';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { STUDY_STATUS } from '../constants';
 import { studyStatusOf, useStudentStore } from '../studentStore';
 import { useHideStudent } from '../useHideStudent';
+import { usePortalAccountActions } from '../portalAccountApi';
 import { AccountCard } from './AccountCard';
 import { StudentClassesTab } from './StudentClassesTab';
 import { StudentGuardiansTab } from './StudentGuardiansTab';
@@ -24,12 +25,11 @@ interface Props {
 /** Chi tiết học viên: Thông tin (xem + sửa) · Tài khoản · Lớp học & học phí · Người thân */
 export function StudentDetailDrawer({ studentId, initialTab = 'info', onClose }: Props) {
   const { isMobile } = useBreakpoint();
-  const notify = useNotify();
   const student = useCrmStore((s) => s.students.find((x) => x.id === studentId));
   const guardianCount = useCrmStore((s) => s.links.filter((k) => k.studentId === studentId && k.relationship !== 'self').length);
   const enrollments = useStudentStore((s) => s.enrollments);
   const account = useStudentStore((s) => s.accounts.find((a) => a.ownerType === 'student' && a.ownerId === studentId));
-  const issueAccount = useStudentStore((s) => s.issueAccount);
+  const { issue: issueAccount } = usePortalAccountActions();
   const { toggleHidden, hideBlockReason, confirmDialog } = useHideStudent();
   const [tab, setTab] = useState<StudentTab>(initialTab);
   const [messaging, setMessaging] = useState(false);
@@ -116,10 +116,9 @@ export function StudentDetailDrawer({ studentId, initialTab = 'info', onClose }:
                   ownerName={student.fullName}
                   portalLabel="Cổng học viên"
                   emptyHint="Học viên chưa có tài khoản Cổng học viên (xem lịch học, bài tập, học phí)."
-                  onIssue={() => {
-                    const acc = issueAccount({ ownerType: 'student', ownerId: student.id, username: student.code.toLowerCase(), email: student.email });
-                    notify.success({ title: 'Đã cấp tài khoản Cổng học viên', description: `Tên đăng nhập ${acc.username} — mật khẩu tạm đã gửi qua SMS / Email` });
-                  }}
+                  onIssue={() =>
+                    void issueAccount({ ownerType: 'student', ownerId: student.id, username: student.code.toLowerCase(), email: student.email, ownerName: student.fullName })
+                  }
                 />
               ),
             },

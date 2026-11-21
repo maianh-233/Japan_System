@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { KeyRound, Lock, LockOpen, UserRoundPlus } from 'lucide-react';
 import { Button, StatusTag, useConfirm, useNotify } from '@/components/common';
 import { fmtDateTime, fromNow } from '@/lib/date';
-import { useStudentStore } from '../studentStore';
+import { usePortalAccountActions } from '../portalAccountApi';
 import type { PortalAccount } from '../types';
 
 interface Props {
@@ -21,7 +21,7 @@ interface Props {
 export function AccountCard({ account, ownerName, portalLabel, onIssue, compact, emptyHint }: Props) {
   const notify = useNotify();
   const { confirm, confirmDialog } = useConfirm();
-  const setAccountStatus = useStudentStore((s) => s.setAccountStatus);
+  const { resetPassword: reset, setLocked } = usePortalAccountActions();
 
   if (!account) {
     return (
@@ -39,19 +39,17 @@ export function AccountCard({ account, ownerName, portalLabel, onIssue, compact,
   const resetPassword = async () => {
     const ok = await confirm({
       title: `Đặt lại mật khẩu cho ${ownerName}?`,
-      description: 'Hệ thống tạo mật khẩu tạm và gửi qua SMS / Email. Người dùng phải đổi mật khẩu ở lần đăng nhập tiếp theo.',
+      description: 'Hệ thống tạo mật khẩu tạm và gửi qua email (chưa có email → hiện để đưa trực tiếp). Mọi phiên đang đăng nhập bị đăng xuất; người dùng phải đổi mật khẩu ở lần đăng nhập tiếp theo.',
       tone: 'primary',
       confirmAction: 'send',
       confirmText: 'Đặt lại & gửi',
-      onConfirm: () => new Promise((r) => setTimeout(r, 600)),
     });
-    if (ok) notify.success({ title: 'Đã gửi mật khẩu tạm', description: `Tài khoản ${account.username}` });
+    if (ok) await reset(account);
   };
 
   const toggleLock = async () => {
     if (account.status === 'locked') {
-      setAccountStatus(account.id, 'active');
-      notify.toast.success(`Đã mở khóa ${account.username}`);
+      if (await setLocked(account, false)) notify.toast.success(`Đã mở khóa ${account.username}`);
       return;
     }
     const ok = await confirm({
@@ -61,16 +59,13 @@ export function AccountCard({ account, ownerName, portalLabel, onIssue, compact,
       confirmAction: 'reject',
       confirmText: 'Khóa tài khoản',
     });
-    if (ok) {
-      setAccountStatus(account.id, 'locked');
-      notify.success({ title: 'Đã khóa tài khoản', description: account.username });
-    }
+    if (ok && (await setLocked(account, true))) notify.success({ title: 'Đã khóa tài khoản', description: account.username });
   };
 
   const rows: [string, ReactNode][] = [
     ['Tên đăng nhập', <span className="font-mono">{account.username}</span>],
     ['Email nhận thông báo', account.email ?? '—'],
-    ['Ngày cấp', fmtDateTime(account.createdAt)],
+    ['Ngày cấp', account.createdAt ? fmtDateTime(account.createdAt) : '—'],
     ['Đăng nhập gần nhất', account.lastLoginAt ? `${fmtDateTime(account.lastLoginAt)} (${fromNow(account.lastLoginAt)})` : 'Chưa đăng nhập lần nào'],
   ];
 

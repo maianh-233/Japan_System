@@ -10,6 +10,7 @@ import { GuardianFormFields, type GuardianFormValues } from '@/features/student/
 import { ADULT_AGE, ageOf, buildGuardianRows, guardianGaps, NOTIFY_CHANNELS, type GuardianRow } from '@/features/student/guardians/guardianUtils';
 import { GUARDIAN_ROLE } from '@/features/student/constants';
 import { createGuardian, updateGuardian } from '@/features/student/guardians/guardianApi';
+import { usePortalAccountActions } from '@/features/student/portalAccountApi';
 import { USE_API } from '@/lib/api/config';
 import { useStudentStore } from '@/features/student/studentStore';
 import { useAuth } from '@/hooks/useAuth';
@@ -43,7 +44,7 @@ const STUDY_FILTER = [
 
 /**
  * Phụ huynh / Người giám hộ (HV-12) — người liên hệ (lead) có liên kết với học viên.
- * Chế độ API: nạp sau đăng nhập (/crm/guardians, quyền students.contacts); thêm / sửa / liên kết gọi server. ⏳ Cấp tài khoản cổng (HV-13) còn giả.
+ * Chế độ API: nạp sau đăng nhập (/crm/guardians, quyền students.contacts); thêm / sửa / liên kết gọi server. Tài khoản cổng (HV-13) qua System.
  */
 export default function GuardiansPage() {
   const { user, branchId, currentBranch, branches, can } = useAuth();
@@ -60,7 +61,8 @@ export default function GuardiansPage() {
   const enrollments = useStudentStore((s) => s.enrollments);
   const invoices = useStudentStore((s) => s.invoices);
   const accounts = useStudentStore((s) => s.accounts);
-  const issueAccount = useStudentStore((s) => s.issueAccount);
+  const issueLocal = useStudentStore((s) => s.issueAccount);
+  const { issue: issueAccount } = usePortalAccountActions();
   const classes = useClassStore((s) => s.classes);
   const editable = can('students.contacts');
 
@@ -241,9 +243,8 @@ export default function GuardiansPage() {
         ? await updateGuardian(editingLead.id, { ...contact, branchId: v.branchId ?? editingLead.branchId })
         : await createGuardian({ ...contact, branchId: v.branchId!, relationship: v.relationship ?? 'child', studentIds: v.studentIds ?? [], primary: v.primary });
       const lead = useCrmStore.getState().leads.find((l) => l.id === r.leadId);
-      // ⏳ Tài khoản cổng phụ huynh (HV-13) còn ở dữ liệu giả
       if (!editingLead && lead && v.issueAccount && !accounts.some((a) => a.ownerType === 'guardian' && a.ownerId === lead.id))
-        issueAccount({ ownerType: 'guardian', ownerId: lead.id, username: `ph.${lead.phone}`, email: lead.email ?? contact.email });
+        await issueAccount({ ownerType: 'guardian', ownerId: lead.id, username: `ph.${lead.phone}`, email: lead.email ?? contact.email, ownerName: lead.fullName });
       if (r.reused && lead) notify.info({ title: 'Đã liên kết vào người liên hệ có sẵn', description: `${lead.fullName} (${lead.code}) trùng số điện thoại` });
       r.warnings.forEach((w) => notify.toast.warning(w));
       if (!editingLead) setTimeout(() => open(r.leadId), 300);
@@ -267,7 +268,7 @@ export default function GuardiansPage() {
       updateLink(lead.id, sid, { notify: true, ...(v.primary ? { primary: true, billing: true } : {}) });
     }
     if (v.issueAccount && !accounts.some((a) => a.ownerType === 'guardian' && a.ownerId === lead.id)) {
-      issueAccount({ ownerType: 'guardian', ownerId: lead.id, username: `ph.${lead.phone}`, email: lead.email ?? contact.email });
+      issueLocal({ ownerType: 'guardian', ownerId: lead.id, username: `ph.${lead.phone}`, email: lead.email ?? contact.email });
     }
     if (existing) notify.info({ title: 'Đã liên kết vào người liên hệ có sẵn', description: `${existing.fullName} (${existing.code}) trùng số điện thoại` });
     setTimeout(() => open(lead.id), 300);

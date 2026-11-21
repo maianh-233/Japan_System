@@ -12,6 +12,8 @@ import { loadCrm } from '@/features/crm/loadCrm';
 import { useCrmStore } from '@/features/crm/crmStore';
 import { hasPermission } from '@/lib/permission';
 import { loadGuardians } from '@/features/student/guardians/guardianApi';
+import { loadPortalAccounts } from '@/features/student/portalAccountApi';
+import { useStudentStore } from '@/features/student/studentStore';
 import { loadEmployees } from '@/features/hr/hrApi';
 import { loadBranches } from '@/features/system/branchApi';
 import { loadSystem, rememberAccount } from '@/features/system/systemApi';
@@ -46,6 +48,9 @@ export async function onSignedIn(user: SessionUser & { accountId?: string }) {
   // Phụ huynh / người giám hộ (HV-12) — lead có liên kết HV; nạp sau Tuyển sinh để gộp vào cùng danh sách lead
   if (canView('students.contacts')) await quiet(loadGuardians());
   else useCrmStore.setState({ links: [] });
+  // Tài khoản cổng HV / PH (HV-13) — trong phạm vi chi nhánh
+  if (canView('students.profiles')) await quiet(loadPortalAccounts());
+  else useStudentStore.setState({ accounts: [] });
 }
 
 /**
