@@ -1339,11 +1339,12 @@ Khóa chính (scope, key).
 | student_id | uuid | → students.students |
 | class_id | uuid | → academic.classes |
 | branch_id | uuid | → system.branches |
-| amount | numeric | Học phí gốc |
+| amount | numeric | Học phí gốc (đã cộng phụ thu đóng nhiều đợt) |
 | discount | numeric | Số tiền giảm |
 | discount_id | uuid? FK | Ưu đãi áp dụng → discounts |
 | installment_plan_id | uuid? FK | Chính sách nhiều đợt → installment_plans |
-| due_date | date | Hạn đóng |
+| schedule | jsonb | Đóng nhiều đợt: `[{amount, dueDate}]` (tổng = phải thu); rỗng = đóng 1 lần. Hạn đang áp dụng = đợt đầu tiên mà tổng các đợt tới đó vượt số đã thu |
+| due_date | date | Hạn đóng (nhiều đợt: hạn đợt cuối) |
 | issued_at | timestamptz | Lúc lập |
 | transfer_content | text UQ | Nội dung CK VietQR riêng — dùng tự đối soát |
 | status | text | Chỉ lưu trạng thái do người làm: `open` đang hiệu lực · `cancelled` hủy phần còn lại · `voided` hủy hóa đơn. `unpaid` / `partial` / `paid` / `overdue` / `refunded` **tính khi đọc** từ `payments`, `refunds`, `due_date` (TC-05) |
@@ -1351,7 +1352,7 @@ Khóa chính (scope, key).
 | voided_at, void_reason | timestamptz?, text? | Hủy hóa đơn lập sai |
 | void_requested_by, void_approved_by | uuid? | Người đề nghị / người duyệt (khác nhau) |
 
-> Không lưu: phải thu (`amount − discount`), đã thu (`Σ payments − Σ refunds`), còn nợ — tính từ bảng con.
+> Không lưu: phải thu (`amount − discount`), thực thu (`Σ payments − Σ refunds`), còn nợ (`phải thu − Σ payments`, hoàn tiền không làm tăng nợ) — tính từ bảng con.
 
 ### 69. payments
 **Chức năng:** Các lần thu tiền của hóa đơn (tiền mặt, CK, VietQR, thẻ). Entity con `Payment`.
@@ -1363,8 +1364,9 @@ Khóa chính (scope, key).
 | amount | numeric | Số tiền |
 | method | text | `cash` · `transfer` · `vietqr` · `card` (trùng giá trị frontend) |
 | paid_at | timestamptz | Lúc thu |
-| collector_id | uuid | Người thu → hr.employees (tiền mặt vào bàn giao ca) |
+| collector_id | uuid? | Người thu → hr.employees (tiền mặt vào bàn giao ca); null = hệ thống tự khớp giao dịch ngân hàng |
 | bank_transaction_id | uuid? FK | Giao dịch ngân hàng đã khớp → bank_transactions |
+| note | text? | Ghi chú lần thu |
 
 ### 70. refunds
 **Chức năng:** Các lần hoàn tiền; từ ngưỡng cấu hình phải có người thứ 2 duyệt. Entity con `Refund`.
@@ -1379,6 +1381,26 @@ Khóa chính (scope, key).
 | reason | text | Lý do |
 | by | uuid | Người tạo → hr.employees |
 | approved_by | uuid? | Người duyệt (khác người tạo) |
+
+### 70a. invoice_requests
+**Chức năng:** Yêu cầu chờ người thứ 2 duyệt trên hóa đơn (maker–checker): hoàn tiền từ ngưỡng `safety.refundApprovalMin`, hủy hóa đơn lập sai.
+Khoản hoàn đang chờ trừ vào "hoàn tối đa"; hiện ở hộp duyệt chung qua `approval_id`. Entity con `InvoiceRequest`.
+
+| Thuộc tính | Kiểu | Giải thích |
+|---|---|---|
+| id | uuid PK | |
+| invoice_id | uuid FK | → invoices |
+| kind | text | `refund` · `void` |
+| amount | numeric? | Hoàn tiền: số tiền |
+| method | text? | Hoàn tiền: hình thức |
+| reason | text | Lý do (hủy hóa đơn ≥ 5 ký tự) |
+| requested_by | uuid | Người tạo yêu cầu |
+| requested_at | timestamptz | Lúc tạo |
+| status | text | `pending` · `approved` · `rejected` · `withdrawn` (người tạo rút lại) |
+| approval_id | uuid? | → system.approval_requests (hộp duyệt chung) |
+| decided_by | uuid? | Người duyệt / từ chối (khác người tạo) |
+| decided_at | timestamptz? | Lúc xử lý |
+| decision_note | text? | Lý do từ chối |
 
 ### 71. branch_prices
 **Chức năng:** Giá riêng của khóa tại chi nhánh (không có = giá niêm yết của khóa). Entity `BranchPrice`. UQ (course_id, branch_id).
@@ -1396,11 +1418,11 @@ Khóa chính (scope, key).
 | Thuộc tính | Kiểu | Giải thích |
 |---|---|---|
 | id | uuid PK | |
-| code | text UQ | Mã ưu đãi |
+| code | text UQ | Mã ưu đãi (3–15 chữ / số, chữ hoa) |
 | name | text | Tên |
 | kind | text | `percent` · `amount` · `combo` |
 | value | numeric | % hoặc số tiền giảm |
-| course_ids | uuid[] | Combo: các khóa đăng ký cùng → academic.courses |
+| course_ids | uuid[] | Combo: các khóa đăng ký cùng; loại khác: rỗng = mọi khóa, có = chỉ các khóa này → academic.courses |
 | branch_ids | uuid[] | Rỗng = mọi chi nhánh |
 | from, to | date | Thời gian áp dụng |
 | limit | int? | Giới hạn lượt (null = không giới hạn) |
@@ -1434,7 +1456,7 @@ Khóa chính (scope, key).
 | account | text | Tài khoản nhận |
 | branch_id | uuid | → system.branches |
 | status | text | `unmatched` · `auto` tự khớp · `matched` khớp tay · `ignored` bỏ qua |
-| invoice_id | uuid? FK | → invoices |
+| invoice_ids | uuid[] | Các hóa đơn đã khớp (1 giao dịch tách được vào nhiều hóa đơn của cùng HV / PH — TC-10.E3) → invoices |
 | matched_by | uuid? | Người khớp tay (null = tự khớp) |
 | matched_at | timestamptz? | Lúc khớp |
 | note | text? | Ghi chú |
@@ -1450,6 +1472,7 @@ Khóa chính (scope, key).
 | at | timestamptz | Lúc nhắc |
 | by | uuid? | Người nhắc (null = hệ thống) |
 | note | text? | Ghi chú |
+| milestone | text? | Tự nhắc: `before_due` · `on_due` · `overdue` (mỗi hóa đơn mỗi mốc 1 lần); null = nhắc tay |
 
 ### 76. pay_adjustments
 **Chức năng:** Thưởng / phạt / phụ cấp thêm cho 1 người trong 1 tháng (cộng vào lương GV / NV). Entity `PayAdjustment`.
@@ -1876,4 +1899,5 @@ sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đ�
 | 2026-11-21 | Giai đoạn 18 phase 1 (user story 05): `message_logs` + `status` (`pending` / `sent` / `failed`); `lead_rules.cursor` bắt đầu -1; `leads.phone` luôn lưu dạng chuẩn hóa 0xxxxxxxxx, `campaigns.code` chữ hoa, `campaigns.utm` chữ thường; `placement_tests.bands` xếp mốc tăng dần, bắt buộc mốc 0% |
 | 2026-11-21 | Giai đoạn 18 phase 2: tạo bảng `crm.lead_rules`, `lead_assignment_logs`, `placement_tests`, `placement_attempts`, `appointments`, `campaigns` (UQ `code`, `utm` trong số chưa xóa), `message_templates`, `message_logs` — migration `CrmAdmissions`; `leads.campaign_id` thêm FK → campaigns. Dữ liệu: tuyển sinh mẫu từ mock (`crm.seed.json`), DB đã có lead thì chỉ bổ sung lịch sử tư vấn / chiến dịch / ngày tạo. `created_at` giữ giá trị dữ liệu mẫu đặt sẵn (`SeedData.SetCreatedAt`) |
 | 2026-11-21 | Giai đoạn 18 phase 3: `lead_student_links.student_id` (thuộc khóa chính) khai báo không tự sinh — migration `CrmLinkKeyNotGenerated` không đổi cấu trúc bảng. Dữ liệu: vai trò mẫu Sale thêm `students.profiles.create` (own) — migration `GrantSaleCreateStudentFromLead` (schema system, không đổi cấu trúc) |
+| 2026-11-21 | Giai đoạn 19 phase 1 (user story 08): `invoices` + `schedule` (jsonb lịch đóng đợt), `status` chỉ `open` / `cancelled` / `voided`; `payments.collector_id` cho phép null (tự khớp) + `note`; thêm bảng `invoice_requests` (yêu cầu hoàn / hủy chờ duyệt); `bank_transactions.invoice_id` → `invoice_ids` (tách nhiều hóa đơn); `payment_reminders` + `milestone`; `discounts.code` chữ hoa 3–15 ký tự, giảm % ≤ 50, `course_ids` cũng dùng giới hạn khóa cho loại %, số tiền |
 | 2026-11-17 | Chốt thiết kế (user story 08): `invoices.status` chỉ lưu `open` / `cancelled` / `voided`, các trạng thái tiền tính khi đọc; `payments.method` dùng `vietqr` (không `viet_qr`). Domain `InvoiceStatus`, `PaymentMethod` sửa theo khi code module Tài chính |

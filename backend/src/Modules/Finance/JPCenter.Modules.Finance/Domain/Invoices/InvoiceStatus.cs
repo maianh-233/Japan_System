@@ -1,20 +1,15 @@
 namespace JPCenter.Modules.Finance.Domain.Invoices;
 
-/// <summary>Tình trạng hóa đơn (suy ra từ thanh toán, lưu để lọc nhanh)</summary>
+/// <summary>
+/// Trạng thái DO NGƯỜI LÀM của hóa đơn (lưu DB). Tình trạng học phí (chưa đóng / một phần / đã đóng / quá hạn / đã hoàn)
+/// TÍNH khi đọc — xem <see cref="TuitionStatus"/> và <see cref="Invoice.Summarize"/>.
+/// </summary>
 public enum InvoiceStatus
 {
-    /// <summary>Chưa đóng</summary>
-    Unpaid,
-    /// <summary>Đóng một phần</summary>
-    Partial,
-    /// <summary>Đã đóng đủ</summary>
-    Paid,
-    /// <summary>Quá hạn</summary>
-    Overdue,
-    /// <summary>Đã hoàn tiền</summary>
-    Refunded,
-    /// <summary>Đã hủy phần còn lại</summary>
+    /// <summary>Đang hiệu lực</summary>
+    Open,
+    /// <summary>Đã hủy phần còn lại (HV nghỉ / chuyển lớp / lớp hủy) — hết công nợ, tiền đã thu giữ nguyên</summary>
     Cancelled,
-    /// <summary>Đã hủy hóa đơn (lập sai)</summary>
+    /// <summary>Đã hủy hóa đơn lập sai (qua duyệt 2 người)</summary>
     Voided,
 }

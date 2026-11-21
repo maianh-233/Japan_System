@@ -360,4 +360,8 @@ lương = lương cứng × công ÷ công chuẩn + phụ cấp + hoa hồng (T
 - **Nghe event:** `StudentEnrolled`, `EnrollmentTransferred`, `EnrollmentDropped`, `ClassCancelled` (Students / Academic) → TC-04 / hủy phần còn lại ·
   `SessionConfirmed` / `SessionUnconfirmed` (Academic) → lương GV tạm tính · `BranchStatusChanged` (System).
 - **Job:** nhắc học phí tự động (hằng ngày) · phát `InvoiceOverdue` (hằng ngày) · nhắc hạn chốt lương.
-- **Mã lỗi cần thêm vào Domain** (chưa có): `finance.invoice.pending_approval`, `finance.invoice.has_payments`, `finance.payroll.locked`, `finance.payroll.already_paid`.
+- **Domain (giai đoạn 19 phase 1):** `Invoice` tính tình trạng khi đọc (`Summarize`), còn nợ = phải thu − Σ thu (hoàn không làm tăng nợ), lịch đóng đợt `schedule`,
+  yêu cầu chờ duyệt `InvoiceRequest` (hoàn từ ngưỡng / hủy hóa đơn — người tạo không tự duyệt, rút lại được), khôi phục hóa đơn đã hủy; `Discount` (mã, combo,
+  giới hạn khóa / chi nhánh / lượt, trả lượt), `InstallmentPlan.ScheduleFor` (làm tròn 1.000đ, đợt cuối nhận phần lẻ), `MatchScorer` (tự khớp + gợi ý),
+  `ReminderPlan` (mốc tự nhắc, nhắc bù khi job lỡ ngày), `DebtAgingRule`. Đã có mã lỗi `finance.invoice.pending_approval`, `has_payments`;
+  ⏳ `finance.payroll.*` làm cùng lương (giai đoạn 22).

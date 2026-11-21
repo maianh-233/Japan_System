@@ -7,8 +7,8 @@ public enum PaymentMethod
     Cash,
     /// <summary>Chuyển khoản</summary>
     Transfer,
-    /// <summary>VietQR</summary>
-    VietQr,
+    /// <summary>VietQR — tên thành viên viết "Vietqr" để giá trị lưu / JSON là <c>vietqr</c> (chốt user story 08)</summary>
+    Vietqr,
     /// <summary>Thẻ</summary>
     Card,
 }
