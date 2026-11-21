@@ -1,0 +1,1750 @@
+{
+  "generatedAt": "2026-11-21T14:16:43.092Z",
+  "branchPrices": [
+    {
+      "courseId": "CRS-01",
+      "branchId": "q1",
+      "fee": 5200000
+    },
+    {
+      "courseId": "CRS-02",
+      "branchId": "q1",
+      "fee": 6200000
+    },
+    {
+      "courseId": "CRS-01",
+      "branchId": "hc",
+      "fee": 4500000
+    },
+    {
+      "courseId": "CRS-13",
+      "branchId": "hc",
+      "fee": 3500000
+    }
+  ],
+  "discounts": [
+    {
+      "id": "PR-1",
+      "code": "EARLY10",
+      "name": "Đăng ký sớm trước khai giảng 14 ngày",
+      "kind": "percent",
+      "value": 10,
+      "courseIds": [],
+      "branchIds": [
+        "cg",
+        "q1",
+        "hc"
+      ],
+      "from": "2026-09-22",
+      "to": "2027-01-05",
+      "used": 23,
+      "active": true
+    },
+    {
+      "id": "PR-2",
+      "code": "N5N4COMBO",
+      "name": "Combo N5 + N4 (lộ trình 6 tháng)",
+      "kind": "combo",
+      "value": 1500000,
+      "courseIds": [
+        "CRS-01",
+        "CRS-02"
+      ],
+      "branchIds": [
+        "cg",
+        "q1",
+        "hc"
+      ],
+      "from": "2026-08-23",
+      "to": "2027-02-19",
+      "used": 9,
+      "active": true
+    },
+    {
+      "id": "PR-3",
+      "code": "BANBE500",
+      "name": "Học viên cũ giới thiệu bạn",
+      "kind": "amount",
+      "value": 500000,
+      "courseIds": [],
+      "branchIds": [
+        "cg",
+        "q1",
+        "hc"
+      ],
+      "from": "2026-05-05",
+      "to": "2027-04-30",
+      "used": 31,
+      "active": true,
+      "note": "Cả người giới thiệu và người được giới thiệu đều được giảm."
+    },
+    {
+      "id": "PR-4",
+      "code": "SV15",
+      "name": "Sinh viên đại học đối tác",
+      "kind": "percent",
+      "value": 15,
+      "courseIds": [
+        "CRS-03",
+        "CRS-04"
+      ],
+      "branchIds": [
+        "cg"
+      ],
+      "from": "2026-10-22",
+      "to": "2027-01-20",
+      "limit": 40,
+      "used": 12,
+      "active": true
+    },
+    {
+      "id": "PR-5",
+      "code": "HE2026",
+      "name": "Khuyến mãi hè 2026",
+      "kind": "percent",
+      "value": 12,
+      "courseIds": [],
+      "branchIds": [
+        "cg",
+        "q1",
+        "hc"
+      ],
+      "from": "2026-06-04",
+      "to": "2026-09-02",
+      "used": 58,
+      "active": false
+    },
+    {
+      "id": "PR-6",
+      "code": "KIDS2",
+      "name": "Anh chị em ruột cùng học thiếu nhi",
+      "kind": "amount",
+      "value": 700000,
+      "courseIds": [
+        "CRS-06"
+      ],
+      "branchIds": [
+        "cg"
+      ],
+      "from": "2026-07-24",
+      "to": "2027-07-19",
+      "used": 6,
+      "active": true
+    }
+  ],
+  "installmentPlans": [
+    {
+      "id": "IP-1",
+      "name": "Đóng 1 lần",
+      "parts": [
+        {
+          "percent": 100,
+          "offsetDays": -3
+        }
+      ],
+      "minFee": 0,
+      "surcharge": 0,
+      "active": true
+    },
+    {
+      "id": "IP-2",
+      "name": "2 đợt (50% – 50%)",
+      "parts": [
+        {
+          "percent": 50,
+          "offsetDays": -3
+        },
+        {
+          "percent": 50,
+          "offsetDays": 45
+        }
+      ],
+      "minFee": 4000000,
+      "surcharge": 0,
+      "active": true
+    },
+    {
+      "id": "IP-3",
+      "name": "3 đợt hàng tháng",
+      "parts": [
+        {
+          "percent": 40,
+          "offsetDays": -3
+        },
+        {
+          "percent": 30,
+          "offsetDays": 30
+        },
+        {
+          "percent": 30,
+          "offsetDays": 60
+        }
+      ],
+      "minFee": 6000000,
+      "surcharge": 3,
+      "active": true
+    },
+    {
+      "id": "IP-4",
+      "name": "XKLĐ: đóng sau khi có việc",
+      "parts": [
+        {
+          "percent": 30,
+          "offsetDays": -3
+        },
+        {
+          "percent": 70,
+          "offsetDays": 120
+        }
+      ],
+      "minFee": 8000000,
+      "surcharge": 5,
+      "active": false
+    }
+  ],
+  "invoices": [
+    {
+      "id": "INV-1",
+      "code": "HD-CG-2601-0002",
+      "enrollmentId": "E-1",
+      "studentId": "ST-1",
+      "studentName": "Nguyễn Văn An",
+      "classId": "C-N4K11",
+      "branchId": "cg",
+      "amount": 5900000,
+      "discount": 500000,
+      "dueDate": "2026-02-28",
+      "issuedAt": "2026-01-20T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-0-1",
+          "amount": 2700000,
+          "method": "cash",
+          "paidAt": "2026-01-22T02:00:00.030Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        },
+        {
+          "id": "P-0-2",
+          "amount": 2700000,
+          "method": "transfer",
+          "paidAt": "2026-02-20T02:00:00.030Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-2",
+      "code": "HD-CG-2609-0003",
+      "enrollmentId": "E-2",
+      "studentId": "ST-1",
+      "studentName": "Nguyễn Văn An",
+      "classId": "C-N3K12",
+      "branchId": "cg",
+      "amount": 6800000,
+      "discount": 0,
+      "dueDate": "2026-12-02",
+      "issuedAt": "2026-09-19T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-1-1",
+          "amount": 3400000,
+          "method": "cash",
+          "paidAt": "2026-09-21T02:00:00.030Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-3",
+      "code": "HD-CG-2609-0004",
+      "enrollmentId": "E-3",
+      "studentId": "ST-2",
+      "studentName": "Nguyễn Gia Bảo",
+      "classId": "C-KIDS05",
+      "branchId": "cg",
+      "amount": 4500000,
+      "discount": 450000,
+      "dueDate": "2026-11-09",
+      "issuedAt": "2026-09-26T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-2-1",
+          "amount": 2025000,
+          "method": "cash",
+          "paidAt": "2026-09-28T02:00:00.030Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-4",
+      "code": "HD-Q1-2602-0001",
+      "enrollmentId": "E-4",
+      "studentId": "ST-3",
+      "studentName": "Lê Hoàng Phúc",
+      "classId": "C-N3K09",
+      "branchId": "q1",
+      "amount": 6800000,
+      "discount": 0,
+      "dueDate": "2026-03-16",
+      "issuedAt": "2026-02-02T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-3-1",
+          "amount": 6800000,
+          "method": "vietqr",
+          "paidAt": "2026-02-05T02:00:00.030Z",
+          "collector": "Hệ thống (VietQR)",
+          "collectorId": null,
+          "bankTransactionId": "TX-AINV-4-0"
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-5",
+      "code": "HD-Q1-2610-0001",
+      "enrollmentId": "E-5",
+      "studentId": "ST-3",
+      "studentName": "Lê Hoàng Phúc",
+      "classId": "C-N2K05",
+      "branchId": "q1",
+      "amount": 7500000,
+      "discount": 0,
+      "dueDate": "2026-12-05",
+      "issuedAt": "2026-10-19T17:00:00.000Z",
+      "payments": [],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-6",
+      "code": "HD-HC-2609-0002",
+      "enrollmentId": "E-6",
+      "studentId": "ST-4",
+      "studentName": "Đỗ Minh Tuấn",
+      "classId": "C-XKLD08",
+      "branchId": "hc",
+      "amount": 8000000,
+      "discount": 500000,
+      "dueDate": "2026-12-06",
+      "issuedAt": "2026-09-28T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-5-1",
+          "amount": 7500000,
+          "method": "vietqr",
+          "paidAt": "2026-10-01T02:00:00.030Z",
+          "collector": "Hệ thống (VietQR)",
+          "collectorId": null,
+          "bankTransactionId": "TX-AINV-6-0"
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-7",
+      "code": "HD-CG-2602-0001",
+      "enrollmentId": "E-7",
+      "studentId": "ST-5",
+      "studentName": "Hoàng Thu Giang",
+      "classId": "C-N5K18",
+      "branchId": "cg",
+      "amount": 4900000,
+      "discount": 0,
+      "dueDate": "2026-04-05",
+      "issuedAt": "2026-02-19T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-6-1",
+          "amount": 2450000,
+          "method": "cash",
+          "paidAt": "2026-02-21T02:00:00.030Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        },
+        {
+          "id": "P-6-2",
+          "amount": 2450000,
+          "method": "transfer",
+          "paidAt": "2026-03-22T02:00:00.030Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-8",
+      "code": "HD-CG-2610-0003",
+      "enrollmentId": "E-8",
+      "studentId": "ST-5",
+      "studentName": "Hoàng Thu Giang",
+      "classId": "C-N4K15",
+      "branchId": "cg",
+      "amount": 5900000,
+      "discount": 0,
+      "dueDate": "2026-11-09",
+      "issuedAt": "2026-10-06T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-7-1",
+          "amount": 2950000,
+          "method": "cash",
+          "paidAt": "2026-10-08T02:00:00.030Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-9",
+      "code": "HD-CG-2611-0002",
+      "enrollmentId": "E-9",
+      "studentId": "ST-9",
+      "studentName": "Trần Thị Bích",
+      "classId": "C-N5K21",
+      "branchId": "cg",
+      "amount": 4900000,
+      "discount": 0,
+      "dueDate": "2026-12-09",
+      "issuedAt": "2026-11-17T03:16:43.027Z",
+      "payments": [
+        {
+          "id": "P-8-1",
+          "amount": 2450000,
+          "method": "cash",
+          "paidAt": "2026-11-18T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        },
+        {
+          "id": "P-8-2",
+          "amount": 2450000,
+          "method": "transfer",
+          "paidAt": "2026-11-20T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-10",
+      "code": "HD-CG-2611-0001",
+      "enrollmentId": "E-10",
+      "studentId": "ST-28",
+      "studentName": "Hoàng Minh Vinh",
+      "classId": "C-N5K21",
+      "branchId": "cg",
+      "amount": 4900000,
+      "discount": 0,
+      "dueDate": "2026-12-10",
+      "issuedAt": "2026-11-16T03:16:43.027Z",
+      "payments": [],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-11",
+      "code": "HD-Q1-2611-0001",
+      "enrollmentId": "E-11",
+      "studentId": "ST-20",
+      "studentName": "Đỗ Minh Anh",
+      "classId": "C-N3K13",
+      "branchId": "q1",
+      "amount": 6800000,
+      "discount": 500000,
+      "dueDate": "2026-12-11",
+      "issuedAt": "2026-11-08T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-10-1",
+          "amount": 3150000,
+          "method": "cash",
+          "paidAt": "2026-11-10T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        },
+        {
+          "id": "P-10-2",
+          "amount": 3150000,
+          "method": "transfer",
+          "paidAt": "2026-11-20T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-12",
+      "code": "HD-CG-2609-0002",
+      "enrollmentId": "E-12",
+      "studentId": "ST-6",
+      "studentName": "Nguyễn Văn Anh",
+      "classId": "C-N3K12",
+      "branchId": "cg",
+      "amount": 6800000,
+      "discount": 0,
+      "dueDate": "2026-12-12",
+      "issuedAt": "2026-09-18T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-11-1",
+          "amount": 3400000,
+          "method": "cash",
+          "paidAt": "2026-09-20T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-13",
+      "code": "HD-Q1-2602-0002",
+      "enrollmentId": "E-13",
+      "studentId": "ST-7",
+      "studentName": "Bùi Đức Hiếu",
+      "classId": "C-N3K09",
+      "branchId": "q1",
+      "amount": 6800000,
+      "discount": 0,
+      "dueDate": "2026-03-16",
+      "issuedAt": "2026-02-02T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-12-1",
+          "amount": 3400000,
+          "method": "cash",
+          "paidAt": "2026-02-04T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        },
+        {
+          "id": "P-12-2",
+          "amount": 3400000,
+          "method": "transfer",
+          "paidAt": "2026-03-05T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-14",
+      "code": "HD-HC-2603-0001",
+      "enrollmentId": "E-14",
+      "studentId": "ST-8",
+      "studentName": "Hoàng Hải Sơn",
+      "classId": "C-N5K07",
+      "branchId": "hc",
+      "amount": 4900000,
+      "discount": 0,
+      "dueDate": "2026-04-30",
+      "issuedAt": "2026-03-18T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-13-1",
+          "amount": 4900000,
+          "method": "vietqr",
+          "paidAt": "2026-03-21T02:00:00.031Z",
+          "collector": "Hệ thống (VietQR)",
+          "collectorId": null,
+          "bankTransactionId": "TX-AINV-14-0"
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-15",
+      "code": "HD-HC-2609-0003",
+      "enrollmentId": "E-15",
+      "studentId": "ST-8",
+      "studentName": "Hoàng Hải Sơn",
+      "classId": "C-XKLD08",
+      "branchId": "hc",
+      "amount": 8000000,
+      "discount": 0,
+      "dueDate": "2026-12-15",
+      "issuedAt": "2026-09-28T17:00:00.000Z",
+      "payments": [],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-16",
+      "code": "HD-Q1-2610-0002",
+      "enrollmentId": "E-16",
+      "studentId": "ST-10",
+      "studentName": "Đỗ Thu Lan",
+      "classId": "C-N5K20",
+      "branchId": "q1",
+      "amount": 4900000,
+      "discount": 500000,
+      "dueDate": "2026-12-16",
+      "issuedAt": "2026-10-22T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-15-1",
+          "amount": 4400000,
+          "method": "vietqr",
+          "paidAt": "2026-10-25T02:00:00.031Z",
+          "collector": "Hệ thống (VietQR)",
+          "collectorId": null,
+          "bankTransactionId": "TX-AINV-16-0"
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-17",
+      "code": "HD-HC-2610-0003",
+      "enrollmentId": "E-17",
+      "studentId": "ST-11",
+      "studentName": "Vũ Quang Thảo",
+      "classId": "C-N4K16",
+      "branchId": "hc",
+      "amount": 5900000,
+      "discount": 0,
+      "dueDate": "2026-12-17",
+      "issuedAt": "2026-10-26T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-16-1",
+          "amount": 2950000,
+          "method": "cash",
+          "paidAt": "2026-10-28T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [
+        {
+          "id": "R-16",
+          "amount": 1770000,
+          "method": "transfer",
+          "refundedAt": "2026-10-22T02:00:00.031Z",
+          "reason": "Nghỉ học giữa khóa — hoàn phần học phí các buổi chưa học",
+          "by": "Ngô Thị Lan (Kế toán)",
+          "byId": "e-lan2",
+          "approvedById": null
+        }
+      ],
+      "cancelled": true,
+      "cancelReason": "Học viên nghỉ học — hủy phần học phí còn lại"
+    },
+    {
+      "id": "INV-18",
+      "code": "HD-CG-2610-0001",
+      "enrollmentId": "E-18",
+      "studentId": "ST-12",
+      "studentName": "Lê Minh Cường",
+      "classId": "C-N3ON14",
+      "branchId": "cg",
+      "amount": 6200000,
+      "discount": 0,
+      "dueDate": "2026-11-09",
+      "issuedAt": "2026-10-04T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-17-1",
+          "amount": 3100000,
+          "method": "cash",
+          "paidAt": "2026-10-06T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-19",
+      "code": "HD-Q1-2610-0007",
+      "enrollmentId": "E-19",
+      "studentId": "ST-13",
+      "studentName": "Ngô Ngọc Long",
+      "classId": "C-N5K20",
+      "branchId": "q1",
+      "amount": 4900000,
+      "discount": 0,
+      "dueDate": "2026-12-19",
+      "issuedAt": "2026-10-28T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-18-1",
+          "amount": 2450000,
+          "method": "cash",
+          "paidAt": "2026-10-30T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        },
+        {
+          "id": "P-18-2",
+          "amount": 2450000,
+          "method": "transfer",
+          "paidAt": "2026-11-20T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-20",
+      "code": "HD-HC-2610-0002",
+      "enrollmentId": "E-20",
+      "studentId": "ST-14",
+      "studentName": "Đặng Văn Vinh",
+      "classId": "C-XKLD08",
+      "branchId": "hc",
+      "amount": 8000000,
+      "discount": 0,
+      "dueDate": "2026-12-20",
+      "issuedAt": "2026-10-02T17:00:00.000Z",
+      "payments": [],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-21",
+      "code": "HD-CG-2601-0001",
+      "enrollmentId": "E-21",
+      "studentId": "ST-15",
+      "studentName": "Phạm Đức Duy",
+      "classId": "C-N4K11",
+      "branchId": "cg",
+      "amount": 5900000,
+      "discount": 500000,
+      "dueDate": "2026-02-28",
+      "issuedAt": "2026-01-18T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-20-1",
+          "amount": 2700000,
+          "method": "cash",
+          "paidAt": "2026-01-20T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        },
+        {
+          "id": "P-20-2",
+          "amount": 2700000,
+          "method": "transfer",
+          "paidAt": "2026-02-18T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-22",
+      "code": "HD-Q1-2602-0003",
+      "enrollmentId": "E-22",
+      "studentId": "ST-16",
+      "studentName": "Nguyễn Hải My",
+      "classId": "C-N3K09",
+      "branchId": "q1",
+      "amount": 6800000,
+      "discount": 0,
+      "dueDate": "2026-03-16",
+      "issuedAt": "2026-02-02T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-21-1",
+          "amount": 6800000,
+          "method": "vietqr",
+          "paidAt": "2026-02-05T02:00:00.031Z",
+          "collector": "Hệ thống (VietQR)",
+          "collectorId": null,
+          "bankTransactionId": "TX-AINV-22-0"
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-23",
+      "code": "HD-Q1-2610-0005",
+      "enrollmentId": "E-23",
+      "studentId": "ST-16",
+      "studentName": "Nguyễn Hải My",
+      "classId": "C-N5K20",
+      "branchId": "q1",
+      "amount": 4900000,
+      "discount": 0,
+      "dueDate": "2026-11-09",
+      "issuedAt": "2026-10-24T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-22-1",
+          "amount": 2450000,
+          "method": "cash",
+          "paidAt": "2026-10-26T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-24",
+      "code": "HD-CG-2610-0005",
+      "enrollmentId": "E-24",
+      "studentId": "ST-18",
+      "studentName": "Hoàng Thu Hạnh",
+      "classId": "C-N4ON03",
+      "branchId": "cg",
+      "amount": 5400000,
+      "discount": 0,
+      "dueDate": "2026-12-04",
+      "issuedAt": "2026-10-10T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-23-1",
+          "amount": 5400000,
+          "method": "vietqr",
+          "paidAt": "2026-10-13T02:00:00.031Z",
+          "collector": "Hệ thống (VietQR)",
+          "collectorId": null,
+          "bankTransactionId": "TX-AINV-24-0"
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-25",
+      "code": "HD-Q1-2610-0003",
+      "enrollmentId": "E-25",
+      "studentId": "ST-19",
+      "studentName": "Trần Quang Nhung",
+      "classId": "C-N5K20",
+      "branchId": "q1",
+      "amount": 4900000,
+      "discount": 0,
+      "dueDate": "2026-12-05",
+      "issuedAt": "2026-10-22T17:00:00.000Z",
+      "payments": [],
+      "refunds": [],
+      "cancelled": true,
+      "cancelReason": "Học viên nghỉ học — hủy phần học phí còn lại"
+    },
+    {
+      "id": "INV-26",
+      "code": "HD-HC-2609-0001",
+      "enrollmentId": "E-26",
+      "studentId": "ST-20",
+      "studentName": "Đỗ Minh Anh",
+      "classId": "C-XKLD08",
+      "branchId": "hc",
+      "amount": 8000000,
+      "discount": 500000,
+      "dueDate": "2026-12-06",
+      "issuedAt": "2026-09-26T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-25-1",
+          "amount": 7500000,
+          "method": "vietqr",
+          "paidAt": "2026-09-29T02:00:00.031Z",
+          "collector": "Hệ thống (VietQR)",
+          "collectorId": null,
+          "bankTransactionId": "TX-AINV-26-0"
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-27",
+      "code": "HD-CG-2609-0005",
+      "enrollmentId": "E-27",
+      "studentId": "ST-21",
+      "studentName": "Vũ Ngọc Hiếu",
+      "classId": "C-KIDS05",
+      "branchId": "cg",
+      "amount": 4500000,
+      "discount": 0,
+      "dueDate": "2026-12-07",
+      "issuedAt": "2026-09-29T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-26-1",
+          "amount": 2250000,
+          "method": "cash",
+          "paidAt": "2026-10-01T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-28",
+      "code": "HD-Q1-2610-0008",
+      "enrollmentId": "E-28",
+      "studentId": "ST-22",
+      "studentName": "Lê Văn Sơn",
+      "classId": "C-N5K20",
+      "branchId": "q1",
+      "amount": 4900000,
+      "discount": 0,
+      "dueDate": "2026-11-09",
+      "issuedAt": "2026-10-28T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-27-1",
+          "amount": 2450000,
+          "method": "cash",
+          "paidAt": "2026-10-30T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-29",
+      "code": "HD-HC-2603-0002",
+      "enrollmentId": "E-29",
+      "studentId": "ST-23",
+      "studentName": "Ngô Đức Bích",
+      "classId": "C-N5K07",
+      "branchId": "hc",
+      "amount": 4900000,
+      "discount": 0,
+      "dueDate": "2026-04-30",
+      "issuedAt": "2026-03-21T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-28-1",
+          "amount": 2450000,
+          "method": "cash",
+          "paidAt": "2026-03-23T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        },
+        {
+          "id": "P-28-2",
+          "amount": 2450000,
+          "method": "transfer",
+          "paidAt": "2026-04-21T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-30",
+      "code": "HD-CG-2602-0002",
+      "enrollmentId": "E-30",
+      "studentId": "ST-24",
+      "studentName": "Đặng Hải Lan",
+      "classId": "C-N5K18",
+      "branchId": "cg",
+      "amount": 4900000,
+      "discount": 0,
+      "dueDate": "2026-04-05",
+      "issuedAt": "2026-02-23T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-29-1",
+          "amount": 4900000,
+          "method": "vietqr",
+          "paidAt": "2026-02-26T02:00:00.031Z",
+          "collector": "Hệ thống (VietQR)",
+          "collectorId": null,
+          "bankTransactionId": "TX-AINV-30-0"
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-31",
+      "code": "HD-CG-2610-0002",
+      "enrollmentId": "E-31",
+      "studentId": "ST-24",
+      "studentName": "Đặng Hải Lan",
+      "classId": "C-KAIWAC2",
+      "branchId": "cg",
+      "amount": 5200000,
+      "discount": 500000,
+      "dueDate": "2026-12-11",
+      "issuedAt": "2026-10-05T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-30-1",
+          "amount": 2350000,
+          "method": "cash",
+          "paidAt": "2026-10-07T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        },
+        {
+          "id": "P-30-2",
+          "amount": 2350000,
+          "method": "transfer",
+          "paidAt": "2026-11-05T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-32",
+      "code": "HD-HC-2609-0004",
+      "enrollmentId": "E-32",
+      "studentId": "ST-26",
+      "studentName": "Nguyễn Thu Cường",
+      "classId": "C-XKLD08",
+      "branchId": "hc",
+      "amount": 8000000,
+      "discount": 0,
+      "dueDate": "2026-12-12",
+      "issuedAt": "2026-09-29T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-31-1",
+          "amount": 4000000,
+          "method": "cash",
+          "paidAt": "2026-10-01T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-33",
+      "code": "HD-CG-2609-0001",
+      "enrollmentId": "E-33",
+      "studentId": "ST-27",
+      "studentName": "Bùi Quang Long",
+      "classId": "C-N3K12",
+      "branchId": "cg",
+      "amount": 6800000,
+      "discount": 0,
+      "dueDate": "2026-11-09",
+      "issuedAt": "2026-09-15T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-32-1",
+          "amount": 3400000,
+          "method": "cash",
+          "paidAt": "2026-09-17T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [
+        {
+          "id": "R-32",
+          "amount": 2040000,
+          "method": "transfer",
+          "refundedAt": "2026-10-22T02:00:00.031Z",
+          "reason": "Nghỉ học giữa khóa — hoàn phần học phí các buổi chưa học",
+          "by": "Ngô Thị Lan (Kế toán)",
+          "byId": "e-lan2",
+          "approvedById": null
+        }
+      ],
+      "cancelled": true,
+      "cancelReason": "Học viên nghỉ học — hủy phần học phí còn lại"
+    },
+    {
+      "id": "INV-34",
+      "code": "HD-Q1-2610-0004",
+      "enrollmentId": "E-34",
+      "studentId": "ST-28",
+      "studentName": "Hoàng Minh Vinh",
+      "classId": "C-N5K20",
+      "branchId": "q1",
+      "amount": 4900000,
+      "discount": 0,
+      "dueDate": "2026-12-14",
+      "issuedAt": "2026-10-22T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-33-1",
+          "amount": 4900000,
+          "method": "vietqr",
+          "paidAt": "2026-10-25T02:00:00.031Z",
+          "collector": "Hệ thống (VietQR)",
+          "collectorId": null,
+          "bankTransactionId": "TX-AINV-34-0"
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-35",
+      "code": "HD-HC-2610-0004",
+      "enrollmentId": "E-35",
+      "studentId": "ST-29",
+      "studentName": "Trần Ngọc Duy",
+      "classId": "C-N4K16",
+      "branchId": "hc",
+      "amount": 5900000,
+      "discount": 0,
+      "dueDate": "2026-12-15",
+      "issuedAt": "2026-10-26T17:00:00.000Z",
+      "payments": [],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-36",
+      "code": "HD-CG-2610-0006",
+      "enrollmentId": "E-36",
+      "studentId": "ST-30",
+      "studentName": "Đỗ Văn My",
+      "classId": "C-N5K22",
+      "branchId": "cg",
+      "amount": 4900000,
+      "discount": 500000,
+      "dueDate": "2026-12-16",
+      "issuedAt": "2026-10-19T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-35-1",
+          "amount": 4400000,
+          "method": "vietqr",
+          "paidAt": "2026-10-22T02:00:00.031Z",
+          "collector": "Hệ thống (VietQR)",
+          "collectorId": null,
+          "bankTransactionId": "TX-AINV-36-0"
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-37",
+      "code": "HD-Q1-2602-0004",
+      "enrollmentId": "E-37",
+      "studentId": "ST-31",
+      "studentName": "Vũ Đức Xuân",
+      "classId": "C-N3K09",
+      "branchId": "q1",
+      "amount": 6800000,
+      "discount": 0,
+      "dueDate": "2026-03-16",
+      "issuedAt": "2026-02-05T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-36-1",
+          "amount": 3400000,
+          "method": "cash",
+          "paidAt": "2026-02-07T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        },
+        {
+          "id": "P-36-2",
+          "amount": 3400000,
+          "method": "transfer",
+          "paidAt": "2026-03-08T02:00:00.031Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-38",
+      "code": "HD-HC-2603-0003",
+      "enrollmentId": "E-38",
+      "studentId": "ST-32",
+      "studentName": "Lê Hải Hạnh",
+      "classId": "C-N5K07",
+      "branchId": "hc",
+      "amount": 4900000,
+      "discount": 0,
+      "dueDate": "2026-04-30",
+      "issuedAt": "2026-03-21T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-37-1",
+          "amount": 4900000,
+          "method": "vietqr",
+          "paidAt": "2026-03-24T02:00:00.032Z",
+          "collector": "Hệ thống (VietQR)",
+          "collectorId": null,
+          "bankTransactionId": "TX-AINV-38-0"
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-39",
+      "code": "HD-HC-2610-0001",
+      "enrollmentId": "E-39",
+      "studentId": "ST-32",
+      "studentName": "Lê Hải Hạnh",
+      "classId": "C-XKLD08",
+      "branchId": "hc",
+      "amount": 8000000,
+      "discount": 0,
+      "dueDate": "2026-12-19",
+      "issuedAt": "2026-10-01T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-38-1",
+          "amount": 4000000,
+          "method": "cash",
+          "paidAt": "2026-10-03T02:00:00.032Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        },
+        {
+          "id": "P-38-2",
+          "amount": 4000000,
+          "method": "transfer",
+          "paidAt": "2026-11-01T02:00:00.032Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-40",
+      "code": "HD-Q1-2610-0006",
+      "enrollmentId": "E-40",
+      "studentId": "ST-34",
+      "studentName": "Đặng Thu Anh",
+      "classId": "C-N5K20",
+      "branchId": "q1",
+      "amount": 4900000,
+      "discount": 0,
+      "dueDate": "2026-12-20",
+      "issuedAt": "2026-10-25T17:00:00.000Z",
+      "payments": [],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    },
+    {
+      "id": "INV-41",
+      "code": "HD-HC-2610-0005",
+      "enrollmentId": "E-41",
+      "studentId": "ST-35",
+      "studentName": "Phạm Quang Hiếu",
+      "classId": "C-N4K16",
+      "branchId": "hc",
+      "amount": 5900000,
+      "discount": 500000,
+      "dueDate": "2026-12-01",
+      "issuedAt": "2026-10-29T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-40-1",
+          "amount": 2700000,
+          "method": "cash",
+          "paidAt": "2026-10-31T02:00:00.032Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        },
+        {
+          "id": "P-40-2",
+          "amount": 2700000,
+          "method": "transfer",
+          "paidAt": "2026-11-20T02:00:00.032Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [
+        {
+          "id": "R-40",
+          "amount": 1620000,
+          "method": "transfer",
+          "refundedAt": "2026-10-22T02:00:00.032Z",
+          "reason": "Nghỉ học giữa khóa — hoàn phần học phí các buổi chưa học",
+          "by": "Ngô Thị Lan (Kế toán)",
+          "byId": "e-lan2",
+          "approvedById": null
+        }
+      ],
+      "cancelled": true,
+      "cancelReason": "Học viên nghỉ học — hủy phần học phí còn lại"
+    },
+    {
+      "id": "INV-42",
+      "code": "HD-CG-2610-0004",
+      "enrollmentId": "E-42",
+      "studentId": "ST-36",
+      "studentName": "Nguyễn Minh Sơn",
+      "classId": "C-N4K15",
+      "branchId": "cg",
+      "amount": 5900000,
+      "discount": 0,
+      "dueDate": "2026-12-02",
+      "issuedAt": "2026-10-08T17:00:00.000Z",
+      "payments": [
+        {
+          "id": "P-41-1",
+          "amount": 2950000,
+          "method": "cash",
+          "paidAt": "2026-10-10T02:00:00.032Z",
+          "collector": "Ngô Thị Lan (Kế toán)",
+          "collectorId": "e-lan2",
+          "bankTransactionId": null
+        }
+      ],
+      "refunds": [],
+      "cancelled": false,
+      "cancelReason": null
+    }
+  ],
+  "bankTransactions": [
+    {
+      "id": "TX-U1",
+      "ref": "FT26112190210",
+      "at": "2026-11-21T03:15:00.082Z",
+      "amount": 7500000,
+      "content": "CK HOC PHI LE HOANG PHUC",
+      "payer": "LE HOANG PHUC",
+      "account": "q1",
+      "branchId": "q1",
+      "status": "unmatched",
+      "invoiceIds": [],
+      "matchedById": null
+    },
+    {
+      "id": "TX-U9",
+      "ref": "FT2611140099",
+      "at": "2026-11-20T08:15:00.082Z",
+      "amount": 2450000,
+      "content": "HD9999 TRAN VAN HUNG",
+      "payer": "TRAN VAN HUNG",
+      "account": "q1",
+      "branchId": "q1",
+      "status": "unmatched",
+      "note": "Mã hóa đơn không tồn tại",
+      "invoiceIds": [],
+      "matchedById": null
+    },
+    {
+      "id": "TX-U2",
+      "ref": "FT26112091211",
+      "at": "2026-11-20T04:15:00.082Z",
+      "amount": 2450000,
+      "content": "HOANG MINH VINH chuyen tien hoc tieng nhat",
+      "payer": "HOANG MINH VINH",
+      "account": "cg",
+      "branchId": "cg",
+      "status": "unmatched",
+      "invoiceIds": [],
+      "matchedById": null
+    },
+    {
+      "id": "TX-U3",
+      "ref": "FT26111992212",
+      "at": "2026-11-19T05:15:00.082Z",
+      "amount": 8000000,
+      "content": "ME CHAU SON DONG HOC PHI LOP GVV_XKLD-K08",
+      "payer": "NGUYEN THI LAN",
+      "account": "hc",
+      "branchId": "hc",
+      "status": "unmatched",
+      "invoiceIds": [],
+      "matchedById": null
+    },
+    {
+      "id": "TX-I1",
+      "ref": "FT2611100321",
+      "at": "2026-11-16T04:15:00.082Z",
+      "amount": 1200000,
+      "content": "HOAN UNG MUA VPP T10",
+      "payer": "PHAM THU TRANG",
+      "account": "cg",
+      "branchId": "cg",
+      "status": "ignored",
+      "note": "Không phải học phí — hoàn ứng nội bộ",
+      "matchedBy": "Hoàng Thị Lan",
+      "matchedAt": "2026-11-16T07:15:00.082Z",
+      "invoiceIds": [],
+      "matchedById": "e-lan"
+    },
+    {
+      "id": "TX-AINV-16-0",
+      "ref": "FT2610254112",
+      "at": "2026-10-25T02:00:00.031Z",
+      "amount": 4400000,
+      "content": "HD-Q1-2610-0002 DO THU LAN",
+      "payer": "DO THU LAN",
+      "account": "q1",
+      "branchId": "q1",
+      "status": "auto",
+      "invoiceId": "INV-16",
+      "matchedBy": "Hệ thống",
+      "matchedAt": "2026-10-25T02:00:00.031Z",
+      "invoiceIds": [
+        "INV-16"
+      ],
+      "matchedById": null
+    },
+    {
+      "id": "TX-AINV-34-0",
+      "ref": "FT2610254238",
+      "at": "2026-10-25T02:00:00.031Z",
+      "amount": 4900000,
+      "content": "HD-Q1-2610-0004 HOANG MINH VINH",
+      "payer": "HOANG MINH VINH",
+      "account": "q1",
+      "branchId": "q1",
+      "status": "auto",
+      "invoiceId": "INV-34",
+      "matchedBy": "Hệ thống",
+      "matchedAt": "2026-10-25T02:00:00.031Z",
+      "invoiceIds": [
+        "INV-34"
+      ],
+      "matchedById": null
+    },
+    {
+      "id": "TX-AINV-36-0",
+      "ref": "FT2610224252",
+      "at": "2026-10-22T02:00:00.031Z",
+      "amount": 4400000,
+      "content": "HD-CG-2610-0006 DO VAN MY",
+      "payer": "DO VAN MY",
+      "account": "cg",
+      "branchId": "cg",
+      "status": "auto",
+      "invoiceId": "INV-36",
+      "matchedBy": "Hệ thống",
+      "matchedAt": "2026-10-22T02:00:00.031Z",
+      "invoiceIds": [
+        "INV-36"
+      ],
+      "matchedById": null
+    },
+    {
+      "id": "TX-AINV-24-0",
+      "ref": "FT2610134168",
+      "at": "2026-10-13T02:00:00.031Z",
+      "amount": 5400000,
+      "content": "HD-CG-2610-0005 HOANG THU HANH",
+      "payer": "HOANG THU HANH",
+      "account": "cg",
+      "branchId": "cg",
+      "status": "auto",
+      "invoiceId": "INV-24",
+      "matchedBy": "Hệ thống",
+      "matchedAt": "2026-10-13T02:00:00.031Z",
+      "invoiceIds": [
+        "INV-24"
+      ],
+      "matchedById": null
+    },
+    {
+      "id": "TX-AINV-6-0",
+      "ref": "FT2610014042",
+      "at": "2026-10-01T02:00:00.030Z",
+      "amount": 7500000,
+      "content": "HD-HC-2609-0002 DO MINH TUAN",
+      "payer": "DO MINH TUAN",
+      "account": "hc",
+      "branchId": "hc",
+      "status": "auto",
+      "invoiceId": "INV-6",
+      "matchedBy": "Hệ thống",
+      "matchedAt": "2026-10-01T02:00:00.030Z",
+      "invoiceIds": [
+        "INV-6"
+      ],
+      "matchedById": null
+    },
+    {
+      "id": "TX-AINV-26-0",
+      "ref": "FT2609294182",
+      "at": "2026-09-29T02:00:00.031Z",
+      "amount": 7500000,
+      "content": "HD-HC-2609-0001 DO MINH ANH",
+      "payer": "DO MINH ANH",
+      "account": "hc",
+      "branchId": "hc",
+      "status": "auto",
+      "invoiceId": "INV-26",
+      "matchedBy": "Hệ thống",
+      "matchedAt": "2026-09-29T02:00:00.031Z",
+      "invoiceIds": [
+        "INV-26"
+      ],
+      "matchedById": null
+    },
+    {
+      "id": "TX-AINV-38-0",
+      "ref": "FT2603244266",
+      "at": "2026-03-24T02:00:00.032Z",
+      "amount": 4900000,
+      "content": "HD-HC-2603-0003 LE HAI HANH",
+      "payer": "LE HAI HANH",
+      "account": "hc",
+      "branchId": "hc",
+      "status": "auto",
+      "invoiceId": "INV-38",
+      "matchedBy": "Hệ thống",
+      "matchedAt": "2026-03-24T02:00:00.032Z",
+      "invoiceIds": [
+        "INV-38"
+      ],
+      "matchedById": null
+    },
+    {
+      "id": "TX-AINV-14-0",
+      "ref": "FT2603214098",
+      "at": "2026-03-21T02:00:00.031Z",
+      "amount": 4900000,
+      "content": "HD-HC-2603-0001 HOANG HAI SON",
+      "payer": "HOANG HAI SON",
+      "account": "hc",
+      "branchId": "hc",
+      "status": "auto",
+      "invoiceId": "INV-14",
+      "matchedBy": "Hệ thống",
+      "matchedAt": "2026-03-21T02:00:00.031Z",
+      "invoiceIds": [
+        "INV-14"
+      ],
+      "matchedById": null
+    },
+    {
+      "id": "TX-AINV-30-0",
+      "ref": "FT2602264210",
+      "at": "2026-02-26T02:00:00.031Z",
+      "amount": 4900000,
+      "content": "HD-CG-2602-0002 DANG HAI LAN",
+      "payer": "DANG HAI LAN",
+      "account": "cg",
+      "branchId": "cg",
+      "status": "auto",
+      "invoiceId": "INV-30",
+      "matchedBy": "Hệ thống",
+      "matchedAt": "2026-02-26T02:00:00.031Z",
+      "invoiceIds": [
+        "INV-30"
+      ],
+      "matchedById": null
+    },
+    {
+      "id": "TX-AINV-22-0",
+      "ref": "FT2602054154",
+      "at": "2026-02-05T02:00:00.031Z",
+      "amount": 6800000,
+      "content": "HD-Q1-2602-0003 NGUYEN HAI MY",
+      "payer": "NGUYEN HAI MY",
+      "account": "q1",
+      "branchId": "q1",
+      "status": "auto",
+      "invoiceId": "INV-22",
+      "matchedBy": "Hệ thống",
+      "matchedAt": "2026-02-05T02:00:00.031Z",
+      "invoiceIds": [
+        "INV-22"
+      ],
+      "matchedById": null
+    },
+    {
+      "id": "TX-AINV-4-0",
+      "ref": "FT2602054028",
+      "at": "2026-02-05T02:00:00.030Z",
+      "amount": 6800000,
+      "content": "HD-Q1-2602-0001 LE HOANG PHUC",
+      "payer": "LE HOANG PHUC",
+      "account": "q1",
+      "branchId": "q1",
+      "status": "auto",
+      "invoiceId": "INV-4",
+      "matchedBy": "Hệ thống",
+      "matchedAt": "2026-02-05T02:00:00.030Z",
+      "invoiceIds": [
+        "INV-4"
+      ],
+      "matchedById": null
+    }
+  ],
+  "reminders": [
+    {
+      "id": "RM-INV-3-1",
+      "invoiceId": "INV-3",
+      "channel": "zalo",
+      "at": "2026-11-11T02:15:00.091Z",
+      "by": "Hệ thống (tự động)",
+      "byId": null
+    },
+    {
+      "id": "RM-INV-3-2",
+      "invoiceId": "INV-3",
+      "channel": "call",
+      "at": "2026-11-17T08:15:00.091Z",
+      "by": "Phạm Thị Hồng",
+      "note": "Phụ huynh hẹn đóng cuối tuần",
+      "byId": "e-hong"
+    },
+    {
+      "id": "RM-INV-8-1",
+      "invoiceId": "INV-8",
+      "channel": "zalo",
+      "at": "2026-11-12T02:15:00.091Z",
+      "by": "Hệ thống (tự động)",
+      "byId": null
+    },
+    {
+      "id": "RM-INV-18-1",
+      "invoiceId": "INV-18",
+      "channel": "zalo",
+      "at": "2026-11-13T02:15:00.091Z",
+      "by": "Hệ thống (tự động)",
+      "byId": null
+    },
+    {
+      "id": "RM-INV-18-2",
+      "invoiceId": "INV-18",
+      "channel": "call",
+      "at": "2026-11-19T08:15:00.091Z",
+      "by": "Phạm Thị Hồng",
+      "note": "Không nghe máy",
+      "byId": "e-hong"
+    },
+    {
+      "id": "RM-INV-23-1",
+      "invoiceId": "INV-23",
+      "channel": "zalo",
+      "at": "2026-11-11T02:15:00.091Z",
+      "by": "Hệ thống (tự động)",
+      "byId": null
+    },
+    {
+      "id": "RM-INV-28-1",
+      "invoiceId": "INV-28",
+      "channel": "zalo",
+      "at": "2026-11-12T02:15:00.091Z",
+      "by": "Hệ thống (tự động)",
+      "byId": null
+    },
+    {
+      "id": "RM-INV-28-2",
+      "invoiceId": "INV-28",
+      "channel": "call",
+      "at": "2026-11-18T08:15:00.091Z",
+      "by": "Phạm Thị Hồng",
+      "note": "Phụ huynh hẹn đóng cuối tuần",
+      "byId": "e-hong"
+    }
+  ]
+}

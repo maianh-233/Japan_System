@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using JPCenter.Infrastructure.Common.Persistence.Conversions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -12,7 +13,7 @@ public static class JsonColumnExtensions
     /// <summary>JSON trong DB: camelCase, enum snake_case — giống JSON API.</summary>
     public static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.Web)
     {
-        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower) },
+        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower), new MoneyJsonConverter() },
     };
 
     public static PropertyBuilder<T> HasJsonConversion<T>(this PropertyBuilder<T> property) where T : class

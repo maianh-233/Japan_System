@@ -62,7 +62,7 @@
 | `AddInfrastructureCommon()`, `AddModuleDbContext<T>(config, schema)` | Đăng ký đồng hồ, interceptor, DbContext module (PostgreSQL, snake_case, bảng migration riêng mỗi schema) | ✅ |
 | `IDataSeeder` + `InitializeDatabaseAsync()` | Development: tự chạy migration + nạp dữ liệu mẫu theo `Order`; seeder chỉ nạp khi bảng trống, **không xóa** | ✅ |
 | `SystemClock` (`Time/`) | Hiện thực `IClock` (Today theo giờ VN) | ✅ |
-| `.HasJsonConversion()` (`JsonColumnExtensions`) | Thuộc tính có cấu trúc (dictionary, danh sách record) → cột `jsonb` | ✅ |
+| `.HasJsonConversion()` (`JsonColumnExtensions`) | Thuộc tính có cấu trúc (dictionary, danh sách record) → cột `jsonb`; `Money` trong JSON là số đồng (`MoneyJsonConverter`) | ✅ |
 | `EnumListConverter` (tự áp cho mọi `List<Enum>`) | Danh sách enum → `text[]` snake_case | ✅ |
 | `SnakeCaseEnumConverter<T>.ToText()` / `.Parse()` | Đổi enum ↔ chuỗi DB / frontend ngoài EF (DTO Contracts, đọc seed) | ✅ |
 | `SeedData.IdOf(mockId)`, `SeedData.Read<T>()`, `db.AddWithId(entity, id)`, `db.SetCreatedAt(entity, at)` (giữ ngày tạo theo mock — interceptor không ghi đè giá trị đặt sẵn) | Nạp dữ liệu mẫu xuất từ mock frontend (`npm run export-seed`) với Id cố định giữa các module | ✅ |

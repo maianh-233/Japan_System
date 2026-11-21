@@ -3,7 +3,7 @@
  * Dữ liệu mẫu backend vì thế giống hệt những gì giao diện đang hiển thị.
  *
  * Chạy (từ thư mục frontend):  npm run export-seed
- * Kết quả: backend/src/Modules/{System,Hr,Academic,Students,Crm}/.../Infrastructure/Persistence/Seed/*.seed.json
+ * Kết quả: backend/src/Modules/{System,Hr,Academic,Students,Crm,Finance}/.../Infrastructure/Persistence/Seed/*.seed.json
  * Thời gian tương đối (dayjs "x ngày trước") được chốt tại lúc chạy script.
  */
 import { createHash } from 'node:crypto';
@@ -147,6 +147,70 @@ const { useAppointmentStore } = await import('@/features/crm/appointments/appoin
 const { useMessageStore } = await import('@/features/crm/messages/messages');
 write(resolve(backend, 'Crm', 'JPCenter.Modules.Crm', 'Infrastructure', 'Persistence', 'Seed', 'crm.seed.json'), crmSeed());
 
+// Tài chính đợt 1 (user story 08 — giai đoạn 19): bảng giá, ưu đãi, chính sách đợt, hóa đơn (+ thu / hoàn), giao dịch ngân hàng, nhắc học phí
+const fin = await import('@/mocks/data/finance');
+const { MOCK_INVOICES } = await import('@/mocks/data/students');
+write(resolve(backend, 'Finance', 'JPCenter.Modules.Finance', 'Infrastructure', 'Persistence', 'Seed', 'finance.seed.json'), financeSeed());
+
+function financeSeed() {
+  const enrollment = new Map(MOCK_ENROLLMENTS.map((e) => [e.id, e]));
+  const prefix = new Map(MOCK_BRANCH_PROFILES.map((b) => [b.id, (b as { invoicePrefix?: string }).invoicePrefix ?? b.code]));
+  // Mã mock "HD2400" → mã theo mẫu Cài đặt HD-{CN}-{YY}{MM}-{SO:4}, đánh số theo chi nhánh + tháng lập (theo thứ tự lập)
+  const seq = new Map<string, number>();
+  const codeOf = new Map<string, string>();
+  [...MOCK_INVOICES]
+    .sort((a, b) => a.issuedAt.localeCompare(b.issuedAt))
+    .forEach((inv) => {
+      const e = enrollment.get(inv.enrollmentId)!;
+      const branch = classBranch(e.classId)!;
+      const ym = inv.issuedAt.slice(2, 4) + inv.issuedAt.slice(5, 7);
+      const key = `${branch}:${ym}`;
+      const n = (seq.get(key) ?? 0) + 1;
+      seq.set(key, n);
+      codeOf.set(inv.id, `HD-${prefix.get(branch)}-${ym}-${String(n).padStart(4, '0')}`);
+    });
+  const recode = (text: string) => MOCK_INVOICES.reduce((t, inv) => t.replaceAll(inv.code, codeOf.get(inv.id)!), text);
+  return {
+    generatedAt: new Date().toISOString(),
+    branchPrices: fin.MOCK_BRANCH_PRICES,
+    discounts: fin.MOCK_PROMOTIONS,
+    installmentPlans: fin.MOCK_INSTALLMENTS,
+    invoices: MOCK_INVOICES.map((inv) => {
+      const e = enrollment.get(inv.enrollmentId)!;
+      const vietqr = inv.payments.filter((p) => p.method === 'vietqr');
+      return {
+        id: inv.id,
+        code: codeOf.get(inv.id),
+        enrollmentId: inv.enrollmentId,
+        studentId: e.studentId,
+        studentName: studentName.get(e.studentId) ?? '',
+        classId: e.classId,
+        branchId: classBranch(e.classId),
+        amount: inv.amount,
+        discount: inv.discount,
+        dueDate: inv.dueDate,
+        issuedAt: inv.issuedAt,
+        // Thu bằng VietQR → khoản thu gắn giao dịch ngân hàng đã tự khớp (TX-A{hóa đơn}-{thứ tự})
+        payments: inv.payments.map((p) => ({
+          ...p,
+          collectorId: personId(p.collector),
+          bankTransactionId: p.method === 'vietqr' ? `TX-A${inv.id}-${vietqr.indexOf(p)}` : null,
+        })),
+        refunds: inv.refunds.map((r) => ({ ...r, byId: personId(r.by), approvedById: personId(r.approvedBy) })),
+        cancelled: Boolean(inv.cancelled),
+        cancelReason: inv.cancelled ? 'Học viên nghỉ học — hủy phần học phí còn lại' : null,
+      };
+    }),
+    bankTransactions: fin.MOCK_BANK_TXNS.map((t) => ({
+      ...t,
+      content: recode(t.content),
+      invoiceIds: t.invoiceId ? [t.invoiceId] : [],
+      matchedById: t.matchedBy === 'Hệ thống' ? null : personId(t.matchedBy),
+    })),
+    reminders: fin.MOCK_REMINDERS.map((r) => ({ ...r, byId: r.by.startsWith('Hệ thống') ? null : personId(r.by) })),
+  };
+}
+
 // Cảnh báo bỏ học (HV-14): trường hợp đã giao người chăm sóc + nhật ký liên hệ. Mức rủi ro / dấu hiệu do job backend tính lại
 write(resolve(backend, 'Students', 'JPCenter.Modules.Students', 'Infrastructure', 'Persistence', 'Seed', 'care.seed.json'), {
   generatedAt: new Date().toISOString(),
@@ -236,6 +300,10 @@ const seedIds = [
   ...MOCK_CAMPAIGNS.map((x) => x.id),
   ...useAppointmentStore.getState().appointments.map((x) => x.id),
   ...useMessageStore.getState().templates.map((x) => x.id),
+  ...MOCK_INVOICES.map((x) => x.id),
+  ...fin.MOCK_PROMOTIONS.map((x) => x.id),
+  ...fin.MOCK_INSTALLMENTS.map((x) => x.id),
+  ...fin.MOCK_BANK_TXNS.map((x) => x.id),
 ];
 const idPath = resolve(process.cwd(), 'src', 'lib', 'api', 'seedIds.generated.ts');
 mkdirSync(dirname(idPath), { recursive: true });

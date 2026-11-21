@@ -7,6 +7,7 @@ using JPCenter.Infrastructure.Common.Jobs;
 using JPCenter.Infrastructure.Common.Persistence;
 using JPCenter.Modules.Academic;
 using JPCenter.Modules.Crm;
+using JPCenter.Modules.Finance;
 using JPCenter.Modules.Hr;
 using JPCenter.Modules.Notifications;
 using JPCenter.Modules.Students;
@@ -35,6 +36,7 @@ builder.Services
     .AddModules(builder.Configuration,
         new AcademicModule(),
         new CrmModule(),
+        new FinanceModule(),
         new HrModule(),
         new NotificationsModule(),
         new StudentsModule(),
