@@ -2,7 +2,7 @@ namespace JPCenter.Modules.Crm.Domain.Leads;
 
 /// <summary>
 /// Liên kết lead ↔ học viên (phụ huynh – con, bản thân...). Bảng: crm.lead_student_links, khóa (lead_id, student_id).
-/// Mỗi học viên tối đa 1 người liên hệ chính (kiểm tra ở Application vì xuyên nhiều lead).
+/// Mỗi học viên tối đa 1 người liên hệ chính (Application tắt cờ ở lead khác — Lead.ClearPrimary).
 /// </summary>
 public sealed class LeadStudentLink
 {
@@ -22,5 +22,6 @@ public sealed class LeadStudentLink
     public bool Notify { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
 
-    public void SetFlags(bool isPrimary, bool billing, bool notify) => (IsPrimary, Billing, Notify) = (isPrimary, billing, notify);
+    internal void Set(Relationship relationship, bool isPrimary, bool billing, bool notify) =>
+        (Relationship, IsPrimary, Billing, Notify) = (relationship, isPrimary, billing, notify);
 }

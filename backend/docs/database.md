@@ -417,7 +417,7 @@ Khóa chính (scope, key).
 | sla_minutes | int | Hạn liên hệ lần đầu (phút) |
 | escalate_to_ids | uuid[] | Quá SLA báo cho ai → hr.employees |
 | reassign_on_breach | bool | Quá 2×SLA tự chuyển Sale khác |
-| cursor | int | Con trỏ xoay vòng |
+| cursor | int | Con trỏ xoay vòng (vị trí Sale giao gần nhất; -1 = chưa giao ai — đổi nhóm Sale thì về -1) |
 
 ### 18. lead_assignment_logs
 **Chức năng:** Nhật ký chia lead — giải thích vì sao chọn Sale (chỉ thêm). Entity `LeadAssignmentLog`.
@@ -532,13 +532,14 @@ Khóa chính (scope, key).
 | scenario | text | Tình huống |
 | template_id | uuid? FK | → message_templates |
 | to_name | text | Tên người nhận |
-| to_phone | text | SĐT người nhận |
+| to_phone | text | SĐT (Zalo / SMS) hoặc email người nhận |
 | lead_id | uuid? FK | → leads |
 | student_id | uuid? | → students.students |
 | body | text | Nội dung thực tế đã gửi |
 | sent_by | uuid? | Người gửi → hr.employees (null = hệ thống) |
 | sent_at | timestamptz | Lúc gửi |
 | auto | bool | Hệ thống tự gửi |
+| status | text | `pending` chưa gửi được (chưa cấu hình Zalo OA / SMS) · `sent` đã gửi · `failed` lỗi |
 
 ---
 
@@ -1872,4 +1873,5 @@ sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đ�
 | 2026-11-20 | Giai đoạn 16 phase 2: tạo bảng `notifications.notifications` (title ≤ 200, description ≤ 1000, link ≤ 500, event_key ≤ 100 + chỉ mục chuông / chưa đọc / dọn) — migration `Initial` của schema `notifications`; `audit_logs` thêm chỉ mục (`branch_id`, `at`) — migration `AuditLogBranchIndex`. Dữ liệu: `settings` seed sẵn 23 mục mặc định (chỉ thêm mục còn thiếu), thông báo mẫu cho tài khoản demo |
 | 2026-11-20 | Giai đoạn 17 phase 1 (user story 11): `questions` + `audio_name` (tên file nghe gốc); `options` đúng 4, `review_note` ghi cả lý do ngừng dùng |
 | 2026-11-20 | Giai đoạn 17 phase 2: tạo bảng `academic.questions` (FK `curriculum_id` → curricula; chỉ mục `code` UQ, (`status`, `level`, `skill`), `author_id`, `curriculum_id`, GIN `lesson_ids`) — migration `AcademicQuestions`. Dữ liệu: 36 câu mẫu từ mock (`questions.seed.json`), file nghe mẫu dùng chung |
+| 2026-11-21 | Giai đoạn 18 phase 1 (user story 05): `message_logs` + `status` (`pending` / `sent` / `failed`); `lead_rules.cursor` bắt đầu -1; `leads.phone` luôn lưu dạng chuẩn hóa 0xxxxxxxxx, `campaigns.code` chữ hoa, `campaigns.utm` chữ thường; `placement_tests.bands` xếp mốc tăng dần, bắt buộc mốc 0% |
 | 2026-11-17 | Chốt thiết kế (user story 08): `invoices.status` chỉ lưu `open` / `cancelled` / `voided`, các trạng thái tiền tính khi đọc; `payments.method` dùng `vietqr` (không `viet_qr`). Domain `InvoiceStatus`, `PaymentMethod` sửa theo khi code module Tài chính |

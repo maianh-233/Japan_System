@@ -45,10 +45,10 @@ public sealed partial class Student : AggregateRoot<StudentId>, IBranchScoped, I
     {
         if (string.IsNullOrWhiteSpace(fullName)) return StudentErrors.NameRequired;
         if (dob is { } d && d > today) return StudentErrors.InvalidDob;
-        var cleanPhone = NormalizePhone(phone);
-        if (cleanPhone is not null && !PhonePattern().IsMatch(cleanPhone)) return StudentErrors.InvalidPhone;
-        var cleanEmail = Clean(email)?.ToLowerInvariant();
-        if (cleanEmail is not null && !EmailPattern().IsMatch(cleanEmail)) return StudentErrors.InvalidEmail;
+        var cleanPhone = PhoneNumber.Normalize(phone);
+        if (cleanPhone is not null && !PhoneNumber.IsValid(cleanPhone)) return StudentErrors.InvalidPhone;
+        var cleanEmail = EmailAddress.Normalize(email);
+        if (cleanEmail is not null && !EmailAddress.IsValid(cleanEmail)) return StudentErrors.InvalidEmail;
 
         FullName = CollapseSpaces(fullName);
         (Gender, Dob, Phone, Email) = (gender, dob, cleanPhone, cleanEmail);
@@ -75,24 +75,9 @@ public sealed partial class Student : AggregateRoot<StudentId>, IBranchScoped, I
     /// <summary>Bỏ ẩn (tự gọi khi ghi danh HV đã ẩn — HV-06.E5)</summary>
     public void Unhide() => (Hidden, HiddenAt) = (false, null);
 
-    /// <summary>Bỏ khoảng trắng, dấu chấm, gạch; +84 → 0</summary>
-    public static string? NormalizePhone(string? phone)
-    {
-        var p = Clean(phone);
-        if (p is null) return null;
-        p = new string(p.Where(c => char.IsDigit(c) || c == '+').ToArray());
-        return p.StartsWith("+84", StringComparison.Ordinal) ? "0" + p[3..] : p;
-    }
-
     private static string? Clean(string? s) => string.IsNullOrWhiteSpace(s) ? null : s.Trim();
 
     private static string CollapseSpaces(string s) => SpacesPattern().Replace(s.Trim(), " ");
-
-    [GeneratedRegex(@"^0\d{9}$")]
-    private static partial Regex PhonePattern();
-
-    [GeneratedRegex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$")]
-    private static partial Regex EmailPattern();
 
     [GeneratedRegex(@"\s+")]
     private static partial Regex SpacesPattern();

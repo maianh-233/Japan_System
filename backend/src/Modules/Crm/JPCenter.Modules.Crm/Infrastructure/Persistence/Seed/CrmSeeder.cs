@@ -9,7 +9,7 @@ namespace JPCenter.Modules.Crm.Infrastructure.Persistence.Seed;
 
 /// <summary>
 /// Nạp lead + liên kết lead ↔ học viên mẫu từ <c>crm.seed.json</c> (xuất từ mock frontend) — chỉ khi bảng lead còn trống.
-/// Liên kết làm lead chuyển "Đã chốt" (domain) → đặt lại trạng thái theo mock sau khi liên kết. Lịch sử tư vấn mẫu nạp ở giai đoạn 18.
+/// Lead "Đã chốt" tạo ở trạng thái Mới rồi chốt sau khi liên kết học viên (domain chỉ cho chốt qua ghi danh).
 /// </summary>
 internal sealed class CrmSeeder(CrmDbContext db, ILogger<CrmSeeder> logger) : IDataSeeder
 {
@@ -23,8 +23,12 @@ internal sealed class CrmSeeder(CrmDbContext db, ILogger<CrmSeeder> logger) : ID
         var leads = new Dictionary<string, Lead>();
         foreach (var l in data.Leads)
         {
-            var created = Lead.Create(l.Code, l.FullName, l.Phone, l.Email, SnakeCaseEnumConverter<LeadSource>.Parse(l.Source),
-                new BranchId(SeedData.IdOf(l.BranchId)), l.Interest, l.Note, null);
+            var status = SnakeCaseEnumConverter<LeadStatus>.Parse(l.Status);
+            var info = new LeadInfo(l.FullName, l.Phone, l.Email, SnakeCaseEnumConverter<LeadSource>.Parse(l.Source),
+                new BranchId(SeedData.IdOf(l.BranchId)), l.Interest, l.Note, null, null);
+            // "Đã chốt" chỉ đạt qua ghi danh → tạo Mới rồi chốt sau khi liên kết học viên
+            var created = Lead.Create(l.Code, info, status == LeadStatus.Won ? LeadStatus.New : status,
+                status == LeadStatus.Lost ? l.LostReason ?? "Không rõ" : null);
             if (created.IsFailure)
             {
                 logger.LogWarning("Bỏ qua lead mẫu {Code}: {Error}", l.Code, created.Error.Message);
@@ -39,14 +43,15 @@ internal sealed class CrmSeeder(CrmDbContext db, ILogger<CrmSeeder> logger) : ID
         foreach (var k in data.Links)
         {
             if (!leads.TryGetValue(k.LeadId, out var lead)) continue;
-            lead.LinkStudent(SeedData.IdOf(k.StudentId), SnakeCaseEnumConverter<Relationship>.Parse(k.Relationship), k.Primary ?? false,
-                k.Billing ?? false, k.Notify ?? false, k.CreatedAt);
+            lead.LinkStudent(SeedData.IdOf(k.StudentId), k.StudentId, SnakeCaseEnumConverter<Relationship>.Parse(k.Relationship),
+                k.Primary ?? false, k.Billing ?? false, k.Notify ?? false, k.CreatedAt);
         }
 
         foreach (var l in data.Leads.Where(x => leads.ContainsKey(x.Id)))
         {
             var lead = leads[l.Id];
-            lead.ChangeStatus(SnakeCaseEnumConverter<LeadStatus>.Parse(l.Status), l.LostReason ?? (l.Status == "lost" ? "Không rõ" : null));
+            if (l.Status == "won" && lead.StudentLinks.Count > 0)
+                lead.MarkWon(lead.StudentLinks[0].StudentId, "Ghi danh (dữ liệu mẫu)", lead.StudentLinks[0].CreatedAt);
             if (l.Hidden) lead.Hide(l.HiddenAt ?? DateTimeOffset.UtcNow);
         }
 

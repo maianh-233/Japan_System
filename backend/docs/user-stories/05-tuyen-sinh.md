@@ -138,6 +138,7 @@ Lead (người LIÊN HỆ — chính người học hoặc phụ huynh)
 | CRM-04.E3 | Mở lại lead `lost` | Cho về `consulting`, xóa `lost_reason`, thêm dòng hệ thống "Mở lại lead" |
 | CRM-04.E4 | Sửa lead đang ẩn | Cho sửa; vẫn ẩn |
 | CRM-04.E5 | Hai người sửa cùng lúc | `xmin` → "Dữ liệu vừa được người khác sửa" |
+| CRM-04.E6 🆕 | Đổi giai đoạn lead đã `won` | Không cho — `crm.lead.won_locked` (đã có ghi danh; HV bỏ học xử lý ở HV-14) |
 
 ---
 
@@ -229,6 +230,7 @@ gọi Finance tạo hóa đơn qua `Finance.Contracts`). Không ghi trực tiế
 | Mã | Tình huống | Hệ thống xử lý |
 |---|---|---|
 | CRM-08.E1 | Liên kết đã tồn tại | `crm.lead.already_linked` |
+| CRM-08.E6 🆕 | Liên kết chỉ gắn HV, **không** đổi giai đoạn | Lead chỉ `won` qua CRM-07 (ghi danh); gỡ liên kết HV chưa có → `crm.lead.not_linked` |
 | CRM-08.E2 | Bật "Liên hệ chính" khi HV đã có người chính khác | Tự **tắt** cờ ở liên kết cũ (mỗi HV tối đa 1) — báo "Đã đổi người liên hệ chính" |
 | CRM-08.E3 | Gỡ liên kết người liên hệ chính duy nhất của HV nhỏ tuổi 🆕 | Cảnh báo "HV chưa có người quyết định" — vẫn cho |
 | CRM-08.E4 | Không còn ai nhận hóa đơn | Cảnh báo; hóa đơn gửi tới SĐT / email của chính HV |
@@ -346,6 +348,7 @@ gọi Finance tạo hóa đơn qua `Finance.Contracts`). Không ghi trực tiế
 | CRM-13.E4 | Nộp khi không ở `in_progress` / đã nộp | `crm.placement_attempt.not_in_progress` |
 | CRM-13.E5 | Đáp án đúng | **Không** trả về trang làm bài (chỉ đề + lựa chọn); kết quả chỉ hiện điểm tổng cho lead |
 | CRM-13.E6 | Token đoán / dò 🆕 | Token ≥ 128 bit ngẫu nhiên; giới hạn tần suất theo IP |
+| CRM-13.E8 🆕 | Đang làm thì mạng rớt | Đáp án lưu dần (`answers`) — hết hạn thì job chấm phần đã lưu |
 | CRM-13.E7 | Job hằng giờ | Lượt `sent` / `in_progress` quá hạn → `expired` (`in_progress` thì chấm phần đã làm) |
 
 ---
@@ -431,6 +434,7 @@ gọi Finance tạo hóa đơn qua `Finance.Contracts`). Không ghi trực tiế
 | CRM-17.E3 | Người nhận không có SĐT | Ẩn kênh SMS / Zalo |
 | CRM-17.E4 | Chưa cấu hình tích hợp Zalo OA / SMS ⏳ | Ghi log trạng thái "chưa gửi được" — gửi thật khi có module Tích hợp |
 | CRM-17.E5 | Tin tự động (nhắc hẹn, báo vắng…) | `auto = true`, `sent_by = null` |
+| CRM-17.E6 🆕 | Trạng thái gửi | `message_logs.status`: `pending` (chưa có tích hợp) · `sent` · `failed` |
 
 ---
 

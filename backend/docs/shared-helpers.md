@@ -13,7 +13,8 @@
 | `Result`, `Result<T>`, `Error`, `ErrorType` (`Primitives/`) — có chuyển ngầm `Error → Result`, `T → Result<T>` | Trả lỗi nghiệp vụ, không throw | ✅ |
 | `IDomainEvent` (`Domain/`) — event là `sealed record` | Sự kiện trong module | ✅ |
 | `Money` (`Primitives/`): `Create` (kiểm tra ≥ 0, không lẻ), `FromTrusted`, `+ − < >`, `Percent()` | Học phí, lương, thanh toán | ✅ |
-| `PhoneNumber` (chuẩn hóa số VN: 0xxx / +84) | Lead, học viên, nhân viên — kiểm tra trùng SĐT | 📝 |
+| `PhoneNumber.Normalize` / `IsValid` (`Primitives/`): bỏ khoảng trắng / chấm / gạch, +84 → 0; hợp lệ = 10 số bắt đầu bằng 0 | Lead, học viên, nhân viên — lưu dạng chuẩn hóa để kiểm tra trùng SĐT | ✅ |
+| `EmailAddress.Normalize` / `IsValid` (`Primitives/`): bỏ khoảng trắng, chữ thường, dạng a@b.c | Email liên hệ của lead, học viên | ✅ |
 | `DateRange`, `TimeRange` (kiểm tra chồng lấn) | Lịch lớp, ca làm, trùng phòng / GV | 📝 |
 | `IClock` (`Domain/`: `UtcNow`, `Today` + `LocalNow` theo giờ VN) | Thay `DateTime.Now` ở mọi nơi | ✅ interface |
 | `Guard` (`Against.NullOrEmpty`, `Against.OutOfRange`) | Kiểm tra tham số trong factory | 📝 |

@@ -3,7 +3,7 @@ using JPCenter.SharedKernel.Primitives;
 
 namespace JPCenter.Modules.Crm.Domain.Messages;
 
-/// <summary>Mẫu tin Zalo / SMS, biến {ten}, {lop}, {so_tien}... Bảng: crm.message_templates</summary>
+/// <summary>Mẫu tin Zalo / SMS theo tình huống, biến {ten}, {lop}, {so_tien}... (CRM-17). Bảng: crm.message_templates</summary>
 public sealed class MessageTemplate : AggregateRoot<MessageTemplateId>, IAuditable, ISoftDeletable
 {
     private MessageTemplate() { }
@@ -17,10 +17,21 @@ public sealed class MessageTemplate : AggregateRoot<MessageTemplateId>, IAuditab
 
     public static Result<MessageTemplate> Create(MessageScenario scenario, string name, ContactChannel channel, string body)
     {
-        if (string.IsNullOrWhiteSpace(body)) return Error.Validation("crm.message_template.body_required", "Chưa nhập nội dung mẫu tin");
-        return new MessageTemplate { Id = MessageTemplateId.New(), Scenario = scenario, Name = name, Channel = channel, Body = body, Active = true };
+        var t = new MessageTemplate { Id = MessageTemplateId.New(), Active = true };
+        var set = t.Update(scenario, name, channel, body);
+        return set.IsFailure ? set.Error : t;
     }
 
-    public void Update(string name, ContactChannel channel, string body) => (Name, Channel, Body) = (name, channel, body);
+    public Result Update(MessageScenario scenario, string name, ContactChannel channel, string body)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return MessageErrors.NameRequired;
+        if (string.IsNullOrWhiteSpace(body)) return MessageErrors.BodyRequired;
+        (Scenario, Name, Channel, Body) = (scenario, name.Trim(), channel, body.Trim());
+        return Result.Success();
+    }
+
     public void SetActive(bool active) => Active = active;
+
+    /// <summary>Nội dung đã điền biến</summary>
+    public string Render(IReadOnlyDictionary<string, string?> vars) => MessageTemplateText.Fill(Body, vars);
 }
