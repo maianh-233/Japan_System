@@ -23,6 +23,9 @@ import { AttemptDrawer } from '@/features/crm/admission/AttemptDrawer';
 import { grade, pctOf, pickQuestions, poolOf, simulateAnswers, testLink } from '@/features/crm/admission/placement';
 import { ATTEMPT_STATUS, COURSE_OPTIONS, courseLabel, PLACEMENT_STATUS, SEND_CHANNELS } from '@/features/crm/constants';
 import { useCrmStore } from '@/features/crm/crmStore';
+import { changeTestStatus, saveTest, sendAttempt } from '@/features/crm/admission/admissionApi';
+import { errorText, loadLead } from '@/features/crm/crmApi';
+import { USE_API } from '@/lib/api/config';
 import type { PlacementAttempt, PlacementTest } from '@/features/crm/types';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/cn';
@@ -39,7 +42,10 @@ interface SendValues {
   validDays: number;
 }
 
-/** Test xếp lớp: bài test bốc từ Ngân hàng câu hỏi, gửi link cho lead, tự chấm & gợi ý khóa. DỮ LIỆU GIẢ. */
+/**
+ * Test xếp lớp (CRM-12, CRM-13): bài test bốc từ Ngân hàng câu hỏi, gửi link cho lead, tự chấm & gợi ý khóa.
+ * Chế độ API: server bốc câu đã duyệt, sinh link /t/:token (trang làm bài công khai), chấm khi nộp, hết hạn link (job).
+ */
 export default function PlacementTestsPage() {
   const { user, branchId, can } = useAuth();
   const notify = useNotify();
@@ -48,6 +54,16 @@ export default function PlacementTestsPage() {
   const { updateLead, addConsultation } = useCrmStore();
   const questions = useQuestionStore((s) => s.questions);
   const editable = can('crm.placement-tests');
+  const run = async (fn: () => Promise<unknown>, ok: string) => {
+    try {
+      await fn();
+      notify.toast.success(ok);
+    } catch (e) {
+      notify.toast.error(errorText(e, 'Không lưu được bài test'));
+    }
+  };
+  const setTestStatus = (t: PlacementTest, status: PlacementTest['status']) =>
+    USE_API ? void run(() => changeTestStatus(t.id, status), status === 'active' ? 'Đã đưa bài test vào dùng' : 'Đã ngừng dùng bài test') : updateTest(t.id, { status });
 
   const [tab, setTab] = useState<'attempts' | 'tests'>('attempts');
   const [status, setStatus] = useState<string>();
@@ -245,7 +261,9 @@ export default function PlacementTestsPage() {
                   r.status === 'sent' || r.status === 'in_progress' ? (
                     <>
                       <Button icon={Copy} iconOnly size="sm" variant="ghost" tone="neutral" tooltip="Sao chép link" aria-label="Sao chép link" onClick={() => copy(r)} />
-                      <Button icon={FlaskConical} iconOnly size="sm" variant="ghost" tone="neutral" tooltip="Giả lập lead nộp bài (thử nghiệm)" aria-label="Giả lập nộp bài" onClick={() => simulate(r)} />
+                      {!USE_API && (
+                        <Button icon={FlaskConical} iconOnly size="sm" variant="ghost" tone="neutral" tooltip="Giả lập lead nộp bài (thử nghiệm)" aria-label="Giả lập nộp bài" onClick={() => simulate(r)} />
+                      )}
                     </>
                   ) : r.status === 'expired' ? (
                     <Button icon={Send} iconOnly size="sm" variant="ghost" tone="neutral" tooltip="Gửi lại" aria-label="Gửi lại" onClick={() => setSending({ testId: r.testId, leadId: r.leadId, channel: r.channel, validDays: 3 })} />
@@ -327,6 +345,7 @@ export default function PlacementTestsPage() {
                                   variant="ghost"
                                   tone="neutral"
                                   onClick={() => {
+                                    if (USE_API) return void run(() => saveTest(t.id, t, true), 'Đã bốc lại câu hỏi');
                                     updateTest(t.id, { questionIds: pickQuestions(questions, t.sections, true) });
                                     notify.toast.success('Đã bốc lại câu hỏi');
                                   }}
@@ -336,11 +355,11 @@ export default function PlacementTestsPage() {
                               </span>
                             </Tooltip>
                             {t.status !== 'active' ? (
-                              <Button icon={CheckCircle2} size="sm" variant="ghost" tone="success" onClick={() => updateTest(t.id, { status: 'active' })}>
+                              <Button icon={CheckCircle2} size="sm" variant="ghost" tone="success" onClick={() => setTestStatus(t, 'active')}>
                                 Dùng
                               </Button>
                             ) : (
-                              <Button icon={Archive} size="sm" variant="ghost" tone="neutral" onClick={() => updateTest(t.id, { status: 'archived' })}>
+                              <Button icon={Archive} size="sm" variant="ghost" tone="neutral" onClick={() => setTestStatus(t, 'archived')}>
                                 Ngừng
                               </Button>
                             )}
@@ -369,7 +388,16 @@ export default function PlacementTestsPage() {
         submitText="Gửi link"
         successMessage="Đã gửi link làm bài"
         initialValues={sending ?? undefined}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
+          if (USE_API) {
+            // Server ghi lịch sử tư vấn + chuyển lead "Mới / Đang tư vấn" sang "Đã hẹn test"
+            const a = await sendAttempt(v);
+            void loadLead(v.leadId).catch(() => undefined);
+            void navigator.clipboard?.writeText(testLink(a.token));
+            setTab('attempts');
+            setStatus(undefined);
+            return;
+          }
           const lead = leadOf(v.leadId)!;
           const t = testOf(v.testId)!;
           const a = sendTest({ testId: v.testId, leadId: v.leadId, channel: v.channel, sentBy: user?.fullName ?? 'Nhân viên' }, v.validDays);
@@ -427,9 +455,16 @@ export default function PlacementTestsPage() {
                 ],
               }
         }
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           if (!v.bands?.some((b) => b.minPct === 0)) throw new Error('Thang gợi ý cần có mốc 0%');
           const sections = v.sections.filter((s) => s.count > 0);
+          if (USE_API) {
+            // Server bốc câu khi tạo / đổi phần; trạng thái đổi riêng
+            const old = editing !== 'new' ? editing : null;
+            const saved = await saveTest(old?.id, { ...v, sections });
+            if (v.status && v.status !== saved.status) await changeTestStatus(saved.id, v.status);
+            return;
+          }
           const same = editing !== 'new' && editing && JSON.stringify(editing.sections) === JSON.stringify(sections);
           const input: TestInput = { ...v, sections, questionIds: same ? (editing as PlacementTest).questionIds : pickQuestions(questions, sections) };
           if (editing === 'new') addTest(input, user?.fullName ?? 'Nhân viên');

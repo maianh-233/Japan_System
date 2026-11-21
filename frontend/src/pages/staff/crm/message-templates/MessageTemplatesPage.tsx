@@ -2,7 +2,10 @@ import { useMemo, useRef, useState } from 'react';
 import { Form, Radio, Segmented, Switch } from 'antd';
 import dayjs from 'dayjs';
 import { Bot, MessageSquareText } from 'lucide-react';
-import { Button, DataTable, ModalForm, PageHeader, Select, StatusTag, TextArea, TextInput, useConfirm, type DataColumn } from '@/components/common';
+import { Button, DataTable, ModalForm, PageHeader, Select, StatusTag, TextArea, TextInput, useConfirm, useNotify, type DataColumn } from '@/components/common';
+import { errorText } from '@/features/crm/crmApi';
+import { deleteTemplate, saveTemplate } from '@/features/crm/messages/messageApi';
+import { USE_API } from '@/lib/api/config';
 import {
   CHANNEL_LABEL,
   fillTemplate,
@@ -36,7 +39,22 @@ export default function MessageTemplatesPage() {
   const templates = useMessageStore((s) => s.templates);
   const logs = useMessageStore((s) => s.logs);
   const save = useMessageStore((s) => s.saveTemplate);
-  const remove = useMessageStore((s) => s.removeTemplate);
+  const removeLocal = useMessageStore((s) => s.removeTemplate);
+  const saveLocal = save;
+  const notify = useNotify();
+  /** Chế độ API: lưu / xóa trên server (lỗi ném ra cho hộp thoại báo) */
+  const persist = async (v: Parameters<typeof saveLocal>[0]) => {
+    if (!USE_API) return saveLocal(v);
+    await saveTemplate(v.id, { scenario: v.scenario, name: v.name, channel: v.channel, body: v.body, active: v.active });
+  };
+  const remove = async (id: string) => {
+    if (!USE_API) return removeLocal(id);
+    try {
+      await deleteTemplate(id);
+    } catch (e) {
+      notify.toast.error(errorText(e, 'Không xóa được mẫu tin'));
+    }
+  };
   const editable = can('crm.message-templates');
   const [tab, setTab] = useState<'templates' | 'logs'>('templates');
   const [scenario, setScenario] = useState<MessageScenario>();
@@ -64,7 +82,7 @@ export default function MessageTemplatesPage() {
       title: 'Đang dùng',
       width: 100,
       mobile: 'aside',
-      render: (_, t) => <Switch size="small" checked={t.active} disabled={!editable} onChange={(v) => save({ ...t, active: v, updatedBy: user?.fullName ?? '' })} />,
+      render: (_, t) => <Switch size="small" checked={t.active} disabled={!editable} onChange={(v) => void persist({ ...t, active: v, updatedBy: user?.fullName ?? '' }).catch((e) => notify.toast.error(errorText(e, 'Không lưu được mẫu tin')))} />,
     },
     { key: 'updated', title: 'Cập nhật', width: 150, render: (_, t) => <span className="text-xs text-ink-muted">{t.updatedBy} · {dayjs(t.updatedAt).format('DD/MM/YYYY')}</span> },
   ];
@@ -158,13 +176,13 @@ export default function MessageTemplatesPage() {
         />
       )}
 
-      <TemplateDialog editing={editing} onClose={() => setEditing(null)} onSave={(v, id) => save({ ...v, id, updatedBy: user?.fullName ?? 'Nhân viên' })} />
+      <TemplateDialog editing={editing} onClose={() => setEditing(null)} onSave={(v, id) => persist({ ...v, id, updatedBy: user?.fullName ?? 'Nhân viên' })} />
       {confirmDialog}
     </>
   );
 }
 
-function TemplateDialog({ editing, onClose, onSave }: { editing: MessageTemplate | 'new' | null; onClose: () => void; onSave: (v: Values, id?: string) => void }) {
+function TemplateDialog({ editing, onClose, onSave }: { editing: MessageTemplate | 'new' | null; onClose: () => void; onSave: (v: Values, id?: string) => void | Promise<void> }) {
   const [form] = Form.useForm<Values>();
   const body = Form.useWatch('body', form) ?? '';
   const channel = Form.useWatch('channel', form);

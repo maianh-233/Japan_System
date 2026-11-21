@@ -1,3 +1,5 @@
+import { USE_API } from '@/lib/api/config';
+import { attemptLinks } from './admissionApi';
 import type { Question } from '@/features/academic/questions/types';
 import type { PlacementAttempt, PlacementBand, PlacementSection, PlacementTest } from '../types';
 
@@ -75,5 +77,6 @@ export function simulateAnswers(questionIds: string[], questions: Question[], ab
   return out;
 }
 
-/** Link làm bài gửi cho lead */
-export const testLink = (token: string) => `https://jpcenter.vn/t/${token}`;
+/** Link làm bài gửi cho lead — chế độ API: link server trả (trang /t/:token của frontend này) */
+export const testLink = (token: string) =>
+  USE_API ? (attemptLinks.get(token) ?? `${window.location.origin}/t/${token}`) : `https://jpcenter.vn/t/${token}`;

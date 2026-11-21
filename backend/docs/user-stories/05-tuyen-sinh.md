@@ -501,6 +501,12 @@ bảng so sánh theo Sale / nguồn / chiến dịch. **Tính khi đọc** — k
 - Vai trò mẫu Sale có thêm `students.profiles.create` phạm vi own (chốt lead tạo hồ sơ HV) — migration `GrantSaleCreateStudentFromLead`.
 - ⏳ Thu tiền ngay khi chốt (CRM-07 bước 3) làm cùng Tài chính (giai đoạn 19); gửi Zalo / SMS / email thật làm cùng Tích hợp (giai đoạn 22) —
   tin ghi trạng thái `pending`. "Trong ca" khi chia lead = giờ hành chính tới khi có Xếp ca (giai đoạn 21). Xuất Excel lead (CRM-01.E5) làm ở frontend.
+- **Frontend (giai đoạn 18 phase 4):** `features/crm/crmApi.ts` (lead), `admission/admissionApi.ts` (chia lead, test, chiến dịch), `appointments/appointmentApi.ts`,
+  `messages/messageApi.ts`, `funnelApi.ts`, `academic/promotion/salePromotionApi.ts` (CRM-19); nạp sau đăng nhập (`loadCrm`). Trang làm bài công khai `/t/:token`.
+  Job SLA / nhắc lịch hẹn phía trình duyệt chỉ còn ở chế độ mock. Người nhận cảnh báo SLA / người phụ trách chiến dịch chọn theo nhân viên.
+  Đổi lớp đề xuất khi chốt lên lớp (CRM-19) do giáo vụ làm ở tab Lên lớp — Sale chốt đúng lớp đề xuất.
+- ⏳ Trang **Phụ huynh / người giám hộ (HV-12)** và nhập HV kèm phụ huynh còn ghi lead / liên kết vào dữ liệu giả: cần API "tạo người liên hệ đã chốt cho HV có sẵn"
+  (lead không tạo thẳng ở "Đã chốt"). Tab "Đã gửi" ở Mẫu tin chỉ hiện tin của lead đã mở (API tin nhắn đọc theo lead / HV).
 - Chốt lead = 2 giao dịch nối tiếp (Students tạo HV + ghi danh, rồi Crm liên kết + chốt); Crm lỗi sau đó thì HV vẫn còn — liên kết tay.
 - JSON khớp `frontend/src/features/crm/types.ts` (`Lead`, `Consultation`, `LeadStudentLink`, `LeadRule`, `PlacementTest`, `PlacementAttempt`, `Campaign`).
 - **Job (Quartz):** quét SLA mỗi phút (CRM-11) · nhắc lịch hẹn mỗi 5 phút (CRM-14) · hết hạn link test mỗi giờ (CRM-13.E7).

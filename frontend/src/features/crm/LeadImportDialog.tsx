@@ -4,6 +4,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { isValidEmail, isValidPhone, matchOption, normalizePhone } from '@/lib/spreadsheet';
 import { ALL_BRANCHES } from '@/types/auth';
 import { COURSE_OPTIONS, LEAD_SOURCE_OPTIONS, useSales } from './constants';
+import { USE_API } from '@/lib/api/config';
+import { errorText, importLeads } from './crmApi';
 import { useCrmStore, type LeadInput } from './crmStore';
 import type { LeadSource } from './types';
 
@@ -99,6 +101,19 @@ export function LeadImportDialog({ open, onClose, onImported }: { open: boolean;
       }
       notes="Lead trùng SĐT (đã có trong hệ thống hoặc lặp trong file) sẽ bị bỏ qua — không ghi đè. Sale để trống → hệ thống tự chia theo Chia lead & SLA."
       onImport={async (values) => {
+        if (USE_API) {
+          // 1 request; server kiểm lại (trùng SĐT với lead ngoài phạm vi mình thấy…). Số thứ tự = vị trí trong các dòng hợp lệ
+          try {
+            const r = await importLeads(values.map((value, i) => ({ row: i + 1, value })));
+            const skipped = r.errors.length ? `${r.errors.length} dòng bị từ chối: ${r.errors.slice(0, 3).map((e) => `dòng ${e.row} — ${e.message}`).join('; ')}. ` : '';
+            notify.success({ title: `Đã nhập ${r.created} lead`, description: `${skipped}Lead mới ở trạng thái "Mới", Sale được giao sẽ nhận thông báo.` });
+            onImported?.();
+            return r.created;
+          } catch (e) {
+            notify.toast.error(errorText(e, 'Không nhập được lead'));
+            return 0;
+          }
+        }
         await new Promise((r) => setTimeout(r, 500)); // giả lập gọi API
         values.forEach((v) => addLead(v, user?.fullName ?? 'Nhập từ Excel'));
         notify.success({ title: `Đã nhập ${values.length} lead`, description: 'Lead mới ở trạng thái "Mới", Sale được giao sẽ nhận thông báo.' });

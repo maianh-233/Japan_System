@@ -11,7 +11,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { formatCurrency } from '@/lib/format';
 import { useAppointmentStore } from '../appointments/appointments';
 import { courseLabel, saleName } from '../constants';
+import { USE_API } from '@/lib/api/config';
+import { errorText } from '../crmApi';
 import { useCrmStore } from '../crmStore';
+import { sendMessage } from './messageApi';
 import {
   CHANNEL_LABEL,
   fillTemplate,
@@ -172,8 +175,32 @@ export function SendMessageModal({ target, scenario, onClose }: { target: Messag
   const sms = smsSegments(body);
   const tpl = templates.find((x) => x.id === templateId);
 
-  const submit = () => {
+  const [sending, setSending] = useState(false);
+  const submit = async () => {
     if (!rcp || !body.trim() || missing.length) return;
+    if (USE_API) {
+      // ⏳ Gửi Zalo / SMS thật làm ở giai đoạn 22 — server lưu nhật ký ở trạng thái "chờ gửi"
+      setSending(true);
+      try {
+        await sendMessage({
+          channel,
+          scenario: tpl?.scenario ?? 'custom',
+          templateId,
+          toName: rcp.name,
+          toPhone: rcp.phone,
+          leadId: target?.kind === 'lead' ? target.leadId : rcp.leadId,
+          studentId: target?.kind === 'student' ? target.studentId : undefined,
+          body: body.trim(),
+        });
+        notify.toast.success(`Đã ghi tin ${CHANNEL_LABEL[channel]} cho ${rcp.name} — chờ gửi`);
+        onClose();
+      } catch (e) {
+        notify.toast.error(errorText(e, 'Không gửi được tin nhắn'));
+      } finally {
+        setSending(false);
+      }
+      return;
+    }
     send({
       channel,
       scenario: tpl?.scenario ?? 'custom',
@@ -199,7 +226,7 @@ export function SendMessageModal({ target, scenario, onClose }: { target: Messag
       footer={
         <div className="flex justify-end gap-2">
           <Button action="cancel" onClick={onClose} />
-          <Button icon={Send} disabled={!rcp || !body.trim() || missing.length > 0} onClick={submit}>
+          <Button icon={Send} disabled={!rcp || !body.trim() || missing.length > 0} onClick={submit} loading={sending}>
             Gửi {CHANNEL_LABEL[channel]}
           </Button>
         </div>

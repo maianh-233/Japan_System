@@ -14,7 +14,7 @@ export default function StaffLayout() {
   const { can } = useAuth();
   const { pathname } = useLocation();
   const hasReports = useMyReports().length > 0;
-  // Giả lập job phía server: cảnh báo / tự chuyển lead quá SLA
+  // Chế độ mock: giả lập job phía server — cảnh báo / tự chuyển lead quá SLA (chế độ API: server làm)
   useSlaWatcher();
   // Giả lập job: nhắc lịch hẹn tư vấn / test trước 1 giờ
   useAppointmentReminders();

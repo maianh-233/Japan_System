@@ -28,6 +28,10 @@ import { cn } from '@/lib/cn';
 import { fmtDate } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
 import { getBranches } from '@/features/system/useBranches';
+import { campaignStats, changeCampaignStatus, saveCampaign } from '@/features/crm/admission/admissionApi';
+import { useStaffNameOptions } from '@/features/crm/constants';
+import { errorText } from '@/features/crm/crmApi';
+import { USE_API } from '@/lib/api/config';
 import { ALL_BRANCHES } from '@/types/auth';
 
 const short = (v: number) => (v >= 1_000_000 ? `${(v / 1_000_000).toLocaleString('vi-VN', { maximumFractionDigits: 1 })} tr` : v >= 1000 ? `${Math.round(v / 1000)}k` : formatCurrency(v));
@@ -35,6 +39,8 @@ const branchName = (id: string) => getBranches(false).find((b) => b.id === id)?.
 
 interface Row extends Campaign {
   leads: Lead[];
+  /** Số lead (chế độ API: server đếm — cả lead ngoài phạm vi xem của mình) */
+  leadCount: number;
   won: number;
   /** Chi phí / lead */
   cpl?: number;
@@ -44,7 +50,10 @@ interface Row extends Campaign {
 
 type FormValues = Omit<CampaignInput, 'startDate' | 'endDate'> & { startDate: dayjs.Dayjs; endDate: dayjs.Dayjs };
 
-/** Chiến dịch marketing: ngân sách, số lead mang về, tỷ lệ chốt, chi phí / lead. DỮ LIỆU GIẢ. */
+/**
+ * Chiến dịch marketing (CRM-16): ngân sách, số lead mang về, tỷ lệ chốt, chi phí / lead.
+ * Chế độ API: chiến dịch lưu server, số lead / chốt server tính khi đọc.
+ */
 export default function CampaignsPage() {
   const { user, branchId, can } = useAuth();
   const { isMobile } = useBreakpoint();
@@ -52,6 +61,22 @@ export default function CampaignsPage() {
   const { campaigns, addCampaign, updateCampaign } = useAdmissionStore();
   const leads = useCrmStore((s) => s.leads);
   const editable = can('crm.campaigns');
+  const staffNames = useStaffNameOptions();
+  const save = async (id: string, patch: Partial<CampaignInput>, ok: string) => {
+    if (!USE_API) {
+      updateCampaign(id, patch);
+      return notify.toast.success(ok);
+    }
+    const c = campaigns.find((x) => x.id === id);
+    if (!c) return;
+    try {
+      if (patch.status && Object.keys(patch).length === 1) await changeCampaignStatus(id, patch.status);
+      else await saveCampaign(id, { ...c, ...patch });
+      notify.toast.success(ok);
+    } catch (e) {
+      notify.toast.error(errorText(e, 'Không lưu được chiến dịch'));
+    }
+  };
 
   const [status, setStatus] = useState<string>();
   const [channel, setChannel] = useState<string>();
@@ -64,8 +89,10 @@ export default function CampaignsPage() {
     () =>
       campaigns.map((c) => {
         const ls = leads.filter((l) => l.campaignId === c.id && !l.hidden);
+        const st = campaignStats.get(c.id);
+        if (USE_API && st) return { ...c, leads: ls, leadCount: st.leads, won: st.won, cpl: st.costPerLead ?? undefined, cpa: st.costPerWin ?? undefined };
         const won = ls.filter((l) => l.status === 'won').length;
-        return { ...c, leads: ls, won, cpl: ls.length ? c.spent / ls.length : undefined, cpa: won ? c.spent / won : undefined };
+        return { ...c, leads: ls, leadCount: ls.length, won, cpl: ls.length ? c.spent / ls.length : undefined, cpa: won ? c.spent / won : undefined };
       }),
     [campaigns, leads],
   );
@@ -74,7 +101,7 @@ export default function CampaignsPage() {
 
   const spent = rows.reduce((s, c) => s + c.spent, 0);
   const budget = rows.reduce((s, c) => s + c.budget, 0);
-  const nLeads = rows.reduce((s, c) => s + c.leads.length, 0);
+  const nLeads = rows.reduce((s, c) => s + c.leadCount, 0);
   const nWon = rows.reduce((s, c) => s + c.won, 0);
   const ranked = rows.filter((c) => c.cpl !== undefined).sort((a, b) => a.cpl! - b.cpl!);
   const maxCpl = Math.max(1, ...ranked.map((c) => c.cpl!));
@@ -158,10 +185,10 @@ export default function CampaignsPage() {
       title: 'Lead',
       width: 100,
       align: 'center',
-      sorter: (a, b) => a.leads.length - b.leads.length,
+      sorter: (a, b) => a.leadCount - b.leadCount,
       render: (_, r) => (
         <span className="tabular leading-5">
-          <b>{r.leads.length}</b>
+          <b>{r.leadCount}</b>
           {r.targetLeads ? <span className="block text-xs text-ink-muted">/ {r.targetLeads} chỉ tiêu</span> : null}
         </span>
       ),
@@ -175,7 +202,7 @@ export default function CampaignsPage() {
       render: (_, r) => (
         <span className="tabular leading-5">
           <b>{r.won}</b>
-          {r.leads.length > 0 && <span className="block text-xs text-ink-muted">{Math.round((r.won / r.leads.length) * 100)}%</span>}
+          {r.leadCount > 0 && <span className="block text-xs text-ink-muted">{Math.round((r.won / r.leadCount) * 100)}%</span>}
         </span>
       ),
     },
@@ -288,10 +315,7 @@ export default function CampaignsPage() {
                   variant="ghost"
                   tone="neutral"
                   aria-label={r.status === 'running' ? 'Tạm dừng' : 'Chạy tiếp'}
-                  onClick={() => {
-                    updateCampaign(r.id, { status: r.status === 'running' ? 'paused' : 'running' });
-                    notify.toast.success(r.status === 'running' ? 'Đã tạm dừng chiến dịch' : 'Chiến dịch chạy tiếp');
-                  }}
+                  onClick={() => void save(r.id, { status: r.status === 'running' ? 'paused' : 'running' }, r.status === 'running' ? 'Đã tạm dừng chiến dịch' : 'Chiến dịch chạy tiếp')}
                 />
               )}
             </>
@@ -317,7 +341,7 @@ export default function CampaignsPage() {
               {(
                 [
                   ['Đã chi', formatCurrency(open.spent)],
-                  ['Lead', `${open.leads.length}${open.targetLeads ? ` / ${open.targetLeads}` : ''}`],
+                  ['Lead', `${open.leadCount}${open.targetLeads ? ` / ${open.targetLeads}` : ''}`],
                   ['Chi phí / lead', open.cpl !== undefined ? formatCurrency(Math.round(open.cpl)) : '—'],
                   ['Chi phí / chốt', open.cpa !== undefined ? formatCurrency(Math.round(open.cpa)) : '—'],
                 ] as [string, string][]
@@ -393,10 +417,7 @@ export default function CampaignsPage() {
                     defaultValue={open.spent}
                     onBlur={(e) => {
                       const v = Number(String(e.target.value).replace(/\D/g, ''));
-                      if (!Number.isNaN(v) && v !== open.spent) {
-                        updateCampaign(open.id, { spent: v });
-                        notify.toast.success('Đã cập nhật chi phí');
-                      }
+                      if (!Number.isNaN(v) && v !== open.spent) void save(open.id, { spent: v }, 'Đã cập nhật chi phí');
                     }}
                   />
                 </div>
@@ -424,9 +445,16 @@ export default function CampaignsPage() {
             ? toForm(editing)
             : { status: 'planned', channel: 'facebook', branchIds: branchId === ALL_BRANCHES ? getBranches(false).map((b) => b.id) : [branchId], courses: [], spent: 0, owner: user?.fullName, startDate: dayjs(), endDate: dayjs().add(30, 'day') }
         }
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           if (v.endDate.isBefore(v.startDate, 'day')) throw new Error('Ngày kết thúc phải sau ngày bắt đầu');
           const input: CampaignInput = { ...v, courses: v.courses ?? [], startDate: v.startDate.format('YYYY-MM-DD'), endDate: v.endDate.format('YYYY-MM-DD') };
+          if (USE_API) {
+            // Trạng thái đổi riêng (server kiểm chuyển trạng thái hợp lệ)
+            const old = editing !== 'new' ? editing : null;
+            const saved = await saveCampaign(old?.id, input);
+            if (input.status && input.status !== saved.status) await changeCampaignStatus(saved.id, input.status);
+            return;
+          }
           if (editing === 'new') addCampaign(input);
           else if (editing) updateCampaign(editing.id, input);
         }}
@@ -464,8 +492,8 @@ export default function CampaignsPage() {
         <Form.Item name="courses" label="Khóa quảng bá">
           <Select mode="multiple" placeholder="Tất cả" options={COURSE_OPTIONS} />
         </Form.Item>
-        <Form.Item name="owner" label="Người phụ trách" rules={[{ required: true, message: 'Nhập người phụ trách' }]}>
-          <TextInput />
+        <Form.Item name="owner" label="Người phụ trách" rules={[{ required: true, message: USE_API ? 'Chọn người phụ trách' : 'Nhập người phụ trách' }]}>
+          {USE_API ? <Select placeholder="Chọn nhân viên" options={staffNames} /> : <TextInput />}
         </Form.Item>
         <Form.Item name="utm" label="Mã UTM" tooltip="Gắn vào link quảng cáo (utm_campaign=...) — lead từ form tự gắn chiến dịch này">
           <TextInput placeholder="fb_n5_t12" />

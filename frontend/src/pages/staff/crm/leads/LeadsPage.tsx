@@ -28,8 +28,14 @@ import { LeadDetailDrawer, type LeadTab } from '@/features/crm/components/LeadDe
 import { useHideLead } from '@/features/crm/useHideLead';
 import { LeadImportDialog } from '@/features/crm/LeadImportDialog';
 import type { Lead, LeadStatus } from '@/features/crm/types';
+import { assignLead, createLead, errorText } from '@/features/crm/crmApi';
+import { loadAssignmentLogs } from '@/features/crm/admission/admissionApi';
+import { USE_API } from '@/lib/api/config';
 
-/** Trang Lead — DỮ LIỆU GIẢ (store trong bộ nhớ, tải lại trang sẽ về dữ liệu mẫu). */
+/**
+ * Trang Lead (CRM-01 → CRM-06). Chế độ API: lead trong phạm vi nạp sẵn khi đăng nhập, lọc / tìm tại chỗ; thêm / giao / ẩn gọi server.
+ * Chế độ mock: store trong bộ nhớ.
+ */
 export default function LeadsPage() {
   const { user, branchId, currentBranch, can } = useAuth();
   const notify = useNotify();
@@ -44,7 +50,7 @@ export default function LeadsPage() {
   const allSales = useSales();
   const campaigns = useAdmissionStore((s) => s.campaigns);
   /** SLA của lead theo quy tắc chia lead khớp (không có → mặc định) */
-  const sla = (l: Lead) => slaOf(rules, l);
+  const sla = (l: Lead) => l.slaMinutes ?? slaOf(rules, l);
 
   const [status, setStatus] = useState<LeadStatus | 'all'>('all');
   const [source, setSource] = useState<string>();
@@ -68,9 +74,10 @@ export default function LeadsPage() {
 
   const studentCount = useMemo(() => {
     const m = new Map<string, number>();
-    links.forEach((k) => m.set(k.leadId, (m.get(k.leadId) ?? 0) + 1));
+    if (USE_API) leads.forEach((l) => l.linkedStudents && m.set(l.id, l.linkedStudents));
+    else links.forEach((k) => m.set(k.leadId, (m.get(k.leadId) ?? 0) + 1));
     return m;
-  }, [links]);
+  }, [links, leads]);
 
   // Lọc theo chi nhánh đang chọn + ẩn/hiện + nguồn + sale (TRƯỚC lọc trạng thái → để đếm số theo trạng thái)
   const base = useMemo(
@@ -294,8 +301,17 @@ export default function LeadsPage() {
               placeholder="Giao cho Sale..."
               className="!w-44"
               options={(branchId === ALL_BRANCHES ? allSales : sales).map((s) => ({ value: s.id, label: s.fullName }))}
-              onChange={(v) => {
+              onChange={async (v) => {
                 if (!v) return;
+                if (USE_API) {
+                  const results = await Promise.allSettled(keys.map((k) => assignLead(String(k), v as string)));
+                  const failed = results.filter((r): r is PromiseRejectedResult => r.status === 'rejected');
+                  const ok = keys.length - failed.length;
+                  if (ok) notify.success({ title: `Đã giao ${ok} lead`, description: `cho ${saleName(v as string)}` });
+                  if (failed.length) notify.toast.warning(`${failed.length} lead chưa giao được: ${errorText(failed[0].reason, 'lỗi máy chủ')}`);
+                  setSelected([]);
+                  return;
+                }
                 keys.forEach((k) => updateLead(String(k), { assigneeId: v as string }));
                 notify.success({ title: `Đã giao ${keys.length} lead`, description: `cho ${saleName(v as string)}` });
                 setSelected([]);
@@ -341,6 +357,18 @@ export default function LeadsPage() {
         successMessage="Đã thêm lead mới"
         initialValues={{ status: 'new', branchId: defaultBranch, assigneeId: me?.department === 'sales' ? me.id : undefined }}
         onSubmit={async (v) => {
+          if (USE_API) {
+            const { lead, warnings } = await createLead(formToLead(v));
+            setStatus('all');
+            // Không chọn Sale → server tự chia theo quy tắc, lý do nằm trong nhật ký chia lead
+            const log = !v.assigneeId ? (await loadAssignmentLogs(lead.id).catch(() => []))[0] : undefined;
+            setTimeout(() => {
+              if (log) notify.info({ title: log.saleId ? `Lead ${lead.code} tự chia cho ${saleName(log.saleId)}` : `Lead ${lead.code} chưa có Sale`, description: log.reason });
+              else notify.info({ title: `Lead ${lead.code} đã được tạo`, description: 'Bấm vào lead để thêm lịch sử tư vấn.' });
+              warnings.forEach((w) => notify.toast.warning(w.message));
+            }, 300);
+            return;
+          }
           await new Promise((r) => setTimeout(r, 700)); // giả lập gọi API
           const lead = addLead(formToLead(v), user?.fullName ?? 'Nhân viên');
           setStatus('all');

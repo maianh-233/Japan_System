@@ -1,3 +1,4 @@
+import { USE_API } from '@/lib/api/config';
 import { useEffect } from 'react';
 import dayjs from 'dayjs';
 import { useRoomStore } from '@/features/academic/rooms/roomStore';
@@ -69,6 +70,7 @@ export function runAppointmentReminders(now = dayjs()): number {
 /** Chạy khi vào cổng nhân viên và mỗi phút sau đó */
 export function useAppointmentReminders(intervalMs = 60_000) {
   useEffect(() => {
+    if (USE_API) return; // Chế độ API: job server làm (CrmMinuteJob)
     runAppointmentReminders();
     const t = window.setInterval(() => runAppointmentReminders(), intervalMs);
     return () => window.clearInterval(t);

@@ -131,6 +131,21 @@ export const ROUTE_METHODS: Record<RouteMethod, { label: string; hint: string }>
 /** Người / vai trò có thể nhận cảnh báo quá SLA */
 export const ESCALATE_OPTIONS = ['Sale phụ trách', 'Trưởng nhóm Sale', 'Quản lý chi nhánh', 'Giám đốc tuyển sinh'].map((v) => ({ value: v, label: v }));
 
+/**
+ * Nhân viên (không phải giáo viên) còn làm việc — chọn người nhận cảnh báo quá SLA / người phụ trách chiến dịch (chế độ API: server lưu theo Id).
+ * Giá trị = họ tên (store giữ tên để hiển thị, đổi tên → Id khi gửi server).
+ */
+export function useStaffNameOptions() {
+  const employees = useHrStore((s) => s.employees);
+  return useMemo(
+    () =>
+      employees
+        .filter((e) => e.kind !== 'teacher' && e.status !== 'quit')
+        .map((e) => ({ value: e.fullName, label: `${e.fullName} · ${e.position}` })),
+    [employees],
+  );
+}
+
 // ---------------- Test xếp lớp ----------------
 
 export const PLACEMENT_STATUS: Record<PlacementTestStatus, { label: string; tone: Tone; icon: LucideIcon }> = {

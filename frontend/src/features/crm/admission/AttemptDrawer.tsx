@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Drawer, Progress } from 'antd';
 import { Check, Copy, NotebookPen, X } from 'lucide-react';
 import { Button, StatusTag, useNotify } from '@/components/common';
@@ -11,6 +12,9 @@ import { fmtDateTime } from '@/lib/date';
 import { ATTEMPT_STATUS, courseLabel, SEND_CHANNELS } from '../constants';
 import { useCrmStore } from '../crmStore';
 import type { PlacementSection } from '../types';
+import { USE_API } from '@/lib/api/config';
+import { errorText, loadLead } from '../crmApi';
+import { loadTestQuestions, logAttempt, type TestQuestion } from './admissionApi';
 import { useAdmissionStore } from './admissionStore';
 import { pctOf, testLink } from './placement';
 
@@ -29,14 +33,31 @@ export function AttemptDrawer({ attemptId, onClose }: Props) {
   const updateAttempt = useAdmissionStore((s) => s.updateAttempt);
   const lead = useCrmStore((s) => s.leads.find((l) => l.id === attempt?.leadId));
   const { addConsultation, updateLead } = useCrmStore();
-  const questions = useQuestionStore((s) => s.questions);
+  const storeQuestions = useQuestionStore((s) => s.questions);
+  // Chế độ API: câu của đề lấy từ server (có đáp án — chỉ nhân viên), không phụ thuộc ngân hàng đã nạp
+  const [testQs, setTestQs] = useState<TestQuestion[]>();
+  useEffect(() => {
+    setTestQs(undefined);
+    if (USE_API && attempt?.status === 'done' && attempt.testId) loadTestQuestions(attempt.testId).then(setTestQs, () => undefined);
+  }, [attempt?.testId, attempt?.status]);
+  const questions: Pick<TestQuestion, 'id' | 'code' | 'level' | 'skill' | 'stem' | 'options' | 'answer'>[] = testQs ?? storeQuestions;
 
   const done = attempt?.status === 'done';
   const pct = attempt ? pctOf(attempt) : 0;
   const link = attempt ? testLink(attempt.token) : '';
 
-  const logToLead = () => {
+  const logToLead = async () => {
     if (!attempt || !lead || !test) return;
+    if (USE_API) {
+      try {
+        await logAttempt(attempt.id);
+        await loadLead(lead.id).catch(() => undefined);
+        notify.success({ title: 'Đã ghi vào lịch sử tư vấn', description: `Khóa quan tâm của ${lead.fullName} → ${courseLabel(attempt.suggestedCourse)}` });
+      } catch (e) {
+        notify.toast.error(errorText(e, 'Không ghi được kết quả'));
+      }
+      return;
+    }
     addConsultation({
       leadId: lead.id,
       channel: 'message',

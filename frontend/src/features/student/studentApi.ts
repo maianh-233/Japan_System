@@ -130,7 +130,7 @@ export async function loadEnrollments(classId?: string) {
   }
 }
 
-async function refreshStudent(id: string) {
+export async function refreshStudent(id: string) {
   upsertStudents([await api<ServerStudent>(`/students/${toGuid(id)}`)]);
 }
 

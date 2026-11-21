@@ -48,6 +48,12 @@ export interface Lead {
   slaEscalatedAt?: string;
   /** Đã tự chuyển Sale do quá 2×SLA (mỗi lead chuyển tự động 1 lần) */
   slaReassignedAt?: string;
+  // ---- Chế độ API: server tính sẵn (chế độ mock tính tại chỗ) ----
+  /** Quá SLA theo quy tắc khớp (CRM-01.E2) */
+  slaOverdue?: boolean;
+  slaMinutes?: number;
+  /** Số học viên liên kết */
+  linkedStudents?: number;
 }
 
 /** Kênh gửi thông báo cho phụ huynh: điểm danh, nhắc học phí, kết quả học tập */

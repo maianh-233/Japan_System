@@ -194,7 +194,7 @@ interface ServerPromotionOffer {
   interest?: { at: string; by: 'student' | 'parent' };
 }
 
-interface ServerPromotion {
+export interface ServerPromotion {
   id: string;
   studentId: string;
   fromClassId: string;
@@ -281,7 +281,7 @@ const toLeave = (r: ServerLeaveRequest): LeaveRequest => ({
   note: r.note,
 });
 
-const toPromotion = (p: ServerPromotion): PromotionCandidate => ({
+export const toPromotion = (p: ServerPromotion): PromotionCandidate => ({
   id: fromGuid(p.id),
   studentId: fromGuid(p.studentId),
   fromClassId: fromGuid(p.fromClassId),

@@ -8,6 +8,9 @@ import { APPOINTMENT_KIND, APPOINTMENT_STATUS, useAppointmentStore, type Appoint
 import { BookAppointmentModal } from '@/features/crm/appointments/BookAppointmentModal';
 import { LeadDetailDrawer } from '@/features/crm/components/LeadDetailDrawer';
 import { useCrmStore } from '@/features/crm/crmStore';
+import { closeAppointment } from '@/features/crm/appointments/appointmentApi';
+import { errorText, loadLead } from '@/features/crm/crmApi';
+import { USE_API } from '@/lib/api/config';
 import { SendMessageModal, type MessageTarget } from '@/features/crm/messages/SendMessageModal';
 import type { MessageScenario } from '@/features/crm/messages/messages';
 import { useHrStore } from '@/features/hr/hrStore';
@@ -26,7 +29,10 @@ interface Row extends Appointment {
 type View = 'upcoming' | 'today' | 'past' | 'week';
 const STATUS_ICON: Record<Appointment['status'], LucideIcon> = { scheduled: CalendarCheck, done: CheckCircle2, no_show: UserX, cancelled: XCircle };
 
-/** Lịch hẹn tư vấn / test tại trung tâm — đặt lịch, kiểm tra trùng phòng & người, nhắc trước 1 giờ, ghi kết quả */
+/**
+ * Lịch hẹn tư vấn / test tại trung tâm (CRM-14, CRM-15) — đặt lịch, kiểm tra trùng phòng & người, nhắc trước 1 giờ, ghi kết quả.
+ * Chế độ API: server kiểm trùng, nhắc (job), ghi lịch sử tư vấn / hẹn gọi lại khi đóng lịch.
+ */
 export default function AppointmentsPage() {
   const { branchId, currentBranch, can } = useAuth();
   const me = useMe();
@@ -60,7 +66,7 @@ export default function AppointmentsPage() {
         .filter((a) => (branchId === ALL_BRANCHES || a.branchId === branchId) && (!kind || a.kind === kind) && (!staffId || a.staffId === staffId))
         .map((a) => {
           const l = leads.find((x) => x.id === a.leadId);
-          return { ...a, leadName: l?.fullName ?? a.leadId, leadPhone: l?.phone ?? '', staffName: employees.find((e) => e.id === a.staffId)?.fullName ?? '—', roomName: rooms.find((r) => r.id === a.roomId)?.name };
+          return { ...a, leadName: l?.fullName ?? a.leadName ?? a.leadId, leadPhone: l?.phone ?? a.leadPhone ?? '', staffName: employees.find((e) => e.id === a.staffId)?.fullName ?? '—', roomName: rooms.find((r) => r.id === a.roomId)?.name };
         }),
     [appointments, branchId, kind, staffId, leads, employees, rooms],
   );
@@ -77,6 +83,17 @@ export default function AppointmentsPage() {
     unresolved: rows.filter((r) => r.status === 'scheduled' && dayjs(r.end).isBefore(now)).length,
   };
 
+  /** Chế độ API: đóng lịch trên server (server ghi lịch sử tư vấn / hẹn gọi lại) rồi nạp lại lead */
+  const close = async (r: Row, outcome: 'done' | 'no-show' | 'cancel', text: string | undefined, ok: string) => {
+    try {
+      await closeAppointment(r.id, outcome, text);
+      void loadLead(r.leadId).catch(() => undefined);
+      notify.toast.success(ok);
+    } catch (e) {
+      notify.toast.error(errorText(e, 'Không cập nhật được lịch hẹn'));
+    }
+  };
+
   const markDone = async (r: Row) => {
     const res = await confirm({
       title: `${r.leadName} đã đến?`,
@@ -86,6 +103,7 @@ export default function AppointmentsPage() {
       requireReason: { label: 'Kết quả buổi hẹn', placeholder: r.kind === 'test' ? 'VD: Đạt mức N4, gợi ý lớp N3 tối 3-5' : 'VD: Ưng lớp N4 tối 2-4-6, hẹn test thứ 7', minLength: 3 },
     });
     if (!res) return;
+    if (USE_API) return close(r, 'done', res.reason, 'Đã ghi kết quả vào lịch sử tư vấn');
     update(r.id, { status: 'done', outcome: res.reason });
     useCrmStore.getState().addConsultation({ leadId: r.leadId, channel: 'meeting', result: r.kind === 'test' ? 'test_booked' : 'interested', content: `Đến ${APPOINTMENT_KIND[r.kind].label.toLowerCase()} (${r.code}): ${res.reason}`, staffName: r.staffName });
     notify.toast.success('Đã ghi kết quả vào lịch sử tư vấn');
@@ -93,6 +111,7 @@ export default function AppointmentsPage() {
   const markNoShow = async (r: Row) => {
     const ok = await confirm({ title: `${r.leadName} không đến?`, description: 'Lead được đặt hẹn gọi lại sau 1 ngày.', tone: 'warning', confirmText: 'Không đến' });
     if (!ok) return;
+    if (USE_API) return close(r, 'no-show', undefined, 'Đã đánh dấu không đến · hẹn gọi lại');
     update(r.id, { status: 'no_show' });
     useCrmStore.getState().updateLead(r.leadId, { nextFollowUpAt: dayjs().add(1, 'day').hour(10).minute(0).toISOString() });
     notify.toast.info('Đã đánh dấu không đến · hẹn gọi lại ngày mai');
@@ -100,6 +119,7 @@ export default function AppointmentsPage() {
   const cancel = async (r: Row) => {
     const res = await confirm({ title: `Hủy lịch ${r.code}?`, tone: 'danger', confirmAction: 'reject', confirmText: 'Hủy lịch', requireReason: { label: 'Lý do', placeholder: 'VD: Khách báo bận, chưa hẹn lại' } });
     if (!res) return;
+    if (USE_API) return close(r, 'cancel', res.reason, 'Đã hủy lịch hẹn');
     update(r.id, { status: 'cancelled', cancelReason: res.reason });
     notify.toast.info('Đã hủy lịch hẹn');
   };

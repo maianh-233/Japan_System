@@ -8,6 +8,7 @@ import { loadCurricula } from '@/features/academic/curriculum/curriculumApi';
 import { loadClasses } from '@/features/academic/classes/classApi';
 import { loadRooms } from '@/features/academic/rooms/roomApi';
 import { loadStudents } from '@/features/student/studentApi';
+import { loadCrm } from '@/features/crm/loadCrm';
 import { loadEmployees } from '@/features/hr/hrApi';
 import { loadBranches } from '@/features/system/branchApi';
 import { loadSystem, rememberAccount } from '@/features/system/systemApi';
@@ -33,6 +34,8 @@ export async function onSignedIn(user: SessionUser & { accountId?: string }) {
   await Promise.all([quiet(loadSystem()), quiet(loadBranches()), quiet(loadEmployees()), quiet(loadCourses()), quiet(loadCurricula()), quiet(loadRooms())]);
   // Lớp cần phòng (đổi tên phòng ↔ Id) → tải sau phòng
   await Promise.all([quiet(loadClasses()), quiet(loadStudents()), quiet(loadStaffRequests())]);
+  // Tuyển sinh (lead, chia lead, test, lịch hẹn, chiến dịch, mẫu tin) — cần nhân viên / khóa học đã nạp để đổi tên ↔ Id
+  await quiet(loadCrm());
 }
 
 /**

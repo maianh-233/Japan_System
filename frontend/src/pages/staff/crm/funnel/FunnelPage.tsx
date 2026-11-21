@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Drawer, Segmented, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { ArrowDown, Hourglass, TriangleAlert } from 'lucide-react';
-import { DataTable, PageHeader, Select, StatusTag, UserCell, type DataColumn } from '@/components/common';
+import { DataTable, PageHeader, Select, StatusTag, UserCell, useNotify, type DataColumn } from '@/components/common';
 import { useAppointmentStore } from '@/features/crm/appointments/appointments';
 import { useAdmissionStore } from '@/features/crm/admission/admissionStore';
 import { LeadDetailDrawer } from '@/features/crm/components/LeadDetailDrawer';
@@ -10,6 +10,9 @@ import { LEAD_SOURCES, saleName } from '@/features/crm/constants';
 import { useCrmStore } from '@/features/crm/crmStore';
 import { fmtDuration, journeyOf, STAGE_LABEL, STAGES, STUCK_DAYS, summarize, type FunnelStage, type FunnelSummary, type LeadJourney } from '@/features/crm/funnel';
 import type { LeadSource } from '@/features/crm/types';
+import { loadFunnel } from '@/features/crm/funnelApi';
+import { errorText } from '@/features/crm/crmApi';
+import { USE_API } from '@/lib/api/config';
 import { useMe } from '@/features/me/useMe';
 import { useAuth } from '@/hooks/useAuth';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
@@ -52,7 +55,25 @@ export default function FunnelPage() {
   const [stuckOpen, setStuckOpen] = useState<StuckStage | null>(null);
   const [leadId, setLeadId] = useState<string | null>(null);
 
-  const journeys = useMemo(() => {
+  // Chế độ API: server dựng hành trình (đủ lịch sử tư vấn / test / lịch hẹn của mọi lead, phạm vi own) — nạp lại khi đổi kỳ / chi nhánh
+  const notify = useNotify();
+  const [serverJourneys, setServerJourneys] = useState<LeadJourney[]>();
+  useEffect(() => {
+    if (!USE_API) return;
+    const from = period ? dayjs().subtract(period, 'day').format('YYYY-MM-DD') : undefined;
+    let live = true;
+    loadFunnel(from, branchId === ALL_BRANCHES ? undefined : branchId).then(
+      (js) => live && setServerJourneys(js),
+      (e) => live && notify.toast.error(errorText(e, 'Không tải được phễu chuyển đổi')),
+    );
+    return () => {
+      live = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [period, branchId, leads]);
+
+  const localJourneys = useMemo(() => {
+    if (USE_API) return [];
     const since = period ? dayjs().subtract(period, 'day') : undefined;
     const by = <T extends { leadId: string }>(xs: T[]) => {
       const m = new Map<string, T[]>();
@@ -67,6 +88,7 @@ export default function FunnelPage() {
       .filter((l) => (branchId === ALL_BRANCHES || l.branchId === branchId) && (!since || dayjs(l.createdAt).isAfter(since)) && (!ownOnly || l.assigneeId === me?.id))
       .map((l) => journeyOf(l, { consults: c.get(l.id) ?? [], attempts: a.get(l.id) ?? [], appointments: ap.get(l.id) ?? [], links: lk.get(l.id) ?? [] }));
   }, [leads, consults, attempts, appointments, links, branchId, period, ownOnly, me]);
+  const journeys = USE_API ? (serverJourneys ?? []) : localJourneys;
 
   const keyOf = (j: LeadJourney): { key: string; label: string } => {
     const l = j.lead;

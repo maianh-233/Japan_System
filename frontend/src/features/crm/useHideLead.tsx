@@ -1,4 +1,6 @@
 import { useConfirm, useNotify } from '@/components/common';
+import { USE_API } from '@/lib/api/config';
+import { errorText, setLeadHidden } from './crmApi';
 import { useCrmStore } from './crmStore';
 import type { Lead } from './types';
 
@@ -9,13 +11,28 @@ export function useHideLead() {
   const setHidden = useCrmStore((s) => s.setHidden);
   const links = useCrmStore((s) => s.links);
 
+  /** Chế độ API: gọi server; lỗi → báo, trả false */
+  const apply = async (lead: Lead, hidden: boolean) => {
+    if (!USE_API) {
+      setHidden(lead.id, hidden);
+      return true;
+    }
+    try {
+      await setLeadHidden(lead.id, hidden);
+      return true;
+    } catch (e) {
+      notify.toast.error(errorText(e, 'Không cập nhật được lead'));
+      return false;
+    }
+  };
+
   const toggleHidden = async (lead: Lead) => {
     if (lead.hidden) {
-      setHidden(lead.id, false);
+      if (!(await apply(lead, false))) return;
       notify.toast.success(`Đã bỏ ẩn ${lead.fullName}`);
       return;
     }
-    const studentCount = links.filter((k) => k.leadId === lead.id).length;
+    const studentCount = lead.linkedStudents ?? links.filter((k) => k.leadId === lead.id).length;
     const ok = await confirm({
       title: `Ẩn lead ${lead.fullName}?`,
       description: 'Lead sẽ không hiện trong danh sách mặc định. Có thể xem lại bằng bộ lọc “Hiện lead đã ẩn” và bỏ ẩn bất cứ lúc nào.',
@@ -29,8 +46,7 @@ export function useHideLead() {
       confirmAction: 'save',
       confirmText: 'Ẩn lead',
     });
-    if (!ok) return;
-    setHidden(lead.id, true);
+    if (!ok || !(await apply(lead, true))) return;
     notify.success({ title: 'Đã ẩn lead', description: lead.fullName });
   };
 

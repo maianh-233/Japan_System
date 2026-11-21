@@ -4,6 +4,9 @@ import { CalendarPlus, EyeOff, GraduationCap, Info, MessageCircle, MessagesSquar
 import { Button, StatusTag, useNotify } from '@/components/common';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { fmtDateTime, fromNow } from '@/lib/date';
+import { USE_API } from '@/lib/api/config';
+import { errorText, loadLead, updateLead as saveLead } from '../crmApi';
+import { loadMessages } from '../messages/messageApi';
 import { useCrmStore } from '../crmStore';
 import { useHideLead } from '../useHideLead';
 import type { Lead } from '../types';
@@ -30,6 +33,7 @@ export function LeadDetailDrawer({ leadId, initialTab = 'info', onClose, onOpenL
   const lead = useCrmStore((s) => s.leads.find((l) => l.id === leadId));
   const consultCount = useCrmStore((s) => s.consultations.filter((c) => c.leadId === leadId).length);
   const studentCount = useCrmStore((s) => s.links.filter((k) => k.leadId === leadId).length);
+  const notify = useNotify();
   const [tab, setTab] = useState<LeadTab>(initialTab);
   const { toggleHidden, confirmDialog } = useHideLead();
   const [enrolling, setEnrolling] = useState(false);
@@ -39,6 +43,14 @@ export function LeadDetailDrawer({ leadId, initialTab = 'info', onClose, onOpenL
   useEffect(() => {
     if (leadId) setTab(initialTab);
   }, [leadId, initialTab]);
+
+  // Chế độ API: mở lead → nạp thông tin mới nhất + lịch sử tư vấn + HV liên kết + tin đã gửi
+  useEffect(() => {
+    if (!USE_API || !leadId) return;
+    loadLead(leadId).catch((e) => notify.toast.error(errorText(e, 'Không tải được chi tiết lead')));
+    loadMessages({ leadId }).catch(() => undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [leadId]);
 
   return (
     <Drawer
@@ -151,8 +163,21 @@ function InfoTab({ lead, onOpenLead }: { lead: Lead; onOpenLead: (id: string) =>
 
   const save = async (values: LeadFormValues) => {
     setSaving(true);
-    await new Promise((r) => setTimeout(r, 600)); // giả lập gọi API
     const data = formToLead(values);
+    if (USE_API) {
+      try {
+        const { warnings } = await saveLead(lead.id, data);
+        setDirty(false);
+        notify.success({ title: 'Đã cập nhật lead', description: `${lead.code} — ${data.fullName}` });
+        warnings.forEach((w) => notify.toast.warning(w.message));
+      } catch (e) {
+        notify.toast.error(errorText(e, 'Không lưu được lead'));
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
+    await new Promise((r) => setTimeout(r, 600)); // giả lập gọi API
     updateLead(lead.id, { ...data, lostReason: data.status === 'lost' ? data.lostReason : undefined });
     setSaving(false);
     setDirty(false);
@@ -162,7 +187,7 @@ function InfoTab({ lead, onOpenLead }: { lead: Lead; onOpenLead: (id: string) =>
   const meta: [string, string][] = [
     ['Mã lead', lead.code],
     ['Ngày tạo', `${fmtDateTime(lead.createdAt)} (${fromNow(lead.createdAt)})`],
-    ['Người tạo', lead.createdBy],
+    ...(lead.createdBy ? [['Người tạo', lead.createdBy] as [string, string]] : []),
     ['Liên hệ gần nhất', lead.lastContactAt ? `${fmtDateTime(lead.lastContactAt)} (${fromNow(lead.lastContactAt)})` : 'Chưa liên hệ'],
   ];
   if (lead.hidden && lead.hiddenAt) meta.push(['Ẩn lúc', fmtDateTime(lead.hiddenAt)]);

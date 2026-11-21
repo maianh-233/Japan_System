@@ -1,3 +1,4 @@
+import { USE_API } from '@/lib/api/config';
 import { useEffect } from 'react';
 import dayjs from 'dayjs';
 import { useHrStore } from '@/features/hr/hrStore';
@@ -114,6 +115,7 @@ export function runSlaCheck(at = dayjs()): { escalated: number; reassigned: numb
 /** Chạy kiểm tra SLA khi vào cổng nhân viên và mỗi phút sau đó */
 export function useSlaWatcher(intervalMs = 60_000) {
   useEffect(() => {
+    if (USE_API) return; // Chế độ API: job server làm (CrmMinuteJob)
     runSlaCheck();
     const t = window.setInterval(() => runSlaCheck(), intervalMs);
     return () => window.clearInterval(t);

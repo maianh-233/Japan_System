@@ -7,6 +7,8 @@ import { cn } from '@/lib/cn';
 import { fmtDateTime, fromNow } from '@/lib/date';
 import { useAuth } from '@/hooks/useAuth';
 import { CONSULT_CHANNELS, CONSULT_RESULTS, LEAD_STATUS_OPTIONS } from '../constants';
+import { USE_API } from '@/lib/api/config';
+import { addConsultation as saveConsultation, changeLeadStatus, errorText } from '../crmApi';
 import { useCrmStore } from '../crmStore';
 import { APPOINTMENT_KIND, APPOINTMENT_STATUS, useAppointmentStore } from '../appointments/appointments';
 import { CHANNEL_LABEL, useMessageStore } from '../messages/messages';
@@ -42,6 +44,22 @@ export function ConsultationTab({ lead }: { lead: Lead }) {
 
   const submit = async (v: FormValues) => {
     setSaving(true);
+    if (USE_API) {
+      try {
+        await saveConsultation(lead.id, { channel: v.channel, result: v.result, content: v.content.trim(), nextFollowUpAt: v.nextFollowUpAt?.toISOString() });
+        // Server đã tự chuyển Mới → Đang tư vấn; chọn giai đoạn khác thì đổi tiếp
+        const now = useCrmStore.getState().leads.find((l) => l.id === lead.id)?.status;
+        if (v.newStatus && v.newStatus !== now) await changeLeadStatus(lead.id, v.newStatus, v.newStatus === 'lost' ? v.content.trim() : undefined);
+        setAdding(false);
+        form.resetFields();
+        notify.toast.success('Đã thêm lịch sử tư vấn');
+      } catch (e) {
+        notify.toast.error(errorText(e, 'Không lưu được lần tư vấn'));
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
     await new Promise((r) => setTimeout(r, 500)); // giả lập gọi API
     addConsultation({
       leadId: lead.id,

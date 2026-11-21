@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Form, Radio } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import { CircleAlert, CircleCheck } from 'lucide-react';
@@ -7,8 +7,11 @@ import { useRoomStore } from '@/features/academic/rooms/roomStore';
 import { useHrStore } from '@/features/hr/hrStore';
 import { useAuth } from '@/hooks/useAuth';
 import { ALL_BRANCHES } from '@/types/auth';
+import { USE_API } from '@/lib/api/config';
+import { loadLead } from '../crmApi';
 import { useCrmStore } from '../crmStore';
-import { APPOINTMENT_KIND, DEFAULT_DURATION, findConflicts, REMIND_BEFORE_MIN, useAppointmentStore, type Appointment, type AppointmentKind } from './appointments';
+import { checkAppointment, createAppointment, rescheduleAppointment } from './appointmentApi';
+import { APPOINTMENT_KIND, DEFAULT_DURATION, findConflicts, REMIND_BEFORE_MIN, useAppointmentStore, type Appointment, type AppointmentKind, type Conflict } from './appointments';
 
 interface Values {
   leadId: string;
@@ -56,7 +59,23 @@ export function BookAppointmentModal({ open, onClose, leadId, editing, defaultKi
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [start?.valueOf(), end?.valueOf(), apBranch, v?.roomId, v?.staffId, v?.leadId, appointments, rooms, employees, leads, editing?.id],
   );
-  const blocking = conflicts;
+  // Chế độ API: hỏi server (đủ cả buổi học, giờ dạy, nghỉ dài ngày) — ô gợi ý BẬN / trống vẫn tính tại chỗ
+  const [serverConflicts, setServerConflicts] = useState<Conflict[]>();
+  useEffect(() => {
+    setServerConflicts(undefined);
+    if (!USE_API || !start || !end || !apBranch || !v?.leadId || !v?.staffId || !v?.kind) return;
+    const t = window.setTimeout(
+      () =>
+        checkAppointment({ id: editing?.id, leadId: v.leadId!, kind: v.kind!, branchId: apBranch, roomId: v.roomId, staffId: v.staffId!, start, end }).then(
+          setServerConflicts,
+          () => undefined,
+        ),
+      400,
+    );
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [start?.valueOf(), end?.valueOf(), apBranch, v?.roomId, v?.staffId, v?.leadId, v?.kind, editing?.id]);
+  const blocking = serverConflicts ?? conflicts;
 
   /** Phòng bận / trống trong khung giờ đang chọn (để gợi ý ngay trong ô chọn) */
   const roomOptions = rooms
@@ -99,6 +118,16 @@ export function BookAppointmentModal({ open, onClose, leadId, editing, defaultKi
       onSubmit={async (val) => {
         if (!start || !end || !apBranch) throw new Error('Chọn ngày giờ');
         if (blocking.length) throw new Error('Lịch bị trùng — đổi giờ, phòng hoặc người tiếp');
+        if (USE_API) {
+          // Server kiểm trùng lần cuối (409), ghi lịch sử tư vấn, hẹn test → lead "Đã hẹn test"
+          const note = val.note?.trim() || undefined;
+          const a = editing
+            ? await rescheduleAppointment(editing.id, { roomId: val.roomId, staffId: val.staffId, start, end, note })
+            : await createAppointment({ leadId: val.leadId, kind: val.kind, branchId: apBranch, roomId: val.roomId, staffId: val.staffId, start, end, note });
+          if (!editing) void loadLead(val.leadId).catch(() => undefined);
+          onSaved?.(a);
+          return;
+        }
         await new Promise((r) => setTimeout(r, 300));
         const base = { leadId: val.leadId, kind: val.kind, branchId: apBranch, roomId: val.roomId, staffId: val.staffId, start: start.toISOString(), end: end.toISOString(), note: val.note?.trim() || undefined };
         if (editing) {
@@ -154,9 +183,9 @@ export function BookAppointmentModal({ open, onClose, leadId, editing, defaultKi
 
       <div className="md:col-span-2">
         {start && end && (
-          conflicts.length ? (
+          blocking.length ? (
             <ul className="flex flex-col gap-1 rounded-lg bg-danger-50 px-3 py-2 text-[13px]">
-              {conflicts.map((c, i) => (
+              {blocking.map((c, i) => (
                 <li key={i} className="flex items-start gap-2 text-danger-700">
                   <CircleAlert size={15} className="mt-0.5 shrink-0" aria-hidden />
                   {c.message}

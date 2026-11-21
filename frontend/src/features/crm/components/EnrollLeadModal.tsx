@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Checkbox, Modal, Radio, Steps } from 'antd';
 import dayjs from 'dayjs';
 import { CheckCircle2, ClipboardCheck, GraduationCap, Receipt, Sparkles, User, Users } from 'lucide-react';
@@ -18,6 +18,8 @@ import { cn } from '@/lib/cn';
 import { formatCurrency } from '@/lib/format';
 import { useAdmissionStore } from '../admission/admissionStore';
 import { courseLabel, RELATIONSHIPS } from '../constants';
+import { USE_API } from '@/lib/api/config';
+import { enrollLead, errorText } from '../crmApi';
 import { useCrmStore } from '../crmStore';
 import type { Lead, Relationship, Student } from '../types';
 
@@ -92,6 +94,9 @@ export function EnrollLeadModal({ lead, open, onClose, presetStudentId }: Props)
   const [method, setMethod] = useState<PaymentMethod>('transfer');
   const [error, setError] = useState<string>();
   const [result, setResult] = useState<{ student: Student; cls?: ClassInfo; invoice?: Invoice; paid: number }>();
+  const [busy, setBusy] = useState(false);
+  /** 1 lần chốt = 1 khóa chống gửi trùng; lỗi → khóa mới cho lần thử sau */
+  const idemKey = useRef(crypto.randomUUID());
 
   const studentIdForCheck = who === 'existing' ? existingId : undefined;
 
@@ -143,7 +148,45 @@ export function EnrollLeadModal({ lead, open, onClose, presetStudentId }: Props)
     setStep(step + 1);
   };
 
+  /** Chế độ API: server tạo HV + ghi danh + liên kết + chốt lead (CRM-07); ⏳ hóa đơn / thu tiền còn giả đến giai đoạn 19 */
+  const finishApi = async () => {
+    setBusy(true);
+    try {
+      const r = await enrollLead(
+        lead.id,
+        {
+          who: who === 'existing' ? 'linked' : who,
+          studentId: who === 'existing' ? existingId : undefined,
+          student: who === 'other' ? { fullName: fullName.trim(), phone: phone || undefined, dob: dob?.format('YYYY-MM-DD'), relationship } : undefined,
+          classId: cls?.id,
+          discount: cls ? discount || 0 : 0,
+          dueDate: cls ? dueDate?.format('YYYY-MM-DD') : undefined,
+        },
+        idemKey.current,
+      );
+      const student = useCrmStore.getState().students.find((s) => s.id === r.studentId) ?? {
+        id: r.studentId,
+        code: r.studentCode,
+        fullName: r.studentName,
+        branchId: lead.branchId,
+        joinedAt: new Date().toISOString(),
+        hidden: false,
+      };
+      const invoice = r.enrollmentId ? useStudentStore.getState().invoices.find((i) => i.enrollmentId === r.enrollmentId) : undefined;
+      const paidNow = invoice && collectNow ? paid : 0;
+      if (invoice && paidNow > 0)
+        useStudentStore.getState().addPayment(invoice.id, { amount: paidNow, method, paidAt: new Date().toISOString(), collector: staffName });
+      setResult({ student, cls, invoice, paid: paidNow });
+    } catch (e) {
+      idemKey.current = crypto.randomUUID();
+      setError(errorText(e, 'Không chốt được lead, vui lòng thử lại'));
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const finish = () => {
+    if (USE_API) return void finishApi();
     // 1. Người học
     let student: Student;
     if (who === 'existing') {
@@ -198,6 +241,7 @@ export function EnrollLeadModal({ lead, open, onClose, presetStudentId }: Props)
       setFullName('');
       setPhone('');
       setDob(null);
+      idemKey.current = crypto.randomUUID();
     }, 300);
   };
 
@@ -229,7 +273,7 @@ export function EnrollLeadModal({ lead, open, onClose, presetStudentId }: Props)
         ) : (
           <Button action="cancel" onClick={close} />
         )}
-        <Button icon={step === 2 || (step === 1 && !classId) ? CheckCircle2 : GraduationCap} onClick={next}>
+        <Button icon={step === 2 || (step === 1 && !classId) ? CheckCircle2 : GraduationCap} onClick={next} loading={busy}>
           {step === 0 ? 'Tiếp: chọn lớp' : step === 1 ? (classId ? 'Tiếp: học phí' : 'Tạo hồ sơ, chưa xếp lớp') : 'Hoàn tất ghi danh'}
         </Button>
       </div>

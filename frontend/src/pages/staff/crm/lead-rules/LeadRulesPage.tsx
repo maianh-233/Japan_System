@@ -18,7 +18,10 @@ import {
 } from '@/components/common';
 import { useAdmissionStore, type RuleInput } from '@/features/crm/admission/admissionStore';
 import { isOnShift, openLoad, routeLead, slaOf } from '@/features/crm/admission/routing';
-import { COURSE_OPTIONS, courseLabel, ESCALATE_OPTIONS, LEAD_SOURCE_OPTIONS, LEAD_SOURCES, ROUTE_METHODS, saleName, useSales } from '@/features/crm/constants';
+import { COURSE_OPTIONS, courseLabel, ESCALATE_OPTIONS, LEAD_SOURCE_OPTIONS, LEAD_SOURCES, ROUTE_METHODS, saleName, useSales, useStaffNameOptions } from '@/features/crm/constants';
+import { deleteRule, loadAssignmentLogs, reorderRules, ruleWarnings, saveRule } from '@/features/crm/admission/admissionApi';
+import { assignLead, errorText } from '@/features/crm/crmApi';
+import { USE_API } from '@/lib/api/config';
 import { isSlaOverdue, useCrmStore } from '@/features/crm/crmStore';
 import type { AssignmentLog, Lead, LeadRule, LeadSource } from '@/features/crm/types';
 import { useWorkStore } from '@/features/work/workStore';
@@ -137,7 +140,10 @@ function HowItWorks({ onHide }: { onHide: () => void }) {
   );
 }
 
-/** Quy tắc chia lead tự động + SLA liên hệ lần đầu + cảnh báo quá hạn. DỮ LIỆU GIẢ. */
+/**
+ * Quy tắc chia lead tự động + SLA liên hệ lần đầu + cảnh báo quá hạn (CRM-09 → CRM-11).
+ * Chế độ API: quy tắc / thứ tự / nhật ký lưu server, server chia lead + quét SLA mỗi phút. Ô "Thử chia" vẫn chạy tại chỗ (cùng luật).
+ */
 export default function LeadRulesPage() {
   const { branchId, can } = useAuth();
   const notify = useNotify();
@@ -147,6 +153,30 @@ export default function LeadRulesPage() {
   const updateLead = useCrmStore((s) => s.updateLead);
   const shifts = useWorkStore((s) => s.shifts);
   const editable = can('crm.lead-rules');
+  const staffNames = useStaffNameOptions();
+  /** Chạy thao tác server, lỗi → báo */
+  const run = async (fn: () => Promise<unknown>, ok?: string) => {
+    try {
+      await fn();
+      if (ok) notify.toast.success(ok);
+    } catch (e) {
+      notify.toast.error(errorText(e, 'Không lưu được thay đổi'));
+    }
+  };
+  const move = (id: string, dir: -1 | 1) => {
+    if (!USE_API) return moveRule(id, dir);
+    const ids = rules.map((r) => r.id);
+    const i = ids.indexOf(id);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= ids.length) return;
+    [ids[i], ids[j]] = [ids[j], ids[i]];
+    void run(() => reorderRules(ids));
+  };
+  const toggleActive = (r: LeadRule, active: boolean) => {
+    if (!USE_API) return updateRule(r.id, { active });
+    const { id: _id, cursor: _cursor, ...input } = r;
+    void run(() => saveRule(r.id, { ...input, active }));
+  };
 
   const [editing, setEditing] = useState<LeadRule | 'new' | null>(null);
   const [guideHidden, setGuideHidden] = useState(readGuideHidden);
@@ -175,13 +205,18 @@ export default function LeadRulesPage() {
       tone: 'danger',
       confirmAction: 'delete',
     });
-    if (ok) {
-      removeRule(r.id);
-      notify.toast.success('Đã xóa quy tắc');
-    }
+    if (!ok) return;
+    if (USE_API) return run(() => deleteRule(r.id), 'Đã xóa quy tắc');
+    removeRule(r.id);
+    notify.toast.success('Đã xóa quy tắc');
   };
 
   const reassign = (lead: Lead, saleId: string) => {
+    if (USE_API)
+      return void run(async () => {
+        await assignLead(lead.id, saleId, `Chuyển tay do quá SLA (trước: ${saleName(lead.assigneeId) ?? 'chưa giao'})`);
+        await loadAssignmentLogs(lead.id);
+      }, `Đã chuyển ${lead.fullName} cho ${saleName(saleId)}`);
     updateLead(lead.id, { assigneeId: saleId });
     useAdmissionStore.getState().addLog({ leadId: lead.id, saleId, reason: `Chuyển tay do quá SLA (trước: ${saleName(lead.assigneeId) ?? 'chưa giao'})` });
     notify.toast.success(`Đã chuyển ${lead.fullName} cho ${saleName(saleId)}`);
@@ -292,13 +327,16 @@ export default function LeadRulesPage() {
                     </span>
                     {r.reassignOnBreach && <span className="text-warning-700">Quá {r.slaMinutes * 2} phút → tự chuyển Sale khác</span>}
                   </p>
+                  {(ruleWarnings.get(r.id) ?? []).map((w) => (
+                    <p key={w} className="mt-2 rounded-md bg-warning-50 px-2.5 py-1.5 text-[13px] text-warning-800">{w}</p>
+                  ))}
                 </div>
                 {editable && (
                   <div className="flex shrink-0 flex-col items-end gap-2">
-                    <Switch size="small" checked={r.active} onChange={(v) => updateRule(r.id, { active: v })} aria-label={r.active ? 'Tắt quy tắc' : 'Bật quy tắc'} />
+                    <Switch size="small" checked={r.active} onChange={(v) => toggleActive(r, v)} aria-label={r.active ? 'Tắt quy tắc' : 'Bật quy tắc'} />
                     <div className="flex gap-1">
-                      <Button icon={ArrowUp} iconOnly size="sm" variant="ghost" tone="neutral" aria-label="Lên trên" disabled={i === 0} onClick={() => moveRule(r.id, -1)} />
-                      <Button icon={ArrowDown} iconOnly size="sm" variant="ghost" tone="neutral" aria-label="Xuống dưới" disabled={i === rules.length - 1} onClick={() => moveRule(r.id, 1)} />
+                      <Button icon={ArrowUp} iconOnly size="sm" variant="ghost" tone="neutral" aria-label="Lên trên" disabled={i === 0} onClick={() => move(r.id, -1)} />
+                      <Button icon={ArrowDown} iconOnly size="sm" variant="ghost" tone="neutral" aria-label="Xuống dưới" disabled={i === rules.length - 1} onClick={() => move(r.id, 1)} />
                     </div>
                     <div className="flex gap-1">
                       <Button action="edit" iconOnly size="sm" onClick={() => setEditing(r)} />
@@ -404,10 +442,14 @@ export default function LeadRulesPage() {
         initialValues={
           editing && editing !== 'new'
             ? editing
-            : { active: true, sources: [], branchIds: branchId === ALL_BRANCHES ? [] : [branchId], interests: [], method: 'round_robin', saleIds: [], onlyOnShift: true, slaMinutes: 15, escalateTo: ['Trưởng nhóm Sale'], reassignOnBreach: false }
+            : { active: true, sources: [], branchIds: branchId === ALL_BRANCHES ? [] : [branchId], interests: [], method: 'round_robin', saleIds: [], onlyOnShift: true, slaMinutes: 15, escalateTo: USE_API ? [] : ['Trưởng nhóm Sale'], reassignOnBreach: false }
         }
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           const input = { ...v, sources: v.sources ?? [], branchIds: v.branchIds ?? [], interests: v.interests ?? [], escalateTo: v.escalateTo ?? [] };
+          if (USE_API) {
+            await saveRule(editing === 'new' ? undefined : editing?.id, input);
+            return;
+          }
           if (editing === 'new') addRule(input);
           else if (editing) updateRule(editing.id, input);
         }}
@@ -431,10 +473,10 @@ export default function LeadRulesPage() {
           <Select mode="multiple" placeholder="Chọn Sale" options={allSales.map((s) => ({ value: s.id, label: `${s.fullName} · ${branchName(s.branchId)}${s.status === 'probation' ? ' (thử việc)' : ''}` }))} />
         </Form.Item>
         <Form.Item name="slaMinutes" label="Thời hạn liên hệ lần đầu (phút)" rules={[{ required: true, message: 'Nhập SLA' }]}>
-          <NumberInput min={5} max={1440} step={5} />
+          <NumberInput min={USE_API ? 1 : 5} max={USE_API ? 10080 : 1440} step={5} />
         </Form.Item>
         <Form.Item name="escalateTo" label="Quá hạn báo cho">
-          <Select mode="multiple" placeholder="Chọn người nhận cảnh báo" options={ESCALATE_OPTIONS} />
+          <Select mode="multiple" placeholder="Chọn người nhận cảnh báo" options={USE_API ? staffNames : ESCALATE_OPTIONS} />
         </Form.Item>
         <Form.Item name="onlyOnShift" valuePropName="checked" className="!mb-2 md:col-span-2">
           <Checkbox>Chỉ chia cho Sale đang trong ca làm việc (theo Xếp ca) — hết người trong ca thì chia cho cả nhóm</Checkbox>

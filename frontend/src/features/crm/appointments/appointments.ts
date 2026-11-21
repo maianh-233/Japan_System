@@ -36,6 +36,9 @@ export interface Appointment {
   remindedAt?: string;
   /** Hủy / đổi lịch: lý do */
   cancelReason?: string;
+  /** Chế độ API: tên / SĐT lead server trả kèm (lead ngoài phạm vi xem của mình vẫn hiện tên) */
+  leadName?: string;
+  leadPhone?: string;
 }
 
 export const APPOINTMENT_KIND: Record<AppointmentKind, { label: string; short: string }> = {
@@ -164,6 +167,7 @@ interface AppointmentState {
   update: (id: string, patch: Partial<Appointment>) => void;
 }
 
+/** Chế độ API: dữ liệu nạp / cập nhật qua `appointmentApi.ts`; các hàm dưới chỉ dùng ở chế độ mock */
 export const useAppointmentStore = create<AppointmentState>((set) => ({
   appointments: mock(),
   add: (input) => {

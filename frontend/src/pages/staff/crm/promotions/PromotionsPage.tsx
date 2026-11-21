@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Drawer, Form, Radio, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { ArrowRight, CircleCheck, Eye, Hourglass, Inbox, MessageSquarePlus, Phone, Sparkles, UserRound, Users, XCircle } from 'lucide-react';
@@ -12,6 +12,9 @@ import { usePromotionStore } from '@/features/academic/promotion/promotionStore'
 import { ageOf, DECLINE_REASONS, isOpen, PROMOTION_STATUS, seatActive, viewStatus, type Decider } from '@/features/academic/promotion/promotionUtils';
 import type { PromotionCandidate } from '@/features/academic/promotion/types';
 import { useDecider } from '@/features/academic/promotion/usePromotion';
+import { addSaleNote, confirmPromotion, declinePromotion, loadSalePromotions, markUnreachable, serverDeciders } from '@/features/academic/promotion/salePromotionApi';
+import { errorText } from '@/features/crm/crmApi';
+import { USE_API } from '@/lib/api/config';
 import { CONSULT_CHANNELS, saleName, useSales } from '@/features/crm/constants';
 import { useCrmStore } from '@/features/crm/crmStore';
 import type { ConsultChannel } from '@/features/crm/types';
@@ -64,8 +67,28 @@ export default function PromotionsPage() {
   const students = useCrmStore((s) => s.students);
   const candidates = usePromotionStore((s) => s.candidates);
   const { addNote, update, confirm } = usePromotionStore();
-  const decider = useDecider();
+  const localDecider = useDecider();
   const editable = can('crm.promotions');
+  // Chế độ API: nạp đề xuất đã giao Sale (phạm vi own) + người quyết định do server tính
+  const [loaded, setLoaded] = useState(0);
+  useEffect(() => {
+    if (!USE_API) return;
+    loadSalePromotions()
+      .then(() => setLoaded((n) => n + 1))
+      .catch((e) => notify.toast.error(errorText(e, 'Không tải được danh sách tư vấn lên lớp')));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const decider = useCallback(
+    (studentId: string): Decider => {
+      if (!USE_API || !serverDeciders.has(studentId)) return localDecider(studentId);
+      const base = localDecider(studentId);
+      const g = serverDeciders.get(studentId);
+      return g ? { ...base, kind: 'guardian', leadId: g.leadId, name: g.name, phone: g.phone, groupKey: `lead:${g.leadId}` } : { ...base, kind: 'self', groupKey: `student:${studentId}` };
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [localDecider, loaded],
+  );
+  const confirmKey = useRef(crypto.randomUUID());
 
   const [tab, setTab] = useState<Tab>('todo');
   const [kw, setKw] = useState('');
@@ -214,7 +237,7 @@ export default function PromotionsPage() {
                       </p>
                     </div>
                   </div>
-                  {editable && tab !== 'done' && !g.items[0].saleId && me && (
+                  {!USE_API && editable && tab !== 'done' && !g.items[0].saleId && me && (
                     <Button
                       icon={UserRound}
                       size="sm"
@@ -316,8 +339,15 @@ export default function PromotionsPage() {
         submitAction="save"
         successMessage="Đã lưu ghi chú tư vấn"
         initialValues={{ channel: 'call', result: 'consulting' }}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           const ids = noteFor!.items.filter((x) => isOpen(x.c)).map((x) => x.c.id);
+          if (USE_API) {
+            for (const id of ids) {
+              await addSaleNote(id, v.text, v.channel);
+              if (v.result === 'unreachable') await markUnreachable(id);
+            }
+            return;
+          }
           addNote(ids, { by, text: v.text, channel: v.channel });
           ids.forEach((id) => update(id, { status: v.result }));
         }}
@@ -349,12 +379,23 @@ export default function PromotionsPage() {
         submitText="Ghi danh"
         successMessage="Đã ghi danh — hóa đơn học phí đã tạo"
         initialValues={{ toClassId: confirming?.c.toClassId }}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
+          if (USE_API) {
+            // Lớp đề xuất do giáo vụ chọn (tab Lên lớp của lớp) — Sale chốt đúng lớp đó
+            if (v.toClassId !== confirming!.c.toClassId) throw new Error('Đổi lớp đề xuất cần giáo vụ cập nhật ở tab Lên lớp của lớp');
+            try {
+              await confirmPromotion(confirming!.c.id, confirmKey.current);
+            } finally {
+              confirmKey.current = crypto.randomUUID();
+            }
+            return;
+          }
           if (!confirm(confirming!.c.id, v.toClassId, by)) throw new Error('Học viên đã có trong lớp này');
         }}
       >
         <Form.Item name="toClassId" label="Lớp" rules={[{ required: true, message: 'Chọn lớp' }]}>
           <Select
+            disabled={USE_API}
             options={classes
               .filter((c) => c.status === 'enrolling' || c.status === 'ongoing')
               .sort((a, b) => Number(b.id === confirming?.c.toClassId) - Number(a.id === confirming?.c.toClassId) || Number(b.status === 'enrolling') - Number(a.status === 'enrolling'))
@@ -372,7 +413,11 @@ export default function PromotionsPage() {
         description="Trả lại chỗ đã giữ trong lớp mới."
         submitAction="save"
         successMessage="Đã ghi nhận"
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
+          if (USE_API) {
+            await declinePromotion(declining!.c.id, v.text ? `${v.reason} — ${v.text}` : v.reason);
+            return;
+          }
           update(declining!.c.id, { status: 'declined', declineReason: v.reason, seatHeld: false });
           if (v.text) addNote([declining!.c.id], { by, text: v.text });
         }}

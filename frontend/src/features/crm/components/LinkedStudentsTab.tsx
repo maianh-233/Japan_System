@@ -9,6 +9,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { STUDY_STATUS } from '@/features/student/constants';
 import { studyStatusOf, useStudentStore } from '@/features/student/studentStore';
 import { RELATIONSHIPS } from '../constants';
+import { USE_API } from '@/lib/api/config';
+import { errorText, linkStudent as saveLink, unlinkStudent as removeLink } from '../crmApi';
 import { useCrmStore } from '../crmStore';
 import type { Lead, Relationship } from '../types';
 import { EnrollLeadModal } from './EnrollLeadModal';
@@ -68,10 +70,15 @@ export function LinkedStudentsTab({ lead }: { lead: Lead }) {
       confirmAction: 'reject',
       confirmText: 'Gỡ liên kết',
     });
-    if (ok) {
-      unlinkStudent(lead.id, studentId);
-      notify.toast.success('Đã gỡ liên kết');
-    }
+    if (!ok) return;
+    if (USE_API) {
+      try {
+        (await removeLink(lead.id, studentId)).forEach((w) => notify.toast.warning(w.message));
+      } catch (e) {
+        return notify.toast.error(errorText(e, 'Không gỡ được liên kết'));
+      }
+    } else unlinkStudent(lead.id, studentId);
+    notify.toast.success('Đã gỡ liên kết');
   };
 
   return (
@@ -174,6 +181,13 @@ export function LinkedStudentsTab({ lead }: { lead: Lead }) {
         successMessage="Đã liên kết học viên"
         initialValues={{ relationship: 'child' }}
         onSubmit={async (v) => {
+          if (USE_API) {
+            // HV chưa có liên hệ chính → người này là liên hệ chính, nhận hóa đơn & thông báo
+            const hasPrimary = links.some((k) => k.studentId === v.studentId && k.primary);
+            const warnings = await saveLink(lead.id, v.studentId, { relationship: v.relationship, primary: !hasPrimary, billing: !hasPrimary, notify: true });
+            warnings.forEach((w) => notify.toast.warning(w.message));
+            return;
+          }
           await new Promise((r) => setTimeout(r, 500));
           linkStudent(lead.id, v.studentId, v.relationship, user?.fullName ?? 'Nhân viên');
         }}

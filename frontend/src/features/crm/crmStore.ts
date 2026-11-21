@@ -9,8 +9,8 @@ import { routeLead } from './admission/routing';
 import type { Consultation, Lead, LeadStudentLink, Relationship, Student } from './types';
 
 /**
- * Store CRM GIẢ LẬP (trong bộ nhớ, mất khi tải lại trang).
- * Khi có backend: thay các hàm dưới bằng gọi API, giữ nguyên chữ ký để component không phải sửa.
+ * Store CRM. Chế độ API: lead / lịch sử tư vấn / liên kết nạp và cập nhật qua `crmApi.ts` (hồ sơ HV qua studentApi);
+ * các hàm ghi dưới đây chỉ dùng ở chế độ mock (và trang Phụ huynh — ⏳ chưa nối).
  */
 
 export type LeadInput = Omit<Lead, 'id' | 'code' | 'createdAt' | 'createdBy' | 'hidden' | 'hiddenAt' | 'lastContactAt'>;
@@ -183,6 +183,8 @@ export const useCrmStore = create<CrmState>((set, get) => ({
 
 /** Lead mới, chưa có lần liên hệ nào, tạo quá X phút */
 export function isSlaOverdue(lead: Lead, minutes: number): boolean {
+  // Chế độ API: server tính theo quy tắc khớp lúc đọc
+  if (lead.slaOverdue !== undefined) return lead.slaOverdue;
   return lead.status === 'new' && !lead.lastContactAt && dayjs().diff(dayjs(lead.createdAt), 'minute') >= minutes;
 }
 

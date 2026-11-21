@@ -4,6 +4,7 @@ import StaffLayout from '@/layouts/StaffLayout';
 import { ParentLayout, StudentLayout, TeacherLayout } from '@/layouts/PortalLayouts';
 import LoginPage from '@/pages/auth/login/LoginPage';
 import ActivatePage from '@/pages/auth/activate/ActivatePage';
+import PlacementTakePage from '@/pages/public/placement/PlacementTakePage';
 import ComingSoon from '@/pages/common/ComingSoon';
 import NotFound from '@/pages/errors/NotFound';
 import StaffDashboard from '@/pages/staff/dashboard/StaffDashboard';
@@ -104,6 +105,8 @@ export const router = createBrowserRouter([
   { path: '/', element: <RootRedirect /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/activate', element: <ActivatePage /> },
+  // Lead làm test xếp lớp qua link Sale gửi — công khai, không cần đăng nhập (CRM-13)
+  { path: '/t/:token', element: <PlacementTakePage /> },
   {
     path: '/admin',
     element: (

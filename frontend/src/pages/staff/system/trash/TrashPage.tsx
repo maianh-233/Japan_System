@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { ArchiveRestore, Trash2 } from 'lucide-react';
 import { Button, DataTable, PageHeader, StatusTag, useConfirm, useNotify, type DataColumn } from '@/components/common';
 import { useCrmStore } from '@/features/crm/crmStore';
+import { setLeadHidden } from '@/features/crm/crmApi';
 import { useSettings } from '@/features/system/settings';
 import { daysLeft, TRASH_KIND, useTrashStore, type TrashKind } from '@/features/system/trash';
 import { fetchTrash, purgeTrash, restoreTrash, type ServerTrashRow } from '@/features/system/trashApi';
@@ -83,7 +84,17 @@ export default function TrashPage() {
   }, [items, serverItems, leads, students, days, branchId, kind]);
 
   const doRestore = async (r: Row) => {
-    if (r.kind === 'lead') useCrmStore.getState().setHidden(r.refId, false);
+    if (r.kind === 'lead') {
+      if (!USE_API) useCrmStore.getState().setHidden(r.refId, false);
+      else {
+        try {
+          await setLeadHidden(r.refId, false);
+        } catch (e) {
+          notify.toast.error(errorText(e, 'Không bỏ ẩn được lead'));
+          return;
+        }
+      }
+    }
     else if (r.kind === 'student') {
       if (!USE_API) useCrmStore.getState().setStudentHidden(r.refId, false);
       else {
