@@ -9,6 +9,8 @@ import { GuardianDetailDrawer, type GuardianTab } from '@/features/student/guard
 import { GuardianFormFields, type GuardianFormValues } from '@/features/student/guardians/GuardianFormFields';
 import { ADULT_AGE, ageOf, buildGuardianRows, guardianGaps, NOTIFY_CHANNELS, type GuardianRow } from '@/features/student/guardians/guardianUtils';
 import { GUARDIAN_ROLE } from '@/features/student/constants';
+import { createGuardian, updateGuardian } from '@/features/student/guardians/guardianApi';
+import { USE_API } from '@/lib/api/config';
 import { useStudentStore } from '@/features/student/studentStore';
 import { useAuth } from '@/hooks/useAuth';
 import { useOpenParam } from '@/hooks/useOpenParam';
@@ -39,7 +41,10 @@ const STUDY_FILTER = [
   { value: 'none', label: 'Không còn con đang học' },
 ];
 
-/** Phụ huynh / Người giám hộ — DỮ LIỆU GIẢ. Suy ra từ người liên hệ (lead) có liên kết với học viên. */
+/**
+ * Phụ huynh / Người giám hộ (HV-12) — người liên hệ (lead) có liên kết với học viên.
+ * Chế độ API: nạp sau đăng nhập (/crm/guardians, quyền students.contacts); thêm / sửa / liên kết gọi server. ⏳ Cấp tài khoản cổng (HV-13) còn giả.
+ */
 export default function GuardiansPage() {
   const { user, branchId, currentBranch, branches, can } = useAuth();
   const notify = useNotify();
@@ -230,6 +235,20 @@ export default function GuardiansPage() {
   const editingLead = dialog?.kind === 'edit' ? leads.find((l) => l.id === dialog.leadId) : undefined;
 
   const submit = async (v: GuardianFormValues) => {
+    if (USE_API) {
+      const contact = { fullName: v.fullName.trim(), phone: v.phone.trim(), email: v.email?.trim() || undefined, notifyChannels: v.notifyChannels, note: v.note?.trim() || undefined };
+      const r = editingLead
+        ? await updateGuardian(editingLead.id, { ...contact, branchId: v.branchId ?? editingLead.branchId })
+        : await createGuardian({ ...contact, branchId: v.branchId!, relationship: v.relationship ?? 'child', studentIds: v.studentIds ?? [], primary: v.primary });
+      const lead = useCrmStore.getState().leads.find((l) => l.id === r.leadId);
+      // ⏳ Tài khoản cổng phụ huynh (HV-13) còn ở dữ liệu giả
+      if (!editingLead && lead && v.issueAccount && !accounts.some((a) => a.ownerType === 'guardian' && a.ownerId === lead.id))
+        issueAccount({ ownerType: 'guardian', ownerId: lead.id, username: `ph.${lead.phone}`, email: lead.email ?? contact.email });
+      if (r.reused && lead) notify.info({ title: 'Đã liên kết vào người liên hệ có sẵn', description: `${lead.fullName} (${lead.code}) trùng số điện thoại` });
+      r.warnings.forEach((w) => notify.toast.warning(w));
+      if (!editingLead) setTimeout(() => open(r.leadId), 300);
+      return;
+    }
     await new Promise((r) => setTimeout(r, 400)); // giả lập gọi API
     const contact = { fullName: v.fullName.trim(), phone: v.phone.trim(), email: v.email?.trim() || undefined, notifyChannels: v.notifyChannels, note: v.note?.trim() || undefined };
     if (editingLead) {

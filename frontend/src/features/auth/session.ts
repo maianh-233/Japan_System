@@ -9,6 +9,9 @@ import { loadClasses } from '@/features/academic/classes/classApi';
 import { loadRooms } from '@/features/academic/rooms/roomApi';
 import { loadStudents } from '@/features/student/studentApi';
 import { loadCrm } from '@/features/crm/loadCrm';
+import { useCrmStore } from '@/features/crm/crmStore';
+import { hasPermission } from '@/lib/permission';
+import { loadGuardians } from '@/features/student/guardians/guardianApi';
 import { loadEmployees } from '@/features/hr/hrApi';
 import { loadBranches } from '@/features/system/branchApi';
 import { loadSystem, rememberAccount } from '@/features/system/systemApi';
@@ -35,7 +38,14 @@ export async function onSignedIn(user: SessionUser & { accountId?: string }) {
   // Lớp cần phòng (đổi tên phòng ↔ Id) → tải sau phòng
   await Promise.all([quiet(loadClasses()), quiet(loadStudents()), quiet(loadStaffRequests())]);
   // Tuyển sinh (lead, chia lead, test, lịch hẹn, chiến dịch, mẫu tin) — cần nhân viên / khóa học đã nạp để đổi tên ↔ Id
-  await quiet(loadCrm());
+  // Quyền xem trang theo grants server trả lúc đăng nhập — trang không có quyền thì không gọi API
+  const grants = (user as { grants?: Record<string, string> }).grants;
+  const canView = (page: string) =>
+    user.permissions?.includes('*') || (grants ? Boolean(grants[`${page}.view`]) : hasPermission(user.permissions ?? [], page));
+  await quiet(loadCrm(canView));
+  // Phụ huynh / người giám hộ (HV-12) — lead có liên kết HV; nạp sau Tuyển sinh để gộp vào cùng danh sách lead
+  if (canView('students.contacts')) await quiet(loadGuardians());
+  else useCrmStore.setState({ links: [] });
 }
 
 /**

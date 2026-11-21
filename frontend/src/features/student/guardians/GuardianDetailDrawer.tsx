@@ -15,6 +15,9 @@ import { AccountCard } from '../components/AccountCard';
 import { GUARDIAN_ROLE, STUDY_STATUS } from '../constants';
 import { useStudentStore } from '../studentStore';
 import { buildChildInfo, GUARDIAN_ROLE_OPTIONS, NOTIFY_CHANNELS, type GuardianRelationship } from './guardianUtils';
+import { currentFlags, linkGuardianStudent, unlinkGuardianStudent, updateGuardianLink, type LinkFlags } from './guardianApi';
+import { USE_API } from '@/lib/api/config';
+import { ApiError } from '@/lib/api/http';
 
 export type GuardianTab = 'children' | 'info' | 'account' | 'history';
 
@@ -44,9 +47,25 @@ export function GuardianDetailDrawer({ leadId, initialTab = 'children', editable
   const links = useCrmStore((s) => s.links);
   const students = useCrmStore((s) => s.students);
   const consultations = useCrmStore((s) => s.consultations);
-  const updateLink = useCrmStore((s) => s.updateLink);
+  const updateLinkLocal = useCrmStore((s) => s.updateLink);
   const linkStudent = useCrmStore((s) => s.linkStudent);
   const unlinkStudent = useCrmStore((s) => s.unlinkStudent);
+  /** Đổi cờ / quan hệ của 1 liên kết — chế độ API gọi server (giữ các cờ khác), báo cảnh báo; lỗi → false */
+  const updateLink = async (leadId: string, studentId: string, patch: Partial<LinkFlags>) => {
+    if (!USE_API) {
+      updateLinkLocal(leadId, studentId, patch);
+      return true;
+    }
+    const cur = currentFlags(leadId, studentId);
+    if (!cur) return false;
+    try {
+      (await updateGuardianLink(leadId, studentId, { ...cur, ...patch })).forEach((w) => notify.toast.warning(w));
+      return true;
+    } catch (e) {
+      notify.toast.error(e instanceof ApiError ? e.message : 'Không lưu được thay đổi');
+      return false;
+    }
+  };
   const enrollments = useStudentStore((s) => s.enrollments);
   const invoices = useStudentStore((s) => s.invoices);
   const accounts = useStudentStore((s) => s.accounts);
@@ -102,7 +121,7 @@ export function GuardianDetailDrawer({ leadId, initialTab = 'children', editable
         if (!ok) return;
       }
     }
-    updateLink(lead.id, studentId, { primary: on });
+    if (!(await updateLink(lead.id, studentId, { primary: on, ...(USE_API && on ? { billing: true } : {}) }))) return;
     notify.toast.success(on ? `${lead.fullName} là người liên hệ chính của ${name}` : 'Đã bỏ người liên hệ chính');
   };
 
@@ -120,15 +139,32 @@ export function GuardianDetailDrawer({ leadId, initialTab = 'children', editable
       confirmText: 'Gỡ liên kết',
     });
     if (!ok) return;
-    unlinkStudent(lead.id, studentId);
+    if (USE_API) {
+      try {
+        (await unlinkGuardianStudent(lead.id, studentId)).forEach((w) => notify.toast.warning(w));
+      } catch (e) {
+        return notify.toast.error(e instanceof ApiError ? e.message : 'Không gỡ được liên kết');
+      }
+    } else unlinkStudent(lead.id, studentId);
     notify.success({ title: 'Đã gỡ liên kết', description: `${lead.fullName} — ${name}` });
   };
 
-  const addChild = () => {
+  const addChild = async () => {
     if (!addId) return;
-    linkStudent(lead.id, addId, addRole, staff);
     const hasPrimary = links.some((k) => k.studentId === addId && k.primary);
-    updateLink(lead.id, addId, { notify: true, ...(hasPrimary ? {} : { primary: true, billing: true }) });
+    if (USE_API) {
+      try {
+        const warnings = await linkGuardianStudent(lead.id, addId, { relationship: addRole, primary: !hasPrimary, billing: !hasPrimary, notify: true });
+        warnings.forEach((w) => notify.toast.warning(w));
+      } catch (e) {
+        return notify.toast.error(e instanceof ApiError ? e.message : 'Không liên kết được học viên');
+      }
+      notify.success({ title: 'Đã liên kết học viên', description: students.find((s) => s.id === addId)?.fullName });
+      setAddId(undefined);
+      return;
+    }
+    linkStudent(lead.id, addId, addRole, staff);
+    updateLinkLocal(lead.id, addId, { notify: true, ...(hasPrimary ? {} : { primary: true, billing: true }) });
     notify.success({ title: 'Đã liên kết học viên', description: students.find((s) => s.id === addId)?.fullName });
     setAddId(undefined);
   };

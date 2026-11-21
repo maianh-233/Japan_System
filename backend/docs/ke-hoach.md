@@ -12,7 +12,7 @@
 | Hr: hồ sơ nhân viên / giáo viên | ✅ | ✅ |
 | Academic: khóa học, lộ trình, phòng, lớp, buổi, điểm danh, chấm công GV, đơn từ, dạy thay, lên lớp, nhận xét | ✅ | ✅ |
 | Students: hồ sơ, ghi danh (HV-01 → 11), chăm sóc bỏ học (HV-14), cổng GV / HV / PH | ✅ | ✅ |
-| Crm: lead, chia lead + SLA, test xếp lớp (cả trang làm bài công khai), lịch hẹn, chiến dịch, mẫu tin, phễu, tư vấn lên lớp | ✅ | ✅ (trừ trang Phụ huynh HV-12 — còn ghi liên kết giả) |
+| Crm: lead, chia lead + SLA, test xếp lớp (cả trang làm bài công khai), lịch hẹn, chiến dịch, mẫu tin, phễu, tư vấn lên lớp | ✅ | ✅ (cả trang Phụ huynh HV-12) |
 | Notifications (chuông) | ✅ | ✅ |
 | Finance, Work, Library | Chỉ có domain | ❌ |
 | Reporting | Chưa có | ❌ |
