@@ -365,3 +365,13 @@ lương = lương cứng × công ÷ công chuẩn + phụ cấp + hoa hồng (T
   giới hạn khóa / chi nhánh / lượt, trả lượt), `InstallmentPlan.ScheduleFor` (làm tròn 1.000đ, đợt cuối nhận phần lẻ), `MatchScorer` (tự khớp + gợi ý),
   `ReminderPlan` (mốc tự nhắc, nhắc bù khi job lỡ ngày), `DebtAgingRule`. Đã có mã lỗi `finance.invoice.pending_approval`, `has_payments`;
   ⏳ `finance.payroll.*` làm cùng lương (giai đoạn 22).
+- **API (giai đoạn 19 phase 3):** đã làm TC-01 → TC-11 theo bảng trên, khác đề xuất ở các điểm:
+  - Duyệt hoàn / hủy ở hộp duyệt chung: Finance mở phiếu qua `System.Contracts.IApprovalInbox`; System duyệt / từ chối / rút lại thì gọi
+    `Finance.Contracts.IInvoiceApprovals` trong cùng request (Finance kiểm lại nghiệp vụ, lỗi → phiếu giữ nguyên). Quyền duyệt = `finance.invoices.approve` tại chi nhánh của hóa đơn.
+  - Khớp tay: `POST bank-transactions/{id}/match` nhận `{ invoiceId }` hoặc tách `{ allocations: [{ invoiceId, amount }] }` (tổng = số tiền giao dịch).
+  - Webhook `POST integrations/bank/transactions`: header `X-Signature: sha256=<hex HMAC-SHA256(body)>`, khóa `Finance:BankWebhookSecret`; tài khoản nhận → chi nhánh theo `bankAccount`.
+  - Cổng HV / PH: `GET portal/invoices?studentId=` trả luôn thông tin VietQR (`qr`), không có endpoint `/qr` riêng.
+  - Công nợ: `GET debts?branchId=&classId=` trả từng hóa đơn còn nợ + người trả + tổng theo tuổi nợ (frontend tự gom theo người trả / lớp / chi nhánh).
+  - Tự nhắc: job Quartz 08:00 hằng ngày (`POST reminders/auto` để chạy tay). Nợ quá hạn → Students đọc qua `Finance.Contracts.ITuitionQuery` khi tính cảnh báo bỏ học (thay cho event `InvoiceOverdue`).
+  - ⏳ Còn lại: áp mã ưu đãi / chính sách đóng đợt khi ghi danh (sự kiện `StudentEnrolled` chưa mang mã / chính sách — làm cùng phase 4),
+    gửi nhắc thật qua Zalo / SMS / email (module Thông báo), khôi phục hóa đơn đã hủy từ Thùng rác, `integration_logs` cho webhook.

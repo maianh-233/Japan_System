@@ -17,7 +17,7 @@ public sealed class ApprovalReader(ISystemDbContext db)
     public static bool CanApproveKind(ApprovalKind kind, ICurrentUser user) =>
         user.Can("system.approvals", PermissionAction.View) && (kind == ApprovalKind.FinancePermission
             ? user.Can("system.audit", PermissionAction.View) || user.Can("system.user-permissions", PermissionAction.View)
-            : user.Can("finance.invoices", PermissionAction.View));
+            : user.Can("finance.invoices", PermissionAction.Approve));
 
     public async Task<IReadOnlyList<ApprovalDto>> ListAsync(ICurrentUser user, string? status, CancellationToken ct, ApprovalRequestId? only = null)
     {

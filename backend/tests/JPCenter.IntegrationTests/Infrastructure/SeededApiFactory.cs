@@ -20,6 +20,8 @@ public sealed class SeededApiFactory : WebApplicationFactory<Program>, IAsyncLif
 {
     public const string Password = "Test@12345";
     public const int OutboxMaxAttempts = 3;
+    /// <summary>Khóa ký webhook ngân hàng (TC-10.E6)</summary>
+    public const string BankWebhookSecret = "test-bank-webhook-secret";
     private readonly PostgresFixture _pg = new();
 
     static SeededApiFactory() => Environment.SetEnvironmentVariable("JPCENTER_SKIP_DOTENV", "1");
@@ -45,6 +47,7 @@ public sealed class SeededApiFactory : WebApplicationFactory<Program>, IAsyncLif
         builder.UseSetting("Seed:Enabled", "true");
         builder.UseSetting("Seed:DefaultPassword", Password);
         builder.UseSetting("RateLimit:Enabled", "false");
+        builder.UseSetting("Finance:BankWebhookSecret", BankWebhookSecret);
         // Outbox chạy nhanh để test không phải chờ lâu
         builder.UseSetting("Outbox:PollMilliseconds", "200");
         builder.UseSetting("Outbox:RetryBaseMilliseconds", "50");

@@ -59,6 +59,7 @@ public sealed class SystemModule : IModule
         services.AddScoped<IBranchDirectory, BranchDirectory>();
         services.AddScoped<IStaffAccessDirectory, StaffAccessDirectory>();
         services.AddScoped<IHolidayCalendar, HolidayCalendar>();
+        services.AddScoped<IApprovalInbox, ApprovalInbox>();
         services.AddScoped<ICenterSettings, CenterSettingsProvider>();
 
         // Thùng rác: mỗi loại dữ liệu xóa mềm 1 ITrashHandler (module khác tự đăng ký của mình)

@@ -1,5 +1,6 @@
 using JPCenter.Modules.Academic.Contracts;
 using JPCenter.Modules.Academic.Contracts.Dtos;
+using JPCenter.Modules.Finance.Contracts;
 using JPCenter.Modules.Students.Application.Abstractions;
 using JPCenter.Modules.System.Contracts;
 using JPCenter.Modules.Students.Domain.CareCases;
@@ -15,9 +16,9 @@ namespace JPCenter.Modules.Students.Application.CareCases.Common;
 /// có dấu hiệu mà chưa có case → mở mới; đã có → <see cref="CareCase.Reassess"/> (E2 giữ case khi hết dấu hiệu, E3 mở lại khi có dấu hiệu mới).
 /// Chuyên cần đọc qua <c>Academic.Contracts.IAttendanceStats</c>.
 /// Ngưỡng lấy từ Cài đặt chung (<c>atRisk.*</c>, System.Contracts.ICenterSettings — CD-03).
-/// ⏳ Bài tập / điểm thi (giai đoạn 20), nợ quá hạn (Finance — giai đoạn 19) tạm tính 0.
+/// Nợ quá hạn đọc qua <c>Finance.Contracts.ITuitionQuery</c> (TC-11.E3). ⏳ Bài tập / điểm thi (giai đoạn 20) tạm tính 0.
 /// </summary>
-public sealed class RiskCalculator(IStudentsDbContext db, IAttendanceStats attendance, ICenterSettings settings, IClock clock)
+public sealed class RiskCalculator(IStudentsDbContext db, IAttendanceStats attendance, ITuitionQuery tuition, ICenterSettings settings, IClock clock)
 {
     /// <param name="classIds">null = mọi lớp có HV đang học</param>
     /// <param name="studentIds">null = mọi HV đang học của các lớp đó</param>
@@ -40,13 +41,15 @@ public sealed class RiskCalculator(IStudentsDbContext db, IAttendanceStats atten
         var cases = (await db.CareCases.IgnoreQueryFilters().Where(c => classes.Contains(c.ClassId) && students.Contains(c.StudentId)).ToListAsync(ct))
             .ToDictionary(c => (c.ClassId, c.StudentId.Value));
 
+        var overdue = await tuition.OverdueStudentsAsync(students.Select(s => s.Value).ToList(), ct);
         var t = (await settings.GetAsync(ct)).AtRisk;
         var thresholds = new RiskThresholds(t.Absent, t.Streak, t.AttendanceRate, t.SubmitRate, t.ScorePct, t.MediumFrom, t.HighFrom);
         var flagged = 0;
         var now = clock.UtcNow;
         foreach (var e in studying)
         {
-            var risk = RiskAssessment.Evaluate(Signals(stats.GetValueOrDefault((e.ClassId, e.StudentId.Value))), thresholds);
+            var signals = Signals(stats.GetValueOrDefault((e.ClassId, e.StudentId.Value)), overdue.Contains(e.StudentId.Value));
+            var risk = RiskAssessment.Evaluate(signals, thresholds);
             if (risk.Flagged) flagged++;
             if (cases.TryGetValue((e.ClassId, e.StudentId.Value), out var existing)) existing.Reassess(risk, now);
             else if (risk.Flagged)
@@ -60,7 +63,7 @@ public sealed class RiskCalculator(IStudentsDbContext db, IAttendanceStats atten
         return flagged;
     }
 
-    private static RiskSignals Signals(AttendanceStat? s) =>
+    private static RiskSignals Signals(AttendanceStat? s, bool overdueDebt) =>
         new(s?.Taken ?? 0, s?.Absent ?? 0, s?.Streak ?? 0, s?.AttendanceRate, Due: 0, Submitted: 0, AssignmentAvgPct: null, WeakExams: 0,
-            OverdueDebt: false);
+            OverdueDebt: overdueDebt);
 }
