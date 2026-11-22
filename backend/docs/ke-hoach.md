@@ -19,7 +19,7 @@
 | Reporting | Chưa có | ❌ |
 | System: cài đặt chung, nhật ký, thùng rác, tích hợp | ✅ (trừ tích hợp — GĐ 22) | ✅ |
 | Academic: ngân hàng câu hỏi | ✅ | ✅ |
-| Academic: bài tập, bài thi, flashcard, thông báo lớp, đánh giá GV (+ tài liệu GV — Library) | ✅ | ❌ |
+| Academic: bài tập, bài thi, flashcard, thông báo lớp, đánh giá GV (+ tài liệu GV — Library) | ✅ | ✅ |
 
 ## Các giai đoạn
 
@@ -29,7 +29,7 @@
 | 17 | **Ngân hàng câu hỏi**: kỹ năng, dạng câu, cấp độ, furigana, audio; nháp → chờ duyệt → đã duyệt → ngừng dùng; thống kê. Story [11](user-stories/11-ngan-hang-cau-hoi.md) | 16 | ✅ 2026-11-21 |
 | 18 | **Tuyển sinh / Crm** (story 05 + HV-12): lead, Kanban, trùng, lịch sử tư vấn, CRM-07 lead → HV, phụ huynh, chia lead + SLA, lịch hẹn, test xếp lớp, CRM-19 tư vấn lên lớp, chiến dịch, mẫu tin nhắn, phễu. Phạm vi `own` thật cho Students | 16, 17 | ✅ 2026-11-21 |
 | 19 | **Tài chính đợt 1** (story 08): bảng giá, ưu đãi, chính sách đóng; nghe `StudentEnrolled` / `EnrollmentEnded` sinh / hủy hóa đơn; thu tiền, hoàn / hủy (duyệt 2 người), đối soát VietQR, công nợ, nhắc phí; học phí ở cổng; dấu hiệu nợ quá hạn cho cảnh báo bỏ học | 16 (18 nếu cần ghi danh từ lead) | ✅ 2026-11-22 |
-| 20 | **Nội dung học**: bài tập (upload / quiz), bài thi theo mốc (online / giấy), điểm, thông báo lớp, đánh giá GV, flashcard, tài liệu GV. Dấu hiệu bài tập / điểm thật cho cảnh báo bỏ học. Story [12](user-stories/12-noi-dung-hoc.md) | 17 | 🚧 phase 3 xong (API + job) |
+| 20 | **Nội dung học**: bài tập (upload / quiz), bài thi theo mốc (online / giấy), điểm, thông báo lớp, đánh giá GV, flashcard, tài liệu GV. Dấu hiệu bài tập / điểm thật cho cảnh báo bỏ học. Story [12](user-stories/12-noi-dung-hoc.md) | 17 | ✅ 2026-11-22 |
 | 21 | **Nhân sự mở rộng + Công việc**: chấm công NV, đơn từ duyệt nhiều cấp, tuyển dụng, onboarding, task / Kanban, giao việc cấp dưới, xếp ca, bàn giao ca, trang cá nhân | 16 | |
 | 22 | **Tài chính đợt 2 + tích hợp**: lương GV (DT-15.E5 khóa bảng lương), lương NV, hoa hồng / KPI Sale; Zalo OA, SMS, ngân hàng, Zoom / Meet | 18, 19, 21 | |
 | 23 | **Thư viện + nhóm HV riêng**: thư viện (watermark, chặn tải, thống kê), HV-15 chứng nhận, HV-16 JLPT, HV-17 du học / XKLĐ | 16 | |

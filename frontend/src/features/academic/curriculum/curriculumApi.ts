@@ -22,7 +22,7 @@ interface ServerMaterial {
   sharedWithStudents: boolean;
 }
 
-interface ServerCurriculum {
+export interface ServerCurriculum {
   id: string;
   code: string;
   name: string;
@@ -58,7 +58,7 @@ export interface CurriculumFormInput {
 
 const versions = new Map<string, number>();
 
-function toCurriculum(c: ServerCurriculum): Curriculum {
+export function toCurriculum(c: ServerCurriculum): Curriculum {
   const id = fromGuid(c.id);
   versions.set(id, c.rowVersion);
   return {

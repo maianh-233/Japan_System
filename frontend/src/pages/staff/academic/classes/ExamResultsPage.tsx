@@ -11,6 +11,8 @@ import { useCrmStore } from '@/features/crm/crmStore';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/cn';
 import { fmtDate, fmtDateTime } from '@/lib/date';
+import { USE_API } from '@/lib/api/config';
+import { ExamResultsBoard } from '@/features/academic/classes/exams/ExamResultsBoard';
 
 /** % tối thiểu để đạt — sau lấy từ cấu hình kỳ thi ở module Kỳ thi */
 const PASS_PERCENT = 60;
@@ -26,8 +28,24 @@ interface Row {
   passed: boolean;
 }
 
-/** /admin/academic/classes/:id/exams/:examId — kết quả thi của từng học viên */
+/** /admin/academic/classes/:id/exams/:examId — kết quả thi của từng học viên (chế độ API: kỳ thi thật trên server) */
 export default function ExamResultsPage() {
+  const { id, examId } = useParams();
+  const code = useClassStore((s) => s.classes.find((c) => c.id === id)?.code);
+  if (USE_API && id && examId)
+    return (
+      <ExamResultsBoard
+        classId={id}
+        examId={examId}
+        backUrl={`/admin/academic/classes/${id}?tab=exams`}
+        breadcrumb={[{ title: 'Đào tạo' }, { title: 'Lớp học', href: '/admin/academic/classes' }, { title: code ?? 'Lớp', href: `/admin/academic/classes/${id}?tab=exams` }, { title: 'Kết quả thi' }]}
+      />
+    );
+  return <MockExamResultsPage />;
+}
+
+/** Chế độ mock: kết quả thi giả lập theo mốc lộ trình */
+function MockExamResultsPage() {
   const { id, examId } = useParams();
   const navigate = useNavigate();
   const notify = useNotify();

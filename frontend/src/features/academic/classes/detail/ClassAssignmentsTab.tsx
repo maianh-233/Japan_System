@@ -3,12 +3,14 @@ import { Checkbox, Form, Radio } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import { Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Button, DataTable, DateInput, ModalForm, NumberInput, Select, StatusTag, TextArea, TextInput, useConfirm, type DataColumn } from '@/components/common';
+import { Button, DataTable, DateInput, ModalForm, NumberInput, Select, StatusTag, TextArea, TextInput, useConfirm, useNotify, type DataColumn } from '@/components/common';
 import { useStudentStore } from '@/features/student/studentStore';
 import { useAuth } from '@/hooks/useAuth';
 import { fmtDate, fmtDateTime } from '@/lib/date';
 import { useCurriculumStore } from '../../curriculum/curriculumStore';
 import { useClassStore } from '../classStore';
+import * as learningApi from '../learningApi';
+import { USE_API } from '@/lib/api/config';
 import { ASSIGNMENT_TYPES, estimateBankQuestions, QUIZ_DIFFICULTY, QUIZ_DIFFICULTY_OPTIONS, QUIZ_SKILL_OPTIONS, QUIZ_SKILLS } from '../constants';
 import type { Assignment, AssignmentType, ClassInfo, QuizDifficulty, QuizSkill } from '../types';
 import { CheckCircle2, Clock, Hourglass } from 'lucide-react';
@@ -40,6 +42,7 @@ export function ClassAssignmentsTab({ cls }: { cls: ClassInfo }) {
   const { can } = useAuth();
   const { confirm, confirmDialog } = useConfirm();
   const navigate = useNavigate();
+  const notify = useNotify();
   const all = useClassStore((s) => s.assignments);
   const submissions = useClassStore((s) => s.submissions);
   const addAssignment = useClassStore((s) => s.addAssignment);
@@ -190,7 +193,9 @@ export function ClassAssignmentsTab({ cls }: { cls: ClassInfo }) {
                   aria-label="Xóa bài tập"
                   onClick={async () => {
                     const ok = await confirm({ title: `Xóa "${r.title}"?`, description: r.submitted ? `${r.submitted} bài nộp sẽ bị xóa theo.` : undefined, tone: 'danger', confirmAction: 'delete' });
-                    if (ok) removeAssignment(r.id);
+                    if (!ok) return;
+                    if (USE_API) await learningApi.deleteAssignment(r.id).catch((e: Error) => notify.error({ title: e.message }));
+                    else removeAssignment(r.id);
                   }}
                 />
             )}
@@ -211,8 +216,8 @@ export function ClassAssignmentsTab({ cls }: { cls: ClassInfo }) {
         submitText="Giao bài"
         successMessage="Đã giao bài tập"
         initialValues={{ type: 'quiz', dueDate: dayjs().add(4, 'day'), skills: ['vocab', 'grammar'], difficulty: 'mixed', questionCount: 20, timeLimitMinutes: 25, attempts: 2, shuffle: true }}
-        onSubmit={(v) =>
-          addAssignment({
+        onSubmit={async (v) => {
+          const input = {
             classId: cls.id,
             type: v.type,
             title: v.title.trim(),
@@ -223,8 +228,11 @@ export function ClassAssignmentsTab({ cls }: { cls: ClassInfo }) {
               v.type === 'quiz'
                 ? { lessonIds: v.lessonIds ?? [], skills: v.skills, difficulty: v.difficulty, questionCount: v.questionCount, timeLimitMinutes: v.timeLimitMinutes || undefined, attempts: v.attempts, shuffle: v.shuffle }
                 : undefined,
-          })
-        }
+          };
+          if (!USE_API) return addAssignment(input);
+          const warning = await learningApi.createAssignment(cls.id, input);
+          if (warning) notify.warning({ title: 'Đã giao bài', description: warning });
+        }}
       >
         <Form.Item name="type" label="Loại bài tập" rules={[{ required: true }]} className="md:col-span-2">
           <Radio.Group className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -271,10 +279,10 @@ export function ClassAssignmentsTab({ cls }: { cls: ClassInfo }) {
                       <Form.Item
                         name="questionCount"
                         label="Số câu"
-                        extra={available ? `Ngân hàng có ~${available} câu phù hợp` : 'Chọn bài & kỹ năng để xem số câu có sẵn'}
+                        extra={USE_API ? 'Ngân hàng thiếu câu → hệ thống bù câu cùng trình độ và báo lại' : available ? `Ngân hàng có ~${available} câu phù hợp` : 'Chọn bài & kỹ năng để xem số câu có sẵn'}
                         rules={[
                           { required: true, message: 'Nhập số câu' },
-                          { validator: (_, v: number) => (available && v > available ? Promise.reject(new Error(`Ngân hàng chỉ có ~${available} câu phù hợp`)) : Promise.resolve()) },
+                          { validator: (_, v: number) => (!USE_API && available && v > available ? Promise.reject(new Error(`Ngân hàng chỉ có ~${available} câu phù hợp`)) : Promise.resolve()) },
                         ]}
                       >
                         <NumberInput min={5} max={100} unit="câu" />

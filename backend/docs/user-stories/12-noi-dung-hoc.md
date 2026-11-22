@@ -224,3 +224,16 @@ HV / PH: bài tập (đã nộp / chưa / muộn / điểm / nhận xét), kết
   `atRisk.scorePct`. `IClassLookup.TaughtByAsync` 🆕 cho Library kiểm lớp GV dạy.
 - ⏳ Chưa làm: xóa file tài liệu GV / bài nộp khi dọn Thùng rác (handler Thùng rác cho Academic / Library), chuỗi ngày ôn flashcard chính xác
   (đang tính theo ngày ôn gần nhất của từng thẻ).
+
+### Đã làm — giai đoạn 20 phase 4 (nối frontend)
+
+- `frontend/src/features/academic/classes/learningApi.ts` đổ dữ liệu server vào store cũ; nhân viên tải theo lớp khi mở trang lớp, GV tải các lớp mình
+  dạy (+ lộ trình của lớp qua `GET portal/teaching/classes/{id}/curriculum` 🆕 — GV không có quyền trang Lộ trình), HV / PH tải của mình / từng con.
+- 🆕 giao diện: soạn kỳ thi (`ExamComposer` — bốc đề, xem trước kèm đáp án, đổi từng câu, lưu nháp → phát hành / đổi giờ / hủy), trang Kết quả kỳ thi
+  bản API (`ExamResultsBoard` — nhập điểm / vắng thi, công bố, đề & đáp án để in; cổng GV `/teacher/classes/:id/exams/:examId`), Lịch thi & thi online
+  ở cổng HV (`ExamBoard` — vào thi / làm tiếp, tự lưu, hết giờ tự nộp, xem lại sau công bố), hộp Thông báo lớp (cổng HV / PH), khảo sát đánh giá GV
+  (cổng HV), tab Flashcard ở Lộ trình (soạn bộ thẻ, nhập nhiều dòng).
+- `QuizRunner` chạy được 2 chế độ: mock tự chấm; API — câu không đáp án, server chấm, hạn giờ chung, tự lưu câu.
+- Sửa dữ liệu mẫu: bộ thẻ / bài tập / kết quả thi mẫu trỏ bài học & mốc thi theo mã mock (không tồn tại) → bài thứ n / mốc cùng loại thật của lộ trình;
+  DB đã nạp được sửa tự động khi khởi động (`LearningSeeder.RepairLessonsAsync`).
+- ⏳ Còn dữ liệu giả / chưa nối: luyện thi JLPT tự do ở cổng HV (chỉ chế độ mock), đánh giá GV ở trang Nhân sự (chỉ có dữ liệu khi đã mở lớp).

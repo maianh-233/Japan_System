@@ -56,6 +56,9 @@ public sealed class LearningSeedTests(SeededApiFactory api)
         var resultIds = mockResults.Select(r => new ExamResultId(Id(r))).ToList();
         var results = await db.ExamResults.AsNoTracking().Where(r => resultIds.Contains(r.Id)).ToListAsync(Ct);
         results.Count.ShouldBe(mockResults.Count);
+        // Mốc thi mock "…-EX-MID" = mốc giữa kỳ thật của lộ trình (Id sinh khi nạp lộ trình)
+        var milestones = (await db.Curricula.AsNoTracking().AsSplitQuery().ToListAsync(Ct)).SelectMany(c => c.Exams).Select(e => e.Id).ToHashSet();
+        results.ShouldAllBe(r => milestones.Contains(r.ExamId));
         results.Where(r => r.Status == ExamAttendance.Done).ShouldAllBe(r => r.MaxScore == 100 && r.Sections.Count == 3 && r.ClassExamId == null);
         results.Count(r => r.Status == ExamAttendance.Absent).ShouldBe(mockResults.Count(r => r.GetProperty("status").GetString() == "absent"));
     }
@@ -83,6 +86,9 @@ public sealed class LearningSeedTests(SeededApiFactory api)
         var decks = await db.FlashDecks.AsNoTracking().Where(d => deckIds.Contains(d.Id)).ToListAsync(Ct);
         decks.Count.ShouldBe(mockDecks.Count);
         decks.Sum(d => d.Cards.Count).ShouldBe(mockDecks.Sum(d => d.GetProperty("cards").GetArrayLength()));
+        // Bài học mock "…-L10" = bài thứ 10 thật của lộ trình (Id bài sinh khi nạp lộ trình)
+        var lessons = (await db.Curricula.AsNoTracking().AsSplitQuery().ToListAsync(Ct)).SelectMany(c => c.Lessons).Select(l => l.Id).ToHashSet();
+        decks.Where(d => d.LessonId != null).ShouldAllBe(d => lessons.Contains(d.LessonId!.Value));
         decks.Single(d => d.Id == new FlashDeckId(SeedData.IdOf("D-N3-L10"))).LessonId.ShouldNotBeNull();
         decks.SelectMany(d => d.Cards).ShouldContain(c => c.Id == new FlashCardId(SeedData.IdOf("D-N3-L10-1")) && c.Front == "締め切り");
 

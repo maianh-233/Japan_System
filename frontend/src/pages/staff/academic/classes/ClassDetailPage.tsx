@@ -7,6 +7,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Button, DateInput, EmptyState, ModalForm, PageHeader, StatusTag, useConfirm, useNotify } from '@/components/common';
 import { useClassStore } from '@/features/academic/classes/classStore';
 import * as classApi from '@/features/academic/classes/classApi';
+import { loadClassLearning } from '@/features/academic/classes/learningApi';
 import * as portalApi from '@/features/portal/portalApi';
 import * as studentApi from '@/features/student/studentApi';
 import { USE_API } from '@/lib/api/config';
@@ -53,6 +54,8 @@ export default function ClassDetailPage() {
     if (USE_API && id) {
       void classApi.loadClassSessions(id).catch(() => undefined);
       void portalApi.loadEvaluations(id, false).catch(() => undefined);
+      // Bài tập, kỳ thi, thông báo lớp, đánh giá GV (user story 12)
+      void loadClassLearning(id).catch(() => undefined);
       void loadClassCareLogs(id).catch(() => undefined);
       void studentApi.loadEnrollments(id).catch(() => undefined);
     }

@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { ClassInbox } from '@/features/portal/components/ClassInbox';
+import { TeacherReviewSurveys } from '@/features/portal/components/TeacherReviewSurveys';
+import { USE_API } from '@/lib/api/config';
 import dayjs from 'dayjs';
 import { Brain, CalendarCheck, CheckCircle2, MapPin, NotebookPen, ScanLine, Trophy, Video, Wallet } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -79,6 +82,12 @@ export default function StudentDashboard() {
       <ScanAttendanceModal open={scanning} onClose={() => setScanning(false)} studentId={studentId} />
       <PromotionOffers studentIds={[studentId]} viewer="student" />
 
+      {USE_API && (
+        <>
+          <TeacherReviewSurveys />
+          <ClassInbox />
+        </>
+      )}
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         <StatCard label="Chuyên cần" value={st?.attendance.rate !== undefined ? `${st.attendance.rate}%` : '—'} icon={CalendarCheck} tone={st?.attendance.rate !== undefined && st.attendance.rate < 80 ? 'danger' : 'success'} hint={st ? `${st.attendance.present + st.attendance.late}/${st.attendance.sessions} buổi` : undefined} onClick={() => navigate('/student/progress')} />
         <StatCard label="Bài tập cần làm" value={todo.length} icon={NotebookPen} tone="warning" onClick={() => navigate('/student/assignments')} />

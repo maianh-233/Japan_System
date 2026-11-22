@@ -22,6 +22,7 @@ import { startRealtime } from '@/features/portal/realtime';
 import { loadNotifications } from '@/features/notifications/notificationApi';
 import { loadSettings } from '@/features/system/settingsApi';
 import { loadInvoices, loadPortalInvoices, loadPricing, loadTransactions } from '@/features/finance/financeApi';
+import { loadLearnerLearning, loadTeacherLearning } from '@/features/academic/classes/learningApi';
 import { restore } from './realAuth';
 
 /** Việc làm ngay sau khi có phiên (đăng nhập / kích hoạt / tải lại trang) — chế độ API */
@@ -35,10 +36,15 @@ export async function onSignedIn(user: SessionUser & { accountId?: string }) {
   // Cài đặt chung (SLA, giờ hành chính, mã hóa đơn, ngưỡng bỏ học…) — nhân viên & GV
   if (user.portal === 'staff' || user.portal === 'teacher') void quiet(loadSettings());
   // Cổng GV / HV / PH: chỉ dữ liệu của chủ tài khoản (lớp mình dạy / lớp của mình / của con)
-  if (user.portal === 'teacher') return void (await quiet(loadTeacherPortal()));
+  // Nội dung học (bài tập, kỳ thi, thông báo lớp, đánh giá, tài liệu) — sau danh sách lớp mình dạy / lớp của mình
+  if (user.portal === 'teacher') return void (await quiet(loadTeacherPortal().then(() => loadTeacherLearning())));
   // Học phí (TC-09): hóa đơn của mình / các con — sau danh sách lớp để ghép ghi danh
   if (user.portal === 'student' || user.portal === 'parent')
-    return void (await quiet(loadLearningPortal(user.portalOwnerId, user.portal === 'parent').then(() => loadPortalInvoices())));
+    return void (await quiet(
+      loadLearningPortal(user.portalOwnerId, user.portal === 'parent').then(() =>
+        Promise.all([quiet(loadPortalInvoices()), quiet(loadLearnerLearning(user.portal === 'parent'))]),
+      ),
+    ));
   await Promise.all([quiet(loadSystem()), quiet(loadBranches()), quiet(loadEmployees()), quiet(loadCourses()), quiet(loadCurricula()), quiet(loadRooms())]);
   // Lớp cần phòng (đổi tên phòng ↔ Id) → tải sau phòng
   await Promise.all([quiet(loadClasses()), quiet(loadStudents()), quiet(loadStaffRequests())]);

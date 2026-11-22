@@ -21,24 +21,34 @@ export const toAttachments = (items: UploadItem[] = [], links: string[] = []): S
 ];
 
 /** Danh sách tệp đề bài / tài liệu kèm — bấm để mở / tải về */
-export function AttachmentList({ files, className }: { files: SubmissionFile[]; className?: string }) {
+/** <c>onOpen</c> (chế độ API): xin link tạm của tệp thứ i rồi mở — tệp lưu trên server không có địa chỉ trực tiếp */
+export function AttachmentList({ files, className, onOpen }: { files: SubmissionFile[]; className?: string; onOpen?: (index: number) => void }) {
   if (!files.length) return null;
   return (
     <ul className={cn('flex flex-wrap gap-2', className)}>
       {files.map((f, i) => {
         const Icon = KIND_ICON[f.kind];
         const usable = Boolean(f.url);
+        const viaServer = Boolean(onOpen) && f.kind !== 'link';
         return (
           <li key={`${f.name}-${i}`}>
             <a
-              href={usable ? f.url : undefined}
+              href={usable && !viaServer ? f.url : undefined}
               target="_blank"
               rel="noopener noreferrer"
-              download={usable && f.kind !== 'link' ? f.name : undefined}
-              onClick={(e) => e.stopPropagation()}
+              download={usable && !viaServer && f.kind !== 'link' ? f.name : undefined}
+              role={viaServer ? 'button' : undefined}
+              tabIndex={viaServer ? 0 : undefined}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (viaServer) {
+                  e.preventDefault();
+                  onOpen!(i);
+                }
+              }}
               className={cn(
                 'inline-flex max-w-[280px] items-center gap-2 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[13px] transition-colors',
-                usable ? 'hover:border-primary-300 hover:bg-primary-50' : 'cursor-default opacity-70',
+                usable ? 'cursor-pointer hover:border-primary-300 hover:bg-primary-50' : 'cursor-default opacity-70',
               )}
               title={usable ? 'Mở / tải về' : 'Bản demo — file chưa có trên máy chủ'}
             >

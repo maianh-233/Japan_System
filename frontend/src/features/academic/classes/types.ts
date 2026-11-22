@@ -307,6 +307,9 @@ export interface ClassAnnouncement {
   sentAt: string;
   /** Hẹn giờ gửi — chưa tới giờ thì là "Chờ gửi" */
   scheduledAt?: string;
+  /** Chế độ API: trạng thái server (chờ hẹn giờ / đã gửi / đã hủy) */
+  status?: 'scheduled' | 'sent' | 'cancelled';
+  cancelledAt?: string;
 }
 
 // ---------------- Đánh giá giáo viên ----------------
@@ -374,6 +377,46 @@ export interface StudentEvaluation {
   updatedAt: string;
 }
 
+// ---------------- Kỳ thi (user story 12, ND-04) ----------------
+
+export type ExamMode = 'online' | 'paper';
+export type ClassExamStatus = 'draft' | 'published' | 'cancelled';
+
+export interface ExamSection {
+  name: string;
+  skill?: QuizSkill;
+  /** Điểm mỗi câu */
+  points: number;
+  questionCount: number;
+  max: number;
+  /** Câu đã bốc (chỉ nhân viên / GV) */
+  questionIds: string[];
+}
+
+/** Kỳ thi của lớp theo 1 mốc thi của lộ trình: nháp → phát hành (đề chốt) → công bố kết quả */
+export interface ClassExam {
+  id: string;
+  classId: string;
+  /** Mốc thi của lộ trình */
+  examId: string;
+  kind?: 'midterm' | 'final';
+  title: string;
+  mode: ExamMode;
+  startsAt: string;
+  endsAt: string;
+  durationMinutes: number;
+  passPercent: number;
+  shuffle: boolean;
+  sections: ExamSection[];
+  maxScore: number;
+  questionCount: number;
+  status: ClassExamStatus;
+  publishedAt?: string;
+  resultsPublishedAt?: string;
+  attempts: number;
+  results: number;
+}
+
 /** Kết quả 1 học viên trong 1 kỳ thi (mốc thi của lộ trình) của lớp */
 export interface ExamResult {
   id: string;
@@ -386,4 +429,6 @@ export interface ExamResult {
   startedAt?: string;
   durationMinutes?: number;
   comment?: string;
+  /** Kỳ thi sinh ra kết quả (chế độ API) */
+  classExamId?: string;
 }

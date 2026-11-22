@@ -30,6 +30,7 @@ import CurriculumPage from '@/pages/staff/academic/curriculum/CurriculumPage';
 import ClassesPage from '@/pages/staff/academic/classes/ClassesPage';
 import ClassDetailPage from '@/pages/staff/academic/classes/ClassDetailPage';
 import AssignmentSubmissionsPage from '@/pages/staff/academic/classes/AssignmentSubmissionsPage';
+import TeacherExamResultsPage from '@/pages/teacher/classes/TeacherExamResultsPage';
 import ExamResultsPage from '@/pages/staff/academic/classes/ExamResultsPage';
 import RoomsPage from '@/pages/staff/academic/rooms/RoomsPage';
 import SessionsPage from '@/pages/staff/academic/sessions/SessionsPage';
@@ -194,6 +195,7 @@ export const router = createBrowserRouter([
       { path: 'classes/:id', element: <TeacherClassPage /> },
       { path: 'assignments', element: <TeacherAssignmentsPage /> },
       { path: 'assignments/:id/:assignmentId', element: <AssignmentSubmissionsPage portal="teacher" /> },
+      { path: 'classes/:id/exams/:examId', element: <TeacherExamResultsPage /> },
       { path: 'documents', element: <TeacherDocumentsPage /> },
       { path: 'requests', element: <TeacherRequestsPage /> },
       { path: 'substitutes', element: <SubstitutesPage /> },

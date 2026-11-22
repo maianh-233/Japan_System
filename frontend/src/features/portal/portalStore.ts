@@ -5,7 +5,7 @@ import { MOCK_CANCEL_REQUESTS, MOCK_CARD_PROGRESS, MOCK_DECKS, MOCK_LEAVE_REQUES
 import { recordActivity } from '@/features/system/activity';
 import { useClassStore } from '@/features/academic/classes/classStore';
 import type { AttendanceRecord } from '@/features/academic/classes/types';
-import type { CancelRequest, CardProgress, FlashDeck, LeaveRequest, SubInvite, TeacherDoc } from './types';
+import type { CancelRequest, CardProgress, FlashDeck, LeaveRequest, MyExam, PortalAnnouncement, SubInvite, TeacherDoc } from './types';
 import { moveToTrash, registerRestorer } from '@/features/system/trash';
 
 /** Store CỔNG giả lập. Khi có backend: thay hàm bằng gọi API, giữ nguyên chữ ký. */
@@ -21,6 +21,10 @@ interface PortalState {
   decks: FlashDeck[];
   cardProgress: Record<string, CardProgress>;
   studyDays: string[];
+  /** Chế độ API: kỳ thi của HV (lịch thi, trạng thái làm bài, kết quả đã công bố) */
+  myExams: MyExam[];
+  /** Chế độ API: thông báo lớp gửi tới HV / PH */
+  inbox: PortalAnnouncement[];
   /** Phụ huynh đang xem con nào */
   childId?: string;
 
@@ -58,11 +62,14 @@ export const usePortalStore = create<PortalState>((set, get) => ({
   // Chế độ API: đơn từ / lời mời tải từ server (portalApi) — không dùng dữ liệu giả
   cancelRequests: USE_API ? [] : MOCK_CANCEL_REQUESTS,
   subInvites: USE_API ? [] : MOCK_SUB_INVITES,
-  teacherDocs: MOCK_TEACHER_DOCS,
+  // Chế độ API: tài liệu GV, flashcard tải từ server (learningApi)
+  teacherDocs: USE_API ? [] : MOCK_TEACHER_DOCS,
   leaveRequests: USE_API ? [] : MOCK_LEAVE_REQUESTS,
-  decks: MOCK_DECKS,
-  cardProgress: MOCK_CARD_PROGRESS,
-  studyDays: MOCK_STUDY_DAYS,
+  decks: USE_API ? [] : MOCK_DECKS,
+  cardProgress: USE_API ? {} : MOCK_CARD_PROGRESS,
+  studyDays: USE_API ? [] : MOCK_STUDY_DAYS,
+  myExams: [],
+  inbox: [],
 
   addCancelRequest: (r) => {
     const request = { ...r, id: `CR-${++seq}`, createdAt: now(), status: 'pending' as const };

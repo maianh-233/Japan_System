@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Input, Tabs, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { MessageSquareQuote, NotebookPen, Users } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button, DataTable, EmptyState, PageHeader, StatusTag, UserCell, useNotify, type DataColumn } from '@/components/common';
 import { useClassStore } from '@/features/academic/classes/classStore';
 import { EVAL_RECOMMENDATION, scheduleLabel, SESSION_STATUS } from '@/features/academic/classes/constants';
@@ -12,6 +12,7 @@ import { useClassStudentStats, type StudentStats } from '@/features/academic/cla
 import { notStarted } from '@/features/academic/classes/sessionUtils';
 import type { ClassInfo, ClassSession } from '@/features/academic/classes/types';
 import { useCurriculumStore } from '@/features/academic/curriculum/curriculumStore';
+import * as learningApi from '@/features/academic/classes/learningApi';
 import { useCrmStore } from '@/features/crm/crmStore';
 import { shortCode, useTeacherId } from '@/features/portal/usePortal';
 import { cn } from '@/lib/cn';
@@ -41,6 +42,7 @@ function ClassView({ cls }: { cls: ClassInfo }) {
   const me = useTeacherId();
   const allSessions = useClassStore((s) => s.sessions);
   const examResults = useClassStore((s) => s.examResults);
+  const classExams = useClassStore((s) => s.classExams);
   const updateExamResult = useClassStore((s) => s.updateExamResult);
   const students = useCrmStore((s) => s.students);
   const curriculum = useCurriculumStore((s) => s.curricula.find((c) => c.id === cls.curriculumId));
@@ -70,7 +72,13 @@ function ClassView({ cls }: { cls: ClassInfo }) {
     })
     .sort((a, b) => b.risk - a.risk);
 
-  const exams = curriculum?.exams.filter((e) => examResults.some((r) => r.classId === cls.id && r.examId === e.id)) ?? [];
+  // Chế độ API: mốc thi đã có kỳ thi phát hành (nhập điểm / công bố ở trang Kết quả thi)
+  const exams =
+    curriculum?.exams.filter(
+      (e) =>
+        examResults.some((r) => r.classId === cls.id && r.examId === e.id) ||
+        (USE_API && classExams.some((x) => x.classId === cls.id && x.examId === e.id && x.status === 'published')),
+    ) ?? [];
 
   const studentCols: DataColumn<StudentRow>[] = [
     { key: 'name', title: 'Học viên', width: 200, mobile: 'title', render: (_, r) => <UserCell name={r.name} subtitle={r.code} size="sm" /> },
@@ -231,7 +239,14 @@ function ClassView({ cls }: { cls: ClassInfo }) {
                   const rs = examResults.filter((r) => r.classId === cls.id && r.examId === e.id);
                   return (
                     <section key={e.id} className="rounded-xl border border-line bg-surface p-4">
-                      <p className="mb-2 font-semibold text-ink">{e.title}</p>
+                      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                        <p className="font-semibold text-ink">{e.title}</p>
+                        {USE_API && classExams.some((x) => x.classId === cls.id && x.examId === e.id && x.status === 'published') && (
+                          <Link to={`/teacher/classes/${cls.id}/exams/${e.id}`} className="text-[13px] font-medium text-primary-700 hover:underline">
+                            Nhập điểm / công bố →
+                          </Link>
+                        )}
+                      </div>
                       <ul className="flex flex-col gap-2 text-[13px]">
                         {rs.map((r) => {
                           const total = r.sections.reduce((n, x) => n + x.score, 0);
@@ -247,10 +262,18 @@ function ClassView({ cls }: { cls: ClassInfo }) {
                                 defaultValue={r.comment}
                                 placeholder="Nhận xét cho học viên / phụ huynh..."
                                 onBlur={(ev) => {
-                                  if (ev.target.value !== (r.comment ?? '')) {
-                                    updateExamResult(r.id, { comment: ev.target.value });
-                                    notify.toast.success('Đã lưu nhận xét');
+                                  if (ev.target.value === (r.comment ?? '')) return;
+                                  const ce = classExams.find((x) => x.classId === cls.id && x.examId === e.id && x.status === 'published');
+                                  if (USE_API) {
+                                    if (!ce) return notify.warning({ title: 'Kết quả cũ (trước khi có kỳ thi) — không sửa được nhận xét ở đây' });
+                                    void learningApi
+                                      .saveExamResult(ce.id, r.studentId, { absent: r.status === 'absent', scores: r.sections.map((x) => x.score), comment: ev.target.value }, true)
+                                      .then(() => notify.toast.success('Đã lưu nhận xét'))
+                                      .catch((err: Error) => notify.error({ title: err.message }));
+                                    return;
                                   }
+                                  updateExamResult(r.id, { comment: ev.target.value });
+                                  notify.toast.success('Đã lưu nhận xét');
                                 }}
                               />
                             </li>

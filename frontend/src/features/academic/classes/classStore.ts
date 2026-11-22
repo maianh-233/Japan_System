@@ -4,7 +4,7 @@ import { MOCK_SESSIONS } from '@/mocks/data/attendance';
 import { MOCK_ASSIGNMENTS, MOCK_CLASSES } from '@/mocks/data/classes';
 import { MOCK_ANNOUNCEMENTS, MOCK_CARE_LOGS, MOCK_EVALUATIONS, MOCK_TEACHER_REVIEWS } from '@/mocks/data/classExtras';
 import { MOCK_EXAM_RESULTS, MOCK_SUBMISSIONS } from '@/mocks/data/submissions';
-import type { Assignment, CareLog, ClassAnnouncement, ClassInfo, ClassSession, ExamResult, StudentEvaluation, Submission, TeacherReview } from './types';
+import type { Assignment, CareLog, ClassAnnouncement, ClassExam, ClassInfo, ClassSession, ExamResult, StudentEvaluation, Submission, TeacherReview } from './types';
 import { moveToTrash, registerRestorer } from '@/features/system/trash';
 
 /**
@@ -22,6 +22,8 @@ interface ClassState {
   examResults: ExamResult[];
   announcements: ClassAnnouncement[];
   teacherReviews: TeacherReview[];
+  /** Kỳ thi của lớp (chế độ API — learningApi) */
+  classExams: ClassExam[];
   careLogs: CareLog[];
 
   addClass: (input: ClassInput) => ClassInfo;
@@ -56,11 +58,13 @@ const now = () => new Date().toISOString();
 export const useClassStore = create<ClassState>((set, get) => ({
   classes: MOCK_CLASSES,
   sessions: MOCK_SESSIONS,
-  assignments: MOCK_ASSIGNMENTS,
-  submissions: MOCK_SUBMISSIONS,
-  examResults: MOCK_EXAM_RESULTS,
-  announcements: MOCK_ANNOUNCEMENTS,
-  teacherReviews: MOCK_TEACHER_REVIEWS,
+  // Chế độ API: bài tập / bài nộp / kết quả thi / thông báo / đánh giá GV tải theo lớp (learningApi)
+  assignments: USE_API ? [] : MOCK_ASSIGNMENTS,
+  submissions: USE_API ? [] : MOCK_SUBMISSIONS,
+  examResults: USE_API ? [] : MOCK_EXAM_RESULTS,
+  announcements: USE_API ? [] : MOCK_ANNOUNCEMENTS,
+  teacherReviews: USE_API ? [] : MOCK_TEACHER_REVIEWS,
+  classExams: [],
   // Chế độ API: tải theo lớp / HV (careApi)
   careLogs: USE_API ? [] : MOCK_CARE_LOGS,
 

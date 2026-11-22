@@ -43,6 +43,7 @@ using JPCenter.Modules.Academic.Application.Flashcards.GetFlashDecks;
 using JPCenter.Modules.Academic.Application.Flashcards.MyFlashcards;
 using JPCenter.Modules.Academic.Application.Flashcards.SaveFlashDeck;
 using JPCenter.Modules.Academic.Application.Learning.Common;
+using JPCenter.Modules.Academic.Application.Learning.GetClassCurriculum;
 using JPCenter.Modules.Academic.Application.TeacherReviews.Common;
 using JPCenter.Modules.Academic.Application.TeacherReviews.GetMySurveys;
 using JPCenter.Modules.Academic.Application.TeacherReviews.GetTeacherReviews;
@@ -180,6 +181,8 @@ public static class LearningEndpoints
     /// <summary>Cổng GV — bài tập, kỳ thi (xem đề, nhập điểm, công bố), thông báo lớp, đánh giá về mình</summary>
     private static void MapTeaching(RouteGroupBuilder g)
     {
+        g.MapGet("/classes/{id:guid}/curriculum", async (Guid id, ISender s, CancellationToken ct) =>
+            (await s.Send(new GetClassCurriculumQuery(id), ct)).ToHttpResult());
         g.MapGet("/classes/{id:guid}/assignments", async (Guid id, ISender s, CancellationToken ct) =>
             (await s.Send(new GetClassAssignmentsQuery(id, true), ct)).ToHttpResult());
         g.MapPost("/classes/{id:guid}/assignments", async (Guid id, AssignmentInput b, ISender s, CancellationToken ct) =>

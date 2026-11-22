@@ -111,3 +111,29 @@ export interface CardProgress {
   reviews: number;
   lapses: number;
 }
+
+// ---------------- Kỳ thi & thông báo lớp ở cổng (chế độ API) ----------------
+
+/** 1 kỳ thi ở cổng HV / PH — kết quả chỉ có khi đã công bố */
+export interface MyExam {
+  exam: import('@/features/academic/classes/types').ClassExam;
+  studentId: string;
+  classCode: string;
+  attempt: 'none' | 'in_progress' | 'submitted';
+  attemptId?: string;
+  canStart: boolean;
+  result?: import('@/features/academic/classes/types').ExamResult;
+  passed?: boolean;
+}
+
+/** Thông báo lớp ở cổng HV / PH */
+export interface PortalAnnouncement {
+  id: string;
+  classId: string;
+  classCode: string;
+  title: string;
+  content: string;
+  sentBy: string;
+  sentAt: string;
+  read: boolean;
+}

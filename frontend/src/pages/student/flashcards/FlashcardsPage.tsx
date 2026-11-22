@@ -4,6 +4,8 @@ import dayjs from 'dayjs';
 import { Brain, Check, Flame, Layers, RotateCcw, X } from 'lucide-react';
 import { Button, PageHeader, StatCard } from '@/components/common';
 import { BOX_INTERVAL, streakOf, usePortalStore } from '@/features/portal/portalStore';
+import * as learningApi from '@/features/academic/classes/learningApi';
+import { USE_API } from '@/lib/api/config';
 import type { FlashCard, FlashDeck } from '@/features/portal/types';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { cn } from '@/lib/cn';
@@ -53,6 +55,8 @@ export default function FlashcardsPage() {
   const answer = (remembered: boolean) => {
     const [card, ...rest] = queue;
     review(card.id, remembered);
+    // Chế độ API: ghi lượt ôn lên server (store đã cập nhật lạc quan; server trả lại hộp / hạn ôn chuẩn)
+    if (USE_API) void learningApi.reviewCard(card.id, remembered).catch(() => undefined);
     setDone((x) => (remembered ? { ...x, ok: x.ok + 1 } : { ...x, again: x.again + 1 }));
     // Quên → đưa lại cuối hàng đợi để ôn ngay trong phiên
     setQueue(remembered ? rest : [...rest, card]);

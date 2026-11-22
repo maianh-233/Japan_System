@@ -8,8 +8,9 @@ import { useClassStore } from '@/features/academic/classes/classStore';
 import type { Assignment, Submission, SubmissionFile } from '@/features/academic/classes/types';
 import { useCurriculumStore } from '@/features/academic/curriculum/curriculumStore';
 import { useQuestionStore } from '@/features/academic/questions/questionStore';
-import type { Question } from '@/features/academic/questions/types';
-import { QuizRunner } from '@/features/portal/components/QuizRunner';
+import { QuizRunner, type RunnerQuestion } from '@/features/portal/components/QuizRunner';
+import * as learningApi from '@/features/academic/classes/learningApi';
+import { USE_API } from '@/lib/api/config';
 import { levelOf, pickQuiz } from '@/features/portal/quiz';
 import { shortCode, useStudentId, useStudentLearning } from '@/features/portal/usePortal';
 import { cn } from '@/lib/cn';
@@ -64,8 +65,21 @@ export default function StudentAssignmentsPage() {
   const list = items.filter((i) => i.state === tab || (tab === 'todo' && i.state === 'todo'));
 
   // Đề được bốc 1 lần lúc bắt đầu làm (không đổi khi nộp xong đang xem đáp án)
-  const [quizQuestions, setQuizQuestions] = useState<Question[]>([]);
-  const startQuiz = (i: Item) => {
+  const [quizQuestions, setQuizQuestions] = useState<RunnerQuestion[]>([]);
+  /** Chế độ API: vé nộp bài + hạn làm do server phát */
+  const [paper, setPaper] = useState<{ token: string; deadlineAt?: string } | null>(null);
+  const startQuiz = async (i: Item) => {
+    if (USE_API) {
+      try {
+        const p = await learningApi.startQuiz(i.a.id);
+        setQuizQuestions(p.questions.map((q) => ({ id: q.id, stem: q.stem, passage: q.passage, options: q.options, audioUrl: q.audioUrl })));
+        setPaper({ token: p.token, deadlineAt: p.deadlineAt ?? undefined });
+        setQuizFor(i);
+      } catch (e) {
+        notify.error({ title: (e as Error).message });
+      }
+      return;
+    }
     const q = i.a.quiz!;
     const cls = learning.find((x) => x.cls.id === i.a.classId)?.cls;
     const cur = curricula.find((c) => c.id === cls?.curriculumId);
@@ -113,7 +127,17 @@ export default function StudentAssignmentsPage() {
         {i.a.attachments?.length ? (
           <div className="mt-2">
             <p className="mb-1 text-xs font-medium text-ink-muted">Đề bài của giáo viên — bấm để mở / tải về</p>
-            <AttachmentList files={i.a.attachments} />
+            <AttachmentList
+              files={i.a.attachments}
+              onOpen={
+                USE_API
+                  ? (k) =>
+                      void learningApi
+                        .openInNewTab(() => learningApi.fileLink('student', i.a.id, k, undefined, studentId))
+                        .catch((e: Error) => notify.error({ title: e.message }))
+                  : undefined
+              }
+            />
           </div>
         ) : null}
         {i.sub && (
@@ -134,7 +158,7 @@ export default function StudentAssignmentsPage() {
         )}
         <div className="mt-3 flex flex-wrap gap-2">
           {i.a.type === 'quiz' && attemptsLeft(i) > 0 && i.state !== 'missed' && (
-            <Button icon={Play} size="sm" onClick={() => startQuiz(i)}>
+            <Button icon={Play} size="sm" onClick={() => void startQuiz(i)}>
               {i.sub ? `Làm lại (còn ${attemptsLeft(i)} lần)` : 'Làm bài'}
             </Button>
           )}
@@ -178,8 +202,13 @@ export default function StudentAssignmentsPage() {
         submitText="Nộp bài"
         successMessage="Đã nộp bài — giáo viên sẽ chấm và nhận xét"
         initialValues={{ content: uploading?.sub?.content }}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           if (!v.files?.length && !v.content?.trim()) throw new Error('Đính kèm file hoặc nhập bài làm');
+          if (USE_API) {
+            await learningApi.submitAssignment(uploading!.a.id, (v.files ?? []).flatMap((f) => (f.file ? [f.file] : [])), v.content);
+            setTab('submitted');
+            return;
+          }
           submit({
             assignmentId: uploading!.a.id,
             studentId,
@@ -202,10 +231,16 @@ export default function StudentAssignmentsPage() {
         open={Boolean(quizFor)}
         title={quizFor?.a.title ?? ''}
         questions={quizQuestions}
-        timeLimit={quizFor?.a.quiz?.timeLimitMinutes}
+        timeLimit={USE_API ? undefined : quizFor?.a.quiz?.timeLimitMinutes}
+        deadlineAt={USE_API ? paper?.deadlineAt : undefined}
         onClose={() => setQuizFor(null)}
-        onSubmit={(r) => {
+        onSubmit={async (r) => {
           const a = quizFor!.a;
+          if (USE_API) {
+            const o = await learningApi.submitQuiz(a.id, paper!.token, r.answers);
+            notify.toast.success(`Đã nộp: ${o.correct}/${o.total} câu đúng${o.timedOut ? ' (hết giờ)' : ''}`);
+            return { correct: o.correct, total: o.total, review: o.review };
+          }
           submit({
             assignmentId: a.id,
             studentId,

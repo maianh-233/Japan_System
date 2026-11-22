@@ -4,6 +4,8 @@ import { Eye, FileAudio, FileImage, FileText, FileVideo, Link2, Trash2, type Luc
 import { Button, EmptyState, FileUpload, ModalForm, PageHeader, Select, TextArea, TextInput, useConfirm, useNotify, type UploadItem } from '@/components/common';
 import { useClassStore } from '@/features/academic/classes/classStore';
 import { usePortalStore } from '@/features/portal/portalStore';
+import * as learningApi from '@/features/academic/classes/learningApi';
+import { USE_API } from '@/lib/api/config';
 import type { TeacherDoc } from '@/features/portal/types';
 import { shortCode, useTeacherId, useTeachingClasses } from '@/features/portal/usePortal';
 import { useStudentStore } from '@/features/student/studentStore';
@@ -97,7 +99,13 @@ export default function TeacherDocumentsPage() {
                   tone="danger"
                   onClick={async () => {
                     if (await confirm({ title: `Xóa “${d.title}”?`, description: 'Học viên không còn thấy tài liệu này.', tone: 'danger', confirmAction: 'delete' })) {
-                      removeTeacherDoc(d.id);
+                      if (USE_API) {
+                        try {
+                          await learningApi.deleteTeacherDoc(d.id);
+                        } catch (e) {
+                          return notify.error({ title: (e as Error).message });
+                        }
+                      } else removeTeacherDoc(d.id);
                       notify.toast.success('Đã xóa tài liệu');
                     }
                   }}
@@ -118,7 +126,14 @@ export default function TeacherDocumentsPage() {
         submitAction="save"
         successMessage="Đã lưu — học viên lớp được chọn sẽ thấy ngay"
         initialValues={editing && editing !== 'new' ? { ...editing, link: editing.kind === 'link' ? editing.url : undefined } : { classIds: classes.filter((c) => c.status === 'ongoing').slice(0, 1).map((c) => c.id) }}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
+          if (USE_API) {
+            const current = editing && editing !== 'new' ? editing : undefined;
+            return learningApi.saveTeacherDoc(
+              { title: v.title, description: v.description, file: v.files?.[0]?.file, link: v.link, classIds: v.classIds, sessionId: v.sessionId },
+              current,
+            );
+          }
           const file = v.files?.[0];
           // Nội dung tài liệu: file mới tải lên, hoặc link mới
           const content = file

@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { Button, DataTable, DateInput, FileUpload, ModalForm, NumberInput, PageHeader, Select, StatCard, StatusTag, TextArea, TextInput, useNotify, type DataColumn, type UploadItem } from '@/components/common';
 import { toAttachments } from '@/features/academic/classes/AttachmentList';
 import { useClassStore } from '@/features/academic/classes/classStore';
+import * as learningApi from '@/features/academic/classes/learningApi';
+import { USE_API } from '@/lib/api/config';
 import { ASSIGNMENT_TYPES, QUIZ_DIFFICULTY_OPTIONS, QUIZ_SKILL_OPTIONS } from '@/features/academic/classes/constants';
 import type { Assignment, AssignmentType, QuizDifficulty, QuizSkill } from '@/features/academic/classes/types';
 import { useCurriculumStore } from '@/features/academic/curriculum/curriculumStore';
@@ -206,11 +208,22 @@ export default function TeacherAssignmentsPage() {
         submitText="Giao bài"
         successMessage="Đã giao bài — học viên nhận thông báo trên Cổng học viên"
         initialValues={{ type: 'upload', maxScore: 10, dueDate: dayjs().add(7, 'day'), difficulty: 'mixed', questionCount: 15, attempts: 2, shuffle: true, skills: ['vocab', 'grammar'], classId: classes.find((c) => c.status === 'ongoing')?.id }}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           const quiz =
             v.type === 'quiz'
               ? { lessonIds: v.lessonId ? [v.lessonId] : [], skills: v.skills ?? [], difficulty: v.difficulty ?? 'mixed', questionCount: v.questionCount ?? 10, timeLimitMinutes: v.timeLimitMinutes, attempts: v.attempts ?? 1, shuffle: Boolean(v.shuffle) }
               : undefined;
+          if (USE_API) {
+            const files = v.type === 'upload' ? await learningApi.uploadAttachments(v.attachFiles, v.attachLink ? [v.attachLink] : [], 'teacher') : [];
+            const warning = await learningApi.createAssignment(
+              v.classId,
+              { type: v.type, title: v.title, description: v.description, lessonId: v.lessonId, dueDate: v.dueDate.format('YYYY-MM-DD'), maxScore: v.maxScore, quiz, attachments: files },
+              true,
+            );
+            setClassId(v.classId);
+            if (warning) notify.warning({ title: 'Đã giao bài', description: warning });
+            return;
+          }
           const attachments = v.type === 'upload' ? toAttachments(v.attachFiles, v.attachLink ? [v.attachLink] : []) : undefined;
           addAssignment({ classId: v.classId, type: v.type, title: v.title, description: v.description, lessonId: v.lessonId, dueDate: v.dueDate.format('YYYY-MM-DD'), maxScore: v.maxScore, quiz, attachments: attachments?.length ? attachments : undefined });
           setClassId(v.classId);

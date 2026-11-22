@@ -9,6 +9,8 @@ import { DocViewer } from '@/features/library/DocViewer';
 import { useLibraryStore } from '@/features/library/libraryStore';
 import type { LibraryDoc } from '@/features/library/types';
 import { usePortalStore } from '@/features/portal/portalStore';
+import * as learningApi from '@/features/academic/classes/learningApi';
+import { USE_API } from '@/lib/api/config';
 import type { TeacherDoc } from '@/features/portal/types';
 import { levelOf } from '@/features/portal/quiz';
 import { activeOf, shortCode, useStudentId, useStudentLearning } from '@/features/portal/usePortal';
@@ -52,6 +54,10 @@ export default function StudentDocumentsPage() {
   );
 
   const openTeacherDoc = (d: TeacherDoc) => {
+    if (USE_API)
+      return void learningApi
+        .openInNewTab(() => learningApi.openTeacherDoc(d.id, false, studentId))
+        .catch((e: Error) => notify.error({ title: e.message }));
     viewTeacherDoc(d.id, studentId);
     notify.toast.info(d.kind === 'link' ? `Mở ${d.url}` : `Đang tải ${d.fileName} (giả lập)`);
   };

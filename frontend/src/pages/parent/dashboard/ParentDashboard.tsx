@@ -1,4 +1,6 @@
 import dayjs from 'dayjs';
+import { ClassInbox } from '@/features/portal/components/ClassInbox';
+import { USE_API } from '@/lib/api/config';
 import { AlarmClock, CalendarCheck, CircleCheck, Clock, MapPin, MessageSquareText, TriangleAlert, Trophy, Video, Wallet } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button, PageHeader, StatCard, UserCell } from '@/components/common';
@@ -65,6 +67,7 @@ export default function ParentDashboard() {
       {/* Đề xuất lên lớp: gom TẤT CẢ các con (không theo con đang chọn) — phụ huynh quyết định cho cả nhà */}
       <PromotionOffers studentIds={ids} viewer="parent" />
       <ChildSwitcher />
+      {USE_API && <ClassInbox classIds={active.map((x) => x.cls.id)} />}
 
       <div className="mb-6 rounded-[var(--radius-card)] border border-line bg-surface p-4">
         <UserCell name={child?.fullName ?? ''} subtitle={`${child?.code ?? ''} · ${active.map((x) => `${shortCode(x.cls)} (${x.cls.courseLabel})`).join(', ') || 'Chưa học lớp nào'}`} size="lg" />

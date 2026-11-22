@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useClassStore } from '@/features/academic/classes/classStore';
 import { isOpenClass } from '@/features/academic/classes/constants';
 import { Drawer, Form, Tabs } from 'antd';
-import { ArchiveRestore, BookOpen, GitBranchPlus, Info, Library, Lock, Rocket, Send, Star } from 'lucide-react';
+import { ArchiveRestore, BookOpen, GitBranchPlus, Info, Layers, Library, Lock, Rocket, Send, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button, EmptyState, StatusTag, useConfirm, useNotify } from '@/components/common';
 import { useAuth } from '@/hooks/useAuth';
@@ -12,13 +12,14 @@ import { FORMATS, LEVELS, STUDY_MODES, TEACHER_TYPES } from '../courses/constant
 import { useCourseStore } from '../courses/courseStore';
 import { CURRICULUM_STATUS, TIERS } from './constants';
 import { CurriculumContent } from './CurriculumContent';
+import { FlashDeckManager } from './FlashDeckManager';
 import { CurriculumFormFields, type CurriculumFormValues } from './CurriculumFormFields';
 import { curriculumStats, nextVersion, useCurriculumStore } from './curriculumStore';
 import * as curriculumApi from './curriculumApi';
 import { USE_API } from '@/lib/api/config';
 import type { Curriculum } from './types';
 
-export type CurriculumTab = 'content' | 'info' | 'courses';
+export type CurriculumTab = 'content' | 'info' | 'courses' | 'flashcards';
 
 interface Props {
   curriculumId: string | null;
@@ -234,6 +235,20 @@ export function CurriculumDetailDrawer({ curriculumId, initialTab = 'content', o
               ),
               children: <CoursesTab cur={cur} />,
             },
+            // Chế độ API: bộ flashcard theo bài học (ND-09)
+            ...(USE_API
+              ? [
+                  {
+                    key: 'flashcards',
+                    label: (
+                      <span className="inline-flex items-center gap-1.5">
+                        <Layers size={16} aria-hidden /> Flashcard
+                      </span>
+                    ),
+                    children: <FlashDeckManager curriculum={cur} editable={editable} />,
+                  },
+                ]
+              : []),
           ]}
         />
       )}

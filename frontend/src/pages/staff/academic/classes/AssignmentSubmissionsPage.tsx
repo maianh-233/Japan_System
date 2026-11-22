@@ -12,6 +12,8 @@ import { useCurriculumStore } from '@/features/academic/curriculum/curriculumSto
 import { useCrmStore } from '@/features/crm/crmStore';
 import { useStudentStore } from '@/features/student/studentStore';
 import { useAuth } from '@/hooks/useAuth';
+import * as learningApi from '@/features/academic/classes/learningApi';
+import { USE_API } from '@/lib/api/config';
 import { cn } from '@/lib/cn';
 import { fmtDate, fmtDateTime } from '@/lib/date';
 import { formatFileSize } from '@/lib/format';
@@ -64,6 +66,12 @@ export default function AssignmentSubmissionsPage({ portal = 'staff' }: { portal
   const [editingFiles, setEditingFiles] = useState(false);
   const updateAssignment = useClassStore((s) => s.updateAssignment);
   const editable = portal === 'teacher' || can('academic.classes');
+  const asTeacher = portal === 'teacher';
+  /** Chế độ API: tệp lưu trên server → xin link tạm rồi mở */
+  const openFile = (index: number, submissionId?: string) =>
+    void learningApi
+      .openInNewTab(() => learningApi.fileLink(asTeacher ? 'teacher' : 'staff', assignment!.id, index, submissionId))
+      .catch((e: Error) => notify.error({ title: e.message }));
   const classUrl = (cid: string) => (portal === 'teacher' ? '/teacher/assignments' : `/admin/academic/classes/${cid}?tab=assignments`);
 
   const rows: Row[] = useMemo(() => {
@@ -163,16 +171,24 @@ export default function AssignmentSubmissionsPage({ portal = 'staff' }: { portal
           </div>
         ) : r.sub ? (
           <div className="flex flex-col gap-1">
-            {r.sub.files.map((f) => {
+            {r.sub.files.map((f, idx) => {
               const m = FILE_ICON[f.kind];
               const Icon = m.icon;
+              const viaServer = USE_API && f.kind !== 'link';
               return (
                 <a
                   key={f.name}
-                  href={f.url}
+                  href={viaServer ? undefined : f.url}
                   target="_blank"
                   rel="noreferrer"
-                  onClick={(e) => e.stopPropagation()}
+                  role={viaServer ? 'button' : undefined}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (viaServer) {
+                      e.preventDefault();
+                      openFile(idx, r.sub!.id);
+                    }
+                  }}
                   className="inline-flex min-w-0 items-center gap-1.5 text-[13px] text-ink hover:text-primary-700 hover:underline"
                   title={f.name}
                 >
@@ -264,7 +280,7 @@ export default function AssignmentSubmissionsPage({ portal = 'staff' }: { portal
             <Paperclip size={15} aria-hidden /> Đề bài
           </span>
           <div className="min-w-0 flex-1">
-            {assignment.attachments?.length ? <AttachmentList files={assignment.attachments} /> : <span className="text-[13px] text-ink-muted">Chưa đính kèm đề — học viên chỉ thấy phần yêu cầu.</span>}
+            {assignment.attachments?.length ? <AttachmentList files={assignment.attachments} onOpen={USE_API ? (i) => openFile(i) : undefined} /> : <span className="text-[13px] text-ink-muted">Chưa đính kèm đề — học viên chỉ thấy phần yêu cầu.</span>}
           </div>
           {editable && (
             <Button size="sm" variant="soft" icon={Paperclip} onClick={() => setEditingFiles(true)}>
@@ -360,8 +376,13 @@ export default function AssignmentSubmissionsPage({ portal = 'staff' }: { portal
         submitAction="save"
         successMessage="Đã cập nhật đề bài"
         initialValues={{ keep: (assignment.attachments ?? []).map((_, i) => i) }}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           const kept = (assignment.attachments ?? []).filter((_, i) => v.keep.includes(i));
+          if (USE_API) {
+            const added = await learningApi.uploadAttachments(v.files, v.link ? [v.link] : [], asTeacher ? 'teacher' : 'staff');
+            await learningApi.updateAssignment(assignment, { attachments: [...kept, ...added] }, asTeacher);
+            return;
+          }
           const next = [...kept, ...toAttachments(v.files, v.link ? [v.link] : [])];
           updateAssignment(assignment.id, { attachments: next.length ? next : undefined });
         }}
@@ -411,9 +432,10 @@ export default function AssignmentSubmissionsPage({ portal = 'staff' }: { portal
         submitText="Lưu điểm"
         successMessage="Đã lưu điểm"
         initialValues={grading?.sub ? { score: grading.sub.score, comment: grading.sub.comment } : undefined}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           if (!grading?.sub) return;
-          gradeSubmission(grading.sub.id, v.score, v.comment?.trim() || undefined, user?.fullName ?? 'Giáo viên');
+          if (USE_API) await learningApi.gradeSubmission(grading.sub.id, v.score, v.comment?.trim() || undefined, asTeacher);
+          else gradeSubmission(grading.sub.id, v.score, v.comment?.trim() || undefined, user?.fullName ?? 'Giáo viên');
         }}
       >
         <Form.Item

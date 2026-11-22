@@ -6,6 +6,8 @@ import { Button, DateInput, EmptyState, ModalForm, Select, StatusTag, TextArea, 
 import { useCrmStore } from '@/features/crm/crmStore';
 import { summarizeInvoice, useStudentStore } from '@/features/student/studentStore';
 import { useAuth } from '@/hooks/useAuth';
+import * as learningApi from '../learningApi';
+import { USE_API } from '@/lib/api/config';
 import { cn } from '@/lib/cn';
 import { fmtDate } from '@/lib/date';
 import { useCurriculumStore } from '../../curriculum/curriculumStore';
@@ -34,6 +36,7 @@ interface Values {
 /** Tab Thông báo: soạn + gửi tin cho học viên / phụ huynh / giáo viên của lớp, lịch sử đã gửi */
 export function ClassAnnouncementsTab({ cls }: { cls: ClassInfo }) {
   const { can } = useAuth();
+  const notify = useNotify();
   const [open, setOpen] = useState(false);
   const all = useClassStore((s) => s.announcements);
   const enrollments = useStudentStore((s) => s.enrollments);
@@ -61,7 +64,8 @@ export function ClassAnnouncementsTab({ cls }: { cls: ClassInfo }) {
       ) : (
         <ul className="flex flex-col gap-3">
           {list.map((a) => {
-            const pending = a.scheduledAt && dayjs(a.scheduledAt).isAfter(dayjs());
+            const cancelled = a.status === 'cancelled';
+            const pending = !cancelled && (a.status === 'scheduled' || (!a.status && a.scheduledAt && dayjs(a.scheduledAt).isAfter(dayjs())));
             const readPct = a.readCount !== undefined && a.recipients ? Math.round((a.readCount / a.recipients) * 100) : undefined;
             return (
               <li key={a.id} className="rounded-[var(--radius-card)] border border-line p-4">
@@ -72,10 +76,31 @@ export function ClassAnnouncementsTab({ cls }: { cls: ClassInfo }) {
                       {a.sentBy} · {dayjs(a.scheduledAt ?? a.sentAt).format('HH:mm DD/MM/YYYY')}
                     </p>
                   </div>
-                  {pending ? (
-                    <StatusTag tone="warning" icon={Clock} size="sm">
-                      Chờ gửi
+                  {cancelled ? (
+                    <StatusTag tone="neutral" icon={Clock} size="sm">
+                      Đã hủy
                     </StatusTag>
+                  ) : pending ? (
+                    <>
+                      <StatusTag tone="warning" icon={Clock} size="sm">
+                        Chờ gửi
+                      </StatusTag>
+                      {USE_API && editable && (
+                        <Button
+                          action="cancel"
+                          size="sm"
+                          variant="ghost"
+                          onClick={() =>
+                            void learningApi
+                              .cancelAnnouncement(a.id)
+                              .then(() => notify.toast.success('Đã hủy thông báo hẹn giờ'))
+                              .catch((e: Error) => notify.error({ title: e.message }))
+                          }
+                        >
+                          Hủy gửi
+                        </Button>
+                      )}
+                    </>
                   ) : (
                     <StatusTag tone="success" icon={Send} size="sm">
                       Đã gửi
@@ -98,7 +123,7 @@ export function ClassAnnouncementsTab({ cls }: { cls: ClassInfo }) {
                       );
                     })}
                   </span>
-                  {!pending && readPct !== undefined && (
+                  {!pending && !cancelled && readPct !== undefined && (
                     <span className="flex items-center gap-1.5">
                       <span className="h-1.5 w-16 overflow-hidden rounded-full bg-page">
                         <span className="block h-full bg-primary-500" style={{ width: `${readPct}%` }} />
@@ -198,7 +223,21 @@ export function ComposeAnnouncementModal({ cls, open, onClose, studentIds }: { c
       successMessage="Đã gửi thông báo"
       key={studentIds?.join(',') ?? 'all'}
       initialValues={{ template: 'custom', audience: ['student', 'parent'], channels: ['portal', 'zalo'], debtorsOnly: false, schedule: false }}
-      onSubmit={(v) => {
+      onSubmit={async (v) => {
+        if (USE_API) {
+          // Server tính người nhận thật (HV đang học, PH, GV, nợ quá hạn) và báo "Không có người nhận" nếu 0
+          await learningApi.sendAnnouncement(cls.id, {
+            title: v.title.trim(),
+            content: v.content.trim(),
+            audience: v.audience,
+            channels: v.channels,
+            debtorsOnly: v.debtorsOnly,
+            studentIds,
+            scheduledAt: v.schedule && v.scheduledAt ? v.scheduledAt.toISOString() : undefined,
+          });
+          if (v.schedule && v.scheduledAt) notify.toast.info(`Sẽ gửi lúc ${v.scheduledAt.format('HH:mm DD/MM')}`);
+          return;
+        }
         const recipients = countFor(v.audience, v.debtorsOnly);
         if (!recipients) throw new Error('Không có người nhận');
         addAnnouncement({
