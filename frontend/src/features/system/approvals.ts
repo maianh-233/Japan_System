@@ -67,6 +67,7 @@ export const isFinancePerm = (perm: string) => perm === '*' || perm.startsWith('
 export function canApproveKind(kind: ApprovalKind, can: (perm: string) => boolean): boolean {
   if (!can('system.approvals')) return false;
   // Cấp quyền: người duyệt là cấp quản trị (xem được Nhật ký hệ thống) — không bắt buộc có quyền phân quyền, để Super Admin gửi thì Admin duyệt được
+  // Hoàn tiền / hủy hóa đơn: có trang Hóa đơn — server kiểm đúng quyền finance.invoices.approve tại chi nhánh của hóa đơn
   return kind === 'finance_perm' ? can('system.audit') || can('system.user-permissions') : can('finance.invoices');
 }
 

@@ -14,8 +14,12 @@ import {
 } from '@/mocks/data/finance';
 import type { BankTxn, BranchPrice, CommissionTier, InstallmentPlan, PayAdjust, PayrollLock, Promotion, Reminder, SaleTarget } from './types';
 import { moveToTrash, registerRestorer } from '@/features/system/trash';
+import { USE_API } from '@/lib/api/config';
 
-/** Store TÀI CHÍNH GIẢ LẬP. Hóa đơn / thu / hoàn dùng chung studentStore. */
+/**
+ * Store Tài chính. Hóa đơn / thu / hoàn dùng chung studentStore. Chế độ API: bảng giá, ưu đãi, chính sách đợt, giao dịch ngân hàng,
+ * lịch sử nhắc nạp từ server (financeApi) — action ở đây chỉ còn cho chế độ mock. Lương / hoa hồng vẫn giả lập (giai đoạn 22).
+ */
 interface FinanceState {
   prices: BranchPrice[];
   promotions: Promotion[];
@@ -58,11 +62,11 @@ const now = () => new Date().toISOString();
 const sameLock = (kind: string, month: string, branchId: string) => (l: PayrollLock) => l.kind === kind && l.month === month && l.branchId === branchId;
 
 export const useFinanceStore = create<FinanceState>((set, get) => ({
-  prices: MOCK_BRANCH_PRICES,
-  promotions: MOCK_PROMOTIONS,
-  plans: MOCK_INSTALLMENTS,
-  txns: MOCK_BANK_TXNS,
-  reminders: MOCK_REMINDERS,
+  prices: USE_API ? [] : MOCK_BRANCH_PRICES,
+  promotions: USE_API ? [] : MOCK_PROMOTIONS,
+  plans: USE_API ? [] : MOCK_INSTALLMENTS,
+  txns: USE_API ? [] : MOCK_BANK_TXNS,
+  reminders: USE_API ? [] : MOCK_REMINDERS,
   adjusts: MOCK_PAY_ADJUSTS,
   locks: MOCK_PAYROLL_LOCKS,
   tiers: MOCK_COMMISSION_TIERS,

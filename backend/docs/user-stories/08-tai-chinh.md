@@ -375,3 +375,7 @@ lương = lương cứng × công ÷ công chuẩn + phụ cấp + hoa hồng (T
   - Tự nhắc: job Quartz 08:00 hằng ngày (`POST reminders/auto` để chạy tay). Nợ quá hạn → Students đọc qua `Finance.Contracts.ITuitionQuery` khi tính cảnh báo bỏ học (thay cho event `InvoiceOverdue`).
   - ⏳ Còn lại: áp mã ưu đãi / chính sách đóng đợt khi ghi danh (sự kiện `StudentEnrolled` chưa mang mã / chính sách — làm cùng phase 4),
     gửi nhắc thật qua Zalo / SMS / email (module Thông báo), khôi phục hóa đơn đã hủy từ Thùng rác, `integration_logs` cho webhook.
+- **Frontend (giai đoạn 19 phase 4):** `features/finance/financeApi.ts` nạp hóa đơn / bảng giá / giao dịch / học phí cổng vào store cũ; thu tiền, hoàn / hủy (phiếu ở
+  Hệ thống › Duyệt thao tác — mọi loại phiếu duyệt / từ chối / rút lại qua server), khớp / bỏ qua / gỡ khớp, nhắc học phí, giá / ưu đãi / đóng đợt gọi API.
+  Ghi danh / cho nghỉ / chuyển lớp / lên lớp / chốt lead không còn tạo hóa đơn giả — tải lại hóa đơn sau khi Finance lập ở nền; chốt lead "thu ngay" chờ hóa đơn rồi ghi khoản thu.
+  Đối soát: bỏ nút mô phỏng giao dịch (giao dịch thật đến qua webhook), "Đưa về chưa khớp" cho giao dịch đã bỏ qua nhầm. Cổng HV / PH: VietQR theo tài khoản chi nhánh server trả.

@@ -5,10 +5,9 @@
  */
 import { api } from '@/lib/api/http';
 import { fromGuid, toGuid } from '@/lib/api/ids';
-import { useClassStore } from '@/features/academic/classes/classStore';
 import { toPromotion, type ServerPromotion } from '@/features/portal/portalApi';
 import { loadEnrollments } from '@/features/student/studentApi';
-import { addMockInvoice } from '@/features/student/studentStore';
+import { refreshInvoicesSoon } from '@/features/finance/financeApi';
 import type { ConsultChannel } from '@/features/crm/types';
 import { usePromotionStore } from './promotionStore';
 import type { PromotionCandidate } from './types';
@@ -53,8 +52,8 @@ export async function confirmPromotion(id: string, idempotencyKey: string) {
   upsert([p]);
   if (p.toClassId) {
     await loadEnrollments(p.toClassId).catch(() => undefined);
-    const cls = useClassStore.getState().classes.find((c) => c.id === p.toClassId);
-    if (p.enrollmentId) addMockInvoice(p.enrollmentId, cls?.branchId ?? '', cls?.fee ?? 0, 0);
+    // Finance lập hóa đơn lớp mới ở nền (TC-04)
+    refreshInvoicesSoon();
   }
   return p;
 }

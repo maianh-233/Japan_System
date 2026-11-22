@@ -18,9 +18,9 @@ namespace JPCenter.Modules.Finance.Application.TuitionPortal.GetMyInvoices;
 /// </summary>
 public sealed record GetMyInvoicesQuery(Guid? StudentId) : IQuery<IReadOnlyList<PortalInvoiceDto>>;
 
-public sealed record PortalInvoiceDto(Guid Id, string Code, Guid StudentId, string StudentName, string? ClassCode, string? ClassName, decimal Amount,
-    decimal Discount, decimal Total, decimal Collected, decimal Refunded, decimal Remaining, DateOnly DueDate, DateTimeOffset IssuedAt,
-    TuitionStatus Status, IReadOnlyList<PortalPaymentDto> Payments, IReadOnlyList<PortalPaymentDto> Refunds, PortalQrDto? Qr);
+public sealed record PortalInvoiceDto(Guid Id, string Code, Guid EnrollmentId, Guid BranchId, Guid StudentId, string StudentName, string? ClassCode,
+    string? ClassName, decimal Amount, decimal Discount, decimal Total, decimal Collected, decimal Refunded, decimal Remaining, DateOnly DueDate,
+    DateTimeOffset IssuedAt, TuitionStatus Status, IReadOnlyList<PortalPaymentDto> Payments, IReadOnlyList<PortalPaymentDto> Refunds, PortalQrDto? Qr);
 
 public sealed record PortalPaymentDto(decimal Amount, PaymentMethod Method, DateTimeOffset At);
 
@@ -62,9 +62,9 @@ public sealed class GetMyInvoicesHandler(
             var s = i.Summarize(today);
             cls.TryGetValue(i.ClassId, out var c);
             var account = bank[i.BranchId.Value];
-            return new PortalInvoiceDto(i.Id.Value, i.Code, i.StudentId, names.GetValueOrDefault(i.StudentId) ?? "", c?.Code, c?.Name, i.Amount.Amount,
-                i.Discount.Amount, s.Total.Amount, s.Collected.Amount, s.Refunded.Amount, s.Remaining.Amount, s.CurrentDueDate ?? i.DueDate, i.IssuedAt,
-                s.Status, i.Payments.OrderBy(p => p.PaidAt).Select(p => new PortalPaymentDto(p.Amount.Amount, p.Method, p.PaidAt)).ToList(),
+            return new PortalInvoiceDto(i.Id.Value, i.Code, i.EnrollmentId, i.BranchId.Value, i.StudentId, names.GetValueOrDefault(i.StudentId) ?? "",
+                c?.Code, c?.Name, i.Amount.Amount, i.Discount.Amount, s.Total.Amount, s.Collected.Amount, s.Refunded.Amount, s.Remaining.Amount,
+                s.CurrentDueDate ?? i.DueDate, i.IssuedAt, s.Status, i.Payments.OrderBy(p => p.PaidAt).Select(p => new PortalPaymentDto(p.Amount.Amount, p.Method, p.PaidAt)).ToList(),
                 i.Refunds.OrderBy(r => r.RefundedAt).Select(r => new PortalPaymentDto(r.Amount.Amount, r.Method, r.RefundedAt)).ToList(),
                 account is not null && s.Remaining > Money.Zero
                     ? new PortalQrDto(account.BankName, account.Account, account.Holder, s.Remaining.Amount, i.TransferContent)

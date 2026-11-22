@@ -40,16 +40,16 @@ export default function ApprovalsPage() {
       tone: 'warning',
       confirmAction: 'approve',
       confirmText: 'Duyệt & thực hiện',
-      // Cấp quyền tài chính: server áp dụng + kiểm lại quyền người đề nghị. Hoàn tiền / hủy hóa đơn: vẫn giả lập (chưa có API Tài chính)
+      // Server áp dụng: cấp quyền tài chính (kiểm lại quyền người đề nghị) · hoàn tiền / hủy hóa đơn (Tài chính kiểm lại hoàn tối đa, còn tiền chưa hoàn)
       onConfirm: async () => {
-        if (USE_API && r.kind === 'finance_perm') warnings = await systemApi.approveRequest(r.id);
+        if (USE_API) warnings = await systemApi.approveRequest(r.id);
         else approve(r.id, me);
       },
     });
     if (res) notify.success({ title: `Đã duyệt ${r.code}`, description: [r.title, ...warnings].join(' — ') });
   };
   const doReject = async (r: ApprovalRequest) => {
-    const res = await confirm({ title: `Từ chối ${r.code}?`, description: r.title, tone: 'danger', confirmAction: 'reject', confirmText: 'Từ chối', requireReason: { label: 'Lý do', placeholder: 'VD: Số tiền hoàn chưa đúng số buổi đã học' }, onConfirm: ({ reason }) => (USE_API && r.kind === 'finance_perm' ? systemApi.rejectRequest(r.id, reason ?? '') : reject(r.id, me, reason ?? '')) });
+    const res = await confirm({ title: `Từ chối ${r.code}?`, description: r.title, tone: 'danger', confirmAction: 'reject', confirmText: 'Từ chối', requireReason: { label: 'Lý do', placeholder: 'VD: Số tiền hoàn chưa đúng số buổi đã học' }, onConfirm: ({ reason }) => (USE_API ? systemApi.rejectRequest(r.id, reason ?? '') : reject(r.id, me, reason ?? '')) });
     if (res) notify.toast.info(`Đã từ chối ${r.code}`);
   };
 
@@ -132,7 +132,7 @@ export default function ApprovalsPage() {
         rowActions={(r) =>
           r.status !== 'pending' ? null : mine(r) ? (
             <Button icon={Undo2} size="sm" variant="ghost" tone="neutral" onClick={() =>
-                USE_API && r.kind === 'finance_perm'
+                USE_API
                   ? systemApi.withdrawRequest(r.id).catch((e: Error) => notify.error({ title: 'Chưa rút lại được', description: e.message }))
                   : withdraw(r.id, me)
               }

@@ -8,6 +8,7 @@ import { fromGuid, fromGuids, toGuid, toGuids } from '@/lib/api/ids';
 import { useApprovalStore, type ApprovalRequest } from './approvals';
 import { useSystemStore } from './systemStore';
 import type { PermOverride, PermScope, Role, RoleAssignment, UserAccess } from './types';
+import type { PaymentMethod } from '@/features/student/types';
 
 // ---------- Kiểu dữ liệu backend ----------
 
@@ -44,7 +45,8 @@ interface ServerApproval {
   detail?: string;
   branchId?: string;
   payload: {
-    type: 'user_roles' | 'user_override' | 'role_grants';
+    /** Cấp quyền tài chính */
+    type?: 'user_roles' | 'user_override' | 'role_grants';
     accountId?: string;
     userName?: string;
     roles?: { roleId: string; branchIds: string[] }[];
@@ -52,6 +54,12 @@ interface ServerApproval {
     roleName?: string;
     before?: string;
     after?: string;
+    /** Hoàn tiền / hủy hóa đơn (Finance mở phiếu) */
+    invoiceId?: string;
+    invoiceCode?: string;
+    amount?: number;
+    method?: PaymentMethod;
+    reason?: string;
   };
   requestedBy: { id: string; name: string };
   requestedAt: string;
@@ -123,6 +131,25 @@ function toApproval(r: ServerApproval): ApprovalRequest {
   const p = r.payload;
   const userId = p.accountId ? (userOfAccount.get(p.accountId) ?? p.accountId) : '';
   const person = (x: { id: string; name: string }) => ({ id: userOfAccount.get(x.id) ?? x.id, name: x.name });
+  if (r.kind !== 'finance_permission') {
+    const invoiceId = fromGuid(p.invoiceId ?? '');
+    const base = { invoiceId, invoiceCode: p.invoiceCode ?? '', reason: p.reason ?? '' };
+    return {
+      id: r.id,
+      code: r.code,
+      kind: r.kind,
+      title: r.title,
+      detail: r.detail,
+      branchId: r.branchId ? fromGuid(r.branchId) : undefined,
+      payload: r.kind === 'refund' ? { kind: 'refund', ...base, amount: p.amount ?? 0, method: p.method ?? 'cash' } : { kind: 'void_invoice', ...base },
+      requestedBy: person(r.requestedBy),
+      requestedAt: r.requestedAt,
+      status: r.status,
+      decidedBy: r.decidedBy ? person(r.decidedBy) : undefined,
+      decidedAt: r.decidedAt,
+      note: r.note,
+    };
+  }
   return {
     id: r.id,
     code: r.code,
@@ -173,9 +200,8 @@ export async function loadUsers() {
 export async function loadApprovals() {
   const list = await optional(api<ServerApproval[]>('/system/approvals'));
   if (!list) return;
-  const finance = list.filter((x) => x.kind === 'finance_permission').map(toApproval);
-  // Hoàn tiền / hủy hóa đơn vẫn chạy bằng dữ liệu giả (module Tài chính chưa có API)
-  useApprovalStore.setState((s) => ({ requests: [...finance, ...s.requests.filter((x) => x.kind !== 'finance_perm')] }));
+  // Cấp quyền tài chính + hoàn tiền / hủy hóa đơn (Finance mở phiếu qua hộp duyệt chung)
+  useApprovalStore.setState({ requests: list.map(toApproval) });
 }
 
 /** Sau đăng nhập / tải lại trang (chỉ nhân viên): nạp vai trò, người dùng, yêu cầu duyệt mà người này được xem */
@@ -257,16 +283,19 @@ export async function inviteUser(employeeId: string, roleId: string, branchIds: 
 
 export async function approveRequest(id: string, note?: string): Promise<string[]> {
   const r = await api<{ warnings: string[] }>(`/system/approvals/${id}/approve`, { body: { note: note ?? null } });
-  await afterPermissionChange();
+  await Promise.all([afterPermissionChange(), reloadInvoices()]);
   return r.warnings ?? [];
 }
 
 export async function rejectRequest(id: string, note: string) {
   await api(`/system/approvals/${id}/reject`, { body: { note } });
-  await loadApprovals();
+  await Promise.all([loadApprovals(), reloadInvoices()]);
 }
 
 export async function withdrawRequest(id: string) {
   await api(`/system/approvals/${id}/withdraw`, { method: 'POST' });
-  await loadApprovals();
+  await Promise.all([loadApprovals(), reloadInvoices()]);
 }
+
+/** Hoàn tiền / hủy hóa đơn vừa được quyết ở server → hóa đơn đổi (ghi hoàn, đã hủy, bỏ khoản chờ) */
+const reloadInvoices = () => import('@/features/finance/financeApi').then((m) => m.afterInvoiceDecision());

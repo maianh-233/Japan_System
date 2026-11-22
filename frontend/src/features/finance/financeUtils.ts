@@ -12,7 +12,8 @@ import { summarizeInvoice, useStudentStore, type InvoiceSummary } from '@/featur
 import type { Enrollment, Invoice } from '@/features/student/types';
 import type { ShiftAssignment } from '@/features/work/types';
 import { unaccent } from '@/mocks/data/finance';
-import { INSURANCE_RATE, LATE_FINE, NO_OUT_FINE, PERSONAL_DEDUCTION, STANDARD_DAYS, SUBSTITUTE_BONUS, TEACHER_LATE_FINE, type AgingKey } from './constants';
+import { getBranches } from '@/features/system/useBranches';
+import { BANK_ACCOUNTS, INSURANCE_RATE, LATE_FINE, NO_OUT_FINE, PERSONAL_DEDUCTION, STANDARD_DAYS, SUBSTITUTE_BONUS, TEACHER_LATE_FINE, type AgingKey } from './constants';
 import { useFinanceStore } from './financeStore';
 import type { BankTxn, CommissionTier, PayAdjust } from './types';
 
@@ -96,7 +97,26 @@ export function agingOf(row: InvoiceRow): AgingKey | undefined {
 export const daysLate = (row: InvoiceRow) => Math.max(0, dayjs().startOf('day').diff(dayjs(row.invoice.dueDate), 'day'));
 
 /** Nội dung chuyển khoản chuẩn của hóa đơn */
-export const transferContent = (row: InvoiceRow) => `${row.invoice.code} ${unaccent(row.student?.fullName ?? '')}`.trim();
+/** Nội dung chuyển khoản: server lập sẵn (chế độ API); dữ liệu giả ghép mã + tên không dấu */
+export const transferContent = (row: InvoiceRow) => row.invoice.transferContent ?? `${row.invoice.code} ${unaccent(row.student?.fullName ?? '')}`.trim();
+
+export interface BankAccountInfo {
+  bank: string;
+  no: string;
+  name: string;
+}
+
+/** Tài khoản nhận VietQR của chi nhánh (Hệ thống › Chi nhánh); chưa khai báo → dữ liệu giả cũ / không có */
+export function bankOfBranch(branchId: string): BankAccountInfo | undefined {
+  const b = getBranches(false).find((x) => x.id === branchId)?.bank;
+  return b?.account ? { bank: b.bank, no: b.account, name: b.holder } : BANK_ACCOUNTS[branchId];
+}
+
+/** Ngân hàng theo số tài khoản nhận của giao dịch (dữ liệu giả lưu mã chi nhánh) */
+export function bankOfAccount(account: string): BankAccountInfo | undefined {
+  const branch = getBranches(false).find((x) => x.bank?.account === account);
+  return branch ? bankOfBranch(branch.id) : BANK_ACCOUNTS[account];
+}
 
 // ============ Đối soát ============
 

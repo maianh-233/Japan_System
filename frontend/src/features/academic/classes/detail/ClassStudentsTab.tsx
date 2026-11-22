@@ -7,6 +7,7 @@ import { useCrmStore } from '@/features/crm/crmStore';
 import { RemindModal } from '@/features/finance/InvoiceDrawer';
 import { pendingRefundOf, refundNeedsApproval, refundTitle, useApprovalStore } from '@/features/system/approvals';
 import { ENROLLMENT_STATUS, PAYMENT_METHODS } from '@/features/student/constants';
+import * as financeApi from '@/features/finance/financeApi';
 import { summarizeInvoice, useStudentStore, type InvoiceSummary } from '@/features/student/studentStore';
 import * as studentApi from '@/features/student/studentApi';
 import { USE_API } from '@/lib/api/config';
@@ -352,6 +353,7 @@ export function ClassStudentsTab({ cls }: { cls: ClassInfo }) {
         initialValues={dialog?.kind === 'pay' ? { amount: dialog.row.sum?.remaining, method: 'cash', paidAt: dayjs() } : undefined}
         onSubmit={async (v) => {
           if (dialog?.kind !== 'pay' || !dialog.row.invoice) return;
+          if (USE_API) return void (await financeApi.recordPayment(dialog.row.invoice.id, { amount: v.amount, method: v.method, paidAt: v.paidAt.toISOString() }));
           await new Promise((r) => setTimeout(r, 400));
           addPayment(dialog.row.invoice.id, { amount: v.amount, method: v.method, paidAt: v.paidAt.toISOString(), collector: user?.fullName ?? 'Nhân viên' });
         }}
@@ -388,8 +390,14 @@ export function ClassStudentsTab({ cls }: { cls: ClassInfo }) {
         initialValues={{ method: 'transfer' }}
         onSubmit={async (v) => {
           if (dialog?.kind !== 'refund' || !dialog.row.invoice) return;
-          await new Promise((r) => setTimeout(r, 400));
           const reason = v.reason.trim();
+          if (USE_API) {
+            // Server quyết theo ngưỡng Cài đặt: ghi hoàn ngay hoặc mở phiếu duyệt
+            const ticket = await financeApi.requestRefund(dialog.row.invoice.id, { amount: v.amount, method: v.method, reason });
+            if (ticket) notify.info({ title: `Đã gửi yêu cầu hoàn tiền (${ticket.code})`, description: 'Tiền chỉ được ghi hoàn sau khi người thứ hai duyệt (Hệ thống › Duyệt thao tác).' });
+            return;
+          }
+          await new Promise((r) => setTimeout(r, 400));
           if (refundNeedsApproval(v.amount)) {
             requestApproval(
               { kind: 'refund', title: refundTitle(v.amount, dialog.row.invoice.code, dialog.row.fullName), detail: reason, branchId: cls.branchId, payload: { kind: 'refund', invoiceId: dialog.row.invoice.id, invoiceCode: dialog.row.invoice.code, amount: v.amount, method: v.method, reason } },

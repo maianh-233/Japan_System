@@ -73,6 +73,10 @@ export interface Invoice {
   cancelled?: boolean;
   /** Hủy hóa đơn (lập sai, trùng) — qua duyệt 2 người; còn trong Thùng rác thì khôi phục được */
   voided?: { reason: string; requestedBy: string; approvedBy: string; at: string };
+  /** Nội dung chuyển khoản VietQR riêng (server lập; dữ liệu giả tự ghép mã + tên) */
+  transferContent?: string;
+  /** Cổng HV / PH: tài khoản nhận của chi nhánh (server trả) — không có = chi nhánh chưa khai báo, đóng tại quầy */
+  qr?: { bank: string; account: string; holder: string; content: string };
 }
 
 export interface Refund {

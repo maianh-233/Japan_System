@@ -7,10 +7,10 @@
 import { USE_API } from '@/lib/api/config';
 import { api, ApiError } from '@/lib/api/http';
 import { fromGuid, toGuid } from '@/lib/api/ids';
-import { useClassStore } from '@/features/academic/classes/classStore';
 import { useCrmStore } from '@/features/crm/crmStore';
 import type { Student } from '@/features/crm/types';
-import { addMockInvoice, cancelMockInvoice, useStudentStore } from './studentStore';
+import { refreshInvoicesSoon } from '@/features/finance/financeApi';
+import { useStudentStore } from './studentStore';
 import type { Enrollment, EnrollmentStatus, Gender } from './types';
 
 interface ServerStudent {
@@ -197,17 +197,13 @@ async function applyResult(r: EnrollmentResult): Promise<string[]> {
   return r.warnings;
 }
 
-const branchOfClass = (classId: string) => useClassStore.getState().classes.find((c) => c.id === classId)?.branchId ?? '';
-
-/** HV-06 — ghi danh HV có sẵn (server kiểm lớp còn chỗ, chưa trùng); hóa đơn giả theo học phí lớp */
+/** HV-06 — ghi danh HV có sẵn (server kiểm lớp còn chỗ, chưa trùng); Finance lập hóa đơn ở nền (TC-04) */
 export async function enroll(studentId: string, classId: string, opts: { amount?: number; discount?: number; dueDate?: string }) {
   const r = await api<EnrollmentResult>('/students/enrollments', {
     body: { studentId: toGuid(studentId), classId: toGuid(classId), amount: opts.amount ?? null, discount: opts.discount ?? 0, dueDate: opts.dueDate ?? null },
   });
   const warnings = await applyResult(r);
-  const e = r.enrollments[0];
-  const fee = opts.amount ?? useClassStore.getState().classes.find((c) => c.id === classId)?.fee ?? 0;
-  addMockInvoice(fromGuid(e.id), branchOfClass(classId), fee, opts.discount ?? 0, opts.dueDate);
+  refreshInvoicesSoon();
   return warnings;
 }
 
@@ -219,10 +215,10 @@ export const reserveEnrollment = async (id: string, until: string, reason: strin
 export const resumeEnrollment = async (id: string) =>
   applyResult(await api<EnrollmentResult>(`/students/enrollments/${toGuid(id)}/resume`, { method: 'POST' }));
 
-/** HV-10 — hủy công nợ còn lại của hóa đơn giả */
+/** HV-10 — Finance hủy công nợ còn lại của hóa đơn ở nền */
 export async function dropEnrollment(id: string, reason: string) {
   const warnings = await applyResult(await api<EnrollmentResult>(`/students/enrollments/${toGuid(id)}/drop`, { body: { reason } }));
-  cancelMockInvoice(id);
+  refreshInvoicesSoon();
   return warnings;
 }
 
@@ -242,11 +238,8 @@ export async function transferEnrollments(
     },
   });
   const warnings = await applyResult(r);
-  for (const item of items) {
-    cancelMockInvoice(item.enrollmentId);
-    const next = r.enrollments.find((e) => e.transferredFrom && fromGuid(e.transferredFrom) === item.enrollmentId);
-    if (next) addMockInvoice(fromGuid(next.id), branchOfClass(targetClassId), item.amount, item.credit, dueDate);
-  }
+  // Finance hủy phần còn lại hóa đơn cũ + lập hóa đơn lớp mới (học phí − khấu trừ) ở nền
+  refreshInvoicesSoon();
   return warnings;
 }
 

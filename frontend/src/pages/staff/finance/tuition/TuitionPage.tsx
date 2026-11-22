@@ -7,6 +7,8 @@ import { useCourseStore } from '@/features/academic/courses/courseStore';
 import type { Course } from '@/features/academic/courses/types';
 import { PROMO_KIND } from '@/features/finance/constants';
 import { useFinanceStore } from '@/features/finance/financeStore';
+import * as financeApi from '@/features/finance/financeApi';
+import { USE_API } from '@/lib/api/config';
 import type { InstallmentPlan, PromoKind, Promotion } from '@/features/finance/types';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/cn';
@@ -184,7 +186,11 @@ export default function TuitionPage() {
           onRowClick={editable ? (p) => setPromoEdit({ promo: p }) : undefined}
           rowActions={(p) =>
             editable && p.to >= today ? (
-              <Switch size="small" checked={p.active} onChange={() => (togglePromotion(p.id), notify.toast.success(p.active ? 'Đã tắt ưu đãi' : 'Đã bật ưu đãi'))} aria-label="Bật / tắt" />
+              <Switch size="small" checked={p.active} onChange={() =>
+                  (USE_API ? financeApi.togglePromotion(p.id, !p.active) : Promise.resolve(togglePromotion(p.id)))
+                    .then(() => notify.toast.success(p.active ? 'Đã tắt ưu đãi' : 'Đã bật ưu đãi'))
+                    .catch((e: Error) => notify.error({ title: 'Chưa đổi được', description: e.message }))
+                } aria-label="Bật / tắt" />
             ) : null
           }
           actionsWidth={70}
@@ -238,12 +244,20 @@ export default function TuitionPage() {
         initialValues={{ fee: editingPrice }}
         footerExtra={
           editingPrice !== undefined ? (
-            <Button icon={Trash2} variant="ghost" tone="danger" onClick={() => (setPrice(priceEdit!.course.id, priceEdit!.branchId, null), setPriceEdit(null), notify.toast.success('Đã về giá niêm yết'))}>
+            <Button icon={Trash2} variant="ghost" tone="danger" onClick={async () => {
+              try {
+                await (USE_API ? financeApi.setPrice : setPrice)(priceEdit!.course.id, priceEdit!.branchId, null);
+                setPriceEdit(null);
+                notify.toast.success('Đã về giá niêm yết');
+              } catch (e) {
+                notify.error({ title: 'Chưa đổi được giá', description: e instanceof Error ? e.message : undefined });
+              }
+            }}>
               Dùng giá niêm yết
             </Button>
           ) : undefined
         }
-        onSubmit={(v) => setPrice(priceEdit!.course.id, priceEdit!.branchId, v.fee ?? null)}
+        onSubmit={(v) => (USE_API ? financeApi.setPrice : setPrice)(priceEdit!.course.id, priceEdit!.branchId, v.fee ?? null)}
       >
         <Form.Item name="fee" label={priceEdit?.course.format === 'private' ? 'Giá mỗi buổi' : 'Giá trọn khóa'} rules={[{ required: true, message: 'Nhập giá' }]}>
           <NumberInput currency min={0} step={100_000} />
@@ -265,10 +279,10 @@ export default function TuitionPage() {
             ? { ...promoEdit.promo, from: dayjs(promoEdit.promo.from), to: dayjs(promoEdit.promo.to) }
             : { kind: 'percent', courseIds: [], branchIds: getBranches(false).map((b) => b.id), from: dayjs(), to: dayjs().add(30, 'day'), active: true }
         }
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           if (v.kind === 'combo' && v.courseIds.length < 2) throw new Error('Combo cần chọn ít nhất 2 khóa');
           if (v.kind === 'percent' && v.value > 50) throw new Error('Giảm tối đa 50%');
-          savePromotion({ ...v, id: promoEdit?.promo?.id, code: v.code.trim().toUpperCase(), name: v.name.trim(), from: v.from.format('YYYY-MM-DD'), to: v.to.format('YYYY-MM-DD'), note: v.note?.trim() || undefined });
+          await (USE_API ? financeApi.savePromotion : savePromotion)({ ...v, id: promoEdit?.promo?.id, code: v.code.trim().toUpperCase(), name: v.name.trim(), from: v.from.format('YYYY-MM-DD'), to: v.to.format('YYYY-MM-DD'), note: v.note?.trim() || undefined });
         }}
       >
         <PromoFields courses={sellable} />
@@ -284,10 +298,10 @@ export default function TuitionPage() {
         submitAction="save"
         successMessage="Đã lưu chính sách"
         initialValues={planEdit?.plan ?? { minFee: 4_000_000, surcharge: 0, active: true, parts: [{ percent: 50, offsetDays: -3 }, { percent: 50, offsetDays: 30 }] }}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           const sum = v.parts.reduce((n, p) => n + (p.percent ?? 0), 0);
           if (sum !== 100) throw new Error(`Tổng các đợt phải bằng 100% (hiện ${sum}%)`);
-          savePlan({ ...v, id: planEdit?.plan?.id, name: v.name.trim() });
+          await (USE_API ? financeApi.savePlan : savePlan)({ ...v, id: planEdit?.plan?.id, name: v.name.trim() });
         }}
       >
         <Form.Item name="name" label="Tên chính sách" rules={[{ required: true, whitespace: true }]}>

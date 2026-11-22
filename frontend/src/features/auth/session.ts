@@ -21,6 +21,7 @@ import { loadLearningPortal, loadStaffRequests, loadTeacherPortal } from '@/feat
 import { startRealtime } from '@/features/portal/realtime';
 import { loadNotifications } from '@/features/notifications/notificationApi';
 import { loadSettings } from '@/features/system/settingsApi';
+import { loadInvoices, loadPortalInvoices, loadPricing, loadTransactions } from '@/features/finance/financeApi';
 import { restore } from './realAuth';
 
 /** Việc làm ngay sau khi có phiên (đăng nhập / kích hoạt / tải lại trang) — chế độ API */
@@ -35,7 +36,9 @@ export async function onSignedIn(user: SessionUser & { accountId?: string }) {
   if (user.portal === 'staff' || user.portal === 'teacher') void quiet(loadSettings());
   // Cổng GV / HV / PH: chỉ dữ liệu của chủ tài khoản (lớp mình dạy / lớp của mình / của con)
   if (user.portal === 'teacher') return void (await quiet(loadTeacherPortal()));
-  if (user.portal === 'student' || user.portal === 'parent') return void (await quiet(loadLearningPortal(user.portalOwnerId, user.portal === 'parent')));
+  // Học phí (TC-09): hóa đơn của mình / các con — sau danh sách lớp để ghép ghi danh
+  if (user.portal === 'student' || user.portal === 'parent')
+    return void (await quiet(loadLearningPortal(user.portalOwnerId, user.portal === 'parent').then(() => loadPortalInvoices())));
   await Promise.all([quiet(loadSystem()), quiet(loadBranches()), quiet(loadEmployees()), quiet(loadCourses()), quiet(loadCurricula()), quiet(loadRooms())]);
   // Lớp cần phòng (đổi tên phòng ↔ Id) → tải sau phòng
   await Promise.all([quiet(loadClasses()), quiet(loadStudents()), quiet(loadStaffRequests())]);
@@ -44,6 +47,12 @@ export async function onSignedIn(user: SessionUser & { accountId?: string }) {
   const grants = (user as { grants?: Record<string, string> }).grants;
   const canView = (page: string) =>
     user.permissions?.includes('*') || (grants ? Boolean(grants[`${page}.view`]) : hasPermission(user.permissions ?? [], page));
+  // Tài chính (user story 08): hóa đơn + lịch sử nhắc, bảng giá / ưu đãi / đóng đợt, giao dịch ngân hàng
+  await Promise.all([
+    canView('finance.invoices') || canView('finance.debts') ? quiet(loadInvoices()) : Promise.resolve(),
+    canView('finance.tuition') ? quiet(loadPricing()) : Promise.resolve(),
+    canView('finance.reconciliation') ? quiet(loadTransactions()) : Promise.resolve(),
+  ]);
   await quiet(loadCrm(canView));
   // Phụ huynh / người giám hộ (HV-12) — lead có liên kết HV; nạp sau Tuyển sinh để gộp vào cùng danh sách lead
   if (canView('students.contacts')) await quiet(loadGuardians());

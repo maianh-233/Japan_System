@@ -7,9 +7,9 @@
  */
 import { api, ApiError } from '@/lib/api/http';
 import { fromGuid, toGuid } from '@/lib/api/ids';
-import { useClassStore } from '@/features/academic/classes/classStore';
 import { refreshStudent } from '@/features/student/studentApi';
-import { addMockInvoice, useStudentStore } from '@/features/student/studentStore';
+import { useStudentStore } from '@/features/student/studentStore';
+import { refreshInvoicesSoon } from '@/features/finance/financeApi';
 import type { Enrollment } from '@/features/student/types';
 import { useCrmStore, type LeadInput } from './crmStore';
 import type { ConsultChannel, ConsultResult, Consultation, Lead, LeadSource, LeadStatus, LeadStudentLink, NotifyChannel, Relationship } from './types';
@@ -361,9 +361,8 @@ export async function enrollLead(leadId: string, req: EnrollRequest, idempotency
     enrollmentId = fromGuid(r.enrollmentId);
     const e: Enrollment = { id: enrollmentId, studentId, classId: req.classId, status: 'studying', enrolledAt: new Date().toISOString() };
     useStudentStore.setState((s) => ({ enrollments: [...s.enrollments.filter((x) => x.id !== enrollmentId), e] }));
-    // ⏳ Hóa đơn thật do Tài chính (giai đoạn 19) lập khi nghe StudentEnrolled — tạm hóa đơn giả theo học phí lớp
-    const cls = useClassStore.getState().classes.find((c) => c.id === req.classId);
-    addMockInvoice(enrollmentId, cls?.branchId ?? '', r.amount ?? cls?.fee ?? 0, r.discount, req.dueDate);
+    // Tài chính lập hóa đơn ở nền khi nghe StudentEnrolled (TC-04)
+    refreshInvoicesSoon();
   }
   return { studentId, studentCode: r.studentCode, studentName: r.studentName, enrollmentId };
 }

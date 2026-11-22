@@ -19,9 +19,11 @@ import { getSettings } from '@/features/system/settings';
 import { getBranches } from '@/features/system/useBranches';
 
 const getRefundMin = () => getSettings().safety.refundApprovalMin;
-import { BANK_ACCOUNTS, REMINDER_CHANNEL } from './constants';
+import { REMINDER_CHANNEL } from './constants';
+import * as financeApi from './financeApi';
+import { USE_API } from '@/lib/api/config';
 import { useFinanceStore } from './financeStore';
-import { daysLate, transferContent, type InvoiceRow } from './financeUtils';
+import { bankOfBranch, daysLate, transferContent, type InvoiceRow } from './financeUtils';
 import type { ReminderChannel } from './types';
 
 const METHOD_OPTIONS = (Object.keys(PAYMENT_METHODS) as PaymentMethod[]).map((k) => ({ value: k, label: PAYMENT_METHODS[k] }));
@@ -59,13 +61,22 @@ export function InvoiceDrawer({ row, onClose }: { row?: InvoiceRow; onClose: () 
       requireReason: { label: 'Lý do hủy', placeholder: 'VD: Lập trùng với HD-CG-2611-0004', minLength: 5 },
     });
     if (!res) return;
+    if (USE_API) {
+      try {
+        const ticket = await financeApi.requestVoid(row.invoice.id, res.reason ?? '');
+        notify.info({ title: `Đã gửi yêu cầu hủy hóa đơn${ticket ? ` (${ticket.code})` : ''}`, description: 'Chờ người thứ hai duyệt ở Hệ thống › Duyệt thao tác.' });
+      } catch (e) {
+        notify.error({ title: 'Không gửi được yêu cầu hủy', description: e instanceof Error ? e.message : undefined });
+      }
+      return;
+    }
     requestApproval({ kind: 'void_invoice', title: `Hủy ${row.invoice.code} — ${row.student?.fullName ?? ''}`, detail: res.reason, branchId: row.branchId, payload: { kind: 'void_invoice', invoiceId: row.invoice.id, invoiceCode: row.invoice.code, reason: res.reason ?? '' } }, me);
     notify.info({ title: 'Đã gửi yêu cầu hủy hóa đơn', description: 'Chờ người thứ hai duyệt ở Hệ thống › Duyệt thao tác.' });
   };
 
   const inv = row?.invoice;
   const sum = row?.sum;
-  const bank = row ? BANK_ACCOUNTS[row.branchId] : undefined;
+  const bank = row ? bankOfBranch(row.branchId) : undefined;
   const history = inv
     ? [
         ...inv.payments.map((p) => ({ at: p.paidAt, kind: 'pay' as const, text: `Thu ${formatCurrency(p.amount)} · ${PAYMENT_METHODS[p.method]}`, by: p.collector })),
@@ -215,7 +226,10 @@ export function InvoiceDrawer({ row, onClose }: { row?: InvoiceRow; onClose: () 
         submitText="Xác nhận đã thu"
         successMessage="Đã ghi nhận thu học phí — gửi biên nhận cho học viên"
         initialValues={{ amount: sum?.remaining, method: 'cash', paidAt: dayjs() }}
-        onSubmit={(v) => addPayment(inv!.id, { amount: v.amount, method: v.method, paidAt: v.paidAt.toISOString(), collector: user?.fullName ?? 'Nhân viên' })}
+        onSubmit={async (v) => {
+          if (USE_API) await financeApi.recordPayment(inv!.id, { amount: v.amount, method: v.method, paidAt: v.paidAt.toISOString() });
+          else addPayment(inv!.id, { amount: v.amount, method: v.method, paidAt: v.paidAt.toISOString(), collector: user?.fullName ?? 'Nhân viên' });
+        }}
       >
         <Form.Item
           name="amount"
@@ -244,9 +258,15 @@ export function InvoiceDrawer({ row, onClose }: { row?: InvoiceRow; onClose: () 
         submitText="Gửi hoàn tiền"
         successMessage="Đã ghi nhận"
         initialValues={{ method: 'transfer' }}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           if (!row) return;
           const reason = v.reason.trim();
+          if (USE_API) {
+            // Server quyết theo ngưỡng Cài đặt: ghi hoàn ngay hoặc mở phiếu duyệt
+            const ticket = await financeApi.requestRefund(row.invoice.id, { amount: v.amount, method: v.method, reason });
+            if (ticket) notify.info({ title: `Đã gửi yêu cầu hoàn tiền (${ticket.code})`, description: 'Tiền chỉ được ghi hoàn sau khi người thứ hai duyệt.' });
+            return;
+          }
           if (refundNeedsApproval(v.amount)) {
             requestApproval({ kind: 'refund', title: refundTitle(v.amount, row.invoice.code, row.student?.fullName), detail: reason, branchId: row.branchId, payload: { kind: 'refund', invoiceId: row.invoice.id, invoiceCode: row.invoice.code, amount: v.amount, method: v.method, reason } }, me);
             notify.info({ title: 'Đã gửi yêu cầu hoàn tiền', description: 'Tiền chỉ được ghi hoàn sau khi người thứ hai duyệt.' });
@@ -277,6 +297,7 @@ export function InvoiceDrawer({ row, onClose }: { row?: InvoiceRow; onClose: () 
 /** Gửi nhắc học phí (1 hoặc nhiều hóa đơn) */
 export function RemindModal({ open, invoiceIds, onClose, description, onDone }: { open: boolean; invoiceIds: string[]; onClose: () => void; description?: string; onDone: () => void }) {
   const { user } = useAuth();
+  const notify = useNotify();
   const remind = useFinanceStore((s) => s.remind);
   return (
     <ModalForm<{ channel: ReminderChannel; note?: string }>
@@ -288,8 +309,11 @@ export function RemindModal({ open, invoiceIds, onClose, description, onDone }: 
       submitText="Gửi nhắc"
       successMessage={invoiceIds.length > 1 ? `Đã gửi nhắc ${invoiceIds.length} học viên / phụ huynh` : 'Đã gửi nhắc'}
       initialValues={{ channel: 'zalo' }}
-      onSubmit={(v) => {
-        remind(invoiceIds, v.channel, user?.fullName ?? 'Nhân viên', v.note?.trim() || undefined);
+      onSubmit={async (v) => {
+        if (USE_API) {
+          const warnings = await financeApi.sendReminders(invoiceIds, v.channel, v.note?.trim() || undefined);
+          if (warnings.length) notify.warning({ title: 'Lưu ý khi nhắc học phí', description: warnings.join(' · ') });
+        } else remind(invoiceIds, v.channel, user?.fullName ?? 'Nhân viên', v.note?.trim() || undefined);
         onDone();
       }}
     >

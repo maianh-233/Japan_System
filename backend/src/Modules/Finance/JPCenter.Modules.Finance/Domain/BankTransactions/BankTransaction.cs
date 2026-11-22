@@ -56,9 +56,15 @@ public sealed class BankTransaction : AggregateRoot<BankTransactionId>, IBranchS
         return Result.Success();
     }
 
-    /// <summary>Bỏ khớp (khớp nhầm) → về "chưa khớp"; trả các hóa đơn cần xóa khoản thu tương ứng</summary>
+    /// <summary>Bỏ khớp (khớp nhầm) / bỏ "bỏ qua" → về "chưa khớp"; trả các hóa đơn cần xóa khoản thu tương ứng</summary>
     public Result<IReadOnlyList<InvoiceId>> Unmatch()
     {
+        // Đã bỏ qua (nhầm) → đưa về chưa khớp, không có khoản thu nào để gỡ
+        if (Status == TransactionStatus.Ignored)
+        {
+            (Status, Note) = (TransactionStatus.Unmatched, null);
+            return Result.Success<IReadOnlyList<InvoiceId>>([]);
+        }
         if (Status is not (TransactionStatus.Matched or TransactionStatus.Auto)) return BankTransactionErrors.NotMatched;
         var invoices = InvoiceIds.ToList();
         (InvoiceIds, MatchedBy, MatchedAt, Status) = ([], null, null, TransactionStatus.Unmatched);

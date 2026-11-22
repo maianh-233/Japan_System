@@ -9,7 +9,6 @@ import { useClassStore } from '@/features/academic/classes/classStore';
 import * as classApi from '@/features/academic/classes/classApi';
 import * as portalApi from '@/features/portal/portalApi';
 import * as studentApi from '@/features/student/studentApi';
-import { cancelMockInvoice } from '@/features/student/studentStore';
 import { USE_API } from '@/lib/api/config';
 import { CLASS_STATUS, effectiveStart, scheduleLabel, teacherNames, totalSessionsOf } from '@/features/academic/classes/constants';
 import { ClassAnnouncementsTab } from '@/features/academic/classes/detail/ClassAnnouncementsTab';
@@ -192,9 +191,9 @@ function StatusActions({ cls }: { cls: ClassInfo }) {
     });
     if (!res) return;
     if (USE_API) {
-      // Server cho nghỉ mọi ghi danh (chạy nền) → tải lại; ⏳ hóa đơn còn giả → hủy công nợ ở trình duyệt
-      active.forEach((e) => cancelMockInvoice(e.id));
+      // Server cho nghỉ mọi ghi danh, Tài chính hủy công nợ còn lại (chạy nền) → tải lại
       studentApi.reloadClassEnrollmentsSoon(cls.id);
+      setTimeout(() => void import('@/features/finance/financeApi').then((m) => m.loadInvoices()).catch(() => undefined), 3000);
     } else {
       active.forEach((e) => dropEnrollment(e.id, `Lớp bị hủy: ${res.reason}`));
       upcoming.forEach((s) => updateSession(s.id, { status: 'cancelled', note: 'Lớp bị hủy' }));

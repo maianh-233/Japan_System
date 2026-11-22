@@ -3,13 +3,14 @@ import { Checkbox, Modal, Radio, Steps } from 'antd';
 import dayjs from 'dayjs';
 import { CheckCircle2, ClipboardCheck, GraduationCap, Receipt, Sparkles, User, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Button, DateInput, NumberInput, Select, StatusTag, TextInput } from '@/components/common';
+import { Button, DateInput, NumberInput, Select, StatusTag, TextInput, useNotify } from '@/components/common';
 import { useClassStore } from '@/features/academic/classes/classStore';
 import { CLASS_STATUS, scheduleLabel } from '@/features/academic/classes/constants';
 import type { ClassInfo } from '@/features/academic/classes/types';
 import { useCourseStore } from '@/features/academic/courses/courseStore';
 import type { Course } from '@/features/academic/courses/types';
 import { ACTIVE_ENROLLMENT, PAYMENT_METHODS } from '@/features/student/constants';
+import * as financeApi from '@/features/finance/financeApi';
 import { useStudentStore } from '@/features/student/studentStore';
 import type { Invoice, PaymentMethod } from '@/features/student/types';
 import { useAuth } from '@/hooks/useAuth';
@@ -95,6 +96,7 @@ export function EnrollLeadModal({ lead, open, onClose, presetStudentId }: Props)
   const [error, setError] = useState<string>();
   const [result, setResult] = useState<{ student: Student; cls?: ClassInfo; invoice?: Invoice; paid: number }>();
   const [busy, setBusy] = useState(false);
+  const notify = useNotify();
   /** 1 lần chốt = 1 khóa chống gửi trùng; lỗi → khóa mới cho lần thử sau */
   const idemKey = useRef(crypto.randomUUID());
 
@@ -172,10 +174,17 @@ export function EnrollLeadModal({ lead, open, onClose, presetStudentId }: Props)
         joinedAt: new Date().toISOString(),
         hidden: false,
       };
-      const invoice = r.enrollmentId ? useStudentStore.getState().invoices.find((i) => i.enrollmentId === r.enrollmentId) : undefined;
-      const paidNow = invoice && collectNow ? paid : 0;
-      if (invoice && paidNow > 0)
-        useStudentStore.getState().addPayment(invoice.id, { amount: paidNow, method, paidAt: new Date().toISOString(), collector: staffName });
+      // Tài chính lập hóa đơn ở nền (TC-04) → chờ hóa đơn rồi mới ghi khoản thu ngay
+      let invoice = r.enrollmentId ? await financeApi.waitForInvoice(r.enrollmentId, r.studentId).catch(() => undefined) : undefined;
+      let paidNow = invoice && collectNow ? paid : 0;
+      if (invoice && paidNow > 0) {
+        try {
+          invoice = await financeApi.recordPayment(invoice.id, { amount: paidNow, method });
+        } catch (e) {
+          paidNow = 0;
+          notify.warning({ title: 'Đã chốt lead nhưng chưa ghi được khoản thu', description: `${errorText(e, 'Lỗi không xác định')} — thu lại ở Tài chính › Hóa đơn.` });
+        }
+      }
       setResult({ student, cls, invoice, paid: paidNow });
     } catch (e) {
       idemKey.current = crypto.randomUUID();

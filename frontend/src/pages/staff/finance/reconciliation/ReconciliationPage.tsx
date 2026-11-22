@@ -3,9 +3,11 @@ import { Drawer } from 'antd';
 import dayjs from 'dayjs';
 import { ArrowDownToLine, CircleSlash, Link2, Link2Off, QrCode, RefreshCw, Sparkles, TriangleAlert, Wallet } from 'lucide-react';
 import { Button, DataTable, PageHeader, Select, StatCard, StatusTag, UserCell, useConfirm, useNotify, type DataColumn } from '@/components/common';
-import { BANK_ACCOUNTS, TXN_STATUS } from '@/features/finance/constants';
+import { TXN_STATUS } from '@/features/finance/constants';
+import * as financeApi from '@/features/finance/financeApi';
+import { USE_API } from '@/lib/api/config';
 import { useFinanceStore } from '@/features/finance/financeStore';
-import { autoMatchable, suggestMatches, transferContent, unaccent, useInvoiceRows } from '@/features/finance/financeUtils';
+import { autoMatchable, bankOfAccount, suggestMatches, transferContent, unaccent, useInvoiceRows } from '@/features/finance/financeUtils';
 import { InvoiceDrawer } from '@/features/finance/InvoiceDrawer';
 import type { BankTxn } from '@/features/finance/types';
 import { useAuth } from '@/hooks/useAuth';
@@ -78,6 +80,12 @@ export default function ReconciliationPage() {
     }
   };
 
+  const reload = () =>
+    financeApi
+      .loadTransactions()
+      .then(() => notify.toast.success('Đã tải lại giao dịch'))
+      .catch((e: Error) => notify.error({ title: 'Chưa tải được giao dịch', description: e.message }));
+
   const rerun = () => {
     // Công nợ giảm dần sau mỗi lần khớp trong cùng lượt → trừ dần ở bản sao cục bộ
     const used = new Map<string, number>();
@@ -103,7 +111,13 @@ export default function ReconciliationPage() {
       tone: over ? 'warning' : 'primary',
     });
     if (!ok) return;
-    matchTxn(t.id, invId, user?.fullName ?? 'Kế toán');
+    if (USE_API) {
+      try {
+        await financeApi.matchTxn(t.id, invId);
+      } catch (e) {
+        return notify.error({ title: 'Chưa khớp được', description: e instanceof Error ? e.message : undefined });
+      }
+    } else matchTxn(t.id, invId, user?.fullName ?? 'Kế toán');
     setManual(undefined);
     notify.toast.success('Đã khớp — ghi nhận thanh toán VietQR vào hóa đơn');
   };
@@ -154,7 +168,7 @@ export default function ReconciliationPage() {
         return <span className="text-xs text-ink-muted">{t.note ?? '—'}</span>;
       },
     },
-    { key: 'branch', title: 'Tài khoản', width: 140, render: (_, t) => <span className="text-xs text-ink-secondary">{BANK_ACCOUNTS[t.account]?.bank} · {getBranches(false).find((b) => b.id === t.branchId)?.name}</span> },
+    { key: 'branch', title: 'Tài khoản', width: 140, render: (_, t) => <span className="text-xs text-ink-secondary">{bankOfAccount(t.account)?.bank} · {getBranches(false).find((b) => b.id === t.branchId)?.name}</span> },
     { key: 'status', title: 'Trạng thái', width: 120, render: (_, t) => <StatusTag tone={TXN_STATUS[t.status].tone} icon={TXN_STATUS[t.status].icon} size="sm">{TXN_STATUS[t.status].label}</StatusTag> },
   ];
 
@@ -166,12 +180,21 @@ export default function ReconciliationPage() {
         breadcrumb={[{ title: 'Tài chính' }, { title: 'Đối soát VietQR' }]}
         actions={
           <div className="flex gap-2">
-            <Button icon={RefreshCw} variant="outline" tone="neutral" onClick={rerun} collapseOnMobile>
-              Chạy tự khớp lại
-            </Button>
-            <Button icon={ArrowDownToLine} onClick={simulate} collapseOnMobile>
-              Mô phỏng GD mới
-            </Button>
+            {USE_API ? (
+              // Server tự khớp ngay khi ngân hàng gửi giao dịch — chỉ cần tải lại danh sách
+              <Button icon={RefreshCw} variant="outline" tone="neutral" onClick={reload} collapseOnMobile>
+                Tải lại giao dịch
+              </Button>
+            ) : (
+              <>
+                <Button icon={RefreshCw} variant="outline" tone="neutral" onClick={rerun} collapseOnMobile>
+                  Chạy tự khớp lại
+                </Button>
+                <Button icon={ArrowDownToLine} onClick={simulate} collapseOnMobile>
+                  Mô phỏng GD mới
+                </Button>
+              </>
+            )}
           </div>
         }
       />
@@ -217,7 +240,7 @@ export default function ReconciliationPage() {
               <p className="tabular text-2xl font-semibold text-success-700">+{formatCurrency(open.amount)}</p>
               <p className="mt-1 font-mono text-ink">{open.content}</p>
               <p className="text-xs text-ink-muted">
-                {open.payer} · {fmtDateTime(open.at)} · {BANK_ACCOUNTS[open.account]?.bank} {BANK_ACCOUNTS[open.account]?.no}
+                {open.payer} · {fmtDateTime(open.at)} · {bankOfAccount(open.account)?.bank} {bankOfAccount(open.account)?.no}
               </p>
               <div className="mt-2">
                 <StatusTag tone={TXN_STATUS[open.status].tone} icon={TXN_STATUS[open.status].icon} size="sm">
@@ -273,7 +296,14 @@ export default function ReconciliationPage() {
                     onClick={async () => {
                       const res = await confirm({ title: 'Bỏ qua giao dịch?', description: 'Giao dịch không phải học phí (hoàn ứng, chuyển nội bộ...) — không ghi vào hóa đơn nào.', confirmText: 'Bỏ qua', tone: 'warning', requireReason: { label: 'Lý do', placeholder: 'VD: Hoàn ứng nội bộ' } });
                       if (!res) return;
-                      ignoreTxn(open.id, user?.fullName ?? 'Kế toán', typeof res === 'object' ? (res.reason ?? '') : '');
+                      const note = typeof res === 'object' ? (res.reason ?? '') : '';
+                      if (USE_API) {
+                        try {
+                          await financeApi.ignoreTxn(open.id, note);
+                        } catch (e) {
+                          return notify.error({ title: 'Chưa bỏ qua được', description: e instanceof Error ? e.message : undefined });
+                        }
+                      } else ignoreTxn(open.id, user?.fullName ?? 'Kế toán', note);
                       notify.toast.info('Đã bỏ qua giao dịch');
                     }}
                   >
@@ -295,7 +325,13 @@ export default function ReconciliationPage() {
                   onClick={async () => {
                     const ok = await confirm({ title: 'Gỡ khớp giao dịch?', description: open.invoiceId ? 'Lần thanh toán tương ứng sẽ bị xóa khỏi hóa đơn, công nợ quay lại như cũ.' : undefined, confirmText: 'Gỡ khớp', tone: 'danger' });
                     if (!ok) return;
-                    unmatchTxn(open.id);
+                    if (USE_API) {
+                      try {
+                        await financeApi.unmatchTxn(open.id);
+                      } catch (e) {
+                        return notify.error({ title: 'Chưa gỡ khớp được', description: e instanceof Error ? e.message : undefined });
+                      }
+                    } else unmatchTxn(open.id);
                     notify.toast.info('Đã gỡ khớp');
                   }}
                 >

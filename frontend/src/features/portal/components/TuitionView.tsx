@@ -14,6 +14,7 @@ import { cn } from '@/lib/cn';
 import { fmtDate } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
 import { normalizeText } from '@/lib/text';
+import { USE_API } from '@/lib/api/config';
 import { shortCode } from '../usePortal';
 
 const METHOD: Record<string, string> = { cash: 'Tiền mặt', transfer: 'Chuyển khoản', vietqr: 'VietQR', card: 'Thẻ' };
@@ -58,8 +59,9 @@ export function TuitionView({ studentIds }: { studentIds: string[] }) {
   const history = rows.flatMap((r) => r.invoice.payments.map((p) => ({ ...p, row: r }))).sort((a, b) => b.paidAt.localeCompare(a.paidAt));
   const multi = studentIds.length > 1;
 
-  const bank = paying ? branches.find((b) => b.id === paying.branchId)?.bank : undefined;
-  const content = paying ? `${paying.invoice.code} ${normalizeText(paying.studentName).toUpperCase()}` : '';
+  // Chế độ API: tài khoản nhận + nội dung CK do server trả (chi nhánh chưa khai báo → không có QR — TC-09.E2)
+  const bank = paying ? (USE_API ? paying.invoice.qr : branches.find((b) => b.id === paying.branchId)?.bank) : undefined;
+  const content = paying ? (paying.invoice.transferContent ?? `${paying.invoice.code} ${normalizeText(paying.studentName).toUpperCase()}`) : '';
 
   return (
     <>
@@ -103,11 +105,14 @@ export function TuitionView({ studentIds }: { studentIds: string[] }) {
                 <div className="h-full bg-success-600" style={{ width: `${Math.min(100, (r.sum.collected / r.sum.total) * 100)}%` }} />
               </div>
             )}
-            {r.sum.remaining > 0 && (
-              <Button icon={QrCode} size="sm" className="mt-3" onClick={() => setPaying(r)}>
-                Thanh toán VietQR
-              </Button>
-            )}
+            {r.sum.remaining > 0 &&
+              (USE_API && !r.invoice.qr ? (
+                <p className="mt-3 text-[13px] text-ink-secondary">Vui lòng đóng tại quầy hoặc liên hệ trung tâm để được hướng dẫn chuyển khoản.</p>
+              ) : (
+                <Button icon={QrCode} size="sm" className="mt-3" onClick={() => setPaying(r)}>
+                  Thanh toán VietQR
+                </Button>
+              ))}
           </article>
         ))}
         {!rows.length && <p className="rounded-xl border border-dashed border-line p-6 text-center text-ink-muted">Chưa có hóa đơn học phí.</p>}
@@ -137,7 +142,11 @@ export function TuitionView({ studentIds }: { studentIds: string[] }) {
       <Modal open={Boolean(paying)} onCancel={() => setPaying(null)} footer={null} title="Thanh toán bằng VietQR" width={isMobile ? '100%' : 440} centered destroyOnHidden>
         {paying && (
           <div className="flex flex-col items-center gap-3 text-[13px]">
-            <p className="text-center text-ink-secondary">Đây là giao dịch mô phỏng, không thực hiện chuyển khoản thật. Xác nhận bên dưới sẽ cập nhật số dư và lịch sử học phí dùng chung.</p>
+            <p className="text-center text-ink-secondary">
+              {USE_API
+                ? 'Chuyển khoản đúng số tiền và nội dung bên dưới — hệ thống tự ghi nhận khi tiền về tài khoản trung tâm.'
+                : 'Đây là giao dịch mô phỏng, không thực hiện chuyển khoản thật. Xác nhận bên dưới sẽ cập nhật số dư và lịch sử học phí dùng chung.'}
+            </p>
             <div className="rounded-xl border border-line bg-white p-3">
               <FakeQr seed={paying.invoice.code} className="size-48" />
             </div>
@@ -167,29 +176,31 @@ export function TuitionView({ studentIds }: { studentIds: string[] }) {
                 />
               </dd>
             </dl>
-            <Button
-              icon={CheckCircle2}
-              className="w-full"
-              onClick={() => {
-                const invoice = useStudentStore.getState().invoices.find((item) => item.id === paying.invoice.id);
-                const amount = invoice ? summarizeInvoice(invoice).remaining : 0;
-                if (!invoice || amount <= 0) {
+            {!USE_API && (
+              <Button
+                icon={CheckCircle2}
+                className="w-full"
+                onClick={() => {
+                  const invoice = useStudentStore.getState().invoices.find((item) => item.id === paying.invoice.id);
+                  const amount = invoice ? summarizeInvoice(invoice).remaining : 0;
+                  if (!invoice || amount <= 0) {
+                    setPaying(null);
+                    notify.info({ title: 'Hóa đơn đã được cập nhật', description: 'Không còn khoản phải thanh toán.' });
+                    return;
+                  }
+                  useStudentStore.getState().addPayment(paying.invoice.id, {
+                    amount,
+                    method: 'vietqr',
+                    paidAt: new Date().toISOString(),
+                    collector: 'VietQR (mô phỏng)',
+                  });
                   setPaying(null);
-                  notify.info({ title: 'Hóa đơn đã được cập nhật', description: 'Không còn khoản phải thanh toán.' });
-                  return;
-                }
-                useStudentStore.getState().addPayment(paying.invoice.id, {
-                  amount,
-                  method: 'vietqr',
-                  paidAt: new Date().toISOString(),
-                  collector: 'VietQR (mô phỏng)',
-                });
-                setPaying(null);
-                notify.success({ title: 'Đã ghi nhận thanh toán mô phỏng', description: 'Số dư và lịch sử học phí đã được cập nhật.' });
-              }}
-            >
-              Xác nhận thanh toán mô phỏng
-            </Button>
+                  notify.success({ title: 'Đã ghi nhận thanh toán mô phỏng', description: 'Số dư và lịch sử học phí đã được cập nhật.' });
+                }}
+              >
+                Xác nhận thanh toán mô phỏng
+              </Button>
+            )}
           </div>
         )}
       </Modal>

@@ -44,6 +44,15 @@ public sealed class ReconciliationTests
     }
 
     [Fact]
+    public void Bo_qua_nham_thi_dua_ve_chua_khop()
+    {
+        var txn = BankTransaction.Receive("FT1", At, M(100_000), "ck", "A", "1", Cg).Value;
+        txn.Ignore("Chuyển nội bộ").IsSuccess.ShouldBeTrue();
+        txn.Unmatch().Value.ShouldBeEmpty();
+        (txn.Status, txn.Note).ShouldBe((TransactionStatus.Unmatched, (string?)null));
+    }
+
+    [Fact]
     public void TC_10_tu_khop_chi_khi_dung_1_ma_va_khong_vuot_no()
     {
         var an = Candidate("HD-CG-2611-0001", "Nguyễn Văn An", 2_000_000);
