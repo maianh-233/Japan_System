@@ -16,4 +16,10 @@ public static class TimeText
     public static string Of(TimeOnly t) => t.ToString("HH:mm", CultureInfo.InvariantCulture);
 
     public static string? Of(TimeOnly? t) => t is { } v ? Of(v) : null;
+
+    /// <summary>Mốc thời gian → "HH:mm dd/MM" giờ Việt Nam (nội dung thông báo)</summary>
+    public static string Moment(DateTimeOffset at) => at.ToOffset(Vietnam).ToString("HH:mm dd/MM", CultureInfo.InvariantCulture);
+
+    /// <summary>Ngày (giờ Việt Nam) của mốc thời gian</summary>
+    public static DateOnly DateOf(DateTimeOffset at) => DateOnly.FromDateTime(at.ToOffset(Vietnam).DateTime);
 }

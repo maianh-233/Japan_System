@@ -58,6 +58,7 @@ public sealed class SystemModule : IModule
         // Cho module khác (System.Contracts)
         services.AddScoped<IBranchDirectory, BranchDirectory>();
         services.AddScoped<IStaffAccessDirectory, StaffAccessDirectory>();
+        services.AddScoped<IPortalAccountDirectory, PortalAccountDirectory>();
         services.AddScoped<IHolidayCalendar, HolidayCalendar>();
         services.AddScoped<IApprovalInbox, ApprovalInbox>();
         services.AddScoped<ICenterSettings, CenterSettingsProvider>();

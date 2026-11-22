@@ -17,5 +17,6 @@ public static class AcademicEndpoints
         RequestEndpoints.Map(academic);
         PromotionEndpoints.Map(academic);
         PortalEndpoints.Map(academic);
+        LearningEndpoints.Map(academic);
     }
 }

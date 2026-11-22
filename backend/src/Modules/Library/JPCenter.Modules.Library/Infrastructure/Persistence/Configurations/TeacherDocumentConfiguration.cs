@@ -27,6 +27,8 @@ internal sealed class TeacherDocumentConfiguration : IEntityTypeConfiguration<Te
             v.WithOwner().HasForeignKey("TeacherDocumentId");
             v.Property<TeacherDocumentId>("TeacherDocumentId");
             v.HasKey("TeacherDocumentId", nameof(TeacherDocumentView.StudentId));
+            // Khóa do nghiệp vụ đặt (HV) — lượt xem mới thêm vào tài liệu đang theo dõi phải là INSERT
+            v.Property(x => x.StudentId).ValueGeneratedNever();
         });
         b.Navigation(x => x.Views).UsePropertyAccessMode(PropertyAccessMode.Field);
     }

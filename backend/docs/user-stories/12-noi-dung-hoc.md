@@ -199,3 +199,28 @@ HV / PH: bài tập (đã nộp / chưa / muộn / điểm / nhận xét), kết
 - **Job:** gửi thông báo hẹn giờ (mỗi phút) · tự nộp bài thi online hết giờ (mỗi phút).
 - **Sự kiện:** `NotificationRequested` (Notifications) cho bài tập mới, điểm, kết quả thi, thông báo lớp.
 - **Students HV-14:** đọc `IAssignmentStats` / `IExamStats` (Academic.Contracts) thay cho số 0 trong `RiskCalculator`.
+
+### Đã làm — giai đoạn 20 phase 3 (API, job, test)
+
+- **Quyền:** endpoint nhân viên dưới `/api/v1/academic/…` dùng `academic.classes` (view / update) — flashcard `academic.curriculum`; cổng GV
+  `/portal/teaching/…` (GV chính / trợ giảng của lớp, sai lớp → 403 `academic.class.not_teaching`); cổng HV / PH `/portal/learning/…`
+  (PH chỉ xem — nộp bài, làm quiz / thi, đánh giá GV, ôn thẻ: chỉ cổng HV). Tài liệu GV: `/api/v1/library/portal/{teaching|learning}/documents`.
+- **Tệp:** tải trước qua `POST …/files` (multipart `file`, ≤ 20 MB; tài liệu GV ≤ 50 MB) → nhận `{ name, kind, url = khóa kho, size }` rồi gửi kèm khi
+  giao / nộp bài. Khi lưu chỉ nhận khóa do hệ thống cấp hoặc link http(s) (`academic.file.invalid`). Mở tệp: `…/attachments/{i}/link`,
+  `…/submissions/{id}/files/{i}/link` (link tạm 15 phút, kiểm quyền người mở).
+- **Quiz bài tập:** `quiz/start` bốc đề ở server (bài học → cùng trình độ → thấp hơn 1 bậc), trả câu không đáp án + **vé ký** (ASP.NET Data Protection,
+  hạn 1 ngày) — không lưu "lần làm dở" vào DB. `quiz/submit` gửi lại vé + đáp án theo vị trí hiển thị; 1 vé nộp 1 lần (`academic.quiz.ticket_used`).
+  Mỗi lần bấm làm là 1 đề mới (kể cả khi tắt đảo đề — đảo đề chỉ quyết định đảo đáp án).
+- **Kỳ thi:** `POST classes/{id}/exams/draw` xem trước / đổi câu (gửi `exclude`); tạo kỳ thi nhận mỗi phần `questionIds` (đã xem trước) hoặc `count`
+  (server tự bốc). Mốc thi / phạm vi bài lấy từ `GET classes/{id}/exams` (`milestones[].lessonIds`). Thi online: `exams/{id}/start` (tạo / tiếp tục),
+  `PUT exam-attempts/{id}/answers`, `POST exam-attempts/{id}/submit`; sau khi công bố: `exams/{id}/review`. Sửa điểm sau công bố → nhật ký hệ thống.
+- **Thông báo lớp:** chỉ kênh cổng gửi thật (chuông + `GET portal/learning/announcements`); Zalo / email chỉ ghi nhận (GĐ 22). "Chỉ HV nợ phí" =
+  HV có hóa đơn quá hạn (`Finance.Contracts.ITuitionQuery`) — ở cổng tính theo tình trạng nợ hiện tại. Tới giờ hẹn mà không còn người nhận → tự hủy.
+- **Job mỗi phút** (`LearningMinuteJob`): gửi thông báo hẹn giờ + tự nộp bài thi online quá giờ (+1 phút).
+- **Đánh giá GV:** đợt giữa kỳ mở từ ngày bắt đầu kỳ thi giữa kỳ đã phát hành của lớp.
+- **Chuông:** bài tập mới / đã chấm, lịch thi mới → HV; kết quả thi → HV + PH (người liên hệ chính); thông báo lớp → theo "gửi tới".
+  Tài khoản cổng đọc qua `System.Contracts.IPortalAccountDirectory` 🆕.
+- **HV-14:** `Academic.Contracts.ILearningStats` 🆕 (bài quá hạn, đã nộp, điểm TB %, % từng bài thi — vắng = null); Students tính "bài thi yếu" theo
+  `atRisk.scorePct`. `IClassLookup.TaughtByAsync` 🆕 cho Library kiểm lớp GV dạy.
+- ⏳ Chưa làm: xóa file tài liệu GV / bài nộp khi dọn Thùng rác (handler Thùng rác cho Academic / Library), chuỗi ngày ôn flashcard chính xác
+  (đang tính theo ngày ôn gần nhất của từng thẻ).

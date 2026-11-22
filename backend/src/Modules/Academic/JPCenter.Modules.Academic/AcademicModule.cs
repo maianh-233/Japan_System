@@ -10,6 +10,12 @@ using JPCenter.Modules.Academic.Application.Questions.Common;
 using JPCenter.Modules.Academic.Application.Courses.Common;
 using JPCenter.Modules.Academic.Application.Curricula.Common;
 using JPCenter.Modules.Academic.Application.Evaluations.Common;
+using JPCenter.Modules.Academic.Application.Assignments.Common;
+using JPCenter.Modules.Academic.Application.Exams.Common;
+using JPCenter.Modules.Academic.Application.Announcements.Common;
+using JPCenter.Modules.Academic.Application.TeacherReviews.Common;
+using JPCenter.Modules.Academic.Application.Flashcards.Common;
+using JPCenter.Modules.Academic.Application.Learning.Common;
 using JPCenter.Modules.Academic.Application.Portals.Common;
 using JPCenter.Modules.Academic.Application.Promotions.Common;
 using JPCenter.Modules.Academic.Application.Requests.Common;
@@ -20,6 +26,7 @@ using JPCenter.Modules.Academic.Infrastructure.Persistence;
 using JPCenter.Modules.Academic.Infrastructure.Persistence.Seed;
 using JPCenter.Modules.Academic.Infrastructure.Services;
 using Quartz;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -78,6 +85,28 @@ public sealed class AcademicModule : IModule
         services.AddScoped<IQuestionPicker, QuestionPicker>();
         services.AddScoped<IScheduleLookup, ScheduleLookup>();
 
+        // Nội dung học (user story 12, giai đoạn 20)
+        services.AddDataProtection();
+        services.AddScoped<LearningAccess>();
+        services.AddScoped<LearningNotices>();
+        services.AddScoped<LearningFiles>();
+        services.AddScoped<PaperBuilder>();
+        services.AddScoped<AssignmentReader>();
+        services.AddScoped<AssignmentEditor>();
+        services.AddScoped<QuizDrawer>();
+        services.AddScoped<ExamScope>();
+        services.AddScoped<ExamDrafter>();
+        services.AddScoped<ExamReader>();
+        services.AddScoped<ExamGrader>();
+        services.AddScoped<ExamFinder>();
+        services.AddScoped<MyAttempt>();
+        services.AddScoped<AnnouncementSender>();
+        services.AddScoped<AnnouncementReader>();
+        services.AddScoped<TeacherReviewReader>();
+        services.AddScoped<FlashDecks>();
+        services.AddSingleton<IQuizTokens, QuizTokens>();
+        services.AddScoped<ILearningStats, LearningStats>();
+
         services.AddScoped<IDataSeeder, AcademicSeeder>();
         services.AddScoped<IDataSeeder, ClassSeeder>();
         services.AddScoped<IDataSeeder, RequestSeeder>();
@@ -92,6 +121,9 @@ public sealed class AcademicModule : IModule
                 q.ScheduleJob<SubstituteInviteJob>(
                     trigger => trigger.WithIdentity("academic-substitute-invites").WithCronSchedule(SubstituteInviteJob.Cron, x => x.InTimeZone(vietnam)),
                     job => job.WithIdentity("academic-substitute-invites"));
+                q.ScheduleJob<LearningMinuteJob>(
+                    trigger => trigger.WithIdentity("academic-learning-minute").WithCronSchedule(LearningMinuteJob.Cron, x => x.InTimeZone(vietnam)),
+                    job => job.WithIdentity("academic-learning-minute"));
                 q.ScheduleJob<AcademicDailyJob>(
                     trigger => trigger.WithIdentity("academic-daily").WithCronSchedule(AcademicDailyJob.Cron, x => x.InTimeZone(vietnam)),
                     job => job.WithIdentity("academic-daily"));

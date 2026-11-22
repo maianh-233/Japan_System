@@ -35,9 +35,14 @@ public sealed partial class EndpointAccessSweepTests(SeededApiFactory api)
     [GeneratedRegex(@"\{(?<name>[A-Za-z]+)(:(?<type>[a-z]+))?\}")]
     private static partial Regex RouteParam();
 
-    /// <summary>Điền tham số đường dẫn bằng giá trị hợp lệ về kiểu (Guid rỗng / chuỗi) — bản ghi không tồn tại cũng không sao.</summary>
+    /// <summary>Điền tham số đường dẫn bằng giá trị hợp lệ về kiểu (Guid rỗng / số 0 / chuỗi) — bản ghi không tồn tại cũng không sao.</summary>
     private static string Url(RouteEndpoint e) =>
-        RouteParam().Replace(e.RoutePattern.RawText!, m => m.Groups["type"].Value == "guid" ? Guid.Empty.ToString() : "x");
+        RouteParam().Replace(e.RoutePattern.RawText!, m => m.Groups["type"].Value switch
+        {
+            "guid" => Guid.Empty.ToString(),
+            "int" => "0",
+            _ => "x",
+        });
 
     private static HttpRequestMessage Request(RouteEndpoint e)
     {

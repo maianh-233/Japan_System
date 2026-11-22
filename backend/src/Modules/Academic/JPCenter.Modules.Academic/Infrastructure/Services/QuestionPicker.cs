@@ -25,18 +25,23 @@ internal sealed class QuestionPicker(AcademicDbContext db) : IQuestionPicker
         if (skills.Count > 0) q = q.Where(x => skills.Contains(x.Skill));
         if (c.Difficulty is { } d && Enum.TryParse<QuestionDifficulty>(d, ignoreCase: true, out var difficulty)) q = q.Where(x => x.Difficulty == difficulty);
         if (c.CurriculumId is { } cid) q = q.Where(x => x.CurriculumId == new CurriculumId(cid));
-        if (c.LessonIds.Count > 0)
-        {
-            var lessons = c.LessonIds.Select(l => new LessonId(l)).ToList();
-            q = q.Where(x => x.LessonIds.Any(l => lessons.Contains(l)));
-        }
         if (c.Exclude is { Count: > 0 } exclude)
         {
             var ids = exclude.Select(e => new QuestionId(e)).ToList();
             q = q.Where(x => !ids.Contains(x.Id));
         }
 
-        var picked = await q.OrderBy(_ => EF.Functions.Random()).Take(count).ToListAsync(ct);
+        List<Question> picked;
+        if (c.LessonIds.Count > 0)
+        {
+            // Bài học lưu jsonb (không dịch được sang SQL) → lọc bài trong bộ nhớ trên Id + bài, rồi nạp các câu đã chọn
+            var lessons = c.LessonIds.Select(l => new LessonId(l)).ToHashSet();
+            var candidates = await q.Select(x => new { x.Id, x.LessonIds }).ToListAsync(ct);
+            var chosen = candidates.Where(x => x.LessonIds.Any(lessons.Contains)).Select(x => x.Id).OrderBy(_ => Random.Shared.Next()).Take(count).ToList();
+            var loaded = await db.Questions.Where(x => chosen.Contains(x.Id)).ToDictionaryAsync(x => x.Id, ct);
+            picked = chosen.Where(loaded.ContainsKey).Select(id => loaded[id]).ToList();
+        }
+        else picked = await q.OrderBy(_ => EF.Functions.Random()).Take(count).ToListAsync(ct);
         foreach (var p in picked) p.RecordUse();
         if (picked.Count > 0) await db.SaveChangesAsync(ct);
         return new QuestionPick(picked.Select(ToPicked).ToList(), count - picked.Count);
