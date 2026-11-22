@@ -27,6 +27,15 @@ public sealed class CardProgress : AggregateRoot<CardProgressId>
     public static CardProgress Start(Guid studentId, FlashDeckId deckId, FlashCardId cardId, DateOnly today) =>
         new() { Id = CardProgressId.New(), StudentId = studentId, DeckId = deckId, CardId = cardId, Box = 0, Due = today };
 
+    /// <summary>Nhập tiến độ có sẵn (dữ liệu mẫu / chuyển từ hệ thống cũ) — hộp ngoài 0–5 bị kẹp, số lần âm về 0</summary>
+    public static CardProgress Import(Guid studentId, FlashDeckId deckId, FlashCardId cardId, int box, DateOnly due, int reviews, int lapses,
+        DateTimeOffset? lastReviewedAt) =>
+        new()
+        {
+            Id = CardProgressId.New(), StudentId = studentId, DeckId = deckId, CardId = cardId, Box = Math.Clamp(box, 0, IntervalDays.Length - 1),
+            Due = due, Reviews = Math.Max(0, reviews), Lapses = Math.Max(0, lapses), LastReviewedAt = lastReviewedAt,
+        };
+
     public void Review(bool remembered, DateOnly today, DateTimeOffset at)
     {
         Reviews++;

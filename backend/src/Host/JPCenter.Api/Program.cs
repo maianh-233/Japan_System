@@ -9,6 +9,7 @@ using JPCenter.Modules.Academic;
 using JPCenter.Modules.Crm;
 using JPCenter.Modules.Finance;
 using JPCenter.Modules.Hr;
+using JPCenter.Modules.Library;
 using JPCenter.Modules.Notifications;
 using JPCenter.Modules.Students;
 using JPCenter.Modules.System;
@@ -38,6 +39,7 @@ builder.Services
         new CrmModule(),
         new FinanceModule(),
         new HrModule(),
+        new LibraryModule(),
         new NotificationsModule(),
         new StudentsModule(),
         new SystemModule());

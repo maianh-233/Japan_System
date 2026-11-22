@@ -1,0 +1,68 @@
+{
+  "generatedAt": "2026-11-22T08:33:44.901Z",
+  "teacherDocs": [
+    {
+      "id": "TD-1",
+      "teacherId": "t-ha",
+      "title": "Tổng hợp ngữ pháp ～ば・～たら・～なら",
+      "description": "Bảng so sánh 3 mẫu điều kiện + 20 câu luyện tập có đáp án.",
+      "fileName": "N3_jouken_bunpou.pdf",
+      "kind": "pdf",
+      "size": 1240000,
+      "classIds": [
+        "C-N3K12"
+      ],
+      "createdAt": "2026-11-16T08:33:44.872Z",
+      "viewedBy": [
+        "ST-1",
+        "ST-9",
+        "ST-13"
+      ]
+    },
+    {
+      "id": "TD-2",
+      "teacherId": "t-ha",
+      "title": "Audio luyện nghe Choukai — đề 3",
+      "fileName": "choukai_de3.mp3",
+      "kind": "audio",
+      "size": 8900000,
+      "classIds": [
+        "C-N3K12"
+      ],
+      "createdAt": "2026-11-20T08:33:44.872Z",
+      "viewedBy": [
+        "ST-1"
+      ]
+    },
+    {
+      "id": "TD-3",
+      "teacherId": "t-ha",
+      "title": "Từ vựng chủ đề công việc (N2)",
+      "description": "Flashcard dạng bảng, 120 từ.",
+      "fileName": "N2_shigoto_goi.xlsx",
+      "kind": "doc",
+      "size": 86000,
+      "classIds": [
+        "C-N2K05"
+      ],
+      "createdAt": "2026-11-07T08:33:44.872Z",
+      "viewedBy": []
+    },
+    {
+      "id": "TD-4",
+      "teacherId": "t-ha",
+      "title": "Video bài giảng: kính ngữ 尊敬語・謙譲語",
+      "fileName": "https://youtu.be/keigo-n2",
+      "kind": "link",
+      "url": "https://youtu.be/keigo-n2",
+      "classIds": [
+        "C-N2K05",
+        "C-N3K12"
+      ],
+      "createdAt": "2026-10-28T08:33:44.872Z",
+      "viewedBy": [
+        "ST-1"
+      ]
+    }
+  ]
+}

@@ -152,6 +152,62 @@ const fin = await import('@/mocks/data/finance');
 const { MOCK_INVOICES } = await import('@/mocks/data/students');
 write(resolve(backend, 'Finance', 'JPCenter.Modules.Finance', 'Infrastructure', 'Persistence', 'Seed', 'finance.seed.json'), financeSeed());
 
+// Nội dung học (user story 12 — giai đoạn 20): bài tập, bài nộp, kết quả thi, thông báo lớp, đánh giá GV, flashcard (Academic) · tài liệu GV (Library)
+const { MOCK_ASSIGNMENTS } = await import('@/mocks/data/classes');
+const { MOCK_SUBMISSIONS, MOCK_EXAM_RESULTS } = await import('@/mocks/data/submissions');
+const { MOCK_TEACHER_REVIEWS, MOCK_ANNOUNCEMENTS } = await import('@/mocks/data/classExtras');
+const { MOCK_DECKS, MOCK_CARD_PROGRESS, MOCK_TEACHER_DOCS } = await import('@/mocks/data/portal');
+const learning = learningSeed();
+write(resolve(backend, 'Academic', 'JPCenter.Modules.Academic', 'Infrastructure', 'Persistence', 'Seed', 'learning.seed.json'), learning.academic);
+write(resolve(backend, 'Library', 'JPCenter.Modules.Library', 'Infrastructure', 'Persistence', 'Seed', 'library.seed.json'), learning.library);
+
+function learningSeed() {
+  const teacherOf = (classId: string) => MOCK_CLASSES.find((c) => c.id === classId)?.teacherIds[0] ?? null;
+  /** "Giáo vụ" / "Kế toán" (tên vai trò trong mock) → nhân viên phòng đó ở chi nhánh của lớp */
+  const staffOf = (role: string, classId: string) => {
+    const dept = role === 'Kế toán' ? 'finance' : 'academic';
+    const branch = classBranch(classId);
+    return (
+      personId(role) ??
+      MOCK_EMPLOYEES.find((e) => e.department === dept && e.branchId === branch && e.kind === 'staff')?.id ??
+      MOCK_EMPLOYEES.find((e) => e.department === dept && e.kind === 'staff')?.id ??
+      null
+    );
+  };
+  /** "Bài 10" + N3 → bài thứ 10 của lộ trình N3 đầu tiên (Id bài `…-L10`) */
+  const lessonOf = (level: string, label: string) => {
+    const no = /(\d+)/.exec(label)?.[1];
+    if (!no) return null;
+    for (const c of MOCK_CURRICULA.filter((x) => x.level === level)) {
+      const hit = c.lessons.find((l) => l.id.endsWith(`-L${no}`));
+      if (hit) return hit.id;
+    }
+    return null;
+  };
+  const cardDeck = new Map(MOCK_DECKS.flatMap((d) => d.cards.map((c) => [c.id, d.id] as const)));
+  return {
+    academic: {
+      generatedAt: new Date().toISOString(),
+      assignments: MOCK_ASSIGNMENTS.map((a) => ({ ...a, createdById: teacherOf(a.classId) })),
+      submissions: MOCK_SUBMISSIONS.map((x) => {
+        const a = MOCK_ASSIGNMENTS.find((y) => y.id === x.assignmentId)!;
+        const auto = a.type === 'quiz';
+        return { ...x, gradedById: !auto && x.gradedAt ? teacherOf(a.classId) : null };
+      }),
+      examResults: MOCK_EXAM_RESULTS,
+      announcements: MOCK_ANNOUNCEMENTS.map((x) => ({ ...x, sentById: staffOf(x.sentBy, x.classId) })),
+      teacherReviews: MOCK_TEACHER_REVIEWS,
+      decks: MOCK_DECKS.map((d) => ({ ...d, lessonId: lessonOf(d.level, d.lesson) })),
+      // Tiến độ ôn của tài khoản demo học viên (ST-1)
+      cardProgress: Object.entries(MOCK_CARD_PROGRESS).map(([cardId, p]) => ({ id: `CP-ST-1-${cardId}`, studentId: 'ST-1', deckId: cardDeck.get(cardId), cardId, ...p })),
+    },
+    library: {
+      generatedAt: new Date().toISOString(),
+      teacherDocs: MOCK_TEACHER_DOCS,
+    },
+  };
+}
+
 function financeSeed() {
   const enrollment = new Map(MOCK_ENROLLMENTS.map((e) => [e.id, e]));
   const prefix = new Map(MOCK_BRANCH_PROFILES.map((b) => [b.id, (b as { invoicePrefix?: string }).invoicePrefix ?? b.code]));
@@ -304,6 +360,14 @@ const seedIds = [
   ...fin.MOCK_PROMOTIONS.map((x) => x.id),
   ...fin.MOCK_INSTALLMENTS.map((x) => x.id),
   ...fin.MOCK_BANK_TXNS.map((x) => x.id),
+  ...learning.academic.assignments.map((x) => x.id),
+  ...learning.academic.submissions.map((x) => x.id),
+  ...learning.academic.examResults.map((x) => x.id),
+  ...learning.academic.announcements.map((x) => x.id),
+  ...learning.academic.teacherReviews.map((x) => x.id),
+  ...learning.academic.decks.flatMap((d) => [d.id, ...d.cards.map((c) => c.id)]),
+  ...learning.academic.cardProgress.map((x) => x.id),
+  ...learning.library.teacherDocs.map((x) => x.id),
 ];
 const idPath = resolve(process.cwd(), 'src', 'lib', 'api', 'seedIds.generated.ts');
 mkdirSync(dirname(idPath), { recursive: true });

@@ -1,5 +1,9 @@
 using JPCenter.Infrastructure.Common.Persistence;
 using JPCenter.Modules.Academic.Application.Abstractions;
+using JPCenter.Modules.Academic.Domain.Announcements;
+using JPCenter.Modules.Academic.Domain.Assignments;
+using JPCenter.Modules.Academic.Domain.Exams;
+using JPCenter.Modules.Academic.Domain.Flashcards;
 using JPCenter.Modules.Academic.Domain.Questions;
 using JPCenter.Modules.Academic.Domain.Classes;
 using JPCenter.Modules.Academic.Domain.ClassSessions;
@@ -15,7 +19,8 @@ namespace JPCenter.Modules.Academic.Infrastructure.Persistence;
 
 /// <summary>
 /// DbContext module Academic — schema <c>academic</c>: khóa học + lộ trình (user story 09), phòng, lớp, buổi học, đơn hủy buổi / xin nghỉ,
-/// lời mời dạy thay, lên lớp, nhận xét cuối khóa (user story 07). Ngân hàng câu hỏi, bài tập... thêm khi làm các story đó.
+/// lời mời dạy thay, lên lớp, nhận xét cuối khóa (user story 07), ngân hàng câu hỏi (11), bài tập, kỳ thi, kết quả thi, thông báo lớp,
+/// đánh giá GV, flashcard (user story 12).
 /// </summary>
 public sealed class AcademicDbContext(DbContextOptions<AcademicDbContext> options) : ModuleDbContextBase(options), IAcademicDbContext
 {
@@ -35,4 +40,13 @@ public sealed class AcademicDbContext(DbContextOptions<AcademicDbContext> option
     public DbSet<PromotionCandidate> PromotionCandidates => Set<PromotionCandidate>();
     public DbSet<StudentEvaluation> StudentEvaluations => Set<StudentEvaluation>();
     public DbSet<Question> Questions => Set<Question>();
+    public DbSet<Assignment> Assignments => Set<Assignment>();
+    public DbSet<Submission> Submissions => Set<Submission>();
+    public DbSet<ClassExam> ClassExams => Set<ClassExam>();
+    public DbSet<ExamAttempt> ExamAttempts => Set<ExamAttempt>();
+    public DbSet<ExamResult> ExamResults => Set<ExamResult>();
+    public DbSet<ClassAnnouncement> ClassAnnouncements => Set<ClassAnnouncement>();
+    public DbSet<TeacherReview> TeacherReviews => Set<TeacherReview>();
+    public DbSet<FlashDeck> FlashDecks => Set<FlashDeck>();
+    public DbSet<CardProgress> CardProgress => Set<CardProgress>();
 }

@@ -37,18 +37,15 @@ public sealed class ClassExam : AggregateRoot<ClassExamId>, IAuditable
     public DateTimeOffset? PublishedAt { get; private set; }
     /// <summary>Lúc công bố kết quả — null = HV / PH chưa thấy điểm</summary>
     public DateTimeOffset? ResultsPublishedAt { get; private set; }
-    /// <summary>Người tạo (Hr.Employee)</summary>
-    public Guid CreatedBy { get; private set; }
-
     public DateTimeOffset EndsAt => StartsAt.AddMinutes(DurationMinutes);
     public decimal MaxScore => Sections.Sum(s => s.Max);
     public int QuestionCount => Sections.Sum(s => s.QuestionIds.Count);
     public bool ResultsPublished => ResultsPublishedAt is not null;
 
     public static Result<ClassExam> Create(ClassId classId, ExamMilestoneId examId, string? title, ExamMode mode, DateTimeOffset startsAt,
-        int durationMinutes, decimal passPercent, bool shuffle, List<ExamSection> sections, Guid createdBy)
+        int durationMinutes, decimal passPercent, bool shuffle, List<ExamSection> sections)
     {
-        var exam = new ClassExam { Id = ClassExamId.New(), ClassId = classId, ExamId = examId, Status = ClassExamStatus.Draft, CreatedBy = createdBy };
+        var exam = new ClassExam { Id = ClassExamId.New(), ClassId = classId, ExamId = examId, Status = ClassExamStatus.Draft };
         var set = exam.Set(title, mode, startsAt, durationMinutes, passPercent, shuffle, sections);
         return set.IsFailure ? set.Error : exam;
     }

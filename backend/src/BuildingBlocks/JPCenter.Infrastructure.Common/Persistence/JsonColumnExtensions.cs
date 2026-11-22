@@ -10,13 +10,13 @@ namespace JPCenter.Infrastructure.Common.Persistence;
 /// <summary>Lưu 1 thuộc tính có cấu trúc (dictionary, danh sách record...) vào cột <c>jsonb</c> — database.md: "cấu trúc lồng: jsonb".</summary>
 public static class JsonColumnExtensions
 {
-    /// <summary>JSON trong DB: camelCase, enum snake_case — giống JSON API.</summary>
+    /// <summary>JSON trong DB: camelCase, enum snake_case — giống JSON API; Id strongly-typed ghi thành uuid.</summary>
     public static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.Web)
     {
-        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower), new MoneyJsonConverter() },
+        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower), new MoneyJsonConverter(), new StronglyTypedIdJsonConverterFactory() },
     };
 
-    public static PropertyBuilder<T> HasJsonConversion<T>(this PropertyBuilder<T> property) where T : class
+    public static PropertyBuilder<T> HasJsonConversion<T>(this PropertyBuilder<T> property) where T : class?
     {
         property.HasConversion(
             v => JsonSerializer.Serialize(v, Options),

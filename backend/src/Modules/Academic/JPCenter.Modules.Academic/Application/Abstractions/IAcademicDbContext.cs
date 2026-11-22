@@ -1,3 +1,7 @@
+using JPCenter.Modules.Academic.Domain.Announcements;
+using JPCenter.Modules.Academic.Domain.Assignments;
+using JPCenter.Modules.Academic.Domain.Exams;
+using JPCenter.Modules.Academic.Domain.Flashcards;
 using JPCenter.Modules.Academic.Domain.Questions;
 using JPCenter.Modules.Academic.Domain.Classes;
 using JPCenter.Modules.Academic.Domain.ClassSessions;
@@ -26,6 +30,15 @@ public interface IAcademicDbContext
     DbSet<PromotionCandidate> PromotionCandidates { get; }
     DbSet<StudentEvaluation> StudentEvaluations { get; }
     DbSet<Question> Questions { get; }
+    DbSet<Assignment> Assignments { get; }
+    DbSet<Submission> Submissions { get; }
+    DbSet<ClassExam> ClassExams { get; }
+    DbSet<ExamAttempt> ExamAttempts { get; }
+    DbSet<ExamResult> ExamResults { get; }
+    DbSet<ClassAnnouncement> ClassAnnouncements { get; }
+    DbSet<TeacherReview> TeacherReviews { get; }
+    DbSet<FlashDeck> FlashDecks { get; }
+    DbSet<CardProgress> CardProgress { get; }
 
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

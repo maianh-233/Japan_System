@@ -12,7 +12,7 @@ public sealed class ClassExamTests
     private static readonly DateTimeOffset Start = new(2026, 12, 5, 1, 0, 0, TimeSpan.Zero);
     private static readonly ClassId Class = new(Guid.NewGuid());
     private static readonly ExamMilestoneId Milestone = new(Guid.NewGuid());
-    private static readonly Guid Staff = Guid.NewGuid(), Student = Guid.NewGuid();
+    private static readonly Guid Student = Guid.NewGuid();
 
     private static readonly List<QuestionId> Vocab = Enumerable.Range(0, 4).Select(_ => QuestionId.New()).ToList();
     private static readonly List<QuestionId> Grammar = Enumerable.Range(0, 3).Select(_ => QuestionId.New()).ToList();
@@ -22,7 +22,7 @@ public sealed class ClassExamTests
 
     private static ClassExam Exam(ExamMode mode = ExamMode.Online, bool shuffle = true, bool publish = true)
     {
-        var e = ClassExam.Create(Class, Milestone, "Giữa kỳ N5", mode, Start, 45, ClassExam.DefaultPassPercent, shuffle, Sections(), Staff).Value;
+        var e = ClassExam.Create(Class, Milestone, "Giữa kỳ N5", mode, Start, 45, ClassExam.DefaultPassPercent, shuffle, Sections()).Value;
         if (publish) e.Publish(Start.AddDays(-1)).IsSuccess.ShouldBeTrue();
         return e;
     }
@@ -33,12 +33,12 @@ public sealed class ClassExamTests
         var e = Exam(publish: false);
         (e.MaxScore, e.QuestionCount, e.EndsAt, e.Sections[0].Name).ShouldBe((10m, 7, Start.AddMinutes(45), "Từ vựng"));
 
-        ClassExam.Create(Class, Milestone, " ", ExamMode.Paper, Start, 45, 60, false, Sections(), Staff).Error.ShouldBe(ExamErrors.TitleRequired);
-        ClassExam.Create(Class, Milestone, "x", ExamMode.Paper, Start, 5, 60, false, Sections(), Staff).Error.ShouldBe(ExamErrors.InvalidDuration);
-        ClassExam.Create(Class, Milestone, "x", ExamMode.Paper, Start, 45, 0, false, Sections(), Staff).Error.ShouldBe(ExamErrors.InvalidPassPercent);
-        ClassExam.Create(Class, Milestone, "x", ExamMode.Paper, Start, 45, 60, false, [], Staff).Error.ShouldBe(ExamErrors.Sections);
-        ClassExam.Create(Class, Milestone, "x", ExamMode.Paper, Start, 45, 60, false, [new("A", null, 1, [Vocab[0]]), new("B", null, 1, [Vocab[0]])],
-            Staff).Error.ShouldBe(ExamErrors.Sections);
+        ClassExam.Create(Class, Milestone, " ", ExamMode.Paper, Start, 45, 60, false, Sections()).Error.ShouldBe(ExamErrors.TitleRequired);
+        ClassExam.Create(Class, Milestone, "x", ExamMode.Paper, Start, 5, 60, false, Sections()).Error.ShouldBe(ExamErrors.InvalidDuration);
+        ClassExam.Create(Class, Milestone, "x", ExamMode.Paper, Start, 45, 0, false, Sections()).Error.ShouldBe(ExamErrors.InvalidPassPercent);
+        ClassExam.Create(Class, Milestone, "x", ExamMode.Paper, Start, 45, 60, false, []).Error.ShouldBe(ExamErrors.Sections);
+        ClassExam.Create(Class, Milestone, "x", ExamMode.Paper, Start, 45, 60, false, [new("A", null, 1, [Vocab[0]]), new("B", null, 1, [Vocab[0]])])
+            .Error.ShouldBe(ExamErrors.Sections);
 
         e.UpdateDraft("Giữa kỳ", ExamMode.Paper, Start, 60, 50, false, Sections()).IsSuccess.ShouldBeTrue();
         e.Publish(Start).IsSuccess.ShouldBeTrue();

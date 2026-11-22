@@ -82,6 +82,309 @@ namespace JPCenter.Modules.Academic.Infrastructure.Persistence.Migrations
                     b.ToTable("outbox_messages", "academic");
                 });
 
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Announcements.ClassAnnouncement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string[]>("Audience")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("audience");
+
+                    b.Property<DateTimeOffset?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("cancelled_at");
+
+                    b.Property<string[]>("Channels")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("channels");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("class_id");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)")
+                        .HasColumnName("content");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("DebtorsOnly")
+                        .HasColumnType("boolean")
+                        .HasColumnName("debtors_only");
+
+                    b.PrimitiveCollection<List<Guid>>("ReadBy")
+                        .IsRequired()
+                        .HasColumnType("uuid[]")
+                        .HasColumnName("read_by");
+
+                    b.Property<int>("ReadCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("read_count");
+
+                    b.Property<int>("Recipients")
+                        .HasColumnType("integer")
+                        .HasColumnName("recipients");
+
+                    b.Property<DateTimeOffset?>("ScheduledAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("scheduled_at");
+
+                    b.Property<DateTimeOffset?>("SentAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sent_at");
+
+                    b.Property<Guid>("SentBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("sent_by");
+
+                    b.PrimitiveCollection<List<Guid>>("StudentIds")
+                        .IsRequired()
+                        .HasColumnType("uuid[]")
+                        .HasColumnName("student_ids");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_class_announcements");
+
+                    b.HasIndex("ScheduledAt")
+                        .HasDatabaseName("ix_class_announcements_scheduled_at")
+                        .HasFilter("sent_at IS NULL AND cancelled_at IS NULL");
+
+                    b.HasIndex("ClassId", "SentAt")
+                        .HasDatabaseName("ix_class_announcements_class_id_sent_at");
+
+                    b.ToTable("class_announcements", "academic");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Assignments.Assignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("AssignedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("assigned_at");
+
+                    b.Property<string>("Attachments")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("attachments");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("class_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid>("CreatedByTeacherId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_teacher_id");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("description");
+
+                    b.Property<DateTimeOffset>("DueDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("due_date");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<Guid?>("LessonId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("lesson_id");
+
+                    b.Property<decimal>("MaxScore")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)")
+                        .HasColumnName("max_score");
+
+                    b.Property<string>("Quiz")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("quiz");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("type");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_assignments");
+
+                    b.HasIndex("ClassId", "DueDate")
+                        .HasDatabaseName("ix_assignments_class_id_due_date");
+
+                    b.ToTable("assignments", "academic");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Assignments.Submission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AssignmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("assignment_id");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("comment");
+
+                    b.Property<string>("Content")
+                        .HasMaxLength(10000)
+                        .HasColumnType("character varying(10000)")
+                        .HasColumnName("content");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Files")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("files");
+
+                    b.Property<DateTimeOffset?>("GradedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("graded_at");
+
+                    b.Property<Guid?>("GradedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("graded_by");
+
+                    b.Property<int>("QuizAttempts")
+                        .HasColumnType("integer")
+                        .HasColumnName("quiz_attempts");
+
+                    b.Property<int?>("QuizCorrect")
+                        .HasColumnType("integer")
+                        .HasColumnName("quiz_correct");
+
+                    b.Property<int?>("QuizDurationMinutes")
+                        .HasColumnType("integer")
+                        .HasColumnName("quiz_duration_minutes");
+
+                    b.Property<int?>("QuizTotal")
+                        .HasColumnType("integer")
+                        .HasColumnName("quiz_total");
+
+                    b.Property<decimal?>("Score")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)")
+                        .HasColumnName("score");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("student_id");
+
+                    b.Property<DateTimeOffset>("SubmittedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("submitted_at");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_submissions");
+
+                    b.HasIndex("StudentId")
+                        .HasDatabaseName("ix_submissions_student_id");
+
+                    b.HasIndex("AssignmentId", "StudentId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_submissions_assignment_id_student_id");
+
+                    b.ToTable("submissions", "academic");
+                });
+
             modelBuilder.Entity("JPCenter.Modules.Academic.Domain.ClassSessions.ClassSession", b =>
                 {
                     b.Property<Guid>("Id")
@@ -685,6 +988,411 @@ namespace JPCenter.Modules.Academic.Infrastructure.Persistence.Migrations
                         .HasFilter("is_deleted = false");
 
                     b.ToTable("curricula", "academic");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Exams.ClassExam", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("class_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("integer")
+                        .HasColumnName("duration_minutes");
+
+                    b.Property<Guid>("ExamId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("exam_id");
+
+                    b.Property<string>("Mode")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("mode");
+
+                    b.Property<decimal>("PassPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)")
+                        .HasColumnName("pass_percent");
+
+                    b.Property<DateTimeOffset?>("PublishedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("published_at");
+
+                    b.Property<DateTimeOffset?>("ResultsPublishedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("results_published_at");
+
+                    b.Property<string>("Sections")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("sections");
+
+                    b.Property<bool>("Shuffle")
+                        .HasColumnType("boolean")
+                        .HasColumnName("shuffle");
+
+                    b.Property<DateTimeOffset>("StartsAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("starts_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_class_exams");
+
+                    b.HasIndex("ClassId", "ExamId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_class_exams_class_id_exam_id")
+                        .HasFilter("status <> 'cancelled'");
+
+                    b.HasIndex("Status", "StartsAt")
+                        .HasDatabaseName("ix_class_exams_status_starts_at");
+
+                    b.ToTable("class_exams", "academic");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Exams.ExamAttempt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Answers")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("answers");
+
+                    b.Property<bool>("AutoSubmitted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("auto_submitted");
+
+                    b.Property<Guid>("ClassExamId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("class_exam_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset>("DeadlineAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deadline_at");
+
+                    b.Property<string>("Questions")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("questions");
+
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_at");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("student_id");
+
+                    b.Property<DateTimeOffset?>("SubmittedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("submitted_at");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_exam_attempts");
+
+                    b.HasIndex("DeadlineAt")
+                        .HasDatabaseName("ix_exam_attempts_deadline_at")
+                        .HasFilter("submitted_at IS NULL");
+
+                    b.HasIndex("ClassExamId", "StudentId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_exam_attempts_class_exam_id_student_id");
+
+                    b.ToTable("exam_attempts", "academic");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Exams.ExamResult", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("ClassExamId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("class_exam_id");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("class_id");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("comment");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<int?>("DurationMinutes")
+                        .HasColumnType("integer")
+                        .HasColumnName("duration_minutes");
+
+                    b.Property<Guid>("ExamId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("exam_id");
+
+                    b.Property<decimal>("MaxScore")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("numeric(8,2)")
+                        .HasColumnName("max_score");
+
+                    b.Property<string>("Sections")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("sections");
+
+                    b.Property<DateTimeOffset?>("StartedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("student_id");
+
+                    b.Property<decimal>("TotalScore")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("numeric(8,2)")
+                        .HasColumnName("total_score");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_exam_results");
+
+                    b.HasIndex("ClassExamId")
+                        .HasDatabaseName("ix_exam_results_class_exam_id");
+
+                    b.HasIndex("StudentId")
+                        .HasDatabaseName("ix_exam_results_student_id");
+
+                    b.HasIndex("ClassId", "ExamId", "StudentId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_exam_results_class_id_exam_id_student_id");
+
+                    b.ToTable("exam_results", "academic");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Flashcards.CardProgress", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("Box")
+                        .HasColumnType("integer")
+                        .HasColumnName("box");
+
+                    b.Property<Guid>("CardId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("card_id");
+
+                    b.Property<Guid>("DeckId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deck_id");
+
+                    b.Property<DateOnly>("Due")
+                        .HasColumnType("date")
+                        .HasColumnName("due");
+
+                    b.Property<int>("Lapses")
+                        .HasColumnType("integer")
+                        .HasColumnName("lapses");
+
+                    b.Property<DateTimeOffset?>("LastReviewedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_reviewed_at");
+
+                    b.Property<int>("Reviews")
+                        .HasColumnType("integer")
+                        .HasColumnName("reviews");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("student_id");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_card_progress");
+
+                    b.HasIndex("DeckId")
+                        .HasDatabaseName("ix_card_progress_deck_id");
+
+                    b.HasIndex("StudentId", "CardId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_card_progress_student_id_card_id");
+
+                    b.HasIndex("StudentId", "Due")
+                        .HasDatabaseName("ix_card_progress_student_id_due");
+
+                    b.ToTable("card_progress", "academic");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Flashcards.FlashDeck", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("kind");
+
+                    b.Property<Guid?>("LessonId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("lesson_id");
+
+                    b.Property<string>("LessonLabel")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("lesson_label");
+
+                    b.Property<string>("Level")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("level");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_flash_decks");
+
+                    b.HasIndex("LessonId")
+                        .HasDatabaseName("ix_flash_decks_lesson_id");
+
+                    b.HasIndex("Level")
+                        .HasDatabaseName("ix_flash_decks_level");
+
+                    b.ToTable("flash_decks", "academic");
                 });
 
             modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Promotions.PromotionCandidate", b =>
@@ -1408,6 +2116,81 @@ namespace JPCenter.Modules.Academic.Infrastructure.Persistence.Migrations
                     b.ToTable("student_evaluations", "academic");
                 });
 
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Reviews.TeacherReview", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("Anonymous")
+                        .HasColumnType("boolean")
+                        .HasColumnName("anonymous");
+
+                    b.Property<int>("Clarity")
+                        .HasColumnType("integer")
+                        .HasColumnName("clarity");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("class_id");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("comment");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("Enthusiasm")
+                        .HasColumnType("integer")
+                        .HasColumnName("enthusiasm");
+
+                    b.Property<int>("Method")
+                        .HasColumnType("integer")
+                        .HasColumnName("method");
+
+                    b.Property<int>("Overall")
+                        .HasColumnType("integer")
+                        .HasColumnName("overall");
+
+                    b.Property<string>("Period")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("period");
+
+                    b.Property<int>("Punctuality")
+                        .HasColumnType("integer")
+                        .HasColumnName("punctuality");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("student_id");
+
+                    b.Property<Guid>("TeacherId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("teacher_id");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_teacher_reviews");
+
+                    b.HasIndex("TeacherId")
+                        .HasDatabaseName("ix_teacher_reviews_teacher_id");
+
+                    b.HasIndex("ClassId", "TeacherId", "StudentId", "Period")
+                        .IsUnique()
+                        .HasDatabaseName("ix_teacher_reviews_class_id_teacher_id_student_id_period");
+
+                    b.ToTable("teacher_reviews", "academic");
+                });
+
             modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Rooms.Room", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1613,6 +2396,36 @@ namespace JPCenter.Modules.Academic.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_room_issues_room_id_status");
 
                     b.ToTable("room_issues", "academic");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Announcements.ClassAnnouncement", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Academic.Domain.Classes.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_class_announcements_classes_class_id");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Assignments.Assignment", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Academic.Domain.Classes.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_assignments_classes_class_id");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Assignments.Submission", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Academic.Domain.Assignments.Assignment", null)
+                        .WithMany()
+                        .HasForeignKey("AssignmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_submissions_assignments_assignment_id");
                 });
 
             modelBuilder.Entity("JPCenter.Modules.Academic.Domain.ClassSessions.ClassSession", b =>
@@ -2192,6 +3005,106 @@ namespace JPCenter.Modules.Academic.Infrastructure.Persistence.Migrations
                     b.Navigation("Lessons");
                 });
 
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Exams.ClassExam", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Academic.Domain.Classes.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_class_exams_classes_class_id");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Exams.ExamAttempt", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Academic.Domain.Exams.ClassExam", null)
+                        .WithMany()
+                        .HasForeignKey("ClassExamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_exam_attempts_class_exams_class_exam_id");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Exams.ExamResult", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Academic.Domain.Exams.ClassExam", null)
+                        .WithMany()
+                        .HasForeignKey("ClassExamId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_exam_results_class_exams_class_exam_id");
+
+                    b.HasOne("JPCenter.Modules.Academic.Domain.Classes.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_exam_results_classes_class_id");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Flashcards.CardProgress", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Academic.Domain.Flashcards.FlashDeck", null)
+                        .WithMany()
+                        .HasForeignKey("DeckId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_card_progress_flash_decks_deck_id");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Flashcards.FlashDeck", b =>
+                {
+                    b.OwnsMany("JPCenter.Modules.Academic.Domain.Flashcards.FlashCard", "Cards", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<Guid>("DeckId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("deck_id");
+
+                            b1.Property<string>("Example")
+                                .HasMaxLength(500)
+                                .HasColumnType("character varying(500)")
+                                .HasColumnName("example");
+
+                            b1.Property<string>("Front")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)")
+                                .HasColumnName("front");
+
+                            b1.Property<string>("Meaning")
+                                .IsRequired()
+                                .HasMaxLength(500)
+                                .HasColumnType("character varying(500)")
+                                .HasColumnName("meaning");
+
+                            b1.Property<int>("Order")
+                                .HasColumnType("integer")
+                                .HasColumnName("order");
+
+                            b1.Property<string>("Reading")
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("reading");
+
+                            b1.HasKey("Id")
+                                .HasName("pk_flash_cards");
+
+                            b1.HasIndex("DeckId", "Order")
+                                .HasDatabaseName("ix_flash_cards_deck_id_order");
+
+                            b1.ToTable("flash_cards", "academic");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DeckId")
+                                .HasConstraintName("fk_flash_cards_flash_decks_deck_id");
+                        });
+
+                    b.Navigation("Cards");
+                });
+
             modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Promotions.PromotionCandidate", b =>
                 {
                     b.HasOne("JPCenter.Modules.Academic.Domain.Classes.Class", null)
@@ -2311,6 +3224,16 @@ namespace JPCenter.Modules.Academic.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_student_evaluations_classes_class_id");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Reviews.TeacherReview", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Academic.Domain.Classes.Class", null)
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_teacher_reviews_classes_class_id");
                 });
 
             modelBuilder.Entity("JPCenter.Modules.Academic.Domain.Rooms.RoomIssue", b =>

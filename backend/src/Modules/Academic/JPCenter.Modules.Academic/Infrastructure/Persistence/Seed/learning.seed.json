@@ -1,0 +1,5351 @@
+{
+  "generatedAt": "2026-11-22T08:33:44.900Z",
+  "assignments": [
+    {
+      "id": "C-N3K12-A1",
+      "classId": "C-N3K12",
+      "title": "Trắc nghiệm: Diễn tả nguyên nhân",
+      "lessonId": "CUR-N3-V1-L1",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N3-V1-L1"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-10-09T14:00:00.000Z",
+      "dueDate": "2026-10-13",
+      "maxScore": 10,
+      "createdById": "t-ha"
+    },
+    {
+      "id": "C-N3K12-A2",
+      "classId": "C-N3K12",
+      "title": "Bài tập: Diễn tả thời điểm",
+      "lessonId": "CUR-N3-V1-L2",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-10-21T14:00:00.000Z",
+      "dueDate": "2026-10-25",
+      "maxScore": 10,
+      "createdById": "t-ha"
+    },
+    {
+      "id": "C-N3K12-A3",
+      "classId": "C-N3K12",
+      "title": "Trắc nghiệm: Phạm vi & giới hạn",
+      "lessonId": "CUR-N3-V1-L3",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N3-V1-L3"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-11-02T14:00:00.000Z",
+      "dueDate": "2026-11-06",
+      "maxScore": 10,
+      "createdById": "t-ha"
+    },
+    {
+      "id": "C-N3K12-A4",
+      "classId": "C-N3K12",
+      "title": "Bài tập: Truyền văn",
+      "lessonId": "CUR-N3-V1-L4",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-11-11T14:00:00.000Z",
+      "dueDate": "2026-11-15",
+      "maxScore": 10,
+      "createdById": "t-ha"
+    },
+    {
+      "id": "C-N3K12-A5",
+      "classId": "C-N3K12",
+      "title": "Trắc nghiệm: Đọc hiểu đoạn ngắn",
+      "lessonId": "CUR-N3-V1-L5",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N3-V1-L5"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-11-20T14:00:00.000Z",
+      "dueDate": "2026-11-24",
+      "maxScore": 10,
+      "createdById": "t-ha"
+    },
+    {
+      "id": "C-KIDS05-A1",
+      "classId": "C-KIDS05",
+      "title": "Trắc nghiệm: Hiragana あ–そ",
+      "lessonId": "CUR-KIDS-L1",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-KIDS-L1"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-10-18T14:00:00.000Z",
+      "dueDate": "2026-10-22",
+      "maxScore": 10,
+      "createdById": "t-anh"
+    },
+    {
+      "id": "C-KIDS05-A2",
+      "classId": "C-KIDS05",
+      "title": "Bài tập: Hiragana た–ほ",
+      "lessonId": "CUR-KIDS-L2",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-10-31T14:00:00.000Z",
+      "dueDate": "2026-11-04",
+      "maxScore": 10,
+      "createdById": "t-anh"
+    },
+    {
+      "id": "C-KIDS05-A3",
+      "classId": "C-KIDS05",
+      "title": "Trắc nghiệm: Hiragana ま–ん",
+      "lessonId": "CUR-KIDS-L3",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-KIDS-L3"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-11-08T14:00:00.000Z",
+      "dueDate": "2026-11-12",
+      "maxScore": 10,
+      "createdById": "t-anh"
+    },
+    {
+      "id": "C-KIDS05-A4",
+      "classId": "C-KIDS05",
+      "title": "Bài tập: Gia đình",
+      "lessonId": "CUR-KIDS-L4",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-11-21T14:00:00.000Z",
+      "dueDate": "2026-11-25",
+      "maxScore": 10,
+      "createdById": "t-anh"
+    },
+    {
+      "id": "C-N4K15-A1",
+      "classId": "C-N4K15",
+      "title": "Trắc nghiệm: Thể thông thường",
+      "lessonId": "CUR-N4-V2-L1",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N4-V2-L1"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-11-05T14:00:00.000Z",
+      "dueDate": "2026-11-09",
+      "maxScore": 10,
+      "createdById": "t-long"
+    },
+    {
+      "id": "C-N4K15-A2",
+      "classId": "C-N4K15",
+      "title": "Bài tập: Thể khả năng",
+      "lessonId": "CUR-N4-V2-L2",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-11-17T14:00:00.000Z",
+      "dueDate": "2026-11-21",
+      "maxScore": 10,
+      "createdById": "t-long"
+    },
+    {
+      "id": "C-N5K18-A1",
+      "classId": "C-N5K18",
+      "title": "Trắc nghiệm: Sở thích",
+      "lessonId": "CUR-N5-V1-L9",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N5-V1-L9"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-05-06T14:00:00.000Z",
+      "dueDate": "2026-05-10",
+      "maxScore": 10,
+      "createdById": "t-anh"
+    },
+    {
+      "id": "C-N5K18-A2",
+      "classId": "C-N5K18",
+      "title": "Bài tập: Tồn tại",
+      "lessonId": "CUR-N5-V1-L10",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-05-11T14:00:00.000Z",
+      "dueDate": "2026-05-15",
+      "maxScore": 10,
+      "createdById": "t-anh"
+    },
+    {
+      "id": "C-N5K18-A3",
+      "classId": "C-N5K18",
+      "title": "Trắc nghiệm: Số đếm",
+      "lessonId": "CUR-N5-V1-L11",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N5-V1-L11"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-05-15T14:00:00.000Z",
+      "dueDate": "2026-05-19",
+      "maxScore": 10,
+      "createdById": "t-anh"
+    },
+    {
+      "id": "C-N5K18-A4",
+      "classId": "C-N5K18",
+      "title": "Bài tập: So sánh",
+      "lessonId": "CUR-N5-V1-L12",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-05-20T14:00:00.000Z",
+      "dueDate": "2026-05-24",
+      "maxScore": 10,
+      "createdById": "t-anh"
+    },
+    {
+      "id": "C-N5K18-A5",
+      "classId": "C-N5K18",
+      "title": "Trắc nghiệm: Mong muốn",
+      "lessonId": "CUR-N5-V1-L13",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N5-V1-L13"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-05-25T14:00:00.000Z",
+      "dueDate": "2026-05-29",
+      "maxScore": 10,
+      "createdById": "t-anh"
+    },
+    {
+      "id": "C-N5K18-A6",
+      "classId": "C-N5K18",
+      "title": "Bài tập: Thể て",
+      "lessonId": "CUR-N5-V1-L14",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-05-29T14:00:00.000Z",
+      "dueDate": "2026-06-02",
+      "maxScore": 10,
+      "createdById": "t-anh"
+    },
+    {
+      "id": "C-N4K11-A1",
+      "classId": "C-N4K11",
+      "title": "Trắc nghiệm: Kính ngữ cơ bản",
+      "lessonId": "CUR-N4-V2-L7",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N4-V2-L7"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-05-14T14:00:00.000Z",
+      "dueDate": "2026-05-18",
+      "maxScore": 10,
+      "createdById": "t-long"
+    },
+    {
+      "id": "C-N4K11-A2",
+      "classId": "C-N4K11",
+      "title": "Bài tập: Cho nhận nâng cao",
+      "lessonId": "CUR-N4-V2-L8",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-05-28T14:00:00.000Z",
+      "dueDate": "2026-06-01",
+      "maxScore": 10,
+      "createdById": "t-long"
+    },
+    {
+      "id": "C-N4K11-A3",
+      "classId": "C-N4K11",
+      "title": "Trắc nghiệm: Phỏng đoán",
+      "lessonId": "CUR-N4-V2-L9",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N4-V2-L9"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-06-11T14:00:00.000Z",
+      "dueDate": "2026-06-15",
+      "maxScore": 10,
+      "createdById": "t-long"
+    },
+    {
+      "id": "C-N4K11-A4",
+      "classId": "C-N4K11",
+      "title": "Bài tập: Truyền đạt",
+      "lessonId": "CUR-N4-V2-L10",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-06-25T14:00:00.000Z",
+      "dueDate": "2026-06-29",
+      "maxScore": 10,
+      "createdById": "t-long"
+    },
+    {
+      "id": "C-N4K11-A5",
+      "classId": "C-N4K11",
+      "title": "Trắc nghiệm: Mục đích",
+      "lessonId": "CUR-N4-V2-L11",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N4-V2-L11"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-07-07T14:00:00.000Z",
+      "dueDate": "2026-07-11",
+      "maxScore": 10,
+      "createdById": "t-long"
+    },
+    {
+      "id": "C-N4K11-A6",
+      "classId": "C-N4K11",
+      "title": "Bài tập: Trạng thái",
+      "lessonId": "CUR-N4-V2-L12",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-07-16T14:00:00.000Z",
+      "dueDate": "2026-07-20",
+      "maxScore": 10,
+      "createdById": "t-long"
+    },
+    {
+      "id": "C-N5K22-A1",
+      "classId": "C-N5K22",
+      "title": "Trắc nghiệm: Giới thiệu bản thân",
+      "lessonId": "CUR-N5-V2-L1",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N5-V2-L1"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-11-02T14:00:00.000Z",
+      "dueDate": "2026-11-06",
+      "maxScore": 10,
+      "createdById": "t-anh"
+    },
+    {
+      "id": "C-N5K22-A2",
+      "classId": "C-N5K22",
+      "title": "Bài tập: Đồ vật xung quanh",
+      "lessonId": "CUR-N5-V2-L2",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-11-09T14:00:00.000Z",
+      "dueDate": "2026-11-13",
+      "maxScore": 10,
+      "createdById": "t-anh"
+    },
+    {
+      "id": "C-N5K22-A3",
+      "classId": "C-N5K22",
+      "title": "Trắc nghiệm: Địa điểm",
+      "lessonId": "CUR-N5-V2-L3",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N5-V2-L3"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-11-11T14:00:00.000Z",
+      "dueDate": "2026-11-15",
+      "maxScore": 10,
+      "createdById": "t-anh"
+    },
+    {
+      "id": "C-N5K22-A4",
+      "classId": "C-N5K22",
+      "title": "Bài tập: Thời gian",
+      "lessonId": "CUR-N5-V2-L4",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-11-18T14:00:00.000Z",
+      "dueDate": "2026-11-22",
+      "maxScore": 10,
+      "createdById": "t-anh"
+    },
+    {
+      "id": "C-N5K22-A5",
+      "classId": "C-N5K22",
+      "title": "Trắc nghiệm: Đi lại",
+      "lessonId": "CUR-N5-V2-L5",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N5-V2-L5"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-11-20T14:00:00.000Z",
+      "dueDate": "2026-11-24",
+      "maxScore": 10,
+      "createdById": "t-anh"
+    },
+    {
+      "id": "C-KAIWAC2-A1",
+      "classId": "C-KAIWAC2",
+      "title": "Trắc nghiệm: Chào hỏi & làm quen",
+      "lessonId": "CUR-KAIWA-L1",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-KAIWA-L1"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-10-27T14:00:00.000Z",
+      "dueDate": "2026-10-31",
+      "maxScore": 10,
+      "createdById": "t-sato"
+    },
+    {
+      "id": "C-KAIWAC2-A2",
+      "classId": "C-KAIWAC2",
+      "title": "Bài tập: Mua sắm",
+      "lessonId": "CUR-KAIWA-L2",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-11-05T14:00:00.000Z",
+      "dueDate": "2026-11-09",
+      "maxScore": 10,
+      "createdById": "t-sato"
+    },
+    {
+      "id": "C-KAIWAC2-A3",
+      "classId": "C-KAIWAC2",
+      "title": "Trắc nghiệm: Nhà hàng",
+      "lessonId": "CUR-KAIWA-L3",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-KAIWA-L3"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-11-17T14:00:00.000Z",
+      "dueDate": "2026-11-21",
+      "maxScore": 10,
+      "createdById": "t-sato"
+    },
+    {
+      "id": "C-KAIWAC2-A4",
+      "classId": "C-KAIWAC2",
+      "title": "Bài tập: Hỏi đường",
+      "lessonId": "CUR-KAIWA-L4",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-11-19T14:00:00.000Z",
+      "dueDate": "2026-11-23",
+      "maxScore": 10,
+      "createdById": "t-sato"
+    },
+    {
+      "id": "C-N4ON03-A1",
+      "classId": "C-N4ON03",
+      "title": "Trắc nghiệm: Thể thông thường",
+      "lessonId": "CUR-N4-V2-L1",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N4-V2-L1"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-11-02T14:00:00.000Z",
+      "dueDate": "2026-11-06",
+      "maxScore": 10,
+      "createdById": "t-long"
+    },
+    {
+      "id": "C-N4ON03-A2",
+      "classId": "C-N4ON03",
+      "title": "Bài tập: Thể khả năng",
+      "lessonId": "CUR-N4-V2-L2",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-11-09T14:00:00.000Z",
+      "dueDate": "2026-11-13",
+      "maxScore": 10,
+      "createdById": "t-long"
+    },
+    {
+      "id": "C-N4ON03-A3",
+      "classId": "C-N4ON03",
+      "title": "Trắc nghiệm: Thể ý chí",
+      "lessonId": "CUR-N4-V2-L3",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N4-V2-L3"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-11-20T14:00:00.000Z",
+      "dueDate": "2026-11-24",
+      "maxScore": 10,
+      "createdById": "t-long"
+    },
+    {
+      "id": "C-N3ON14-A1",
+      "classId": "C-N3ON14",
+      "title": "Trắc nghiệm: Diễn tả nguyên nhân",
+      "lessonId": "CUR-N3-V1-L1",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N3-V1-L1"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-10-23T14:00:00.000Z",
+      "dueDate": "2026-10-27",
+      "maxScore": 10,
+      "createdById": "t-tanaka"
+    },
+    {
+      "id": "C-N3ON14-A2",
+      "classId": "C-N3ON14",
+      "title": "Bài tập: Diễn tả thời điểm",
+      "lessonId": "CUR-N3-V1-L2",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-11-04T14:00:00.000Z",
+      "dueDate": "2026-11-08",
+      "maxScore": 10,
+      "createdById": "t-tanaka"
+    },
+    {
+      "id": "C-N3ON14-A3",
+      "classId": "C-N3ON14",
+      "title": "Trắc nghiệm: Phạm vi & giới hạn",
+      "lessonId": "CUR-N3-V1-L3",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N3-V1-L3"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-11-16T14:00:00.000Z",
+      "dueDate": "2026-11-20",
+      "maxScore": 10,
+      "createdById": "t-tanaka"
+    },
+    {
+      "id": "C-N3ON14-A4",
+      "classId": "C-N3ON14",
+      "title": "Bài tập: Truyền văn",
+      "lessonId": "CUR-N3-V1-L4",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-11-20T14:00:00.000Z",
+      "dueDate": "2026-11-24",
+      "maxScore": 10,
+      "createdById": "t-tanaka"
+    },
+    {
+      "id": "C-N2K05-A1",
+      "classId": "C-N2K05",
+      "title": "Trắc nghiệm: Ngữ pháp N2 (1)",
+      "lessonId": "CUR-N2-L1",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N2-L1"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-11-19T14:00:00.000Z",
+      "dueDate": "2026-11-23",
+      "maxScore": 10,
+      "createdById": "t-ha"
+    },
+    {
+      "id": "C-N5K20-A1",
+      "classId": "C-N5K20",
+      "title": "Trắc nghiệm: Giới thiệu bản thân",
+      "lessonId": "CUR-N5-ADV-L1",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N5-ADV-L1"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-11-11T14:00:00.000Z",
+      "dueDate": "2026-11-15",
+      "maxScore": 10,
+      "createdById": "t-thu"
+    },
+    {
+      "id": "C-N5K20-A2",
+      "classId": "C-N5K20",
+      "title": "Bài tập: Đồ vật xung quanh",
+      "lessonId": "CUR-N5-ADV-L2",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-11-16T14:00:00.000Z",
+      "dueDate": "2026-11-20",
+      "maxScore": 10,
+      "createdById": "t-thu"
+    },
+    {
+      "id": "C-N5K20-A3",
+      "classId": "C-N5K20",
+      "title": "Trắc nghiệm: Địa điểm",
+      "lessonId": "CUR-N5-ADV-L3",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N5-ADV-L3"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-11-20T14:00:00.000Z",
+      "dueDate": "2026-11-24",
+      "maxScore": 10,
+      "createdById": "t-thu"
+    },
+    {
+      "id": "C-KAIWAB1-A1",
+      "classId": "C-KAIWAB1",
+      "title": "Trắc nghiệm: Chào hỏi & làm quen",
+      "lessonId": "CUR-KAIWA-L1",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-KAIWA-L1"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-10-17T14:00:00.000Z",
+      "dueDate": "2026-10-21",
+      "maxScore": 10,
+      "createdById": "t-sato"
+    },
+    {
+      "id": "C-KAIWAB1-A2",
+      "classId": "C-KAIWAB1",
+      "title": "Bài tập: Mua sắm",
+      "lessonId": "CUR-KAIWA-L2",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-11-07T14:00:00.000Z",
+      "dueDate": "2026-11-11",
+      "maxScore": 10,
+      "createdById": "t-sato"
+    },
+    {
+      "id": "C-KAIWAB1-A3",
+      "classId": "C-KAIWAB1",
+      "title": "Trắc nghiệm: Nhà hàng",
+      "lessonId": "CUR-KAIWA-L3",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-KAIWA-L3"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-11-14T14:00:00.000Z",
+      "dueDate": "2026-11-18",
+      "maxScore": 10,
+      "createdById": "t-sato"
+    },
+    {
+      "id": "C-N3K09-A1",
+      "classId": "C-N3K09",
+      "title": "Trắc nghiệm: Đọc hiểu đoạn ngắn",
+      "lessonId": "CUR-N3-V1-L5",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N3-V1-L5"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-04-08T14:00:00.000Z",
+      "dueDate": "2026-04-12",
+      "maxScore": 10,
+      "createdById": "t-thu"
+    },
+    {
+      "id": "C-N3K09-A2",
+      "classId": "C-N3K09",
+      "title": "Bài tập: Đọc hiểu đoạn trung",
+      "lessonId": "CUR-N3-V1-L6",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-04-20T14:00:00.000Z",
+      "dueDate": "2026-04-24",
+      "maxScore": 10,
+      "createdById": "t-thu"
+    },
+    {
+      "id": "C-N3K09-A3",
+      "classId": "C-N3K09",
+      "title": "Trắc nghiệm: Nghe hiểu điểm chính",
+      "lessonId": "CUR-N3-V1-L7",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N3-V1-L7"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-04-29T14:00:00.000Z",
+      "dueDate": "2026-05-03",
+      "maxScore": 10,
+      "createdById": "t-thu"
+    },
+    {
+      "id": "C-N3K09-A4",
+      "classId": "C-N3K09",
+      "title": "Bài tập: Nghe hiểu khái quát",
+      "lessonId": "CUR-N3-V1-L8",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-05-11T14:00:00.000Z",
+      "dueDate": "2026-05-15",
+      "maxScore": 10,
+      "createdById": "t-thu"
+    },
+    {
+      "id": "C-N3K09-A5",
+      "classId": "C-N3K09",
+      "title": "Trắc nghiệm: Luyện đề tổng hợp 1",
+      "lessonId": "CUR-N3-V1-L9",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N3-V1-L9"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-05-20T14:00:00.000Z",
+      "dueDate": "2026-05-24",
+      "maxScore": 10,
+      "createdById": "t-thu"
+    },
+    {
+      "id": "C-N3K09-A6",
+      "classId": "C-N3K09",
+      "title": "Bài tập: Luyện đề tổng hợp 2",
+      "lessonId": "CUR-N3-V1-L10",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-05-29T14:00:00.000Z",
+      "dueDate": "2026-06-02",
+      "maxScore": 10,
+      "createdById": "t-thu"
+    },
+    {
+      "id": "C-XKLD08-A1",
+      "classId": "C-XKLD08",
+      "title": "Trắc nghiệm: Chào hỏi nơi làm việc",
+      "lessonId": "CUR-XKLD-L1",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-XKLD-L1"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-10-21T14:00:00.000Z",
+      "dueDate": "2026-10-25",
+      "maxScore": 10,
+      "createdById": "t-hanh"
+    },
+    {
+      "id": "C-XKLD08-A2",
+      "classId": "C-XKLD08",
+      "title": "Bài tập: Báo cáo – liên lạc – thảo luận",
+      "lessonId": "CUR-XKLD-L2",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-11-03T14:00:00.000Z",
+      "dueDate": "2026-11-07",
+      "maxScore": 10,
+      "createdById": "t-hanh"
+    },
+    {
+      "id": "C-XKLD08-A3",
+      "classId": "C-XKLD08",
+      "title": "Trắc nghiệm: An toàn lao động",
+      "lessonId": "CUR-XKLD-L3",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-XKLD-L3"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-11-12T14:00:00.000Z",
+      "dueDate": "2026-11-16",
+      "maxScore": 10,
+      "createdById": "t-hanh"
+    },
+    {
+      "id": "C-XKLD08-A4",
+      "classId": "C-XKLD08",
+      "title": "Bài tập: Từ vựng ngành thực phẩm",
+      "lessonId": "CUR-XKLD-L4",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-11-20T14:00:00.000Z",
+      "dueDate": "2026-11-24",
+      "maxScore": 10,
+      "createdById": "t-hanh"
+    },
+    {
+      "id": "C-N5K07-A1",
+      "classId": "C-N5K07",
+      "title": "Trắc nghiệm: Sở thích",
+      "lessonId": "CUR-N5-V1-L9",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N5-V1-L9"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-05-29T14:00:00.000Z",
+      "dueDate": "2026-06-02",
+      "maxScore": 10,
+      "createdById": "t-hanh"
+    },
+    {
+      "id": "C-N5K07-A2",
+      "classId": "C-N5K07",
+      "title": "Bài tập: Tồn tại",
+      "lessonId": "CUR-N5-V1-L10",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-06-03T14:00:00.000Z",
+      "dueDate": "2026-06-07",
+      "maxScore": 10,
+      "createdById": "t-hanh"
+    },
+    {
+      "id": "C-N5K07-A3",
+      "classId": "C-N5K07",
+      "title": "Trắc nghiệm: Số đếm",
+      "lessonId": "CUR-N5-V1-L11",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N5-V1-L11"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-06-08T14:00:00.000Z",
+      "dueDate": "2026-06-12",
+      "maxScore": 10,
+      "createdById": "t-hanh"
+    },
+    {
+      "id": "C-N5K07-A4",
+      "classId": "C-N5K07",
+      "title": "Bài tập: So sánh",
+      "lessonId": "CUR-N5-V1-L12",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-06-12T14:00:00.000Z",
+      "dueDate": "2026-06-16",
+      "maxScore": 10,
+      "createdById": "t-hanh"
+    },
+    {
+      "id": "C-N5K07-A5",
+      "classId": "C-N5K07",
+      "title": "Trắc nghiệm: Mong muốn",
+      "lessonId": "CUR-N5-V1-L13",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N5-V1-L13"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-06-17T14:00:00.000Z",
+      "dueDate": "2026-06-21",
+      "maxScore": 10,
+      "createdById": "t-hanh"
+    },
+    {
+      "id": "C-N5K07-A6",
+      "classId": "C-N5K07",
+      "title": "Bài tập: Thể て",
+      "lessonId": "CUR-N5-V1-L14",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-06-22T14:00:00.000Z",
+      "dueDate": "2026-06-26",
+      "maxScore": 10,
+      "createdById": "t-hanh"
+    },
+    {
+      "id": "C-N4K16-A1",
+      "classId": "C-N4K16",
+      "title": "Trắc nghiệm: Thể thông thường",
+      "lessonId": "CUR-N4-V2-L1",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-N4-V2-L1"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-11-19T14:00:00.000Z",
+      "dueDate": "2026-11-23",
+      "maxScore": 10,
+      "createdById": "t-long"
+    },
+    {
+      "id": "C-XKLD07-A1",
+      "classId": "C-XKLD07",
+      "title": "Trắc nghiệm: Chào hỏi nơi làm việc",
+      "lessonId": "CUR-XKLD-L1",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-XKLD-L1"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-09-23T14:00:00.000Z",
+      "dueDate": "2026-09-27",
+      "maxScore": 10,
+      "createdById": "t-hanh"
+    },
+    {
+      "id": "C-XKLD07-A2",
+      "classId": "C-XKLD07",
+      "title": "Bài tập: Báo cáo – liên lạc – thảo luận",
+      "lessonId": "CUR-XKLD-L2",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-10-06T14:00:00.000Z",
+      "dueDate": "2026-10-10",
+      "maxScore": 10,
+      "createdById": "t-hanh"
+    },
+    {
+      "id": "C-XKLD07-A3",
+      "classId": "C-XKLD07",
+      "title": "Trắc nghiệm: An toàn lao động",
+      "lessonId": "CUR-XKLD-L3",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-XKLD-L3"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-10-15T14:00:00.000Z",
+      "dueDate": "2026-10-19",
+      "maxScore": 10,
+      "createdById": "t-hanh"
+    },
+    {
+      "id": "C-XKLD07-A4",
+      "classId": "C-XKLD07",
+      "title": "Bài tập: Từ vựng ngành thực phẩm",
+      "lessonId": "CUR-XKLD-L4",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-10-26T14:00:00.000Z",
+      "dueDate": "2026-10-30",
+      "maxScore": 10,
+      "createdById": "t-hanh"
+    },
+    {
+      "id": "C-XKLD07-A5",
+      "classId": "C-XKLD07",
+      "title": "Trắc nghiệm: Từ vựng ngành xây dựng",
+      "lessonId": "CUR-XKLD-L5",
+      "type": "quiz",
+      "description": "Làm trắc nghiệm trên Cổng học viên — đề bốc từ Ngân hàng câu hỏi.",
+      "quiz": {
+        "lessonIds": [
+          "CUR-XKLD-L5"
+        ],
+        "skills": [
+          "vocab",
+          "kanji",
+          "grammar"
+        ],
+        "difficulty": "mixed",
+        "questionCount": 20,
+        "timeLimitMinutes": 25,
+        "attempts": 2,
+        "shuffle": true
+      },
+      "assignedAt": "2026-11-05T14:00:00.000Z",
+      "dueDate": "2026-11-09",
+      "maxScore": 10,
+      "createdById": "t-hanh"
+    },
+    {
+      "id": "C-XKLD07-A6",
+      "classId": "C-XKLD07",
+      "title": "Bài tập: Sinh hoạt ký túc xá",
+      "lessonId": "CUR-XKLD-L6",
+      "type": "upload",
+      "description": "Làm bài tập trong sách + ghi âm phần luyện nói, chụp ảnh nộp trên Cổng học viên.",
+      "assignedAt": "2026-11-06T14:00:00.000Z",
+      "dueDate": "2026-11-10",
+      "maxScore": 10,
+      "createdById": "t-hanh"
+    }
+  ],
+  "submissions": [
+    {
+      "id": "SUB-C-N3K12-A1-ST-1",
+      "assignmentId": "C-N3K12-A1",
+      "studentId": "ST-1",
+      "submittedAt": "2026-10-10T13:00:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 9,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 8
+      },
+      "score": 4.5,
+      "gradedAt": "2026-10-10T13:00:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N3K12-A1-ST-6",
+      "assignmentId": "C-N3K12-A1",
+      "studentId": "ST-6",
+      "submittedAt": "2026-10-11T14:13:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 16,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 9
+      },
+      "score": 8,
+      "gradedAt": "2026-10-11T14:13:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N3K12-A2-ST-1",
+      "assignmentId": "C-N3K12-A2",
+      "studentId": "ST-1",
+      "submittedAt": "2026-10-27T14:31:59.999Z",
+      "files": [
+        {
+          "name": "Bài làm trên Google Docs",
+          "kind": "link",
+          "url": "https://docs.google.com/document/d/demo"
+        }
+      ],
+      "score": 10,
+      "comment": "Phát âm rõ, cần luyện thêm trường âm.",
+      "gradedAt": "2026-10-27T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-ha"
+    },
+    {
+      "id": "SUB-C-N3K12-A2-ST-6",
+      "assignmentId": "C-N3K12-A2",
+      "studentId": "ST-6",
+      "submittedAt": "2026-10-24T15:44:00.000Z",
+      "files": [
+        {
+          "name": "Diễn tả thời điểm - bài làm.pdf",
+          "kind": "pdf",
+          "url": "/files/demo/bai-lam.pdf",
+          "size": 387288
+        }
+      ],
+      "score": 6,
+      "comment": "Sai 2 câu chia thể — xem lại bảng chia động từ.",
+      "gradedAt": "2026-10-27T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-ha"
+    },
+    {
+      "id": "SUB-C-N3K12-A3-ST-1",
+      "assignmentId": "C-N3K12-A3",
+      "studentId": "ST-1",
+      "submittedAt": "2026-11-05T15:02:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 14,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 22
+      },
+      "score": 7,
+      "gradedAt": "2026-11-05T15:02:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N3K12-A3-ST-6",
+      "assignmentId": "C-N3K12-A3",
+      "studentId": "ST-6",
+      "submittedAt": "2026-11-03T13:15:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 10,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 23
+      },
+      "score": 5,
+      "gradedAt": "2026-11-03T13:15:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N3K12-A4-ST-1",
+      "assignmentId": "C-N3K12-A4",
+      "studentId": "ST-1",
+      "submittedAt": "2026-11-12T13:33:00.000Z",
+      "files": [
+        {
+          "name": "Ảnh chụp vở trang 1.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-1.jpg",
+          "size": 1200000
+        },
+        {
+          "name": "Ảnh chụp vở trang 2.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-2.jpg",
+          "size": 1050000
+        }
+      ],
+      "content": "Em nộp bài ạ. Câu 4 em chưa chắc lắm.",
+      "score": 9,
+      "comment": "Rất tốt!",
+      "gradedAt": "2026-11-17T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-ha"
+    },
+    {
+      "id": "SUB-C-N3K12-A4-ST-6",
+      "assignmentId": "C-N3K12-A4",
+      "studentId": "ST-6",
+      "submittedAt": "2026-11-16T14:46:59.999Z",
+      "files": [
+        {
+          "name": "Truyền văn.docx",
+          "kind": "doc",
+          "url": "/files/demo/bai-lam.docx",
+          "size": 64000
+        },
+        {
+          "name": "Ghi âm luyện nói.m4a",
+          "kind": "audio",
+          "url": "/files/demo/ghi-am.m4a",
+          "size": 2400000
+        }
+      ],
+      "score": 5,
+      "comment": "Bài làm cẩu thả, nộp lại phần 3.",
+      "gradedAt": "2026-11-17T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-ha"
+    },
+    {
+      "id": "SUB-C-N3K12-A5-ST-6",
+      "assignmentId": "C-N3K12-A5",
+      "studentId": "ST-6",
+      "submittedAt": "2026-11-22T06:33:44.882Z",
+      "files": [],
+      "quiz": {
+        "correct": 15,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 21
+      },
+      "score": 7.5,
+      "gradedAt": "2026-11-23T15:17:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-KIDS05-A1-ST-2",
+      "assignmentId": "C-KIDS05-A1",
+      "studentId": "ST-2",
+      "submittedAt": "2026-10-21T15:35:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 15,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 11
+      },
+      "score": 7.5,
+      "gradedAt": "2026-10-21T15:35:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-KIDS05-A1-ST-21",
+      "assignmentId": "C-KIDS05-A1",
+      "studentId": "ST-21",
+      "submittedAt": "2026-10-19T13:48:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 11,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 12
+      },
+      "score": 5.5,
+      "gradedAt": "2026-10-19T13:48:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-KIDS05-A2-ST-2",
+      "assignmentId": "C-KIDS05-A2",
+      "studentId": "ST-2",
+      "submittedAt": "2026-11-05T13:06:59.999Z",
+      "files": [
+        {
+          "name": "Hiragana た–ほ.docx",
+          "kind": "doc",
+          "url": "/files/demo/bai-lam.docx",
+          "size": 64000
+        },
+        {
+          "name": "Ghi âm luyện nói.m4a",
+          "kind": "audio",
+          "url": "/files/demo/ghi-am.m4a",
+          "size": 2400000
+        }
+      ],
+      "content": "Em nộp bài ạ. Câu 4 em chưa chắc lắm.",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-KIDS05-A2-ST-21",
+      "assignmentId": "C-KIDS05-A2",
+      "studentId": "ST-21",
+      "submittedAt": "2026-11-02T14:19:00.000Z",
+      "files": [
+        {
+          "name": "Bài làm trên Google Docs",
+          "kind": "link",
+          "url": "https://docs.google.com/document/d/demo"
+        }
+      ],
+      "score": 9,
+      "comment": "Phát âm rõ, cần luyện thêm trường âm.",
+      "gradedAt": "2026-11-06T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-anh"
+    },
+    {
+      "id": "SUB-C-KIDS05-A3-ST-2",
+      "assignmentId": "C-KIDS05-A3",
+      "studentId": "ST-2",
+      "submittedAt": "2026-11-10T14:37:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 20,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 9
+      },
+      "score": 10,
+      "gradedAt": "2026-11-10T14:37:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-KIDS05-A3-ST-21",
+      "assignmentId": "C-KIDS05-A3",
+      "studentId": "ST-21",
+      "submittedAt": "2026-11-11T15:50:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 16,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 10
+      },
+      "score": 8,
+      "gradedAt": "2026-11-11T15:50:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-KIDS05-A4-ST-21",
+      "assignmentId": "C-KIDS05-A4",
+      "studentId": "ST-21",
+      "submittedAt": "2026-11-22T06:33:44.882Z",
+      "files": [
+        {
+          "name": "Ảnh chụp vở trang 1.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-1.jpg",
+          "size": 1200000
+        },
+        {
+          "name": "Ảnh chụp vở trang 2.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-2.jpg",
+          "size": 1050000
+        }
+      ],
+      "content": "Em nộp bài ạ. Câu 4 em chưa chắc lắm.",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N4K15-A1-ST-5",
+      "assignmentId": "C-N4K15-A1",
+      "studentId": "ST-5",
+      "submittedAt": "2026-11-06T13:39:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 13,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 23
+      },
+      "score": 6.5,
+      "gradedAt": "2026-11-06T13:39:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N4K15-A1-ST-36",
+      "assignmentId": "C-N4K15-A1",
+      "studentId": "ST-36",
+      "submittedAt": "2026-11-07T14:52:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 10,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 8
+      },
+      "score": 5,
+      "gradedAt": "2026-11-07T14:52:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N4K15-A2-ST-5",
+      "assignmentId": "C-N4K15-A2",
+      "studentId": "ST-5",
+      "submittedAt": "2026-11-19T14:10:00.000Z",
+      "files": [
+        {
+          "name": "Thể khả năng.docx",
+          "kind": "doc",
+          "url": "/files/demo/bai-lam.docx",
+          "size": 64000
+        },
+        {
+          "name": "Ghi âm luyện nói.m4a",
+          "kind": "audio",
+          "url": "/files/demo/ghi-am.m4a",
+          "size": 2400000
+        }
+      ],
+      "score": 5.5,
+      "comment": "Bài làm cẩu thả, nộp lại phần 3.",
+      "gradedAt": "2026-11-23T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-long"
+    },
+    {
+      "id": "SUB-C-N4K15-A2-ST-36",
+      "assignmentId": "C-N4K15-A2",
+      "studentId": "ST-36",
+      "submittedAt": "2026-11-20T15:23:00.000Z",
+      "files": [
+        {
+          "name": "Bài làm trên Google Docs",
+          "kind": "link",
+          "url": "https://docs.google.com/document/d/demo"
+        }
+      ],
+      "score": 7,
+      "comment": "Kanji viết đúng thứ tự nét, tốt.",
+      "gradedAt": "2026-11-23T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-long"
+    },
+    {
+      "id": "SUB-C-N5K18-A1-ST-5",
+      "assignmentId": "C-N5K18-A1",
+      "studentId": "ST-5",
+      "submittedAt": "2026-05-12T15:41:59.999Z",
+      "files": [],
+      "quiz": {
+        "correct": 18,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 21
+      },
+      "score": 9,
+      "gradedAt": "2026-05-12T15:41:59.999Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K18-A1-ST-24",
+      "assignmentId": "C-N5K18-A1",
+      "studentId": "ST-24",
+      "submittedAt": "2026-05-07T13:54:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 14,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 22
+      },
+      "score": 7,
+      "gradedAt": "2026-05-07T13:54:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K18-A2-ST-5",
+      "assignmentId": "C-N5K18-A2",
+      "studentId": "ST-5",
+      "submittedAt": "2026-05-12T13:12:00.000Z",
+      "files": [
+        {
+          "name": "Tồn tại - bài làm.pdf",
+          "kind": "pdf",
+          "url": "/files/demo/bai-lam.pdf",
+          "size": 456524
+        }
+      ],
+      "content": "Em nộp bài ạ. Câu 4 em chưa chắc lắm.",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K18-A2-ST-24",
+      "assignmentId": "C-N5K18-A2",
+      "studentId": "ST-24",
+      "submittedAt": "2026-05-13T14:25:00.000Z",
+      "files": [
+        {
+          "name": "Ảnh chụp vở trang 1.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-1.jpg",
+          "size": 1200000
+        },
+        {
+          "name": "Ảnh chụp vở trang 2.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-2.jpg",
+          "size": 1050000
+        }
+      ],
+      "score": 6,
+      "comment": "Phát âm rõ, cần luyện thêm trường âm.",
+      "gradedAt": "2026-05-17T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-anh"
+    },
+    {
+      "id": "SUB-C-N5K18-A3-ST-5",
+      "assignmentId": "C-N5K18-A3",
+      "studentId": "ST-5",
+      "submittedAt": "2026-05-17T14:43:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 11,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 19
+      },
+      "score": 5.5,
+      "gradedAt": "2026-05-17T14:43:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K18-A3-ST-24",
+      "assignmentId": "C-N5K18-A3",
+      "studentId": "ST-24",
+      "submittedAt": "2026-05-20T15:56:59.999Z",
+      "files": [],
+      "quiz": {
+        "correct": 19,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 20
+      },
+      "score": 9.5,
+      "gradedAt": "2026-05-20T15:56:59.999Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K18-A4-ST-5",
+      "assignmentId": "C-N5K18-A4",
+      "studentId": "ST-5",
+      "submittedAt": "2026-05-23T15:14:00.000Z",
+      "files": [
+        {
+          "name": "So sánh.docx",
+          "kind": "doc",
+          "url": "/files/demo/bai-lam.docx",
+          "size": 64000
+        },
+        {
+          "name": "Ghi âm luyện nói.m4a",
+          "kind": "audio",
+          "url": "/files/demo/ghi-am.m4a",
+          "size": 2400000
+        }
+      ],
+      "score": 9,
+      "comment": "Sai 2 câu chia thể — xem lại bảng chia động từ.",
+      "gradedAt": "2026-05-26T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-anh"
+    },
+    {
+      "id": "SUB-C-N5K18-A4-ST-24",
+      "assignmentId": "C-N5K18-A4",
+      "studentId": "ST-24",
+      "submittedAt": "2026-05-21T13:27:00.000Z",
+      "files": [
+        {
+          "name": "Bài làm trên Google Docs",
+          "kind": "link",
+          "url": "https://docs.google.com/document/d/demo"
+        }
+      ],
+      "content": "Em nộp bài ạ. Câu 4 em chưa chắc lắm.",
+      "score": 5,
+      "comment": "Rất tốt!",
+      "gradedAt": "2026-05-26T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-anh"
+    },
+    {
+      "id": "SUB-C-N5K18-A5-ST-5",
+      "assignmentId": "C-N5K18-A5",
+      "studentId": "ST-5",
+      "submittedAt": "2026-05-26T13:45:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 16,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 17
+      },
+      "score": 8,
+      "gradedAt": "2026-05-26T13:45:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K18-A5-ST-24",
+      "assignmentId": "C-N5K18-A5",
+      "studentId": "ST-24",
+      "submittedAt": "2026-05-27T14:58:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 12,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 18
+      },
+      "score": 6,
+      "gradedAt": "2026-05-27T14:58:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K18-A6-ST-5",
+      "assignmentId": "C-N5K18-A6",
+      "studentId": "ST-5",
+      "submittedAt": "2026-06-03T14:16:59.999Z",
+      "files": [
+        {
+          "name": "Thể て - bài làm.pdf",
+          "kind": "pdf",
+          "url": "/files/demo/bai-lam.pdf",
+          "size": 482032
+        }
+      ],
+      "score": 8,
+      "comment": "Bài làm cẩu thả, nộp lại phần 3.",
+      "gradedAt": "2026-06-04T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-anh"
+    },
+    {
+      "id": "SUB-C-N5K18-A6-ST-24",
+      "assignmentId": "C-N5K18-A6",
+      "studentId": "ST-24",
+      "submittedAt": "2026-06-01T15:29:00.000Z",
+      "files": [
+        {
+          "name": "Ảnh chụp vở trang 1.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-1.jpg",
+          "size": 1200000
+        },
+        {
+          "name": "Ảnh chụp vở trang 2.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-2.jpg",
+          "size": 1050000
+        }
+      ],
+      "score": 9.5,
+      "comment": "Kanji viết đúng thứ tự nét, tốt.",
+      "gradedAt": "2026-06-04T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-anh"
+    },
+    {
+      "id": "SUB-C-N4K11-A1-ST-1",
+      "assignmentId": "C-N4K11-A1",
+      "studentId": "ST-1",
+      "submittedAt": "2026-05-17T15:47:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 10,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 15
+      },
+      "score": 5,
+      "gradedAt": "2026-05-17T15:47:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N4K11-A1-ST-15",
+      "assignmentId": "C-N4K11-A1",
+      "studentId": "ST-15",
+      "submittedAt": "2026-05-15T13:00:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 17,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 16
+      },
+      "score": 8.5,
+      "gradedAt": "2026-05-15T13:00:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N4K11-A2-ST-1",
+      "assignmentId": "C-N4K11-A2",
+      "studentId": "ST-1",
+      "submittedAt": "2026-05-29T13:18:00.000Z",
+      "files": [
+        {
+          "name": "Cho nhận nâng cao.docx",
+          "kind": "doc",
+          "url": "/files/demo/bai-lam.docx",
+          "size": 64000
+        },
+        {
+          "name": "Ghi âm luyện nói.m4a",
+          "kind": "audio",
+          "url": "/files/demo/ghi-am.m4a",
+          "size": 2400000
+        }
+      ],
+      "content": "Em nộp bài ạ. Câu 4 em chưa chắc lắm.",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N4K11-A2-ST-15",
+      "assignmentId": "C-N4K11-A2",
+      "studentId": "ST-15",
+      "submittedAt": "2026-06-03T14:31:59.999Z",
+      "files": [
+        {
+          "name": "Bài làm trên Google Docs",
+          "kind": "link",
+          "url": "https://docs.google.com/document/d/demo"
+        }
+      ],
+      "score": 8.5,
+      "comment": "Phát âm rõ, cần luyện thêm trường âm.",
+      "gradedAt": "2026-06-03T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-long"
+    },
+    {
+      "id": "SUB-C-N4K11-A3-ST-1",
+      "assignmentId": "C-N4K11-A3",
+      "studentId": "ST-1",
+      "submittedAt": "2026-06-13T14:49:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 14,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 13
+      },
+      "score": 7,
+      "gradedAt": "2026-06-13T14:49:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N4K11-A3-ST-15",
+      "assignmentId": "C-N4K11-A3",
+      "studentId": "ST-15",
+      "submittedAt": "2026-06-14T15:02:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 11,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 14
+      },
+      "score": 5.5,
+      "gradedAt": "2026-06-14T15:02:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N4K11-A4-ST-1",
+      "assignmentId": "C-N4K11-A4",
+      "studentId": "ST-1",
+      "submittedAt": "2026-06-28T15:20:00.000Z",
+      "files": [
+        {
+          "name": "Truyền đạt - bài làm.pdf",
+          "kind": "pdf",
+          "url": "/files/demo/bai-lam.pdf",
+          "size": 507540
+        }
+      ],
+      "score": 6,
+      "comment": "Sai 2 câu chia thể — xem lại bảng chia động từ.",
+      "gradedAt": "2026-07-01T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-long"
+    },
+    {
+      "id": "SUB-C-N4K11-A4-ST-15",
+      "assignmentId": "C-N4K11-A4",
+      "studentId": "ST-15",
+      "submittedAt": "2026-06-26T13:33:00.000Z",
+      "files": [
+        {
+          "name": "Ảnh chụp vở trang 1.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-1.jpg",
+          "size": 1200000
+        },
+        {
+          "name": "Ảnh chụp vở trang 2.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-2.jpg",
+          "size": 1050000
+        }
+      ],
+      "content": "Em nộp bài ạ. Câu 4 em chưa chắc lắm.",
+      "score": 7.5,
+      "comment": "Rất tốt!",
+      "gradedAt": "2026-07-01T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-long"
+    },
+    {
+      "id": "SUB-C-N4K11-A5-ST-1",
+      "assignmentId": "C-N4K11-A5",
+      "studentId": "ST-1",
+      "submittedAt": "2026-07-13T13:51:59.999Z",
+      "files": [],
+      "quiz": {
+        "correct": 19,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 11
+      },
+      "score": 9.5,
+      "gradedAt": "2026-07-13T13:51:59.999Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N4K11-A5-ST-15",
+      "assignmentId": "C-N4K11-A5",
+      "studentId": "ST-15",
+      "submittedAt": "2026-07-09T14:04:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 15,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 12
+      },
+      "score": 7.5,
+      "gradedAt": "2026-07-09T14:04:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N4K11-A6-ST-1",
+      "assignmentId": "C-N4K11-A6",
+      "studentId": "ST-1",
+      "submittedAt": "2026-07-18T14:22:00.000Z",
+      "files": [
+        {
+          "name": "Trạng thái.docx",
+          "kind": "doc",
+          "url": "/files/demo/bai-lam.docx",
+          "size": 64000
+        },
+        {
+          "name": "Ghi âm luyện nói.m4a",
+          "kind": "audio",
+          "url": "/files/demo/ghi-am.m4a",
+          "size": 2400000
+        }
+      ],
+      "score": 5,
+      "comment": "Bài làm cẩu thả, nộp lại phần 3.",
+      "gradedAt": "2026-07-22T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-long"
+    },
+    {
+      "id": "SUB-C-N4K11-A6-ST-15",
+      "assignmentId": "C-N4K11-A6",
+      "studentId": "ST-15",
+      "submittedAt": "2026-07-19T15:35:00.000Z",
+      "files": [
+        {
+          "name": "Bài làm trên Google Docs",
+          "kind": "link",
+          "url": "https://docs.google.com/document/d/demo"
+        }
+      ],
+      "score": 6.5,
+      "comment": "Kanji viết đúng thứ tự nét, tốt.",
+      "gradedAt": "2026-07-22T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-long"
+    },
+    {
+      "id": "SUB-C-N5K22-A1-ST-30",
+      "assignmentId": "C-N5K22-A1",
+      "studentId": "ST-30",
+      "submittedAt": "2026-11-05T15:53:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 12,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 9
+      },
+      "score": 6,
+      "gradedAt": "2026-11-05T15:53:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K22-A2-ST-30",
+      "assignmentId": "C-N5K22-A2",
+      "studentId": "ST-30",
+      "submittedAt": "2026-11-10T13:24:00.000Z",
+      "files": [
+        {
+          "name": "Đồ vật xung quanh - bài làm.pdf",
+          "kind": "pdf",
+          "url": "/files/demo/bai-lam.pdf",
+          "size": 533048
+        }
+      ],
+      "content": "Em nộp bài ạ. Câu 4 em chưa chắc lắm.",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K22-A3-ST-30",
+      "assignmentId": "C-N5K22-A3",
+      "studentId": "ST-30",
+      "submittedAt": "2026-11-13T14:55:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 17,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 23
+      },
+      "score": 8.5,
+      "gradedAt": "2026-11-13T14:55:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K22-A5-ST-30",
+      "assignmentId": "C-N5K22-A5",
+      "studentId": "ST-30",
+      "submittedAt": "2026-11-21T13:57:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 11,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 21
+      },
+      "score": 5.5,
+      "gradedAt": "2026-11-21T13:57:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-KAIWAC2-A1-ST-24",
+      "assignmentId": "C-KAIWAC2-A1",
+      "studentId": "ST-24",
+      "submittedAt": "2026-10-29T14:28:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 18,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 12
+      },
+      "score": 9,
+      "gradedAt": "2026-10-29T14:28:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-KAIWAC2-A2-ST-24",
+      "assignmentId": "C-KAIWAC2-A2",
+      "studentId": "ST-24",
+      "submittedAt": "2026-11-08T15:59:00.000Z",
+      "files": [
+        {
+          "name": "Bài làm trên Google Docs",
+          "kind": "link",
+          "url": "https://docs.google.com/document/d/demo"
+        }
+      ],
+      "score": 7,
+      "comment": "Kanji viết đúng thứ tự nét, tốt.",
+      "gradedAt": "2026-11-11T16:59:59.999Z",
+      "gradedBy": "Sato Yuki",
+      "gradedById": "t-sato"
+    },
+    {
+      "id": "SUB-C-KAIWAC2-A3-ST-24",
+      "assignmentId": "C-KAIWAC2-A3",
+      "studentId": "ST-24",
+      "submittedAt": "2026-11-18T13:30:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 12,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 10
+      },
+      "score": 6,
+      "gradedAt": "2026-11-18T13:30:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-KAIWAC2-A4-ST-24",
+      "assignmentId": "C-KAIWAC2-A4",
+      "studentId": "ST-24",
+      "submittedAt": "2026-11-21T14:01:00.000Z",
+      "files": [
+        {
+          "name": "Ảnh chụp vở trang 1.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-1.jpg",
+          "size": 1200000
+        },
+        {
+          "name": "Ảnh chụp vở trang 2.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-2.jpg",
+          "size": 1050000
+        }
+      ],
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N4ON03-A1-ST-18",
+      "assignmentId": "C-N4ON03-A1",
+      "studentId": "ST-18",
+      "submittedAt": "2026-11-05T15:32:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 17,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 8
+      },
+      "score": 8.5,
+      "gradedAt": "2026-11-05T15:32:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N4ON03-A2-ST-18",
+      "assignmentId": "C-N4ON03-A2",
+      "studentId": "ST-18",
+      "submittedAt": "2026-11-10T13:03:00.000Z",
+      "files": [
+        {
+          "name": "Bài làm trên Google Docs",
+          "kind": "link",
+          "url": "https://docs.google.com/document/d/demo"
+        }
+      ],
+      "content": "Em nộp bài ạ. Câu 4 em chưa chắc lắm.",
+      "score": 5,
+      "comment": "Rất tốt!",
+      "gradedAt": "2026-11-15T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-long"
+    },
+    {
+      "id": "SUB-C-N3ON14-A1-ST-12",
+      "assignmentId": "C-N3ON14-A1",
+      "studentId": "ST-12",
+      "submittedAt": "2026-10-26T15:05:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 18,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 13
+      },
+      "score": 9,
+      "gradedAt": "2026-10-26T15:05:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N3ON14-A2-ST-12",
+      "assignmentId": "C-N3ON14-A2",
+      "studentId": "ST-12",
+      "submittedAt": "2026-11-09T13:36:59.999Z",
+      "files": [
+        {
+          "name": "Diễn tả thời điểm - bài làm.pdf",
+          "kind": "pdf",
+          "url": "/files/demo/bai-lam.pdf",
+          "size": 609572
+        }
+      ],
+      "content": "Em nộp bài ạ. Câu 4 em chưa chắc lắm.",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N3ON14-A3-ST-12",
+      "assignmentId": "C-N3ON14-A3",
+      "studentId": "ST-12",
+      "submittedAt": "2026-11-18T14:07:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 12,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 11
+      },
+      "score": 6,
+      "gradedAt": "2026-11-18T14:07:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N2K05-A1-ST-3",
+      "assignmentId": "C-N2K05-A1",
+      "studentId": "ST-3",
+      "submittedAt": "2026-11-20T13:09:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 16,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 9
+      },
+      "score": 8,
+      "gradedAt": "2026-11-20T13:09:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K20-A1-ST-10",
+      "assignmentId": "C-N5K20-A1",
+      "studentId": "ST-10",
+      "submittedAt": "2026-11-13T14:40:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 13,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 16
+      },
+      "score": 6.5,
+      "gradedAt": "2026-11-13T14:40:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K20-A1-ST-13",
+      "assignmentId": "C-N5K20-A1",
+      "studentId": "ST-13",
+      "submittedAt": "2026-11-14T15:53:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 9,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 17
+      },
+      "score": 4.5,
+      "gradedAt": "2026-11-14T15:53:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K20-A1-ST-16",
+      "assignmentId": "C-N5K20-A1",
+      "studentId": "ST-16",
+      "submittedAt": "2026-11-16T13:06:59.999Z",
+      "files": [],
+      "quiz": {
+        "correct": 17,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 18
+      },
+      "score": 8.5,
+      "gradedAt": "2026-11-16T13:06:59.999Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K20-A1-ST-28",
+      "assignmentId": "C-N5K20-A1",
+      "studentId": "ST-28",
+      "submittedAt": "2026-11-14T15:32:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 10,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 20
+      },
+      "score": 5,
+      "gradedAt": "2026-11-14T15:32:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K20-A1-ST-34",
+      "assignmentId": "C-N5K20-A1",
+      "studentId": "ST-34",
+      "submittedAt": "2026-11-12T13:45:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 17,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 21
+      },
+      "score": 8.5,
+      "gradedAt": "2026-11-12T13:45:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K20-A2-ST-10",
+      "assignmentId": "C-N5K20-A2",
+      "studentId": "ST-10",
+      "submittedAt": "2026-11-22T06:33:44.883Z",
+      "files": [
+        {
+          "name": "Bài làm trên Google Docs",
+          "kind": "link",
+          "url": "https://docs.google.com/document/d/demo"
+        }
+      ],
+      "score": 6.5,
+      "comment": "Kanji viết đúng thứ tự nét, tốt.",
+      "gradedAt": "2026-11-22T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-thu"
+    },
+    {
+      "id": "SUB-C-N5K20-A2-ST-13",
+      "assignmentId": "C-N5K20-A2",
+      "studentId": "ST-13",
+      "submittedAt": "2026-11-17T13:24:00.000Z",
+      "files": [
+        {
+          "name": "Đồ vật xung quanh - bài làm.pdf",
+          "kind": "pdf",
+          "url": "/files/demo/bai-lam.pdf",
+          "size": 642368
+        }
+      ],
+      "content": "Em nộp bài ạ. Câu 4 em chưa chắc lắm.",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K20-A2-ST-16",
+      "assignmentId": "C-N5K20-A2",
+      "studentId": "ST-16",
+      "submittedAt": "2026-11-18T14:37:00.000Z",
+      "files": [
+        {
+          "name": "Ảnh chụp vở trang 1.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-1.jpg",
+          "size": 1200000
+        },
+        {
+          "name": "Ảnh chụp vở trang 2.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-2.jpg",
+          "size": 1050000
+        }
+      ],
+      "score": 9.5,
+      "comment": "Phát âm rõ, cần luyện thêm trường âm.",
+      "gradedAt": "2026-11-22T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-thu"
+    },
+    {
+      "id": "SUB-C-N5K20-A2-ST-28",
+      "assignmentId": "C-N5K20-A2",
+      "studentId": "ST-28",
+      "submittedAt": "2026-11-17T13:03:00.000Z",
+      "files": [
+        {
+          "name": "Bài làm trên Google Docs",
+          "kind": "link",
+          "url": "https://docs.google.com/document/d/demo"
+        }
+      ],
+      "content": "Em nộp bài ạ. Câu 4 em chưa chắc lắm.",
+      "score": 7,
+      "comment": "Rất tốt!",
+      "gradedAt": "2026-11-22T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-thu"
+    },
+    {
+      "id": "SUB-C-N5K20-A2-ST-34",
+      "assignmentId": "C-N5K20-A2",
+      "studentId": "ST-34",
+      "submittedAt": "2026-11-21T14:16:59.999Z",
+      "files": [
+        {
+          "name": "Đồ vật xung quanh - bài làm.pdf",
+          "kind": "pdf",
+          "url": "/files/demo/bai-lam.pdf",
+          "size": 646012
+        }
+      ],
+      "score": 8.5,
+      "comment": "Bài làm cẩu thả, nộp lại phần 3.",
+      "gradedAt": "2026-11-22T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-thu"
+    },
+    {
+      "id": "SUB-C-N5K20-A3-ST-13",
+      "assignmentId": "C-N5K20-A3",
+      "studentId": "ST-13",
+      "submittedAt": "2026-11-22T06:33:44.883Z",
+      "files": [],
+      "quiz": {
+        "correct": 14,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 15
+      },
+      "score": 7,
+      "gradedAt": "2026-11-22T14:55:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K20-A3-ST-22",
+      "assignmentId": "C-N5K20-A3",
+      "studentId": "ST-22",
+      "submittedAt": "2026-11-21T13:21:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 18,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 17
+      },
+      "score": 9,
+      "gradedAt": "2026-11-21T13:21:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K20-A3-ST-34",
+      "assignmentId": "C-N5K20-A3",
+      "studentId": "ST-34",
+      "submittedAt": "2026-11-22T06:33:44.883Z",
+      "files": [],
+      "quiz": {
+        "correct": 11,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 19
+      },
+      "score": 5.5,
+      "gradedAt": "2026-11-23T15:47:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N3K09-A1-ST-3",
+      "assignmentId": "C-N3K09-A1",
+      "studentId": "ST-3",
+      "submittedAt": "2026-04-13T14:46:59.999Z",
+      "files": [],
+      "quiz": {
+        "correct": 16,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 10
+      },
+      "score": 8,
+      "gradedAt": "2026-04-13T14:46:59.999Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N3K09-A1-ST-7",
+      "assignmentId": "C-N3K09-A1",
+      "studentId": "ST-7",
+      "submittedAt": "2026-04-11T15:59:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 12,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 11
+      },
+      "score": 6,
+      "gradedAt": "2026-04-11T15:59:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N3K09-A1-ST-16",
+      "assignmentId": "C-N3K09-A1",
+      "studentId": "ST-16",
+      "submittedAt": "2026-04-09T13:12:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 20,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 12
+      },
+      "score": 10,
+      "gradedAt": "2026-04-09T13:12:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N3K09-A2-ST-3",
+      "assignmentId": "C-N3K09-A2",
+      "studentId": "ST-3",
+      "submittedAt": "2026-04-23T15:17:00.000Z",
+      "files": [
+        {
+          "name": "Ảnh chụp vở trang 1.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-1.jpg",
+          "size": 1200000
+        },
+        {
+          "name": "Ảnh chụp vở trang 2.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-2.jpg",
+          "size": 1050000
+        }
+      ],
+      "score": 9,
+      "comment": "Kanji viết đúng thứ tự nét, tốt.",
+      "gradedAt": "2026-04-26T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-thu"
+    },
+    {
+      "id": "SUB-C-N3K09-A2-ST-7",
+      "assignmentId": "C-N3K09-A2",
+      "studentId": "ST-7",
+      "submittedAt": "2026-04-21T13:30:00.000Z",
+      "files": [
+        {
+          "name": "Đọc hiểu đoạn trung.docx",
+          "kind": "doc",
+          "url": "/files/demo/bai-lam.docx",
+          "size": 64000
+        },
+        {
+          "name": "Ghi âm luyện nói.m4a",
+          "kind": "audio",
+          "url": "/files/demo/ghi-am.m4a",
+          "size": 2400000
+        }
+      ],
+      "content": "Em nộp bài ạ. Câu 4 em chưa chắc lắm.",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N3K09-A2-ST-16",
+      "assignmentId": "C-N3K09-A2",
+      "studentId": "ST-16",
+      "submittedAt": "2026-04-22T14:43:00.000Z",
+      "files": [
+        {
+          "name": "Bài làm trên Google Docs",
+          "kind": "link",
+          "url": "https://docs.google.com/document/d/demo"
+        }
+      ],
+      "score": 6.5,
+      "comment": "Phát âm rõ, cần luyện thêm trường âm.",
+      "gradedAt": "2026-04-26T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-thu"
+    },
+    {
+      "id": "SUB-C-N3K09-A3-ST-3",
+      "assignmentId": "C-N3K09-A3",
+      "studentId": "ST-3",
+      "submittedAt": "2026-04-30T13:48:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 9,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 8
+      },
+      "score": 4.5,
+      "gradedAt": "2026-04-30T13:48:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N3K09-A3-ST-7",
+      "assignmentId": "C-N3K09-A3",
+      "studentId": "ST-7",
+      "submittedAt": "2026-05-05T14:01:59.999Z",
+      "files": [],
+      "quiz": {
+        "correct": 17,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 9
+      },
+      "score": 8.5,
+      "gradedAt": "2026-05-05T14:01:59.999Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N3K09-A3-ST-16",
+      "assignmentId": "C-N3K09-A3",
+      "studentId": "ST-16",
+      "submittedAt": "2026-05-02T15:14:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 13,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 10
+      },
+      "score": 6.5,
+      "gradedAt": "2026-05-02T15:14:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N3K09-A4-ST-3",
+      "assignmentId": "C-N3K09-A4",
+      "studentId": "ST-3",
+      "submittedAt": "2026-05-13T14:19:00.000Z",
+      "files": [
+        {
+          "name": "Bài làm trên Google Docs",
+          "kind": "link",
+          "url": "https://docs.google.com/document/d/demo"
+        }
+      ],
+      "score": 8,
+      "comment": "Phát âm rõ, cần luyện thêm trường âm.",
+      "gradedAt": "2026-05-17T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-thu"
+    },
+    {
+      "id": "SUB-C-N3K09-A4-ST-7",
+      "assignmentId": "C-N3K09-A4",
+      "studentId": "ST-7",
+      "submittedAt": "2026-05-14T15:32:00.000Z",
+      "files": [
+        {
+          "name": "Nghe hiểu khái quát - bài làm.pdf",
+          "kind": "pdf",
+          "url": "/files/demo/bai-lam.pdf",
+          "size": 693384
+        }
+      ],
+      "score": 9.5,
+      "comment": "Sai 2 câu chia thể — xem lại bảng chia động từ.",
+      "gradedAt": "2026-05-17T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-thu"
+    },
+    {
+      "id": "SUB-C-N3K09-A4-ST-16",
+      "assignmentId": "C-N3K09-A4",
+      "studentId": "ST-16",
+      "submittedAt": "2026-05-12T13:45:00.000Z",
+      "files": [
+        {
+          "name": "Ảnh chụp vở trang 1.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-1.jpg",
+          "size": 1200000
+        },
+        {
+          "name": "Ảnh chụp vở trang 2.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-2.jpg",
+          "size": 1050000
+        }
+      ],
+      "content": "Em nộp bài ạ. Câu 4 em chưa chắc lắm.",
+      "score": 5.5,
+      "comment": "Rất tốt!",
+      "gradedAt": "2026-05-17T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-thu"
+    },
+    {
+      "id": "SUB-C-N3K09-A5-ST-3",
+      "assignmentId": "C-N3K09-A5",
+      "studentId": "ST-3",
+      "submittedAt": "2026-05-23T15:50:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 14,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 22
+      },
+      "score": 7,
+      "gradedAt": "2026-05-23T15:50:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N3K09-A5-ST-7",
+      "assignmentId": "C-N3K09-A5",
+      "studentId": "ST-7",
+      "submittedAt": "2026-05-21T13:03:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 10,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 23
+      },
+      "score": 5,
+      "gradedAt": "2026-05-21T13:03:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N3K09-A5-ST-16",
+      "assignmentId": "C-N3K09-A5",
+      "studentId": "ST-16",
+      "submittedAt": "2026-05-25T14:16:59.999Z",
+      "files": [],
+      "quiz": {
+        "correct": 18,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 8
+      },
+      "score": 9,
+      "gradedAt": "2026-05-25T14:16:59.999Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N3K09-A6-ST-3",
+      "assignmentId": "C-N3K09-A6",
+      "studentId": "ST-3",
+      "submittedAt": "2026-06-04T13:21:59.999Z",
+      "files": [
+        {
+          "name": "Ảnh chụp vở trang 1.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-1.jpg",
+          "size": 1200000
+        },
+        {
+          "name": "Ảnh chụp vở trang 2.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-2.jpg",
+          "size": 1050000
+        }
+      ],
+      "content": "Em nộp bài ạ. Câu 4 em chưa chắc lắm.",
+      "score": 7,
+      "comment": "Rất tốt!",
+      "gradedAt": "2026-06-04T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-thu"
+    },
+    {
+      "id": "SUB-C-N3K09-A6-ST-7",
+      "assignmentId": "C-N3K09-A6",
+      "studentId": "ST-7",
+      "submittedAt": "2026-05-31T14:34:00.000Z",
+      "files": [
+        {
+          "name": "Luyện đề tổng hợp 2.docx",
+          "kind": "doc",
+          "url": "/files/demo/bai-lam.docx",
+          "size": 64000
+        },
+        {
+          "name": "Ghi âm luyện nói.m4a",
+          "kind": "audio",
+          "url": "/files/demo/ghi-am.m4a",
+          "size": 2400000
+        }
+      ],
+      "score": 8.5,
+      "comment": "Bài làm cẩu thả, nộp lại phần 3.",
+      "gradedAt": "2026-06-04T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-thu"
+    },
+    {
+      "id": "SUB-C-N3K09-A6-ST-16",
+      "assignmentId": "C-N3K09-A6",
+      "studentId": "ST-16",
+      "submittedAt": "2026-06-01T15:47:00.000Z",
+      "files": [
+        {
+          "name": "Bài làm trên Google Docs",
+          "kind": "link",
+          "url": "https://docs.google.com/document/d/demo"
+        }
+      ],
+      "score": 10,
+      "comment": "Kanji viết đúng thứ tự nét, tốt.",
+      "gradedAt": "2026-06-04T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-thu"
+    },
+    {
+      "id": "SUB-C-XKLD08-A1-ST-4",
+      "assignmentId": "C-XKLD08-A1",
+      "studentId": "ST-4",
+      "submittedAt": "2026-10-23T14:52:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 19,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 20
+      },
+      "score": 9.5,
+      "gradedAt": "2026-10-23T14:52:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-XKLD08-A1-ST-8",
+      "assignmentId": "C-XKLD08-A1",
+      "studentId": "ST-8",
+      "submittedAt": "2026-10-24T15:05:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 15,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 21
+      },
+      "score": 7.5,
+      "gradedAt": "2026-10-24T15:05:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-XKLD08-A1-ST-14",
+      "assignmentId": "C-XKLD08-A1",
+      "studentId": "ST-14",
+      "submittedAt": "2026-10-22T13:18:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 11,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 22
+      },
+      "score": 5.5,
+      "gradedAt": "2026-10-22T13:18:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-XKLD08-A1-ST-26",
+      "assignmentId": "C-XKLD08-A1",
+      "studentId": "ST-26",
+      "submittedAt": "2026-10-24T15:44:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 15,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 8
+      },
+      "score": 7.5,
+      "gradedAt": "2026-10-24T15:44:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-XKLD08-A1-ST-32",
+      "assignmentId": "C-XKLD08-A1",
+      "studentId": "ST-32",
+      "submittedAt": "2026-10-22T13:57:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 12,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 9
+      },
+      "score": 6,
+      "gradedAt": "2026-10-22T13:57:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-XKLD08-A2-ST-4",
+      "assignmentId": "C-XKLD08-A2",
+      "studentId": "ST-4",
+      "submittedAt": "2026-11-06T15:23:00.000Z",
+      "files": [
+        {
+          "name": "Bài làm trên Google Docs",
+          "kind": "link",
+          "url": "https://docs.google.com/document/d/demo"
+        }
+      ],
+      "score": 6,
+      "comment": "Kanji viết đúng thứ tự nét, tốt.",
+      "gradedAt": "2026-11-09T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-hanh"
+    },
+    {
+      "id": "SUB-C-XKLD08-A2-ST-8",
+      "assignmentId": "C-XKLD08-A2",
+      "studentId": "ST-8",
+      "submittedAt": "2026-11-08T13:36:59.999Z",
+      "files": [
+        {
+          "name": "Báo cáo – liên lạc – thảo luận - bài làm.pdf",
+          "kind": "pdf",
+          "url": "/files/demo/bai-lam.pdf",
+          "size": 718892
+        }
+      ],
+      "content": "Em nộp bài ạ. Câu 4 em chưa chắc lắm.",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-XKLD08-A2-ST-14",
+      "assignmentId": "C-XKLD08-A2",
+      "studentId": "ST-14",
+      "submittedAt": "2026-11-05T14:49:00.000Z",
+      "files": [
+        {
+          "name": "Ảnh chụp vở trang 1.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-1.jpg",
+          "size": 1200000
+        },
+        {
+          "name": "Ảnh chụp vở trang 2.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-2.jpg",
+          "size": 1050000
+        }
+      ],
+      "score": 9,
+      "comment": "Phát âm rõ, cần luyện thêm trường âm.",
+      "gradedAt": "2026-11-09T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-hanh"
+    },
+    {
+      "id": "SUB-C-XKLD08-A2-ST-26",
+      "assignmentId": "C-XKLD08-A2",
+      "studentId": "ST-26",
+      "submittedAt": "2026-11-04T13:15:00.000Z",
+      "files": [
+        {
+          "name": "Bài làm trên Google Docs",
+          "kind": "link",
+          "url": "https://docs.google.com/document/d/demo"
+        }
+      ],
+      "content": "Em nộp bài ạ. Câu 4 em chưa chắc lắm.",
+      "score": 6.5,
+      "comment": "Rất tốt!",
+      "gradedAt": "2026-11-09T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-hanh"
+    },
+    {
+      "id": "SUB-C-XKLD08-A2-ST-32",
+      "assignmentId": "C-XKLD08-A2",
+      "studentId": "ST-32",
+      "submittedAt": "2026-11-05T14:28:00.000Z",
+      "files": [
+        {
+          "name": "Báo cáo – liên lạc – thảo luận - bài làm.pdf",
+          "kind": "pdf",
+          "url": "/files/demo/bai-lam.pdf",
+          "size": 722536
+        }
+      ],
+      "score": 8,
+      "comment": "Bài làm cẩu thả, nộp lại phần 3.",
+      "gradedAt": "2026-11-09T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-hanh"
+    },
+    {
+      "id": "SUB-C-XKLD08-A3-ST-4",
+      "assignmentId": "C-XKLD08-A3",
+      "studentId": "ST-4",
+      "submittedAt": "2026-11-13T13:54:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 12,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 18
+      },
+      "score": 6,
+      "gradedAt": "2026-11-13T13:54:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-XKLD08-A3-ST-8",
+      "assignmentId": "C-XKLD08-A3",
+      "studentId": "ST-8",
+      "submittedAt": "2026-11-14T14:07:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 20,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 19
+      },
+      "score": 10,
+      "gradedAt": "2026-11-14T14:07:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-XKLD08-A3-ST-14",
+      "assignmentId": "C-XKLD08-A3",
+      "studentId": "ST-14",
+      "submittedAt": "2026-11-15T15:20:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 16,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 20
+      },
+      "score": 8,
+      "gradedAt": "2026-11-15T15:20:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-XKLD08-A3-ST-26",
+      "assignmentId": "C-XKLD08-A3",
+      "studentId": "ST-26",
+      "submittedAt": "2026-11-17T14:46:59.999Z",
+      "files": [],
+      "quiz": {
+        "correct": 20,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 22
+      },
+      "score": 10,
+      "gradedAt": "2026-11-17T14:46:59.999Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-XKLD08-A3-ST-32",
+      "assignmentId": "C-XKLD08-A3",
+      "studentId": "ST-32",
+      "submittedAt": "2026-11-15T15:59:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 16,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 23
+      },
+      "score": 8,
+      "gradedAt": "2026-11-15T15:59:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-XKLD08-A4-ST-4",
+      "assignmentId": "C-XKLD08-A4",
+      "studentId": "ST-4",
+      "submittedAt": "2026-11-22T06:33:44.883Z",
+      "files": [
+        {
+          "name": "Ảnh chụp vở trang 1.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-1.jpg",
+          "size": 1200000
+        },
+        {
+          "name": "Ảnh chụp vở trang 2.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-2.jpg",
+          "size": 1050000
+        }
+      ],
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-XKLD08-A4-ST-14",
+      "assignmentId": "C-XKLD08-A4",
+      "studentId": "ST-14",
+      "submittedAt": "2026-11-21T13:51:00.000Z",
+      "files": [
+        {
+          "name": "Bài làm trên Google Docs",
+          "kind": "link",
+          "url": "https://docs.google.com/document/d/demo"
+        }
+      ],
+      "content": "Em nộp bài ạ. Câu 4 em chưa chắc lắm.",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-XKLD08-A4-ST-26",
+      "assignmentId": "C-XKLD08-A4",
+      "studentId": "ST-26",
+      "submittedAt": "2026-11-22T06:33:44.883Z",
+      "files": [
+        {
+          "name": "Ảnh chụp vở trang 1.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-1.jpg",
+          "size": 1200000
+        },
+        {
+          "name": "Ảnh chụp vở trang 2.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-2.jpg",
+          "size": 1050000
+        }
+      ],
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K07-A1-ST-8",
+      "assignmentId": "C-N5K07-A1",
+      "studentId": "ST-8",
+      "submittedAt": "2026-06-03T15:56:59.999Z",
+      "files": [],
+      "quiz": {
+        "correct": 17,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 16
+      },
+      "score": 8.5,
+      "gradedAt": "2026-06-03T15:56:59.999Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K07-A1-ST-23",
+      "assignmentId": "C-N5K07-A1",
+      "studentId": "ST-23",
+      "submittedAt": "2026-05-30T13:09:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 13,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 17
+      },
+      "score": 6.5,
+      "gradedAt": "2026-05-30T13:09:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K07-A1-ST-32",
+      "assignmentId": "C-N5K07-A1",
+      "studentId": "ST-32",
+      "submittedAt": "2026-05-31T14:22:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 10,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 18
+      },
+      "score": 5,
+      "gradedAt": "2026-05-31T14:22:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K07-A2-ST-8",
+      "assignmentId": "C-N5K07-A2",
+      "studentId": "ST-8",
+      "submittedAt": "2026-06-04T13:27:00.000Z",
+      "files": [
+        {
+          "name": "Bài làm trên Google Docs",
+          "kind": "link",
+          "url": "https://docs.google.com/document/d/demo"
+        }
+      ],
+      "content": "Em nộp bài ạ. Câu 4 em chưa chắc lắm.",
+      "score": 9.5,
+      "comment": "Rất tốt!",
+      "gradedAt": "2026-06-09T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-hanh"
+    },
+    {
+      "id": "SUB-C-N5K07-A2-ST-23",
+      "assignmentId": "C-N5K07-A2",
+      "studentId": "ST-23",
+      "submittedAt": "2026-06-05T14:40:00.000Z",
+      "files": [
+        {
+          "name": "Tồn tại - bài làm.pdf",
+          "kind": "pdf",
+          "url": "/files/demo/bai-lam.pdf",
+          "size": 744400
+        }
+      ],
+      "score": 5.5,
+      "comment": "Bài làm cẩu thả, nộp lại phần 3.",
+      "gradedAt": "2026-06-09T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-hanh"
+    },
+    {
+      "id": "SUB-C-N5K07-A2-ST-32",
+      "assignmentId": "C-N5K07-A2",
+      "studentId": "ST-32",
+      "submittedAt": "2026-06-06T15:53:00.000Z",
+      "files": [
+        {
+          "name": "Ảnh chụp vở trang 1.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-1.jpg",
+          "size": 1200000
+        },
+        {
+          "name": "Ảnh chụp vở trang 2.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-2.jpg",
+          "size": 1050000
+        }
+      ],
+      "score": 7,
+      "comment": "Kanji viết đúng thứ tự nét, tốt.",
+      "gradedAt": "2026-06-09T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-hanh"
+    },
+    {
+      "id": "SUB-C-N5K07-A3-ST-8",
+      "assignmentId": "C-N5K07-A3",
+      "studentId": "ST-8",
+      "submittedAt": "2026-06-10T14:58:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 10,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 14
+      },
+      "score": 5,
+      "gradedAt": "2026-06-10T14:58:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K07-A3-ST-23",
+      "assignmentId": "C-N5K07-A3",
+      "studentId": "ST-23",
+      "submittedAt": "2026-06-14T15:11:59.999Z",
+      "files": [],
+      "quiz": {
+        "correct": 18,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 15
+      },
+      "score": 9,
+      "gradedAt": "2026-06-14T15:11:59.999Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K07-A3-ST-32",
+      "assignmentId": "C-N5K07-A3",
+      "studentId": "ST-32",
+      "submittedAt": "2026-06-09T13:24:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 14,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 16
+      },
+      "score": 7,
+      "gradedAt": "2026-06-09T13:24:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K07-A4-ST-8",
+      "assignmentId": "C-N5K07-A4",
+      "studentId": "ST-8",
+      "submittedAt": "2026-06-15T15:29:00.000Z",
+      "files": [
+        {
+          "name": "Ảnh chụp vở trang 1.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-1.jpg",
+          "size": 1200000
+        },
+        {
+          "name": "Ảnh chụp vở trang 2.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-2.jpg",
+          "size": 1050000
+        }
+      ],
+      "score": 8.5,
+      "comment": "Kanji viết đúng thứ tự nét, tốt.",
+      "gradedAt": "2026-06-18T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-hanh"
+    },
+    {
+      "id": "SUB-C-N5K07-A4-ST-23",
+      "assignmentId": "C-N5K07-A4",
+      "studentId": "ST-23",
+      "submittedAt": "2026-06-13T13:42:00.000Z",
+      "files": [
+        {
+          "name": "So sánh.docx",
+          "kind": "doc",
+          "url": "/files/demo/bai-lam.docx",
+          "size": 64000
+        },
+        {
+          "name": "Ghi âm luyện nói.m4a",
+          "kind": "audio",
+          "url": "/files/demo/ghi-am.m4a",
+          "size": 2400000
+        }
+      ],
+      "content": "Em nộp bài ạ. Câu 4 em chưa chắc lắm.",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K07-A4-ST-32",
+      "assignmentId": "C-N5K07-A4",
+      "studentId": "ST-32",
+      "submittedAt": "2026-06-14T14:55:00.000Z",
+      "files": [
+        {
+          "name": "Bài làm trên Google Docs",
+          "kind": "link",
+          "url": "https://docs.google.com/document/d/demo"
+        }
+      ],
+      "score": 6,
+      "comment": "Phát âm rõ, cần luyện thêm trường âm.",
+      "gradedAt": "2026-06-18T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-hanh"
+    },
+    {
+      "id": "SUB-C-N5K07-A5-ST-8",
+      "assignmentId": "C-N5K07-A5",
+      "studentId": "ST-8",
+      "submittedAt": "2026-06-18T13:00:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 15,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 12
+      },
+      "score": 7.5,
+      "gradedAt": "2026-06-18T13:00:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K07-A5-ST-23",
+      "assignmentId": "C-N5K07-A5",
+      "studentId": "ST-23",
+      "submittedAt": "2026-06-19T14:13:00.000Z",
+      "files": [],
+      "quiz": {
+        "correct": 11,
+        "total": 20,
+        "attempts": 2,
+        "durationMinutes": 13
+      },
+      "score": 5.5,
+      "gradedAt": "2026-06-19T14:13:00.000Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K07-A5-ST-32",
+      "assignmentId": "C-N5K07-A5",
+      "studentId": "ST-32",
+      "submittedAt": "2026-06-22T15:26:59.999Z",
+      "files": [],
+      "quiz": {
+        "correct": 19,
+        "total": 20,
+        "attempts": 1,
+        "durationMinutes": 14
+      },
+      "score": 9.5,
+      "gradedAt": "2026-06-22T15:26:59.999Z",
+      "gradedBy": "Hệ thống (tự chấm)",
+      "gradedById": null
+    },
+    {
+      "id": "SUB-C-N5K07-A6-ST-8",
+      "assignmentId": "C-N5K07-A6",
+      "studentId": "ST-8",
+      "submittedAt": "2026-06-28T14:31:59.999Z",
+      "files": [
+        {
+          "name": "Bài làm trên Google Docs",
+          "kind": "link",
+          "url": "https://docs.google.com/document/d/demo"
+        }
+      ],
+      "score": 7.5,
+      "comment": "Phát âm rõ, cần luyện thêm trường âm.",
+      "gradedAt": "2026-06-28T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-hanh"
+    },
+    {
+      "id": "SUB-C-N5K07-A6-ST-23",
+      "assignmentId": "C-N5K07-A6",
+      "studentId": "ST-23",
+      "submittedAt": "2026-06-25T15:44:00.000Z",
+      "files": [
+        {
+          "name": "Thể て - bài làm.pdf",
+          "kind": "pdf",
+          "url": "/files/demo/bai-lam.pdf",
+          "size": 769908
+        }
+      ],
+      "score": 9,
+      "comment": "Sai 2 câu chia thể — xem lại bảng chia động từ.",
+      "gradedAt": "2026-06-28T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-hanh"
+    },
+    {
+      "id": "SUB-C-N5K07-A6-ST-32",
+      "assignmentId": "C-N5K07-A6",
+      "studentId": "ST-32",
+      "submittedAt": "2026-06-23T13:57:00.000Z",
+      "files": [
+        {
+          "name": "Ảnh chụp vở trang 1.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-1.jpg",
+          "size": 1200000
+        },
+        {
+          "name": "Ảnh chụp vở trang 2.jpg",
+          "kind": "image",
+          "url": "/files/demo/anh-2.jpg",
+          "size": 1050000
+        }
+      ],
+      "content": "Em nộp bài ạ. Câu 4 em chưa chắc lắm.",
+      "score": 5,
+      "comment": "Rất tốt!",
+      "gradedAt": "2026-06-28T16:59:59.999Z",
+      "gradedBy": "Giáo viên lớp",
+      "gradedById": "t-hanh"
+    }
+  ],
+  "examResults": [
+    {
+      "id": "RES-C-N5K18-S21-ST-5",
+      "classId": "C-N5K18",
+      "examId": "CUR-N5-V1-EX-MID",
+      "studentId": "ST-5",
+      "status": "done",
+      "sections": [
+        {
+          "name": "Từ vựng – Kanji",
+          "max": 35,
+          "score": 17
+        },
+        {
+          "name": "Ngữ pháp – Đọc hiểu",
+          "max": 35,
+          "score": 14
+        },
+        {
+          "name": "Nghe hiểu",
+          "max": 30,
+          "score": 10
+        }
+      ],
+      "startedAt": "2026-04-24T12:30:00.000Z",
+      "durationMinutes": 50
+    },
+    {
+      "id": "RES-C-N5K18-S21-ST-24",
+      "classId": "C-N5K18",
+      "examId": "CUR-N5-V1-EX-MID",
+      "studentId": "ST-24",
+      "status": "done",
+      "sections": [
+        {
+          "name": "Từ vựng – Kanji",
+          "max": 35,
+          "score": 28
+        },
+        {
+          "name": "Ngữ pháp – Đọc hiểu",
+          "max": 35,
+          "score": 27
+        },
+        {
+          "name": "Nghe hiểu",
+          "max": 30,
+          "score": 22
+        }
+      ],
+      "startedAt": "2026-04-24T12:30:00.000Z",
+      "durationMinutes": 51
+    },
+    {
+      "id": "RES-C-N5K18-S36-ST-5",
+      "classId": "C-N5K18",
+      "examId": "CUR-N5-V1-EX-FIN",
+      "studentId": "ST-5",
+      "status": "done",
+      "sections": [
+        {
+          "name": "Từ vựng – Kanji",
+          "max": 35,
+          "score": 34
+        },
+        {
+          "name": "Ngữ pháp – Đọc hiểu",
+          "max": 35,
+          "score": 33
+        },
+        {
+          "name": "Nghe hiểu",
+          "max": 30,
+          "score": 27
+        }
+      ],
+      "startedAt": "2026-06-01T12:30:00.000Z",
+      "durationMinutes": 61
+    },
+    {
+      "id": "RES-C-N5K18-S36-ST-24",
+      "classId": "C-N5K18",
+      "examId": "CUR-N5-V1-EX-FIN",
+      "studentId": "ST-24",
+      "status": "done",
+      "sections": [
+        {
+          "name": "Từ vựng – Kanji",
+          "max": 35,
+          "score": 25
+        },
+        {
+          "name": "Ngữ pháp – Đọc hiểu",
+          "max": 35,
+          "score": 25
+        },
+        {
+          "name": "Nghe hiểu",
+          "max": 30,
+          "score": 21
+        }
+      ],
+      "startedAt": "2026-06-01T12:30:00.000Z",
+      "durationMinutes": 62
+    },
+    {
+      "id": "RES-C-N4K11-S25-ST-1",
+      "classId": "C-N4K11",
+      "examId": "CUR-N4-V2-EX-MID",
+      "studentId": "ST-1",
+      "status": "absent",
+      "sections": [],
+      "comment": "Vắng có phép — chờ thi bù"
+    },
+    {
+      "id": "RES-C-N4K11-S25-ST-15",
+      "classId": "C-N4K11",
+      "examId": "CUR-N4-V2-EX-MID",
+      "studentId": "ST-15",
+      "status": "done",
+      "sections": [
+        {
+          "name": "Từ vựng – Kanji",
+          "max": 35,
+          "score": 21
+        },
+        {
+          "name": "Ngữ pháp – Đọc hiểu",
+          "max": 35,
+          "score": 23
+        },
+        {
+          "name": "Nghe hiểu",
+          "max": 30,
+          "score": 21
+        }
+      ],
+      "startedAt": "2026-04-28T11:00:00.000Z",
+      "durationMinutes": 73
+    },
+    {
+      "id": "RES-C-N4K11-S48-ST-1",
+      "classId": "C-N4K11",
+      "examId": "CUR-N4-V2-EX-FIN",
+      "studentId": "ST-1",
+      "status": "done",
+      "sections": [
+        {
+          "name": "Từ vựng – Kanji",
+          "max": 35,
+          "score": 27
+        },
+        {
+          "name": "Ngữ pháp – Đọc hiểu",
+          "max": 35,
+          "score": 28
+        },
+        {
+          "name": "Nghe hiểu",
+          "max": 30,
+          "score": 26
+        }
+      ],
+      "startedAt": "2026-07-21T11:00:00.000Z",
+      "durationMinutes": 83
+    },
+    {
+      "id": "RES-C-N4K11-S48-ST-15",
+      "classId": "C-N4K11",
+      "examId": "CUR-N4-V2-EX-FIN",
+      "studentId": "ST-15",
+      "status": "done",
+      "sections": [
+        {
+          "name": "Từ vựng – Kanji",
+          "max": 35,
+          "score": 18
+        },
+        {
+          "name": "Ngữ pháp – Đọc hiểu",
+          "max": 35,
+          "score": 21
+        },
+        {
+          "name": "Nghe hiểu",
+          "max": 30,
+          "score": 20
+        }
+      ],
+      "startedAt": "2026-07-21T11:00:00.000Z",
+      "durationMinutes": 84
+    },
+    {
+      "id": "RES-C-N3K09-S24-ST-3",
+      "classId": "C-N3K09",
+      "examId": "CUR-N3-V1-EX-MID",
+      "studentId": "ST-3",
+      "status": "done",
+      "sections": [
+        {
+          "name": "Từ vựng – Kanji",
+          "max": 35,
+          "score": 23
+        },
+        {
+          "name": "Ngữ pháp – Đọc hiểu",
+          "max": 35,
+          "score": 26
+        },
+        {
+          "name": "Nghe hiểu",
+          "max": 30,
+          "score": 25
+        }
+      ],
+      "startedAt": "2026-04-10T11:00:00.000Z",
+      "durationMinutes": 59
+    },
+    {
+      "id": "RES-C-N3K09-S24-ST-7",
+      "classId": "C-N3K09",
+      "examId": "CUR-N3-V1-EX-MID",
+      "studentId": "ST-7",
+      "status": "done",
+      "sections": [
+        {
+          "name": "Từ vựng – Kanji",
+          "max": 35,
+          "score": 21
+        },
+        {
+          "name": "Ngữ pháp – Đọc hiểu",
+          "max": 35,
+          "score": 19
+        },
+        {
+          "name": "Nghe hiểu",
+          "max": 30,
+          "score": 14
+        }
+      ],
+      "startedAt": "2026-04-10T11:00:00.000Z",
+      "durationMinutes": 60
+    },
+    {
+      "id": "RES-C-N3K09-S24-ST-16",
+      "classId": "C-N3K09",
+      "examId": "CUR-N3-V1-EX-MID",
+      "studentId": "ST-16",
+      "status": "done",
+      "sections": [
+        {
+          "name": "Từ vựng – Kanji",
+          "max": 35,
+          "score": 33
+        },
+        {
+          "name": "Ngữ pháp – Đọc hiểu",
+          "max": 35,
+          "score": 32
+        },
+        {
+          "name": "Nghe hiểu",
+          "max": 30,
+          "score": 26
+        }
+      ],
+      "startedAt": "2026-04-10T11:00:00.000Z",
+      "durationMinutes": 61
+    },
+    {
+      "id": "RES-C-N3K09-S24-ST-31",
+      "classId": "C-N3K09",
+      "examId": "CUR-N3-V1-EX-MID",
+      "studentId": "ST-31",
+      "status": "done",
+      "sections": [
+        {
+          "name": "Từ vựng – Kanji",
+          "max": 35,
+          "score": 24
+        },
+        {
+          "name": "Ngữ pháp – Đọc hiểu",
+          "max": 35,
+          "score": 24
+        },
+        {
+          "name": "Nghe hiểu",
+          "max": 30,
+          "score": 20
+        }
+      ],
+      "startedAt": "2026-04-10T11:00:00.000Z",
+      "durationMinutes": 62
+    },
+    {
+      "id": "RES-C-N3K09-S45-ST-3",
+      "classId": "C-N3K09",
+      "examId": "CUR-N3-V1-EX-FIN",
+      "studentId": "ST-3",
+      "status": "done",
+      "sections": [
+        {
+          "name": "Từ vựng – Kanji",
+          "max": 35,
+          "score": 27
+        },
+        {
+          "name": "Ngữ pháp – Đọc hiểu",
+          "max": 35,
+          "score": 24
+        },
+        {
+          "name": "Nghe hiểu",
+          "max": 30,
+          "score": 18
+        }
+      ],
+      "startedAt": "2026-06-01T11:00:00.000Z",
+      "durationMinutes": 70
+    },
+    {
+      "id": "RES-C-N3K09-S45-ST-7",
+      "classId": "C-N3K09",
+      "examId": "CUR-N3-V1-EX-FIN",
+      "studentId": "ST-7",
+      "status": "done",
+      "sections": [
+        {
+          "name": "Từ vựng – Kanji",
+          "max": 35,
+          "score": 18
+        },
+        {
+          "name": "Ngữ pháp – Đọc hiểu",
+          "max": 35,
+          "score": 16
+        },
+        {
+          "name": "Nghe hiểu",
+          "max": 30,
+          "score": 13
+        }
+      ],
+      "startedAt": "2026-06-01T11:00:00.000Z",
+      "durationMinutes": 71
+    },
+    {
+      "id": "RES-C-N3K09-S45-ST-16",
+      "classId": "C-N3K09",
+      "examId": "CUR-N3-V1-EX-FIN",
+      "studentId": "ST-16",
+      "status": "done",
+      "sections": [
+        {
+          "name": "Từ vựng – Kanji",
+          "max": 35,
+          "score": 29
+        },
+        {
+          "name": "Ngữ pháp – Đọc hiểu",
+          "max": 35,
+          "score": 29
+        },
+        {
+          "name": "Nghe hiểu",
+          "max": 30,
+          "score": 25
+        }
+      ],
+      "startedAt": "2026-06-01T11:00:00.000Z",
+      "durationMinutes": 72
+    },
+    {
+      "id": "RES-C-N3K09-S45-ST-31",
+      "classId": "C-N3K09",
+      "examId": "CUR-N3-V1-EX-FIN",
+      "studentId": "ST-31",
+      "status": "absent",
+      "sections": [],
+      "comment": "Vắng có phép — chờ thi bù"
+    },
+    {
+      "id": "RES-C-N5K07-S21-ST-8",
+      "classId": "C-N5K07",
+      "examId": "CUR-N5-V1-EX-MID",
+      "studentId": "ST-8",
+      "status": "done",
+      "sections": [
+        {
+          "name": "Từ vựng – Kanji",
+          "max": 35,
+          "score": 23
+        },
+        {
+          "name": "Ngữ pháp – Đọc hiểu",
+          "max": 35,
+          "score": 22
+        },
+        {
+          "name": "Nghe hiểu",
+          "max": 30,
+          "score": 18
+        }
+      ],
+      "startedAt": "2026-05-20T11:00:00.000Z",
+      "durationMinutes": 81
+    },
+    {
+      "id": "RES-C-N5K07-S21-ST-23",
+      "classId": "C-N5K07",
+      "examId": "CUR-N5-V1-EX-MID",
+      "studentId": "ST-23",
+      "status": "absent",
+      "sections": [],
+      "comment": "Vắng có phép — chờ thi bù"
+    },
+    {
+      "id": "RES-C-N5K07-S21-ST-32",
+      "classId": "C-N5K07",
+      "examId": "CUR-N5-V1-EX-MID",
+      "studentId": "ST-32",
+      "status": "done",
+      "sections": [
+        {
+          "name": "Từ vựng – Kanji",
+          "max": 35,
+          "score": 26
+        },
+        {
+          "name": "Ngữ pháp – Đọc hiểu",
+          "max": 35,
+          "score": 27
+        },
+        {
+          "name": "Nghe hiểu",
+          "max": 30,
+          "score": 25
+        }
+      ],
+      "startedAt": "2026-05-20T11:00:00.000Z",
+      "durationMinutes": 83
+    },
+    {
+      "id": "RES-C-N5K07-S36-ST-8",
+      "classId": "C-N5K07",
+      "examId": "CUR-N5-V1-EX-FIN",
+      "studentId": "ST-8",
+      "status": "done",
+      "sections": [
+        {
+          "name": "Từ vựng – Kanji",
+          "max": 35,
+          "score": 20
+        },
+        {
+          "name": "Ngữ pháp – Đọc hiểu",
+          "max": 35,
+          "score": 20
+        },
+        {
+          "name": "Nghe hiểu",
+          "max": 30,
+          "score": 17
+        }
+      ],
+      "startedAt": "2026-06-24T11:00:00.000Z",
+      "durationMinutes": 57
+    },
+    {
+      "id": "RES-C-N5K07-S36-ST-23",
+      "classId": "C-N5K07",
+      "examId": "CUR-N5-V1-EX-FIN",
+      "studentId": "ST-23",
+      "status": "done",
+      "sections": [
+        {
+          "name": "Từ vựng – Kanji",
+          "max": 35,
+          "score": 32
+        },
+        {
+          "name": "Ngữ pháp – Đọc hiểu",
+          "max": 35,
+          "score": 33
+        },
+        {
+          "name": "Nghe hiểu",
+          "max": 30,
+          "score": 29
+        }
+      ],
+      "startedAt": "2026-06-24T11:00:00.000Z",
+      "durationMinutes": 58
+    },
+    {
+      "id": "RES-C-N5K07-S36-ST-32",
+      "classId": "C-N5K07",
+      "examId": "CUR-N5-V1-EX-FIN",
+      "studentId": "ST-32",
+      "status": "done",
+      "sections": [
+        {
+          "name": "Từ vựng – Kanji",
+          "max": 35,
+          "score": 22
+        },
+        {
+          "name": "Ngữ pháp – Đọc hiểu",
+          "max": 35,
+          "score": 25
+        },
+        {
+          "name": "Nghe hiểu",
+          "max": 30,
+          "score": 24
+        }
+      ],
+      "startedAt": "2026-06-24T11:00:00.000Z",
+      "durationMinutes": 59
+    }
+  ],
+  "announcements": [
+    {
+      "id": "AN-C-N3K12-1",
+      "classId": "C-N3K12",
+      "title": "Chào mừng khai giảng",
+      "content": "Chào mừng các bạn đến với lớp GVV_N3-K12. Lịch học, tài liệu và bài tập xem trên Cổng học viên. Mọi thắc mắc liên hệ Giáo vụ.",
+      "audience": [
+        "student",
+        "parent"
+      ],
+      "channels": [
+        "portal",
+        "zalo"
+      ],
+      "recipients": 4,
+      "readCount": 3,
+      "sentBy": "Giáo vụ",
+      "sentAt": "2026-09-29T03:00:00.000Z",
+      "sentById": "e-mai"
+    },
+    {
+      "id": "AN-C-N3K12-2",
+      "classId": "C-N3K12",
+      "title": "Nhắc đóng học phí đợt 2",
+      "content": "Lớp GVV_N3-K12: các bạn còn nợ học phí vui lòng hoàn tất trước hạn. Có thể chuyển khoản / VietQR trên Cổng học viên.",
+      "audience": [
+        "student",
+        "parent"
+      ],
+      "channels": [
+        "portal",
+        "zalo",
+        "email"
+      ],
+      "debtorsOnly": true,
+      "recipients": 1,
+      "readCount": 1,
+      "sentBy": "Kế toán",
+      "sentAt": "2026-11-16T02:00:00.875Z",
+      "sentById": "e-lan"
+    },
+    {
+      "id": "AN-C-KIDS05-1",
+      "classId": "C-KIDS05",
+      "title": "Chào mừng khai giảng",
+      "content": "Chào mừng các bạn đến với lớp GVV_KIDS-K05. Lịch học, tài liệu và bài tập xem trên Cổng học viên. Mọi thắc mắc liên hệ Giáo vụ.",
+      "audience": [
+        "student",
+        "parent"
+      ],
+      "channels": [
+        "portal",
+        "zalo"
+      ],
+      "recipients": 4,
+      "readCount": 3,
+      "sentBy": "Giáo vụ",
+      "sentAt": "2026-10-07T03:00:00.000Z",
+      "sentById": "e-mai"
+    },
+    {
+      "id": "AN-C-N4K15-1",
+      "classId": "C-N4K15",
+      "title": "Chào mừng khai giảng",
+      "content": "Chào mừng các bạn đến với lớp GVV_N4-K15. Lịch học, tài liệu và bài tập xem trên Cổng học viên. Mọi thắc mắc liên hệ Giáo vụ.",
+      "audience": [
+        "student",
+        "parent"
+      ],
+      "channels": [
+        "portal",
+        "zalo"
+      ],
+      "recipients": 0,
+      "readCount": 0,
+      "sentBy": "Giáo vụ",
+      "sentAt": "2026-10-22T03:00:00.000Z",
+      "sentById": "e-mai"
+    },
+    {
+      "id": "AN-C-N4K15-2",
+      "classId": "C-N4K15",
+      "title": "Nhắc đóng học phí đợt 2",
+      "content": "Lớp GVV_N4-K15: các bạn còn nợ học phí vui lòng hoàn tất trước hạn. Có thể chuyển khoản / VietQR trên Cổng học viên.",
+      "audience": [
+        "student",
+        "parent"
+      ],
+      "channels": [
+        "portal",
+        "zalo",
+        "email"
+      ],
+      "debtorsOnly": true,
+      "recipients": 1,
+      "readCount": 1,
+      "sentBy": "Kế toán",
+      "sentAt": "2026-11-16T02:00:00.875Z",
+      "sentById": "e-lan"
+    },
+    {
+      "id": "AN-C-N5K22-1",
+      "classId": "C-N5K22",
+      "title": "Chào mừng khai giảng",
+      "content": "Chào mừng các bạn đến với lớp GVV_N5-K22. Lịch học, tài liệu và bài tập xem trên Cổng học viên. Mọi thắc mắc liên hệ Giáo vụ.",
+      "audience": [
+        "student",
+        "parent"
+      ],
+      "channels": [
+        "portal",
+        "zalo"
+      ],
+      "recipients": 2,
+      "readCount": 2,
+      "sentBy": "Giáo vụ",
+      "sentAt": "2026-10-27T03:00:00.000Z",
+      "sentById": "e-mai"
+    },
+    {
+      "id": "AN-C-KAIWAC2-1",
+      "classId": "C-KAIWAC2",
+      "title": "Chào mừng khai giảng",
+      "content": "Chào mừng các bạn đến với lớp GVN_KAIWA-C2. Lịch học, tài liệu và bài tập xem trên Cổng học viên. Mọi thắc mắc liên hệ Giáo vụ.",
+      "audience": [
+        "student",
+        "parent"
+      ],
+      "channels": [
+        "portal",
+        "zalo"
+      ],
+      "recipients": 2,
+      "readCount": 2,
+      "sentBy": "Giáo vụ",
+      "sentAt": "2026-10-17T03:00:00.000Z",
+      "sentById": "e-mai"
+    },
+    {
+      "id": "AN-C-KAIWAC2-2",
+      "classId": "C-KAIWAC2",
+      "title": "Nhắc đóng học phí đợt 2",
+      "content": "Lớp GVN_KAIWA-C2: các bạn còn nợ học phí vui lòng hoàn tất trước hạn. Có thể chuyển khoản / VietQR trên Cổng học viên.",
+      "audience": [
+        "student",
+        "parent"
+      ],
+      "channels": [
+        "portal",
+        "zalo",
+        "email"
+      ],
+      "debtorsOnly": true,
+      "recipients": 1,
+      "readCount": 1,
+      "sentBy": "Kế toán",
+      "sentAt": "2026-11-16T02:00:00.875Z",
+      "sentById": "e-lan"
+    },
+    {
+      "id": "AN-C-N4ON03-1",
+      "classId": "C-N4ON03",
+      "title": "Chào mừng khai giảng",
+      "content": "Chào mừng các bạn đến với lớp GVV_N4-ON03. Lịch học, tài liệu và bài tập xem trên Cổng học viên. Mọi thắc mắc liên hệ Giáo vụ.",
+      "audience": [
+        "student",
+        "parent"
+      ],
+      "channels": [
+        "portal",
+        "zalo"
+      ],
+      "recipients": 2,
+      "readCount": 2,
+      "sentBy": "Giáo vụ",
+      "sentAt": "2026-10-24T03:00:00.000Z",
+      "sentById": "e-mai"
+    },
+    {
+      "id": "AN-C-N3ON14-1",
+      "classId": "C-N3ON14",
+      "title": "Chào mừng khai giảng",
+      "content": "Chào mừng các bạn đến với lớp GVN_N3-ON14. Lịch học, tài liệu và bài tập xem trên Cổng học viên. Mọi thắc mắc liên hệ Giáo vụ.",
+      "audience": [
+        "student",
+        "parent"
+      ],
+      "channels": [
+        "portal",
+        "zalo"
+      ],
+      "recipients": 0,
+      "readCount": 0,
+      "sentBy": "Giáo vụ",
+      "sentAt": "2026-10-12T03:00:00.000Z",
+      "sentById": "e-mai"
+    },
+    {
+      "id": "AN-C-N3ON14-2",
+      "classId": "C-N3ON14",
+      "title": "Nhắc đóng học phí đợt 2",
+      "content": "Lớp GVN_N3-ON14: các bạn còn nợ học phí vui lòng hoàn tất trước hạn. Có thể chuyển khoản / VietQR trên Cổng học viên.",
+      "audience": [
+        "student",
+        "parent"
+      ],
+      "channels": [
+        "portal",
+        "zalo",
+        "email"
+      ],
+      "debtorsOnly": true,
+      "recipients": 1,
+      "readCount": 1,
+      "sentBy": "Kế toán",
+      "sentAt": "2026-11-16T02:00:00.875Z",
+      "sentById": "e-lan"
+    },
+    {
+      "id": "AN-C-N2K05-1",
+      "classId": "C-N2K05",
+      "title": "Chào mừng khai giảng",
+      "content": "Chào mừng các bạn đến với lớp GVVN_N2-K05. Lịch học, tài liệu và bài tập xem trên Cổng học viên. Mọi thắc mắc liên hệ Giáo vụ.",
+      "audience": [
+        "student",
+        "parent"
+      ],
+      "channels": [
+        "portal",
+        "zalo"
+      ],
+      "recipients": 2,
+      "readCount": 2,
+      "sentBy": "Giáo vụ",
+      "sentAt": "2026-11-01T03:00:00.000Z",
+      "sentById": "e-chau"
+    },
+    {
+      "id": "AN-C-N5K20-1",
+      "classId": "C-N5K20",
+      "title": "Chào mừng khai giảng",
+      "content": "Chào mừng các bạn đến với lớp GVV_N5-K20. Lịch học, tài liệu và bài tập xem trên Cổng học viên. Mọi thắc mắc liên hệ Giáo vụ.",
+      "audience": [
+        "student",
+        "parent"
+      ],
+      "channels": [
+        "portal",
+        "zalo"
+      ],
+      "recipients": 10,
+      "readCount": 9,
+      "sentBy": "Giáo vụ",
+      "sentAt": "2026-11-06T03:00:00.000Z",
+      "sentById": "e-chau"
+    },
+    {
+      "id": "AN-C-N5K20-2",
+      "classId": "C-N5K20",
+      "title": "Nhắc đóng học phí đợt 2",
+      "content": "Lớp GVV_N5-K20: các bạn còn nợ học phí vui lòng hoàn tất trước hạn. Có thể chuyển khoản / VietQR trên Cổng học viên.",
+      "audience": [
+        "student",
+        "parent"
+      ],
+      "channels": [
+        "portal",
+        "zalo",
+        "email"
+      ],
+      "debtorsOnly": true,
+      "recipients": 2,
+      "readCount": 1,
+      "sentBy": "Kế toán",
+      "sentAt": "2026-11-16T02:00:00.875Z",
+      "sentById": "e-lan"
+    },
+    {
+      "id": "AN-C-KAIWAB1-1",
+      "classId": "C-KAIWAB1",
+      "title": "Chào mừng khai giảng",
+      "content": "Chào mừng các bạn đến với lớp GVN_KAIWA-B1. Lịch học, tài liệu và bài tập xem trên Cổng học viên. Mọi thắc mắc liên hệ Giáo vụ.",
+      "audience": [
+        "student",
+        "parent"
+      ],
+      "channels": [
+        "portal",
+        "zalo"
+      ],
+      "recipients": 0,
+      "readCount": 0,
+      "sentBy": "Giáo vụ",
+      "sentAt": "2026-10-02T03:00:00.000Z",
+      "sentById": "e-chau"
+    },
+    {
+      "id": "AN-C-XKLD08-1",
+      "classId": "C-XKLD08",
+      "title": "Chào mừng khai giảng",
+      "content": "Chào mừng các bạn đến với lớp GVV_XKLD-K08. Lịch học, tài liệu và bài tập xem trên Cổng học viên. Mọi thắc mắc liên hệ Giáo vụ.",
+      "audience": [
+        "student",
+        "parent"
+      ],
+      "channels": [
+        "portal",
+        "zalo"
+      ],
+      "recipients": 10,
+      "readCount": 9,
+      "sentBy": "Giáo vụ",
+      "sentAt": "2026-10-12T03:00:00.000Z",
+      "sentById": "e-duyen"
+    },
+    {
+      "id": "AN-C-XKLD08-2",
+      "classId": "C-XKLD08",
+      "title": "Nhắc đóng học phí đợt 2",
+      "content": "Lớp GVV_XKLD-K08: các bạn còn nợ học phí vui lòng hoàn tất trước hạn. Có thể chuyển khoản / VietQR trên Cổng học viên.",
+      "audience": [
+        "student",
+        "parent"
+      ],
+      "channels": [
+        "portal",
+        "zalo",
+        "email"
+      ],
+      "debtorsOnly": true,
+      "recipients": 2,
+      "readCount": 1,
+      "sentBy": "Kế toán",
+      "sentAt": "2026-11-16T02:00:00.875Z",
+      "sentById": "e-lan"
+    },
+    {
+      "id": "AN-C-N4K16-1",
+      "classId": "C-N4K16",
+      "title": "Chào mừng khai giảng",
+      "content": "Chào mừng các bạn đến với lớp GVV_N4-K16. Lịch học, tài liệu và bài tập xem trên Cổng học viên. Mọi thắc mắc liên hệ Giáo vụ.",
+      "audience": [
+        "student",
+        "parent"
+      ],
+      "channels": [
+        "portal",
+        "zalo"
+      ],
+      "recipients": 2,
+      "readCount": 2,
+      "sentBy": "Giáo vụ",
+      "sentAt": "2026-11-11T03:00:00.000Z",
+      "sentById": "e-duyen"
+    }
+  ],
+  "teacherReviews": [
+    {
+      "id": "RV-C-N5K18-mid-t-anh-ST-5",
+      "classId": "C-N5K18",
+      "teacherId": "t-anh",
+      "studentId": "ST-5",
+      "period": "mid",
+      "overall": 3,
+      "ratings": {
+        "method": 2,
+        "clarity": 3,
+        "enthusiasm": 3,
+        "punctuality": 4
+      },
+      "comment": "Tốc độ hơi nhanh với em, mong cô dành thêm thời gian ôn lại.",
+      "anonymous": false,
+      "createdAt": "2026-04-21T13:00:00.874Z"
+    },
+    {
+      "id": "RV-C-N5K18-mid-t-anh-ST-24",
+      "classId": "C-N5K18",
+      "teacherId": "t-anh",
+      "studentId": "ST-24",
+      "period": "mid",
+      "overall": 4,
+      "ratings": {
+        "method": 4,
+        "clarity": 3,
+        "enthusiasm": 5,
+        "punctuality": 5
+      },
+      "comment": "Thầy nhiệt tình, chữa bài kỹ từng lỗi.",
+      "anonymous": true,
+      "createdAt": "2026-04-22T13:00:00.874Z"
+    },
+    {
+      "id": "RV-C-N5K18-final-t-anh-ST-5",
+      "classId": "C-N5K18",
+      "teacherId": "t-anh",
+      "studentId": "ST-5",
+      "period": "final",
+      "overall": 3,
+      "ratings": {
+        "method": 2,
+        "clarity": 3,
+        "enthusiasm": 3,
+        "punctuality": 4
+      },
+      "comment": "Tốc độ hơi nhanh với em, mong cô dành thêm thời gian ôn lại.",
+      "anonymous": false,
+      "createdAt": "2026-09-05T13:00:00.874Z"
+    },
+    {
+      "id": "RV-C-N5K18-final-t-anh-ST-24",
+      "classId": "C-N5K18",
+      "teacherId": "t-anh",
+      "studentId": "ST-24",
+      "period": "final",
+      "overall": 4,
+      "ratings": {
+        "method": 4,
+        "clarity": 3,
+        "enthusiasm": 5,
+        "punctuality": 5
+      },
+      "comment": "Thầy nhiệt tình, chữa bài kỹ từng lỗi.",
+      "anonymous": true,
+      "createdAt": "2026-09-06T13:00:00.874Z"
+    },
+    {
+      "id": "RV-C-N4K11-mid-t-long-ST-1",
+      "classId": "C-N4K11",
+      "teacherId": "t-long",
+      "studentId": "ST-1",
+      "period": "mid",
+      "overall": 3,
+      "ratings": {
+        "method": 2,
+        "clarity": 3,
+        "enthusiasm": 3,
+        "punctuality": 2
+      },
+      "comment": "Tốc độ hơi nhanh với em, mong cô dành thêm thời gian ôn lại.",
+      "anonymous": false,
+      "createdAt": "2026-04-29T13:00:00.874Z"
+    },
+    {
+      "id": "RV-C-N4K11-mid-t-long-ST-15",
+      "classId": "C-N4K11",
+      "teacherId": "t-long",
+      "studentId": "ST-15",
+      "period": "mid",
+      "overall": 4,
+      "ratings": {
+        "method": 4,
+        "clarity": 3,
+        "enthusiasm": 5,
+        "punctuality": 3
+      },
+      "comment": "Thầy nhiệt tình, chữa bài kỹ từng lỗi.",
+      "anonymous": true,
+      "createdAt": "2026-04-30T13:00:00.874Z"
+    },
+    {
+      "id": "RV-C-N4K11-final-t-long-ST-1",
+      "classId": "C-N4K11",
+      "teacherId": "t-long",
+      "studentId": "ST-1",
+      "period": "final",
+      "overall": 3,
+      "ratings": {
+        "method": 2,
+        "clarity": 3,
+        "enthusiasm": 3,
+        "punctuality": 2
+      },
+      "comment": "Tốc độ hơi nhanh với em, mong cô dành thêm thời gian ôn lại.",
+      "anonymous": false,
+      "createdAt": "2026-09-15T13:00:00.874Z"
+    },
+    {
+      "id": "RV-C-N4K11-final-t-long-ST-15",
+      "classId": "C-N4K11",
+      "teacherId": "t-long",
+      "studentId": "ST-15",
+      "period": "final",
+      "overall": 4,
+      "ratings": {
+        "method": 4,
+        "clarity": 3,
+        "enthusiasm": 5,
+        "punctuality": 3
+      },
+      "comment": "Thầy nhiệt tình, chữa bài kỹ từng lỗi.",
+      "anonymous": true,
+      "createdAt": "2026-09-16T13:00:00.874Z"
+    },
+    {
+      "id": "RV-C-N3K09-mid-t-thu-ST-3",
+      "classId": "C-N3K09",
+      "teacherId": "t-thu",
+      "studentId": "ST-3",
+      "period": "mid",
+      "overall": 3,
+      "ratings": {
+        "method": 2,
+        "clarity": 3,
+        "enthusiasm": 3,
+        "punctuality": 4
+      },
+      "comment": "Tốc độ hơi nhanh với em, mong cô dành thêm thời gian ôn lại.",
+      "anonymous": false,
+      "createdAt": "2026-04-09T13:00:00.875Z"
+    },
+    {
+      "id": "RV-C-N3K09-mid-t-thu-ST-7",
+      "classId": "C-N3K09",
+      "teacherId": "t-thu",
+      "studentId": "ST-7",
+      "period": "mid",
+      "overall": 4,
+      "ratings": {
+        "method": 4,
+        "clarity": 3,
+        "enthusiasm": 5,
+        "punctuality": 5
+      },
+      "comment": "Thầy nhiệt tình, chữa bài kỹ từng lỗi.",
+      "anonymous": true,
+      "createdAt": "2026-04-10T13:00:00.875Z"
+    },
+    {
+      "id": "RV-C-N3K09-mid-t-thu-ST-16",
+      "classId": "C-N3K09",
+      "teacherId": "t-thu",
+      "studentId": "ST-16",
+      "period": "mid",
+      "overall": 5,
+      "ratings": {
+        "method": 5,
+        "clarity": 5,
+        "enthusiasm": 5,
+        "punctuality": 5
+      },
+      "anonymous": true,
+      "createdAt": "2026-04-11T13:00:00.875Z"
+    },
+    {
+      "id": "RV-C-N3K09-final-t-thu-ST-3",
+      "classId": "C-N3K09",
+      "teacherId": "t-thu",
+      "studentId": "ST-3",
+      "period": "final",
+      "overall": 3,
+      "ratings": {
+        "method": 2,
+        "clarity": 3,
+        "enthusiasm": 3,
+        "punctuality": 4
+      },
+      "comment": "Tốc độ hơi nhanh với em, mong cô dành thêm thời gian ôn lại.",
+      "anonymous": false,
+      "createdAt": "2026-10-15T13:00:00.875Z"
+    },
+    {
+      "id": "RV-C-N3K09-final-t-thu-ST-7",
+      "classId": "C-N3K09",
+      "teacherId": "t-thu",
+      "studentId": "ST-7",
+      "period": "final",
+      "overall": 4,
+      "ratings": {
+        "method": 4,
+        "clarity": 3,
+        "enthusiasm": 5,
+        "punctuality": 5
+      },
+      "comment": "Thầy nhiệt tình, chữa bài kỹ từng lỗi.",
+      "anonymous": true,
+      "createdAt": "2026-10-16T13:00:00.875Z"
+    },
+    {
+      "id": "RV-C-N3K09-final-t-thu-ST-16",
+      "classId": "C-N3K09",
+      "teacherId": "t-thu",
+      "studentId": "ST-16",
+      "period": "final",
+      "overall": 5,
+      "ratings": {
+        "method": 5,
+        "clarity": 5,
+        "enthusiasm": 5,
+        "punctuality": 5
+      },
+      "anonymous": true,
+      "createdAt": "2026-10-17T13:00:00.875Z"
+    },
+    {
+      "id": "RV-C-N5K07-mid-t-hanh-ST-8",
+      "classId": "C-N5K07",
+      "teacherId": "t-hanh",
+      "studentId": "ST-8",
+      "period": "mid",
+      "overall": 3,
+      "ratings": {
+        "method": 2,
+        "clarity": 3,
+        "enthusiasm": 3,
+        "punctuality": 4
+      },
+      "comment": "Tốc độ hơi nhanh với em, mong cô dành thêm thời gian ôn lại.",
+      "anonymous": false,
+      "createdAt": "2026-05-16T13:00:00.875Z"
+    },
+    {
+      "id": "RV-C-N5K07-mid-t-hanh-ST-23",
+      "classId": "C-N5K07",
+      "teacherId": "t-hanh",
+      "studentId": "ST-23",
+      "period": "mid",
+      "overall": 4,
+      "ratings": {
+        "method": 4,
+        "clarity": 3,
+        "enthusiasm": 5,
+        "punctuality": 5
+      },
+      "comment": "Thầy nhiệt tình, chữa bài kỹ từng lỗi.",
+      "anonymous": true,
+      "createdAt": "2026-05-17T13:00:00.875Z"
+    },
+    {
+      "id": "RV-C-N5K07-mid-t-hanh-ST-32",
+      "classId": "C-N5K07",
+      "teacherId": "t-hanh",
+      "studentId": "ST-32",
+      "period": "mid",
+      "overall": 5,
+      "ratings": {
+        "method": 5,
+        "clarity": 5,
+        "enthusiasm": 5,
+        "punctuality": 5
+      },
+      "anonymous": true,
+      "createdAt": "2026-05-18T13:00:00.875Z"
+    },
+    {
+      "id": "RV-C-N5K07-final-t-hanh-ST-8",
+      "classId": "C-N5K07",
+      "teacherId": "t-hanh",
+      "studentId": "ST-8",
+      "period": "final",
+      "overall": 3,
+      "ratings": {
+        "method": 2,
+        "clarity": 3,
+        "enthusiasm": 3,
+        "punctuality": 4
+      },
+      "comment": "Tốc độ hơi nhanh với em, mong cô dành thêm thời gian ôn lại.",
+      "anonymous": false,
+      "createdAt": "2026-09-25T13:00:00.875Z"
+    },
+    {
+      "id": "RV-C-N5K07-final-t-hanh-ST-23",
+      "classId": "C-N5K07",
+      "teacherId": "t-hanh",
+      "studentId": "ST-23",
+      "period": "final",
+      "overall": 4,
+      "ratings": {
+        "method": 4,
+        "clarity": 3,
+        "enthusiasm": 5,
+        "punctuality": 5
+      },
+      "comment": "Thầy nhiệt tình, chữa bài kỹ từng lỗi.",
+      "anonymous": true,
+      "createdAt": "2026-09-26T13:00:00.875Z"
+    },
+    {
+      "id": "RV-C-N5K07-final-t-hanh-ST-32",
+      "classId": "C-N5K07",
+      "teacherId": "t-hanh",
+      "studentId": "ST-32",
+      "period": "final",
+      "overall": 5,
+      "ratings": {
+        "method": 5,
+        "clarity": 5,
+        "enthusiasm": 5,
+        "punctuality": 5
+      },
+      "anonymous": true,
+      "createdAt": "2026-09-27T13:00:00.875Z"
+    }
+  ],
+  "decks": [
+    {
+      "id": "D-N3-L10",
+      "title": "Từ vựng bài 10 — Công việc & xã hội",
+      "level": "N3",
+      "kind": "vocab",
+      "lesson": "Bài 10",
+      "cards": [
+        {
+          "id": "D-N3-L10-1",
+          "front": "締め切り",
+          "reading": "しめきり",
+          "meaning": "hạn chót",
+          "example": "レポートの締め切りは金曜日だ。"
+        },
+        {
+          "id": "D-N3-L10-2",
+          "front": "残業",
+          "reading": "ざんぎょう",
+          "meaning": "làm thêm giờ",
+          "example": "今日は残業しなければならない。"
+        },
+        {
+          "id": "D-N3-L10-3",
+          "front": "給料",
+          "reading": "きゅうりょう",
+          "meaning": "tiền lương"
+        },
+        {
+          "id": "D-N3-L10-4",
+          "front": "面接",
+          "reading": "めんせつ",
+          "meaning": "phỏng vấn",
+          "example": "明日、会社の面接がある。"
+        },
+        {
+          "id": "D-N3-L10-5",
+          "front": "募集",
+          "reading": "ぼしゅう",
+          "meaning": "tuyển dụng, chiêu mộ"
+        },
+        {
+          "id": "D-N3-L10-6",
+          "front": "経験",
+          "reading": "けいけん",
+          "meaning": "kinh nghiệm"
+        },
+        {
+          "id": "D-N3-L10-7",
+          "front": "責任",
+          "reading": "せきにん",
+          "meaning": "trách nhiệm"
+        },
+        {
+          "id": "D-N3-L10-8",
+          "front": "取引先",
+          "reading": "とりひきさき",
+          "meaning": "đối tác kinh doanh"
+        },
+        {
+          "id": "D-N3-L10-9",
+          "front": "出張",
+          "reading": "しゅっちょう",
+          "meaning": "đi công tác",
+          "example": "来週大阪へ出張する。"
+        },
+        {
+          "id": "D-N3-L10-10",
+          "front": "会議",
+          "reading": "かいぎ",
+          "meaning": "cuộc họp"
+        }
+      ],
+      "lessonId": "CUR-N3-V1-L10"
+    },
+    {
+      "id": "D-N3-L11",
+      "title": "Từ vựng bài 11 — Sức khỏe",
+      "level": "N3",
+      "kind": "vocab",
+      "lesson": "Bài 11",
+      "cards": [
+        {
+          "id": "D-N3-L11-1",
+          "front": "怪我",
+          "reading": "けが",
+          "meaning": "vết thương, bị thương"
+        },
+        {
+          "id": "D-N3-L11-2",
+          "front": "症状",
+          "reading": "しょうじょう",
+          "meaning": "triệu chứng"
+        },
+        {
+          "id": "D-N3-L11-3",
+          "front": "熱",
+          "reading": "ねつ",
+          "meaning": "sốt",
+          "example": "熱が３８度ある。"
+        },
+        {
+          "id": "D-N3-L11-4",
+          "front": "咳",
+          "reading": "せき",
+          "meaning": "ho"
+        },
+        {
+          "id": "D-N3-L11-5",
+          "front": "薬局",
+          "reading": "やっきょく",
+          "meaning": "hiệu thuốc"
+        },
+        {
+          "id": "D-N3-L11-6",
+          "front": "診察",
+          "reading": "しんさつ",
+          "meaning": "khám bệnh"
+        },
+        {
+          "id": "D-N3-L11-7",
+          "front": "健康",
+          "reading": "けんこう",
+          "meaning": "sức khỏe"
+        },
+        {
+          "id": "D-N3-L11-8",
+          "front": "入院",
+          "reading": "にゅういん",
+          "meaning": "nhập viện"
+        }
+      ],
+      "lessonId": "CUR-N3-V2-L11"
+    },
+    {
+      "id": "D-N3-K12",
+      "title": "Kanji bài 12",
+      "level": "N3",
+      "kind": "kanji",
+      "lesson": "Bài 12",
+      "cards": [
+        {
+          "id": "D-N3-K12-1",
+          "front": "届",
+          "reading": "とど・く",
+          "meaning": "gửi tới, đến nơi",
+          "example": "荷物が届いた。"
+        },
+        {
+          "id": "D-N3-K12-2",
+          "front": "届ける",
+          "reading": "とどける",
+          "meaning": "chuyển tới, giao"
+        },
+        {
+          "id": "D-N3-K12-3",
+          "front": "過",
+          "reading": "す・ぎる / カ",
+          "meaning": "quá, vượt qua"
+        },
+        {
+          "id": "D-N3-K12-4",
+          "front": "経",
+          "reading": "へ・る / ケイ",
+          "meaning": "trải qua"
+        },
+        {
+          "id": "D-N3-K12-5",
+          "front": "得",
+          "reading": "え・る / トク",
+          "meaning": "được, đạt được"
+        },
+        {
+          "id": "D-N3-K12-6",
+          "front": "許",
+          "reading": "ゆる・す / キョ",
+          "meaning": "cho phép"
+        },
+        {
+          "id": "D-N3-K12-7",
+          "front": "違",
+          "reading": "ちが・う / イ",
+          "meaning": "khác, sai"
+        },
+        {
+          "id": "D-N3-K12-8",
+          "front": "退",
+          "reading": "しりぞ・く / タイ",
+          "meaning": "rút lui"
+        }
+      ],
+      "lessonId": null
+    },
+    {
+      "id": "D-N4-L20",
+      "title": "Ôn N4 — Động từ thường gặp",
+      "level": "N4",
+      "kind": "vocab",
+      "lesson": "Ôn tập",
+      "cards": [
+        {
+          "id": "D-N4-L20-1",
+          "front": "集める",
+          "reading": "あつめる",
+          "meaning": "thu thập"
+        },
+        {
+          "id": "D-N4-L20-2",
+          "front": "選ぶ",
+          "reading": "えらぶ",
+          "meaning": "chọn"
+        },
+        {
+          "id": "D-N4-L20-3",
+          "front": "届く",
+          "reading": "とどく",
+          "meaning": "đến nơi"
+        },
+        {
+          "id": "D-N4-L20-4",
+          "front": "間に合う",
+          "reading": "まにあう",
+          "meaning": "kịp giờ"
+        },
+        {
+          "id": "D-N4-L20-5",
+          "front": "謝る",
+          "reading": "あやまる",
+          "meaning": "xin lỗi"
+        },
+        {
+          "id": "D-N4-L20-6",
+          "front": "褒める",
+          "reading": "ほめる",
+          "meaning": "khen"
+        },
+        {
+          "id": "D-N4-L20-7",
+          "front": "比べる",
+          "reading": "くらべる",
+          "meaning": "so sánh"
+        },
+        {
+          "id": "D-N4-L20-8",
+          "front": "払う",
+          "reading": "はらう",
+          "meaning": "trả tiền"
+        }
+      ],
+      "lessonId": null
+    }
+  ],
+  "cardProgress": [
+    {
+      "id": "CP-ST-1-D-N3-L10-1",
+      "studentId": "ST-1",
+      "deckId": "D-N3-L10",
+      "cardId": "D-N3-L10-1",
+      "box": 3,
+      "due": "2026-11-23T17:00:00.000Z",
+      "reviews": 4,
+      "lapses": 0
+    },
+    {
+      "id": "CP-ST-1-D-N3-L10-2",
+      "studentId": "ST-1",
+      "deckId": "D-N3-L10",
+      "cardId": "D-N3-L10-2",
+      "box": 2,
+      "due": "2026-11-21T17:00:00.000Z",
+      "reviews": 5,
+      "lapses": 1
+    },
+    {
+      "id": "CP-ST-1-D-N3-L10-3",
+      "studentId": "ST-1",
+      "deckId": "D-N3-L10",
+      "cardId": "D-N3-L10-3",
+      "box": 4,
+      "due": "2026-11-27T17:00:00.000Z",
+      "reviews": 6,
+      "lapses": 2
+    },
+    {
+      "id": "CP-ST-1-D-N3-L10-4",
+      "studentId": "ST-1",
+      "deckId": "D-N3-L10",
+      "cardId": "D-N3-L10-4",
+      "box": 1,
+      "due": "2026-11-20T17:00:00.000Z",
+      "reviews": 7,
+      "lapses": 0
+    },
+    {
+      "id": "CP-ST-1-D-N3-L10-5",
+      "studentId": "ST-1",
+      "deckId": "D-N3-L10",
+      "cardId": "D-N3-L10-5",
+      "box": 2,
+      "due": "2026-11-21T17:00:00.000Z",
+      "reviews": 8,
+      "lapses": 1
+    },
+    {
+      "id": "CP-ST-1-D-N3-L10-6",
+      "studentId": "ST-1",
+      "deckId": "D-N3-L10",
+      "cardId": "D-N3-L10-6",
+      "box": 3,
+      "due": "2026-11-24T17:00:00.000Z",
+      "reviews": 9,
+      "lapses": 2
+    },
+    {
+      "id": "CP-ST-1-D-N3-L10-7",
+      "studentId": "ST-1",
+      "deckId": "D-N3-L10",
+      "cardId": "D-N3-L10-7",
+      "box": 0,
+      "due": "2026-11-21T17:00:00.000Z",
+      "reviews": 10,
+      "lapses": 0
+    },
+    {
+      "id": "CP-ST-1-D-N3-L10-8",
+      "studentId": "ST-1",
+      "deckId": "D-N3-L10",
+      "cardId": "D-N3-L10-8",
+      "box": 1,
+      "due": "2026-11-20T17:00:00.000Z",
+      "reviews": 11,
+      "lapses": 1
+    },
+    {
+      "id": "CP-ST-1-D-N3-L10-9",
+      "studentId": "ST-1",
+      "deckId": "D-N3-L10",
+      "cardId": "D-N3-L10-9",
+      "box": 2,
+      "due": "2026-11-22T17:00:00.000Z",
+      "reviews": 12,
+      "lapses": 2
+    },
+    {
+      "id": "CP-ST-1-D-N3-L10-10",
+      "studentId": "ST-1",
+      "deckId": "D-N3-L10",
+      "cardId": "D-N3-L10-10",
+      "box": 5,
+      "due": "2026-12-05T17:00:00.000Z",
+      "reviews": 13,
+      "lapses": 0
+    },
+    {
+      "id": "CP-ST-1-D-N3-L11-1",
+      "studentId": "ST-1",
+      "deckId": "D-N3-L11",
+      "cardId": "D-N3-L11-1",
+      "box": 1,
+      "due": "2026-11-20T17:00:00.000Z",
+      "reviews": 1,
+      "lapses": 0
+    },
+    {
+      "id": "CP-ST-1-D-N3-L11-2",
+      "studentId": "ST-1",
+      "deckId": "D-N3-L11",
+      "cardId": "D-N3-L11-2",
+      "box": 1,
+      "due": "2026-11-21T17:00:00.000Z",
+      "reviews": 1,
+      "lapses": 0
+    },
+    {
+      "id": "CP-ST-1-D-N3-L11-3",
+      "studentId": "ST-1",
+      "deckId": "D-N3-L11",
+      "cardId": "D-N3-L11-3",
+      "box": 1,
+      "due": "2026-11-22T17:00:00.000Z",
+      "reviews": 1,
+      "lapses": 0
+    },
+    {
+      "id": "CP-ST-1-D-N3-L11-4",
+      "studentId": "ST-1",
+      "deckId": "D-N3-L11",
+      "cardId": "D-N3-L11-4",
+      "box": 1,
+      "due": "2026-11-23T17:00:00.000Z",
+      "reviews": 1,
+      "lapses": 0
+    }
+  ]
+}
