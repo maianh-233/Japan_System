@@ -1045,13 +1045,14 @@ Khóa chính (scope, key).
 | graded_by | uuid? | Người chấm → hr.employees |
 
 ### 52. exam_results
-**Chức năng:** Kết quả 1 HV trong 1 kỳ thi (mốc thi của lộ trình) của lớp: điểm từng phần, vắng thi. Entity `ExamResult`. UQ (class_id, exam_id, student_id).
+**Chức năng:** Kết quả 1 HV trong 1 kỳ thi (mốc thi của lộ trình) của lớp: thi online tự chấm từ bài làm, thi giấy nhập điểm từng phần, vắng thi; luôn sửa được. Entity `ExamResult`. UQ (class_id, exam_id, student_id).
 
 | Thuộc tính | Kiểu | Giải thích |
 |---|---|---|
 | id | uuid PK | |
 | class_id | uuid FK | → classes |
 | exam_id | uuid FK | → exam_milestones |
+| class_exam_id | uuid? FK | Kỳ thi sinh ra kết quả → class_exams (null = nhập trước khi có kỳ thi) |
 | student_id | uuid | → students.students |
 | status | text | `done` đã thi · `absent` vắng |
 | sections | jsonb | Điểm từng phần `[{name, score, max}]` |
@@ -1061,7 +1062,43 @@ Khóa chính (scope, key).
 | duration_minutes | int? | Thời gian làm |
 | comment | text? | Nhận xét |
 
-> Chưa có bảng "kỳ thi" (đề cụ thể bốc từ ngân hàng) vì frontend chưa dựng trang tạo kỳ thi — khi làm sẽ thêm `class_exams`.
+### 52a. class_exams
+**Chức năng:** Kỳ thi của lớp theo 1 mốc thi của lộ trình (user story 12, ND-04): đề = các phần, câu bốc từ Ngân hàng (đã duyệt, trong phạm vi bài của mốc);
+`online` HV làm trên Cổng trong khung giờ, tự chấm · `paper` in đề, nhập điểm. Nháp đổi được đề, phát hành → đề chốt; công bố kết quả → HV / PH thấy điểm.
+Entity `ClassExam`. UQ (class_id, exam_id) trong số chưa hủy.
+
+| Thuộc tính | Kiểu | Giải thích |
+|---|---|---|
+| id | uuid PK | |
+| class_id | uuid FK | → classes |
+| exam_id | uuid FK | Mốc thi → exam_milestones |
+| title | text | Tên kỳ thi |
+| mode | text | `online` · `paper` |
+| starts_at | timestamptz | Giờ bắt đầu |
+| duration_minutes | int | Thời lượng (10–240) |
+| pass_percent | numeric | % đạt (mặc định 60) |
+| shuffle | bool | Online: mỗi HV 1 đề (đảo câu trong phần + đảo đáp án) |
+| sections | jsonb | Các phần `[{name, skill, points, questionIds}]` — tối đa = số câu × điểm mỗi câu |
+| status | text | `draft` · `published` · `cancelled` |
+| published_at | timestamptz? | Lúc phát hành (đề chốt) |
+| results_published_at | timestamptz? | Lúc công bố kết quả (null = HV / PH chưa thấy điểm) |
+| created_by | uuid | Người tạo → hr.employees |
+
+### 52b. exam_attempts
+**Chức năng:** Bài làm thi online của 1 HV (ND-05): 1 lần duy nhất, đề riêng, tự lưu câu chọn, nộp / hết giờ (+1 phút trễ mạng) → chấm từng phần ở server
+→ ghi `exam_results`. Entity `ExamAttempt`. UQ (class_exam_id, student_id).
+
+| Thuộc tính | Kiểu | Giải thích |
+|---|---|---|
+| id | uuid PK | |
+| class_exam_id | uuid FK | → class_exams |
+| student_id | uuid | → students.students |
+| started_at | timestamptz | Lúc bắt đầu |
+| deadline_at | timestamptz | Giờ kết thúc kỳ thi lúc bắt đầu làm |
+| questions | jsonb | Đề riêng `[{questionId, section, optionOrder}]` (vị trí hiển thị → chỉ số đáp án gốc) |
+| answers | jsonb | Câu trả lời `[{questionId, choice}]` — chỉ số đáp án gốc |
+| submitted_at | timestamptz? | Lúc nộp (tự nộp: = deadline_at) |
+| auto_submitted | bool | Hết giờ, hệ thống tự nộp |
 
 ### 53. class_announcements
 **Chức năng:** Thông báo cho lớp (HV / PH / GV) qua cổng / Zalo / email; lọc HV nợ phí; hẹn giờ; đếm lượt xem. Entity `ClassAnnouncement`.
@@ -1078,12 +1115,14 @@ Khóa chính (scope, key).
 | student_ids | uuid[] | Chỉ gửi các HV này — rỗng = cả lớp |
 | recipients | int | Số người nhận lúc gửi |
 | read_count | int | Số người đã xem |
+| read_by | uuid[] | Tài khoản đã xem → system.user_accounts (mỗi người đếm 1 lần) |
 | sent_by | uuid | Người gửi → hr.employees |
 | sent_at | timestamptz? | Lúc gửi (null = chờ hẹn giờ) |
 | scheduled_at | timestamptz? | Hẹn giờ gửi |
+| cancelled_at | timestamptz? | Hủy khi còn chờ hẹn giờ (đã gửi thì không sửa / hủy) |
 
 ### 54. teacher_reviews
-**Chức năng:** HV đánh giá GV (khảo sát giữa / cuối kỳ), ẩn danh được. Entity `TeacherReview`.
+**Chức năng:** HV đánh giá GV (khảo sát giữa kỳ: từ ngày thi giữa kỳ · cuối kỳ: 14 ngày trước → 7 ngày sau kết thúc lớp), ẩn danh được (GV không thấy tên). Entity `TeacherReview`. UQ (class_id, teacher_id, student_id, period).
 
 | Thuộc tính | Kiểu | Giải thích |
 |---|---|---|
@@ -1300,7 +1339,7 @@ Khóa chính (scope, key).
 | minutes | numeric | Số phút đọc |
 
 ### 66. teacher_documents
-**Chức năng:** Tài liệu GV tự soạn, gửi cho lớp mình dạy (có thể gắn buổi). Entity `TeacherDocument`.
+**Chức năng:** Tài liệu GV tự soạn, gửi cho lớp mình dạy (có thể gắn buổi) — user story 12, ND-10. Đổi file / link → xóa lượt xem (HV xem lại bản mới). Entity `TeacherDocument`.
 
 | Thuộc tính | Kiểu | Giải thích |
 |---|---|---|
@@ -1311,7 +1350,7 @@ Khóa chính (scope, key).
 | file_name | text | Tên file |
 | kind | text | `pdf` · `doc` · `image` · `audio` · `video` · `link` |
 | size | bigint? | Byte |
-| url | text? | Khóa file / link |
+| url | text | Khóa file (kho S3) / link ngoài |
 | class_ids | uuid[] | Lớp được xem → academic.classes |
 | session_id | uuid? | Buổi học gắn → academic.class_sessions |
 
@@ -1911,4 +1950,5 @@ sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đ�
 | 2026-11-21 | Giai đoạn 18 phase 3: `lead_student_links.student_id` (thuộc khóa chính) khai báo không tự sinh — migration `CrmLinkKeyNotGenerated` không đổi cấu trúc bảng. Dữ liệu: vai trò mẫu Sale thêm `students.profiles.create` (own) — migration `GrantSaleCreateStudentFromLead` (schema system, không đổi cấu trúc) |
 | 2026-11-21 | Giai đoạn 19 phase 1 (user story 08): `invoices` + `schedule` (jsonb lịch đóng đợt), `status` chỉ `open` / `cancelled` / `voided`; `payments.collector_id` cho phép null (tự khớp) + `note`; thêm bảng `invoice_requests` (yêu cầu hoàn / hủy chờ duyệt); `bank_transactions.invoice_id` → `invoice_ids` (tách nhiều hóa đơn); `payment_reminders` + `milestone`; `discounts.code` chữ hoa 3–15 ký tự, giảm % ≤ 50, `course_ids` cũng dùng giới hạn khóa cho loại %, số tiền |
 | 2026-11-21 | Giai đoạn 19 phase 2: tạo schema `finance` — bảng `invoices`, `payments`, `refunds`, `invoice_requests`, `invoice_counters` (68a, mới), `branch_prices`, `discounts`, `installment_plans`, `bank_transactions`, `payment_reminders` — migration `FinanceInitial`; `payments.bank_transaction_id` không FK; `discounts.code` UQ trong số chưa xóa. Dữ liệu: tài chính mẫu từ mock (`finance.seed.json`) — mã hóa đơn `HD-{CN}-{YYMM}-{SO:4}`, bộ đếm = số lớn nhất đã dùng; chính sách `Đóng 1 lần` (1 đợt) không nạp |
+| 2026-11-22 | Giai đoạn 20 phase 1 (user story 12): thêm bảng `class_exams` (52a — kỳ thi theo mốc, online / giấy, các phần + câu bốc từ ngân hàng) và `exam_attempts` (52b — bài làm thi online, đề riêng, tự chấm); `exam_results` + `class_exam_id`; `class_announcements` + `read_by` (uuid[], đếm xem mỗi người 1 lần), `cancelled_at`; `teacher_reviews` UQ (class_id, teacher_id, student_id, period); `teacher_documents.url` bắt buộc |
 | 2026-11-17 | Chốt thiết kế (user story 08): `invoices.status` chỉ lưu `open` / `cancelled` / `voided`, các trạng thái tiền tính khi đọc; `payments.method` dùng `vietqr` (không `viet_qr`). Domain `InvoiceStatus`, `PaymentMethod` sửa theo khi code module Tài chính |

@@ -4,9 +4,14 @@ using JPCenter.Modules.Academic.Domain.Classes;
 
 namespace JPCenter.Modules.Academic.Domain.Reviews;
 
-/// <summary>HV đánh giá GV (khảo sát giữa / cuối kỳ trên cổng HV), ẩn danh được. Bảng: academic.teacher_reviews</summary>
+/// <summary>
+/// HV đánh giá GV (ND-08 — khảo sát giữa / cuối kỳ trên cổng HV, mỗi HV × GV × đợt 1 lần), ẩn danh được (GV không thấy tên).
+/// Bảng: academic.teacher_reviews, UQ (class_id, teacher_id, student_id, period)
+/// </summary>
 public sealed class TeacherReview : AggregateRoot<TeacherReviewId>
 {
+    public const int MaxComment = 2000;
+
     private TeacherReview() { }
 
     public ClassId ClassId { get; private set; }
@@ -29,7 +34,9 @@ public sealed class TeacherReview : AggregateRoot<TeacherReviewId>
         int clarity, int enthusiasm, int punctuality, string? comment, bool anonymous, DateTimeOffset at)
     {
         int[] stars = [overall, method, clarity, enthusiasm, punctuality];
-        if (stars.Any(s => s is < 1 or > 5)) return Error.Validation("academic.teacher_review.invalid_rating", "Đánh giá từ 1 đến 5 sao");
+        if (stars.Any(s => s is < 1 or > 5)) return TeacherReviewErrors.InvalidRating;
+        comment = string.IsNullOrWhiteSpace(comment) ? null : comment.Trim();
+        if (comment is { Length: > MaxComment }) return TeacherReviewErrors.CommentTooLong;
         return new TeacherReview
         {
             Id = TeacherReviewId.New(), ClassId = classId, TeacherId = teacherId, StudentId = studentId, Period = period, Overall = overall,
