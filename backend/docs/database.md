@@ -1633,7 +1633,7 @@ Khoản hoàn đang chờ trừ vào "hoàn tối đa"; hiện ở hộp duyệt
 | replaced_by | uuid? | Tài khoản thực hiện → system.user_accounts |
 
 ### 82. time_records
-**Chức năng:** Chấm công ngày của nhân viên (check-in / out), sửa tay có lý do; so với giờ hành chính / ca → muộn, sớm, vắng. Entity `TimeRecord`. UQ (employee_id, date).
+**Chức năng:** Chấm công ngày của nhân viên (check-in / out, giờ server), sửa tay có lý do. Trạng thái ngày (muộn, sớm, quên ra, vắng, nghỉ phép) **không lưu** — tính khi đọc (`AttendanceDay`) so với giờ hành chính / ca được xếp. Entity `TimeRecord`. UQ (employee_id, date). Story 13 CC-xx.
 
 | Thuộc tính | Kiểu | Giải thích |
 |---|---|---|
@@ -1643,7 +1643,8 @@ Khoản hoàn đang chờ trừ vào "hoàn tối đa"; hiện ở hộp duyệt
 | date | date | Ngày |
 | check_in | time? | Giờ vào |
 | check_out | time? | Giờ ra |
-| edited_by | uuid? | Quản lý sửa tay |
+| edited_by | uuid? | Người sửa tay → system.accounts |
+| edited_by_name | text? | Tên người sửa lúc sửa (tooltip "sửa bởi") |
 | edit_reason | text? | Lý do sửa |
 
 ### 83. hr_requests
@@ -1655,9 +1656,9 @@ Khoản hoàn đang chờ trừ vào "hoàn tối đa"; hiện ở hộp duyệt
 | code | text UQ | Mã đơn |
 | type | text | `leave` · `shift_swap` · `business_trip` · `late_early` · `proposal` · `advance` |
 | employee_id | uuid FK | Người gửi → employees |
-| branch_id | uuid | → system.branches |
-| from, to | timestamptz | Thời gian áp dụng |
-| days | numeric? | Số ngày nghỉ |
+| branch_id | uuid | Chi nhánh chính người gửi lúc gửi → system.branches |
+| from, to | date | Ngày áp dụng (đi muộn / về sớm: from = to) |
+| days | numeric? | Số ngày nghỉ = ngày làm việc trong khoảng (bỏ CN) |
 | paid_leave | bool? | Nghỉ có lương |
 | swap_my_shift_id | uuid? | Ca của mình → work.shift_assignments |
 | swap_with_employee_id | uuid? FK | Đổi với ai → employees |
@@ -1675,9 +1676,13 @@ Khoản hoàn đang chờ trừ vào "hoàn tối đa"; hiện ở hộp duyệt
 |---|---|---|
 | hr_request_id | uuid FK | → hr_requests |
 | order | int | Thứ tự bước |
-| role | text | Vai trò duyệt ("Quản lý trực tiếp", "Nhân sự") |
-| approver_id | uuid | → employees |
+| role | text | Vai trò duyệt ("Quản lý trực tiếp", "Phó giám đốc (nghỉ > 3 ngày)", "Kế toán trưởng", "Giám đốc") |
+| approver_id | uuid? | Người duyệt dự kiến → employees; null = bước mở (người có `hr.requests.approve` duyệt) |
+| approver_name | text? | Tên người duyệt dự kiến lúc gửi |
 | decision | text? | `approved` · `rejected` |
+| decided_by_id | uuid? | Người quyết định thật → employees |
+| decided_by_name | text? | Tên người quyết định |
+| on_behalf | bool | Duyệt thay người duyệt dự kiến |
 | at | timestamptz? | Lúc quyết định |
 | comment | text? | Ý kiến |
 
@@ -1711,7 +1716,7 @@ Khoản hoàn đang chờ trừ vào "hoàn tối đa"; hiện ở hộp duyệt
 | email | text | Email |
 | source | text | Nguồn ứng viên |
 | stage | text | `applied` · `screening` · `interview` · `offer` · `hired` · `rejected` |
-| applied_at | date | Ngày ứng tuyển |
+| applied_at | timestamptz | Lúc thêm ứng viên |
 | cv_key, cv_name | text? | File CV |
 | japanese | text? | Trình độ tiếng Nhật |
 | expected_salary | numeric? | Lương mong muốn |
@@ -1763,7 +1768,7 @@ Khoản hoàn đang chờ trừ vào "hoàn tối đa"; hiện ở hộp duyệt
 | group | text | `docs` · `account` · `equipment` · `training` |
 | label | text | Tên việc |
 | done | bool | Đã xong |
-| done_by, done_at | uuid?, timestamptz? | Ai đánh dấu, lúc nào |
+| done_by, done_by_name, done_at | uuid?, text?, timestamptz? | Ai đánh dấu (→ system.accounts, tên lúc đánh dấu), lúc nào |
 
 ---
 
@@ -1778,18 +1783,19 @@ Khoản hoàn đang chờ trừ vào "hoàn tối đa"; hiện ở hộp duyệt
 | code | text UQ | Mã task |
 | title | text | Tiêu đề |
 | description | text? | Mô tả |
-| branch_id | uuid | → system.branches |
+| branch_id | uuid | Chi nhánh của người làm (phạm vi xem) → system.branches |
 | assignee_id | uuid | Người làm → hr.employees |
 | creator_id | uuid | Người giao → hr.employees |
 | watcher_ids | uuid[] | Người theo dõi |
 | priority | text | `low` · `normal` · `high` · `urgent` |
 | status | text | `todo` · `doing` · `review` · `done` |
-| due | timestamptz? | Hạn |
+| due | date? | Hạn (ngày) |
 | repeat | text | `none` · `daily` · `weekly` · `monthly` |
 | link_type | text? | `lead` · `class` · `student` |
 | link_id | uuid? | Id đối tượng gắn |
 | link_label | text? | Nhãn hiển thị |
 | completed_at | timestamptz? | Lúc hoàn thành |
+| next_spawned | bool | Task lặp đã sinh lần kế tiếp (chỉ sinh 1 lần) |
 
 ### 91. task_checklist_items
 **Chức năng:** Checklist trong task. Entity con `TaskChecklistItem`.
@@ -1811,6 +1817,7 @@ Khoản hoàn đang chờ trừ vào "hoàn tối đa"; hiện ở hộp duyệt
 | task_id | uuid FK | → tasks |
 | text | text | Nội dung |
 | by | uuid | Người viết → hr.employees |
+| by_name | text | Tên người viết lúc viết |
 | at | timestamptz | Thời điểm |
 
 ### 93. shift_assignments
@@ -1825,7 +1832,7 @@ Khoản hoàn đang chờ trừ vào "hoàn tối đa"; hiện ở hộp duyệt
 | shift | text | `morning` · `afternoon` · `evening` |
 
 ### 94. shift_registrations
-**Chức năng:** Nhân viên tự khai ca mong muốn tuần tới / rảnh / bận (trang "Lịch rảnh / bận"). Entity `ShiftRegistration`. UQ (employee_id, date, shift, kind).
+**Chức năng:** Nhân viên tự báo rảnh / bận từng ca (trang "Đăng ký lịch rảnh", XC-04) — rảnh = ca mong muốn cho "Xếp theo đăng ký". Bỏ chọn = xóa dòng. Entity `ShiftRegistration`. UQ (employee_id, date, shift).
 
 | Thuộc tính | Kiểu | Giải thích |
 |---|---|---|
@@ -1833,11 +1840,11 @@ Khoản hoàn đang chờ trừ vào "hoàn tối đa"; hiện ở hộp duyệt
 | employee_id | uuid | → hr.employees |
 | date | date | Ngày |
 | shift | text | Ca |
-| kind | text | `preference` mong muốn · `available` rảnh · `busy` bận |
+| kind | text | `available` rảnh · `busy` bận |
 | updated_at | timestamptz | Lần khai cuối |
 
 ### 95. handovers
-**Chức năng:** Bàn giao cuối ca: tiền mặt, lead đang dở, việc tồn; ca sau xác nhận nhận / khiếu nại khi lệch tiền. Entity `Handover`.
+**Chức năng:** Bàn giao cuối ca: tiền mặt, lead đang dở, việc tồn; ca sau xác nhận nhận / lệch tiền (đếm lại ≠ NV đếm hoặc NV đếm ≠ hệ thống). Entity `Handover`. UQ (branch_id, date, from_shift, from_id).
 
 | Thuộc tính | Kiểu | Giải thích |
 |---|---|---|
@@ -1951,4 +1958,5 @@ sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đ�
 | 2026-11-21 | Giai đoạn 19 phase 2: tạo schema `finance` — bảng `invoices`, `payments`, `refunds`, `invoice_requests`, `invoice_counters` (68a, mới), `branch_prices`, `discounts`, `installment_plans`, `bank_transactions`, `payment_reminders` — migration `FinanceInitial`; `payments.bank_transaction_id` không FK; `discounts.code` UQ trong số chưa xóa. Dữ liệu: tài chính mẫu từ mock (`finance.seed.json`) — mã hóa đơn `HD-{CN}-{YYMM}-{SO:4}`, bộ đếm = số lớn nhất đã dùng; chính sách `Đóng 1 lần` (1 đợt) không nạp |
 | 2026-11-22 | Giai đoạn 20 phase 1 (user story 12): thêm bảng `class_exams` (52a — kỳ thi theo mốc, online / giấy, các phần + câu bốc từ ngân hàng) và `exam_attempts` (52b — bài làm thi online, đề riêng, tự chấm); `exam_results` + `class_exam_id`; `class_announcements` + `read_by` (uuid[], đếm xem mỗi người 1 lần), `cancelled_at`; `teacher_reviews` UQ (class_id, teacher_id, student_id, period); `teacher_documents.url` bắt buộc |
 | 2026-11-22 | Giai đoạn 20 phase 2: tạo bảng `assignments`, `submissions`, `class_exams`, `exam_attempts`, `exam_results`, `class_announcements`, `teacher_reviews`, `flash_decks`, `flash_cards`, `card_progress` — migration `AcademicLearningContent`; tạo schema `library` với `teacher_documents`, `teacher_document_views` — migration `LibraryTeacherDocuments`. Không FK tới bảng con của lộ trình (`lesson_id`, `exam_id`) và `card_progress.card_id`; Id strongly-typed trong jsonb ghi thành chuỗi uuid. Dữ liệu: nội dung học mẫu từ mock (`learning.seed.json`, `library.seed.json`) — kết quả thi mẫu chưa gắn kỳ thi (`class_exam_id` null), thông báo mẫu 0 người nhận không nạp, tài liệu GV mẫu chỉ có khóa file (chưa có nội dung) |
+| 2026-11-23 | Giai đoạn 21 phase 1 (user story 13, 14): `time_records` + `edited_by_name` (trạng thái ngày tính khi đọc); `hr_requests.from/to` → `date`; `hr_request_steps.approver_id` cho phép null (bước mở) + `approver_name`, `decided_by_id`, `decided_by_name`, `on_behalf`; `candidates.applied_at` → `timestamptz`; `onboarding_items` + `done_by_name`; `tasks.due` → `date` + `next_spawned`; `task_comments` + `by_name`; `shift_registrations.kind` bỏ `preference`, UQ (employee_id, date, shift); `handovers` UQ (branch_id, date, from_shift, from_id) |
 | 2026-11-17 | Chốt thiết kế (user story 08): `invoices.status` chỉ lưu `open` / `cancelled` / `voided`, các trạng thái tiền tính khi đọc; `payments.method` dùng `vietqr` (không `viet_qr`). Domain `InvoiceStatus`, `PaymentMethod` sửa theo khi code module Tài chính |

@@ -1,12 +1,10 @@
 namespace JPCenter.Modules.Work.Domain.Shifts;
 
-/// <summary>Loại đăng ký ca của nhân viên</summary>
+/// <summary>Nhân viên báo rảnh / bận 1 ca (rảnh = ca mong muốn, dùng cho "Xếp theo đăng ký")</summary>
 public enum ShiftRegistrationKind
 {
-    /// <summary>Ca mong muốn tuần tới</summary>
-    Preference,
-    /// <summary>Báo rảnh</summary>
+    /// <summary>Rảnh</summary>
     Available,
-    /// <summary>Báo bận</summary>
+    /// <summary>Bận</summary>
     Busy,
 }

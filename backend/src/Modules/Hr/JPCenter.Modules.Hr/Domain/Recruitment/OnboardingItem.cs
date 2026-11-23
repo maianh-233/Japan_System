@@ -11,9 +11,11 @@ public sealed class OnboardingItem
     public OnboardingGroup Group { get; private set; }
     public string Label { get; private set; } = null!;
     public bool Done { get; private set; }
+    /// <summary>Người tick (System.Account); null khi hệ thống tự tick</summary>
     public Guid? DoneBy { get; private set; }
+    public string? DoneByName { get; private set; }
     public DateTimeOffset? DoneAt { get; private set; }
 
-    internal void Set(bool done, Guid by, DateTimeOffset at) =>
-        (Done, DoneBy, DoneAt) = done ? (true, (Guid?)by, (DateTimeOffset?)at) : (false, null, null);
+    internal void Set(bool done, Guid by, string byName, DateTimeOffset at) =>
+        (Done, DoneBy, DoneByName, DoneAt) = done ? (true, (Guid?)by, byName, (DateTimeOffset?)at) : (false, null, null, null);
 }

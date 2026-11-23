@@ -61,5 +61,6 @@
     <Project Path="tests/Modules/Notifications/JPCenter.Modules.Notifications.Tests/JPCenter.Modules.Notifications.Tests.csproj" />
     <Project Path="tests/Modules/Students/JPCenter.Modules.Students.Tests/JPCenter.Modules.Students.Tests.csproj" />
     <Project Path="tests/Modules/System/JPCenter.Modules.System.Tests/JPCenter.Modules.System.Tests.csproj" />
+    <Project Path="tests/Modules/Work/JPCenter.Modules.Work.Tests/JPCenter.Modules.Work.Tests.csproj" />
   </Folder>
 </Solution>
