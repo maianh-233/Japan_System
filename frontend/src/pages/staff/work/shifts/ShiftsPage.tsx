@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { CalendarDays, ChevronLeft, ChevronRight, CircleCheck, CircleDashed, CircleX, ClipboardCheck, Copy, Repeat, TriangleAlert, UserRound } from 'lucide-react';
@@ -14,6 +14,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/cn';
 import { getBranches } from '@/features/system/useBranches';
 import { ALL_BRANCHES } from '@/types/auth';
+import { USE_API } from '@/lib/api/config';
+import { fillWeek, loadShiftWeek } from '@/features/work/workApi';
 
 const wd = (d: dayjs.Dayjs) => ((d.day() + 6) % 7) + 1;
 const CHIP: Record<ShiftKey, { on: string; pref: string }> = {
@@ -23,7 +25,7 @@ const CHIP: Record<ShiftKey, { on: string; pref: string }> = {
 };
 const hours = (k: ShiftKey) => (toMin(WORK_SHIFTS[k].to) - toMin(WORK_SHIFTS[k].from)) / 60;
 
-/** Xếp ca làm việc cho nhân viên "Làm theo ca" theo tuần. DỮ LIỆU GIẢ. */
+/** Xếp ca làm việc cho nhân viên "Làm theo ca" theo tuần. Chế độ API: workApi (bấm ô cập nhật lạc quan, server kiểm bận / ngày qua / đơn đổi ca). */
 export default function ShiftsPage() {
   const { user, branchId, can } = useAuth();
   const notify = useNotify();
@@ -46,7 +48,24 @@ export default function ShiftsPage() {
   const today = dayjs().format('YYYY-MM-DD');
 
   const branches = getBranches(false).filter((b) => branchId === ALL_BRANCHES || b.id === branchId);
-  const people = employees.filter((e) => e.shiftBased && e.status !== 'quit' && branches.some((b) => b.id === e.branchId));
+  const weekKey = week.format('YYYY-MM-DD');
+  const branchKey = branches.map((b) => b.id).join(',');
+  // Chế độ API: lưới tuần của từng chi nhánh đang xem (ca, rảnh / bận) — chi nhánh ngoài phạm vi thì bỏ qua
+  useEffect(() => {
+    if (!USE_API) return;
+    branchKey.split(',').filter(Boolean).forEach((b) => void loadShiftWeek(b, weekKey).catch((e: Error) => notify.toast.error(e.message)));
+  }, [weekKey, branchKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  /** XC-02 ở chế độ API: 1 request / chi nhánh, server bỏ qua ô bận, ngày đã qua, NV nghỉ */
+  const fillAll = async (mode: 'registrations' | 'copy') => {
+    try {
+      const counts = await Promise.all(branches.map((b) => fillWeek(b.id, weekKey, mode).catch(() => 0)));
+      const n = counts.reduce((a, c) => a + c, 0);
+      notify.toast.success(mode === 'copy' ? `Đã chép ${n} ca từ tuần trước (ô trống)` : `Đã xếp ${n} ca theo đăng ký`);
+    } catch (e) {
+      notify.toast.error((e as Error).message);
+    }
+  };
+  const people =employees.filter((e) => e.shiftBased && e.status !== 'quit' && branches.some((b) => b.id === e.branchId));
   const ids = people.map((e) => e.id);
   const availabilityStatus = (employeeId: string, date: string, shift: ShiftKey) =>
     availability.find((item) => item.employeeId === employeeId && item.date === date && item.shift === shift)?.status;
@@ -113,10 +132,10 @@ export default function ShiftsPage() {
         actions={
           editable && (
             <>
-              <Button icon={Copy} variant="outline" collapseOnMobile onClick={() => notify.toast.success(`Đã chép ${copyWeek(prevDates, dates, ids)} ca từ tuần trước (ô trống)`)}>
+              <Button icon={Copy} variant="outline" collapseOnMobile onClick={() => (USE_API ? void fillAll('copy') : notify.toast.success(`Đã chép ${copyWeek(prevDates, dates, ids)} ca từ tuần trước (ô trống)`))}>
                 Chép tuần trước
               </Button>
-              <Button icon={ClipboardCheck} disabled={!prefCount} collapseOnMobile onClick={() => notify.toast.success(`Đã xếp ${applyPrefs(dates, ids)} ca theo đăng ký`)}>
+              <Button icon={ClipboardCheck} disabled={!prefCount} collapseOnMobile onClick={() => (USE_API ? void fillAll('registrations') : notify.toast.success(`Đã xếp ${applyPrefs(dates, ids)} ca theo đăng ký`))}>
                 Áp dụng ca đăng ký ({prefCount})
               </Button>
             </>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Drawer, Form, Radio, Steps } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import { Banknote, Briefcase, CalendarClock, FileText, Mail, MessageSquarePlus, Pencil, Phone, Star, UserCheck, UserPlus, Users, XCircle } from 'lucide-react';
@@ -14,6 +14,9 @@ import { fmtDate, fmtDateTime } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
 import { getBranches } from '@/features/system/useBranches';
 import { ALL_BRANCHES } from '@/types/auth';
+import { USE_API } from '@/lib/api/config';
+import * as hrOps from '@/features/hr/hrOpsApi';
+import { meOf } from '@/features/hr/hrUtils';
 
 type View = 'pipeline' | 'jobs';
 const SOURCES = ['Website', 'Facebook', 'TopCV', 'VietnamWorks', 'Giới thiệu nội bộ', 'Đại học (hợp tác)'];
@@ -43,7 +46,7 @@ interface CandValues {
   cvName?: string;
 }
 
-/** Tuyển dụng: vị trí tuyển + pipeline ứng viên → onboarding. DỮ LIỆU GIẢ. */
+/** Tuyển dụng: vị trí tuyển + pipeline ứng viên → onboarding. Chế độ API: thao tác qua hrOpsApi (server quyết giai đoạn, tự đóng tin). */
 export default function RecruitmentPage() {
   const { user, branchId } = useAuth();
   const { isMobile } = useBreakpoint();
@@ -70,6 +73,22 @@ export default function RecruitmentPage() {
   const [offerFor, setOfferFor] = useState<Candidate | null>(null);
   const [note, setNote] = useState('');
   const [dragId, setDragId] = useState<string | null>(null);
+  const [cvFile, setCvFile] = useState<File | null>(null);
+  const employees = useHrStore((s) => s.employees);
+  const me = meOf(employees, user);
+
+  // Chế độ API: tin / ứng viên của server; thao tác gọi API (lỗi → báo, dữ liệu giữ nguyên)
+  useEffect(() => {
+    if (USE_API) hrOps.loadRecruitment().catch(() => undefined);
+  }, []);
+  const viaApi = async (p: Promise<unknown>, ok?: string) => {
+    try {
+      await p;
+      if (ok) notify.toast.success(ok);
+    } catch (e) {
+      notify.toast.error((e as Error).message);
+    }
+  };
 
   const scopedJobs = jobs.filter((j) => branchId === ALL_BRANCHES || j.branchId === branchId);
   const jobIds = new Set(scopedJobs.map((j) => j.id));
@@ -95,6 +114,17 @@ export default function RecruitmentPage() {
       tone: 'primary',
     });
     if (!ok || !job) return;
+    if (USE_API) {
+      try {
+        const warnings = await hrOps.hireCandidate(c.id);
+        notify.toast.success(['Đã nhận việc — tạo phiếu onboarding', ...warnings].join(' · '));
+        setOpenId(null);
+        navigate('/admin/hr/onboarding');
+      } catch (e) {
+        notify.toast.error((e as Error).message);
+      }
+      return;
+    }
     updateCandidate(c.id, { stage: 'hired', offer: c.offer ? { ...c.offer, accepted: true } : undefined });
     const ob = addOnboarding({
       candidateId: c.id,
@@ -119,6 +149,7 @@ export default function RecruitmentPage() {
   const reject = async (c: Candidate) => {
     const res = await confirm({ title: `Loại ứng viên ${c.fullName}?`, tone: 'danger', confirmAction: 'reject', confirmText: 'Loại', requireReason: { label: 'Lý do', placeholder: 'VD: chưa đạt N2, lương kỳ vọng quá cao' } });
     if (!res) return;
+    if (USE_API) return void viaApi(hrOps.rejectCandidate(c.id, typeof res === 'object' ? (res.reason ?? '') : ''), 'Đã loại ứng viên');
     updateCandidate(c.id, { stage: 'rejected', rejectReason: typeof res === 'object' ? res.reason : undefined });
     notify.toast.info('Đã loại ứng viên — gửi email cảm ơn tự động');
   };
@@ -130,6 +161,7 @@ export default function RecruitmentPage() {
     if (stage === 'offer' && !c.offer) return setOfferFor(c);
     if (stage === 'hired') return void hire(c);
     if (stage === 'rejected') return void reject(c);
+    if (USE_API) return void viaApi(hrOps.moveCandidate(c.id, stage), `${c.fullName} → ${CANDIDATE_STAGES[stage].label}`);
     updateCandidate(c.id, { stage });
     notify.toast.success(`${c.fullName} → ${CANDIDATE_STAGES[stage].label}`);
   };
@@ -328,7 +360,28 @@ export default function RecruitmentPage() {
               <dd>{open.source}</dd>
               {open.japanese && (<><dt className="text-ink-muted">Tiếng Nhật</dt><dd>{open.japanese}</dd></>)}
               {open.expectedSalary && (<><dt className="text-ink-muted">Lương kỳ vọng</dt><dd className="tabular">{formatCurrency(open.expectedSalary)}</dd></>)}
-              {open.cvName && (<><dt className="text-ink-muted">CV</dt><dd className="inline-flex items-center gap-1 text-primary-600"><FileText size={13} />{open.cvName}</dd></>)}
+              {open.cvName && (
+                <>
+                  <dt className="text-ink-muted">CV</dt>
+                  <dd>
+                    {USE_API && open.hasCv ? (
+                      <button
+                        type="button"
+                        className="inline-flex items-center gap-1 text-primary-600 hover:underline"
+                        onClick={() => void hrOps.cvLink(open.id).then((l) => window.open(l.url, '_blank', 'noopener')).catch((e: Error) => notify.toast.error(e.message))}
+                      >
+                        <FileText size={13} />
+                        {open.cvName}
+                      </button>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-primary-600">
+                        <FileText size={13} />
+                        {open.cvName}
+                      </span>
+                    )}
+                  </dd>
+                </>
+              )}
               {open.interview && (
                 <>
                   <dt className="text-ink-muted">Phỏng vấn</dt>
@@ -365,7 +418,11 @@ export default function RecruitmentPage() {
                   </Button>
                 )}
                 {open.stage === 'offer' && open.offer && (
-                  <Button size="sm" variant="soft" tone="neutral" icon={XCircle} onClick={() => (updateCandidate(open.id, { stage: 'rejected', offer: { ...open.offer!, accepted: false }, rejectReason: 'Ứng viên từ chối offer' }), notify.toast.info('Đã ghi nhận ứng viên từ chối offer'))}>
+                  <Button size="sm" variant="soft" tone="neutral" icon={XCircle} onClick={() =>
+                      USE_API
+                        ? void viaApi(hrOps.declineOffer(open.id), 'Đã ghi nhận ứng viên từ chối offer')
+                        : (updateCandidate(open.id, { stage: 'rejected', offer: { ...open.offer!, accepted: false }, rejectReason: 'Ứng viên từ chối offer' }), notify.toast.info('Đã ghi nhận ứng viên từ chối offer'))
+                    }>
                     Ứng viên từ chối offer
                   </Button>
                 )}
@@ -397,8 +454,8 @@ export default function RecruitmentPage() {
                 {!open.notes.length && <li className="text-ink-muted">Chưa có ghi chú</li>}
               </ul>
               <div className="flex gap-2">
-                <TextInput value={note} onChange={(e) => setNote(e.target.value)} placeholder="VD: đã gọi, hẹn gửi bằng N2 bản gốc" onPressEnter={() => note.trim() && (noteCandidate(open.id, user?.fullName ?? '', note.trim()), setNote(''))} />
-                <Button icon={MessageSquarePlus} iconOnly aria-label="Thêm ghi chú" disabled={!note.trim()} onClick={() => (noteCandidate(open.id, user?.fullName ?? '', note.trim()), setNote(''))} />
+                <TextInput value={note} onChange={(e) => setNote(e.target.value)} placeholder="VD: đã gọi, hẹn gửi bằng N2 bản gốc" onPressEnter={() => note.trim() && (USE_API ? void viaApi(hrOps.noteCandidate(open.id, note.trim())) : noteCandidate(open.id, user?.fullName ?? '', note.trim()), setNote(''))} />
+                <Button icon={MessageSquarePlus} iconOnly aria-label="Thêm ghi chú" disabled={!note.trim()} onClick={() => (USE_API ? void viaApi(hrOps.noteCandidate(open.id, note.trim())) : noteCandidate(open.id, user?.fullName ?? '', note.trim()), setNote(''))} />
               </div>
             </div>
           </div>
@@ -413,8 +470,14 @@ export default function RecruitmentPage() {
         title={`Phỏng vấn — ${interviewFor?.fullName ?? ''}`}
         submitAction="save"
         successMessage="Đã lưu lịch phỏng vấn — gửi email mời cho ứng viên"
-        initialValues={interviewFor?.interview ? { ...interviewFor.interview, at: dayjs(interviewFor.interview.at) } : { mode: 'offline', interviewer: user?.fullName }}
-        onSubmit={(v) => {
+        initialValues={
+          interviewFor?.interview
+            ? { ...interviewFor.interview, interviewer: USE_API ? interviewFor.interview.interviewerId : interviewFor.interview.interviewer, at: dayjs(interviewFor.interview.at) }
+            : { mode: 'offline', interviewer: USE_API ? me?.id : user?.fullName }
+        }
+        onSubmit={async (v) => {
+          if (USE_API)
+            return hrOps.scheduleInterview(interviewFor!.id, { at: v.at.toISOString(), interviewerId: v.interviewer, mode: v.mode, score: v.score ?? undefined, note: v.note?.trim() || undefined });
           updateCandidate(interviewFor!.id, { stage: 'interview', interview: { at: v.at.format('YYYY-MM-DDTHH:mm'), interviewer: v.interviewer, mode: v.mode, score: v.score ?? undefined, note: v.note?.trim() || undefined } });
         }}
       >
@@ -425,7 +488,11 @@ export default function RecruitmentPage() {
           <Radio.Group options={[{ value: 'offline', label: 'Tại trung tâm' }, { value: 'online', label: 'Online (Google Meet)' }]} />
         </Form.Item>
         <Form.Item name="interviewer" label="Người phỏng vấn" rules={[{ required: true, whitespace: true }]}>
-          <TextInput placeholder="VD: Nguyễn Văn Nam, Sato Kenji (dạy thử)" />
+          {USE_API ? (
+            <Select options={employees.filter((e) => e.status !== 'quit').map((e) => ({ value: e.id, label: `${e.fullName} · ${e.position}` }))} />
+          ) : (
+            <TextInput placeholder="VD: Nguyễn Văn Nam, Sato Kenji (dạy thử)" />
+          )}
         </Form.Item>
         <Form.Item name="score" label="Điểm đánh giá (sau PV)" extra="Để trống nếu chưa phỏng vấn.">
           <NumberInput min={0} max={10} step={0.5} />
@@ -445,7 +512,8 @@ export default function RecruitmentPage() {
         submitText="Gửi offer"
         successMessage="Đã gửi thư mời nhận việc qua email"
         initialValues={offerFor?.offer ? { salary: offerFor.offer.salary, startDate: dayjs(offerFor.offer.startDate) } : { salary: offerFor?.expectedSalary, startDate: dayjs().add(14, 'day') }}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
+          if (USE_API) return hrOps.sendOffer(offerFor!.id, v.salary, v.startDate.format('YYYY-MM-DD'));
           updateCandidate(offerFor!.id, { stage: 'offer', offer: { salary: v.salary, startDate: v.startDate.format('YYYY-MM-DD'), sentAt: dayjs().format('YYYY-MM-DD') } });
         }}
       >
@@ -460,14 +528,22 @@ export default function RecruitmentPage() {
       {/* Thêm ứng viên */}
       <ModalForm<CandValues>
         open={candNew}
-        onClose={() => setCandNew(false)}
+        onClose={() => (setCandNew(false), setCvFile(null))}
         width={620}
         title="Thêm ứng viên"
         submitAction="create"
         successMessage="Đã thêm ứng viên"
         initialValues={{ jobId: jobFilter ?? scopedJobs.find((j) => j.status === 'open')?.id, source: 'Website' }}
         columns={2}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
+          if (USE_API) {
+            await hrOps.addCandidate(
+              { jobId: v.jobId, fullName: v.fullName.trim(), phone: v.phone, email: v.email, source: v.source, japanese: v.japanese?.trim() || undefined, expectedSalary: v.expectedSalary },
+              cvFile ?? undefined,
+            );
+            setCvFile(null);
+            return setView('pipeline');
+          }
           addCandidate({ ...v, fullName: v.fullName.trim(), stage: 'applied', cvName: v.cvName?.trim() || undefined, japanese: v.japanese?.trim() || undefined });
           setView('pipeline');
         }}
@@ -493,9 +569,15 @@ export default function RecruitmentPage() {
         <Form.Item name="expectedSalary" label="Lương kỳ vọng">
           <NumberInput currency min={0} />
         </Form.Item>
-        <Form.Item name="cvName" label="Tên file CV" className="md:col-span-2">
-          <TextInput placeholder="VD: CV_NguyenVanA.pdf" />
-        </Form.Item>
+        {USE_API ? (
+          <Form.Item label="CV (PDF / Word, tối đa 10 MB)" className="md:col-span-2">
+            <input type="file" accept=".pdf,.doc,.docx" onChange={(e) => setCvFile(e.target.files?.[0] ?? null)} className="text-[13px]" />
+          </Form.Item>
+        ) : (
+          <Form.Item name="cvName" label="Tên file CV" className="md:col-span-2">
+            <TextInput placeholder="VD: CV_NguyenVanA.pdf" />
+          </Form.Item>
+        )}
       </ModalForm>
 
       {/* Đăng / sửa tin tuyển */}
@@ -513,8 +595,12 @@ export default function RecruitmentPage() {
             ? { ...jobEdit.job, deadline: dayjs(jobEdit.job.deadline) }
             : { kind: 'staff', department: 'sales', quantity: 1, status: 'open', branchId: branchId === ALL_BRANCHES ? getBranches(false)[0].id : branchId, deadline: dayjs().add(30, 'day'), channels: ['Website', 'Facebook'] }
         }
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           const data = { ...v, title: v.title.trim(), department: v.kind === 'staff' ? v.department : ('teaching' as Department), deadline: v.deadline.format('YYYY-MM-DD') };
+          if (USE_API) {
+            await hrOps.saveJob(jobEdit?.job?.id, data, v.status);
+            return setView('jobs');
+          }
           if (jobEdit?.job) updateJob(jobEdit.job.id, data);
           else addJob(data);
           setView('jobs');

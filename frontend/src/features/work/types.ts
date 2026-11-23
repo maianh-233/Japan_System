@@ -31,6 +31,10 @@ export interface Task {
   comments: { at: string; by: string; text: string }[];
   createdAt: string;
   completedAt?: string;
+  /** Chế độ API — quyền của người đang xem (server tính) */
+  canEdit?: boolean;
+  canDelete?: boolean;
+  canMove?: boolean;
 }
 
 // ---------------- Xếp ca ----------------
@@ -76,7 +80,8 @@ export interface Handover {
     note?: string;
   };
   leads: { leadId: string; note: string }[];
-  pending: { text: string; done?: boolean }[];
+  /** `id` có ở chế độ API (tick việc tồn) */
+  pending: { id?: string; text: string; done?: boolean }[];
   issues?: string;
   status: HandoverStatus;
   createdAt: string;

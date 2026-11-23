@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Checkbox, Form, Progress, Radio } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import { CalendarDays, CheckCircle2, ClipboardCheck, IdCard, KeyRound, Plus, Rocket, UserCheck, UserPlus } from 'lucide-react';
@@ -7,6 +7,7 @@ import { Button, DateInput, EmptyState, ModalForm, NumberInput, PageHeader, Sele
 import { Q_LEVELS } from '@/features/academic/questions/constants';
 import type { QLevel } from '@/features/academic/questions/types';
 import * as hrApi from '@/features/hr/hrApi';
+import * as hrOps from '@/features/hr/hrOpsApi';
 import { DEPARTMENT_OPTIONS, DEPARTMENTS, EMPLOYEE_KIND, ONBOARDING_GROUPS, ONBOARDING_TEMPLATE } from '@/features/hr/constants';
 import { useHrStore, type EmployeeInput } from '@/features/hr/hrStore';
 import type { Department, EmployeeKind, Onboarding, OnboardingItem } from '@/features/hr/types';
@@ -45,7 +46,7 @@ const progressOf = (o: Onboarding) => Math.round((o.items.filter((i) => i.done).
 
 /**
  * Onboarding nhân sự mới: checklist giấy tờ / tài khoản / thiết bị / đào tạo → tạo hồ sơ NV.
- * Phiếu + checklist: DỮ LIỆU GIẢ ⏳ (NS-12.E5). Chế độ API: bước "Tạo hồ sơ" gọi API thêm hồ sơ thật (NS-12 = NS-03).
+ * Chế độ API: phiếu + checklist lưu server (hrOpsApi), "Tạo hồ sơ" = OB-02 (server gọi lại NS-03 và gắn hồ sơ vào phiếu).
  */
 export default function OnboardingPage() {
   const { user, branchId, canDo } = useAuth();
@@ -59,6 +60,9 @@ export default function OnboardingPage() {
   const addEmployee = useHrStore((s) => s.addEmployee);
 
   const [filter, setFilter] = useState<Filter>('active');
+  useEffect(() => {
+    if (USE_API) hrOps.loadOnboardings().catch(() => undefined);
+  }, []);
   const [creating, setCreating] = useState(false);
   const [profileFor, setProfileFor] = useState<Onboarding | null>(null);
   const scoped = onboardings.filter((o) => branchId === ALL_BRANCHES || o.branchId === branchId);
@@ -76,6 +80,11 @@ export default function OnboardingPage() {
   };
 
   const toggle = (o: Onboarding, key: string) => {
+    if (USE_API) {
+      const item = o.items.find((i) => i.key === key);
+      if (item) void hrOps.tickOnboarding(o.id, key, !item.done).catch((e: Error) => notify.toast.error(e.message));
+      return;
+    }
     updateOnboarding(o.id, {
       items: o.items.map((i) => (i.key === key ? (i.done ? { ...i, done: false, doneBy: undefined, doneAt: undefined } : { ...i, done: true, doneBy: user?.fullName, doneAt: dayjs().format('YYYY-MM-DDTHH:mm') }) : i)),
     });
@@ -83,6 +92,12 @@ export default function OnboardingPage() {
 
   /** NS-12 — tạo hồ sơ từ phiếu onboarding (cùng quy tắc NS-03). Tài khoản cấp riêng ở Phân quyền người dùng (E4). */
   const createEmployee = async (o: Onboarding, v: ProfileValues) => {
+    // Chế độ API: server tạo hồ sơ (cùng quy tắc NS-03) + gắn vào phiếu (OB-02); mục "tài khoản" tự tick khi System cấp
+    if (USE_API) {
+      const e = await hrOps.createEmployeeFromOnboarding(o.id, v);
+      notify.info({ title: `Đã tạo hồ sơ ${e?.code ?? ''}`, description: 'Cấp tài khoản đăng nhập ở Hệ thống → Phân quyền người dùng.' });
+      return;
+    }
     const start = dayjs(o.startDate);
     const input: EmployeeInput = {
       fullName: o.fullName,
@@ -240,7 +255,24 @@ export default function OnboardingPage() {
         submitAction="create"
         successMessage="Đã tạo checklist onboarding"
         initialValues={{ kind: 'staff', department: 'sales', branchId: branchId === ALL_BRANCHES ? getBranches(false)[0].id : branchId, startDate: dayjs().add(7, 'day'), mentor: user?.fullName }}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
+          if (USE_API) {
+            const mentor = employees.find((e) => e.fullName === v.mentor && e.status !== 'quit');
+            if (!mentor) throw new Error('Chọn người hướng dẫn trong danh sách nhân sự');
+            const ob = await hrOps.createOnboarding({
+              fullName: v.fullName.trim(),
+              phone: v.phone,
+              email: v.email,
+              position: v.position.trim(),
+              kind: v.kind,
+              department: v.kind === 'staff' ? v.department : 'teaching',
+              branchId: v.branchId,
+              startDate: v.startDate.format('YYYY-MM-DD'),
+              mentorId: mentor.id,
+            });
+            setFilter('active');
+            return setSelId(ob.id);
+          }
           const ob = addOnboarding({
             fullName: v.fullName.trim(),
             phone: v.phone,

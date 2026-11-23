@@ -207,3 +207,13 @@ Lỗi: `work.handover.not_receiver` (403), `work.handover.closed` (409).
 - **Job:** `WorkDailyJob` 07:30 giờ VN — nhắc hạn (CV-06). **Sự kiện:** nghe `ShiftSwapApproved` (đổi người 2 ca, trùng ô → bỏ qua + log) và `EmployeeQuit`
   (gỡ ca + đăng ký rảnh / bận từ hôm nay; báo người giao các task chưa xong). Nhân sự đọc qua `IEmployeeDirectory` (thêm `managerId`, `shiftBased`,
   `ReportsOfAsync`).
+
+### Đã làm — giai đoạn 21 phase 4 (nối frontend)
+
+- `frontend/src/features/work/workApi.ts`: nạp task (toàn hệ thống nếu có quyền + của tôi + tôi giao / theo dõi + cấp dưới), bàn giao, lịch ca của tôi
+  sau đăng nhập; lưới xếp ca tải theo tuần × chi nhánh. Ở chế độ API thay các hàm thao tác nhanh của store (kéo Kanban, sửa trong chi tiết task,
+  checklist, bình luận, bấm ô ca, báo rảnh / bận, tick việc tồn): cập nhật lạc quan → gọi API → lỗi thì hoàn tác + báo (`lib/api/report.ts`).
+- Giao task / giao việc cấp dưới / xếp theo đăng ký / chép tuần / tạo & nhận bàn giao gọi API trực tiếp từ form (lỗi hiện trong form).
+  Bàn giao: tiền mặt hệ thống, người nhận gợi ý, lead đang mở lấy từ `GET handovers/draft` (ô tiền hệ thống khóa).
+- ⏳ Trang "Giao việc cấp dưới" vẫn dựng cây cấp dưới từ danh sách nhân sự ở trình duyệt (người không có quyền xem Nhân sự dùng dữ liệu đã nạp);
+  có sẵn `GET team/reports` khi cần đổi.

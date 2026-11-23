@@ -14,6 +14,8 @@ import { useWorkStore } from '@/features/work/workStore';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/cn';
 import { fmtDate } from '@/lib/date';
+import { USE_API } from '@/lib/api/config';
+import { createTask } from '@/features/work/workApi';
 
 type Scope = 'mine' | 'assigned' | 'watching' | 'all';
 
@@ -29,7 +31,7 @@ interface NewTask {
   linkId?: string;
 }
 
-/** Task — cấp trên giao cho cấp dưới. Kéo thả thẻ giữa các cột để đổi trạng thái. DỮ LIỆU GIẢ. */
+/** Task — cấp trên giao cho cấp dưới. Kéo thả thẻ giữa các cột để đổi trạng thái. Chế độ API: workApi (kéo thả cập nhật lạc quan). */
 export default function TasksPage() {
   const { user } = useAuth();
   const notify = useNotify();
@@ -256,7 +258,18 @@ export default function TasksPage() {
         submitText="Giao việc"
         successMessage="Đã giao task — người nhận được thông báo"
         initialValues={{ priority: 'normal', repeat: 'none', due: dayjs().add(2, 'day') }}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
+          if (USE_API)
+            return void (await createTask({
+              title: v.title.trim(),
+              description: v.description?.trim() || undefined,
+              assigneeId: v.assigneeId,
+              watcherIds: v.watcherIds ?? [],
+              priority: v.priority,
+              due: v.due?.format('YYYY-MM-DD'),
+              repeat: v.repeat,
+              link: v.linkType && v.linkId ? { type: v.linkType, id: v.linkId } : undefined,
+            }));
           const label = v.linkId ? linkOptions.find((o) => o.value === v.linkId)?.label : undefined;
           addTask({
             title: v.title.trim(),

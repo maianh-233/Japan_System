@@ -274,3 +274,13 @@ Phiếu đã gắn hồ sơ → `hr.onboarding.already_created`. NS-12.E5 hết 
   cần `levels` + đơn giá; quản lý trực tiếp = người hướng dẫn. Cần thêm `hr.employees.create` hoặc `hr.teachers.create`.
   System cấp tài khoản (`StaffAccountCreated`) → tự tick mục "account" (người tick "Hệ thống").
 - ⏳ `ITimesheetReader` cho Lương NV — làm cùng giai đoạn 22. Tạo hồ sơ + gắn phiếu là 2 lần lưu (hồ sơ tạo xong mà gắn lỗi → tạo lại báo trùng email).
+
+### Đã làm — giai đoạn 21 phase 4 (nối frontend)
+
+- `frontend/src/features/hr/hrOpsApi.ts`: nạp đơn từ (tab todo + của tôi + tất cả), tuyển dụng, onboarding sau đăng nhập (theo quyền xem trang);
+  bảng công tải theo tháng ở trang. Trạng thái ngày lấy bản server (`serverDays.ts` — `dayState()` ưu tiên) nên Chấm công, Lương NV, Báo cáo, hồ sơ NV
+  thống nhất với backend. Duyệt / từ chối / hủy đơn gọi từ mọi trang (cả Hộp duyệt chung) qua hàm store đã thay.
+- Trang: check-in / out (giờ server, báo muộn / sớm), sửa công, tạo đơn (của tôi / tạo hộ; đơn đổi ca tải lưới ca 2 tuần của chi nhánh), tab "Chờ tôi duyệt"
+  theo lượt server; Tuyển dụng: người phỏng vấn chọn trong nhân sự, CV tải file thật + mở link tạm, nhận việc → sang Onboarding; Onboarding: người
+  hướng dẫn, tick, "Tạo hồ sơ" = OB-02.
+- Sửa backend: hồ sơ tạo từ onboarding của Sale / Lễ tân là "làm theo ca".

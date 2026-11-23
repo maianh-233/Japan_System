@@ -10,7 +10,7 @@
 |---|---|---|
 | System: đăng nhập, phân quyền, chi nhánh, tài khoản cổng, duyệt thao tác | ✅ | ✅ |
 | Hr: hồ sơ nhân viên / giáo viên | ✅ | ✅ |
-| Hr: chấm công, đơn từ, tuyển dụng, onboarding · Work: task, xếp ca, bàn giao ca | ✅ | ❌ |
+| Hr: chấm công, đơn từ, tuyển dụng, onboarding · Work: task, xếp ca, bàn giao ca | ✅ | ✅ |
 | Academic: khóa học, lộ trình, phòng, lớp, buổi, điểm danh, chấm công GV, đơn từ, dạy thay, lên lớp, nhận xét | ✅ | ✅ |
 | Students: hồ sơ, ghi danh (HV-01 → 11), chăm sóc bỏ học (HV-14), cổng GV / HV / PH | ✅ | ✅ |
 | Crm: lead, chia lead + SLA, test xếp lớp (cả trang làm bài công khai), lịch hẹn, chiến dịch, mẫu tin, phễu, tư vấn lên lớp | ✅ | ✅ (cả trang Phụ huynh HV-12) |
@@ -31,7 +31,7 @@
 | 18 | **Tuyển sinh / Crm** (story 05 + HV-12): lead, Kanban, trùng, lịch sử tư vấn, CRM-07 lead → HV, phụ huynh, chia lead + SLA, lịch hẹn, test xếp lớp, CRM-19 tư vấn lên lớp, chiến dịch, mẫu tin nhắn, phễu. Phạm vi `own` thật cho Students | 16, 17 | ✅ 2026-11-21 |
 | 19 | **Tài chính đợt 1** (story 08): bảng giá, ưu đãi, chính sách đóng; nghe `StudentEnrolled` / `EnrollmentEnded` sinh / hủy hóa đơn; thu tiền, hoàn / hủy (duyệt 2 người), đối soát VietQR, công nợ, nhắc phí; học phí ở cổng; dấu hiệu nợ quá hạn cho cảnh báo bỏ học | 16 (18 nếu cần ghi danh từ lead) | ✅ 2026-11-22 |
 | 20 | **Nội dung học**: bài tập (upload / quiz), bài thi theo mốc (online / giấy), điểm, thông báo lớp, đánh giá GV, flashcard, tài liệu GV. Dấu hiệu bài tập / điểm thật cho cảnh báo bỏ học. Story [12](user-stories/12-noi-dung-hoc.md) | 17 | ✅ 2026-11-22 |
-| 21 | **Nhân sự mở rộng + Công việc**: chấm công NV, đơn từ duyệt nhiều cấp, tuyển dụng, onboarding, task / Kanban, giao việc cấp dưới, xếp ca, bàn giao ca, trang cá nhân. Story [13](user-stories/13-cham-cong-don-tu-tuyen-dung.md), [14](user-stories/14-cong-viec-xep-ca-ban-giao.md) | 16 | 🚧 phase 3 xong (API + job) |
+| 21 | **Nhân sự mở rộng + Công việc**: chấm công NV, đơn từ duyệt nhiều cấp, tuyển dụng, onboarding, task / Kanban, giao việc cấp dưới, xếp ca, bàn giao ca, trang cá nhân. Story [13](user-stories/13-cham-cong-don-tu-tuyen-dung.md), [14](user-stories/14-cong-viec-xep-ca-ban-giao.md) | 16 | ✅ 2026-11-23 |
 | 22 | **Tài chính đợt 2 + tích hợp**: lương GV (DT-15.E5 khóa bảng lương), lương NV, hoa hồng / KPI Sale; Zalo OA, SMS, ngân hàng, Zoom / Meet | 18, 19, 21 | |
 | 23 | **Thư viện + nhóm HV riêng**: thư viện (watermark, chặn tải, thống kê), HV-15 chứng nhận, HV-16 JLPT, HV-17 du học / XKLĐ | 16 | |
 | 24 | **Báo cáo + bảng điều khiển** (Reporting, chỉ đọc): việc cần làm theo vai trò, chuyển đổi, doanh thu, công nợ, chuyên cần, lấp đầy phòng, so sánh chi nhánh, xuất Excel | tất cả | |

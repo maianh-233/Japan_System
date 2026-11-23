@@ -12,6 +12,8 @@ import { useWorkStore } from '@/features/work/workStore';
 import { cn } from '@/lib/cn';
 import { fmtDate, fromNow } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
+import { USE_API } from '@/lib/api/config';
+import * as hrOps from '@/features/hr/hrOpsApi';
 
 const CELL: Record<DayState, string> = {
   ok: 'bg-success-50 text-success-700',
@@ -62,6 +64,10 @@ export default function MyAttendancePage() {
     const t = setInterval(() => setClock(dayjs()), 30_000);
     return () => clearInterval(t);
   }, []);
+  // Chế độ API: bảng công tháng do server tính (giờ phải làm theo ca, đơn đã duyệt)
+  useEffect(() => {
+    if (USE_API) hrOps.loadMyTimesheet(month.format('YYYY-MM')).catch((e) => notify.toast.error(e.message));
+  }, [month]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const today = dayjs().format('YYYY-MM-DD');
   const cells = useMemo(() => {
@@ -83,7 +89,17 @@ export default function MyAttendancePage() {
   const mine = requests.filter((r) => r.employeeId === me.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const problems = cells.filter((c) => ['late', 'early', 'late_early', 'no_out', 'absent'].includes(c.state));
 
-  const doPunch = () => {
+  const doPunch = async () => {
+    if (USE_API) {
+      const kind = todayRec?.checkIn ? 'out' : 'in';
+      try {
+        const r = await hrOps.punch(kind);
+        notify.toast[r.warning ? 'warning' : 'success'](`${kind === 'in' ? 'Check-in' : 'Check-out'} ${r.time ?? ''}${r.warning ? ` — ${r.warning}` : ''}`);
+      } catch (e) {
+        notify.toast.error((e as Error).message);
+      }
+      return;
+    }
     const kind = punch(me.id);
     const t = dayjs().format('HH:mm');
     if (kind === 'in') {
@@ -293,11 +309,15 @@ export default function MyAttendancePage() {
         submitText="Gửi đơn"
         successMessage="Đã gửi đơn — người duyệt được thông báo"
         initialValues={creating ?? undefined}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           const from = (v.range?.[0] ?? v.date ?? dayjs()).format('YYYY-MM-DD');
           const to = (v.range?.[1] ?? v.date ?? dayjs()).format('YYYY-MM-DD');
           const days = v.type === 'leave' && v.range ? workDays(v.range[0], v.range[1]) : undefined;
           if (v.type === 'leave' && v.paidLeave && days && days > me.leaveBalance) throw new Error(`Chỉ còn ${me.leaveBalance} ngày phép — tắt "trừ phép" để nghỉ không lương`);
+          if (USE_API) {
+            await hrOps.createRequest({ type: v.type, from, to, paidLeave: v.type === 'leave' ? v.paidLeave : undefined, title: v.title?.trim() || undefined, amount: v.amount, reason: v.reason.trim() });
+            return;
+          }
           addRequest({
             type: v.type,
             employeeId: me.id,

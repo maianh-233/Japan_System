@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Drawer, Form, Steps, Switch } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import { CalendarOff, CheckCircle2, CircleDashed, HandCoins, Inbox, Send, XCircle } from 'lucide-react';
@@ -14,6 +14,8 @@ import { cn } from '@/lib/cn';
 import { fmtDate, fmtDateTime } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
 import { ALL_BRANCHES } from '@/types/auth';
+import { USE_API } from '@/lib/api/config';
+import * as hrOps from '@/features/hr/hrOpsApi';
 
 type Tab = 'todo' | 'mine' | 'all';
 
@@ -31,7 +33,7 @@ interface Values {
   reason: string;
 }
 
-/** Đơn từ & phê duyệt nhiều cấp. DỮ LIỆU GIẢ. */
+/** Đơn từ & phê duyệt nhiều cấp. Chế độ API: cấp duyệt, lượt duyệt, trừ phép, đổi ca do server quyết (hrOpsApi). */
 export default function RequestsPage() {
   const { user, branchId, can } = useAuth();
   const { isMobile } = useBreakpoint();
@@ -58,16 +60,24 @@ export default function RequestsPage() {
   const fWith = Form.useWatch('withEmployeeId', form);
   const fAmount = Form.useWatch('amount', form) ?? 0;
 
+  useEffect(() => {
+    if (USE_API) hrOps.loadRequests().catch(() => undefined);
+  }, []);
+
   const today = dayjs().format('YYYY-MM-DD');
   const canDecide = (r: HrRequest) => {
     if (r.status !== 'pending') return false;
+    if (r.canDecide !== undefined) return r.canDecide;
     const st = r.steps.find((s) => !s.decision);
     return Boolean(st) && (isAdmin || st!.approver === user?.fullName);
   };
 
   const scoped = requests.filter((r) => branchId === ALL_BRANCHES || employees.find((e) => e.id === r.employeeId)?.branchId === branchId);
   const lists: Record<Tab, HrRequest[]> = {
-    todo: scoped.filter(canDecide),
+    // Chế độ API: đến lượt mình, hoặc bước mở mà mình có quyền duyệt (duyệt thay vẫn làm được từ tab Tất cả)
+    todo: USE_API
+      ? requests.filter((r) => canDecide(r) && ((st) => !st?.approverId || st.approverId === me?.id)(r.steps.find((x) => !x.decision)))
+      : scoped.filter(canDecide),
     mine: requests.filter((r) => r.employeeId === me?.id),
     all: scoped,
   };
@@ -91,7 +101,14 @@ export default function RequestsPage() {
       ...(decision === 'rejected' ? { requireReason: { label: 'Lý do từ chối', placeholder: 'VD: ngày cao điểm, thiếu người trực' } } : {}),
     });
     if (!res) return;
-    decide(r.id, user?.fullName ?? 'Quản lý', decision, typeof res === 'object' ? res.reason : undefined);
+    const comment = typeof res === 'object' ? res.reason : undefined;
+    if (USE_API) {
+      try {
+        await hrOps.decideRequest(r.id, decision, comment);
+      } catch (e) {
+        return void notify.toast.error((e as Error).message);
+      }
+    } else decide(r.id, user?.fullName ?? 'Quản lý', decision, comment);
     notify.toast.success(decision === 'approved' ? 'Đã duyệt' : 'Đã từ chối');
   };
 
@@ -148,6 +165,15 @@ export default function RequestsPage() {
 
   // ---- Form tạo đơn
   const emp = employees.find((e) => e.id === fEmp);
+  // Chế độ API: đơn đổi ca cần ca của đồng nghiệp → tải lưới tuần này + tuần sau của chi nhánh
+  const swapBranch = fType === 'shift_swap' ? emp?.branchId : undefined;
+  useEffect(() => {
+    if (!USE_API || !swapBranch) return;
+    const monday = dayjs().subtract((dayjs().day() + 6) % 7, 'day');
+    void import('@/features/work/workApi').then((w) =>
+      Promise.all([0, 7].map((d) => w.loadShiftWeek(swapBranch, monday.add(d, 'day').format('YYYY-MM-DD')))).catch(() => undefined),
+    );
+  }, [swapBranch]);
   const myUpcoming = shifts.filter((s) => s.employeeId === fEmp && s.date >= today).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 14);
   const colleagues = employees.filter((e) => e.shiftBased && e.id !== fEmp && e.branchId === emp?.branchId && e.status !== 'quit');
   const theirUpcoming = shifts.filter((s) => s.employeeId === fWith && s.date >= today).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 14);
@@ -256,7 +282,7 @@ export default function RequestsPage() {
               }))}
             />
             <div className="flex justify-end gap-2 border-t border-line pt-3">
-              {open.status === 'pending' && open.employeeId === me?.id && (
+              {open.status === 'pending' && (open.canCancel ?? open.employeeId === me?.id) && (
                 <Button tone="neutral" variant="ghost" icon={XCircle} onClick={() => (cancelRequest(open.id), notify.toast.info('Đã hủy đơn'))}>
                   Hủy đơn
                 </Button>
@@ -287,13 +313,30 @@ export default function RequestsPage() {
         submitText="Gửi đơn"
         successMessage="Đã gửi đơn — người duyệt được thông báo"
         initialValues={{ employeeId: me?.id, type: 'leave', paidLeave: true }}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           const e = employees.find((x) => x.id === v.employeeId)!;
           const from = (v.range?.[0] ?? v.date ?? dayjs()).format('YYYY-MM-DD');
           const to = (v.range?.[1] ?? v.date ?? dayjs()).format('YYYY-MM-DD');
           const days = v.type === 'leave' && v.range ? workDays(v.range[0], v.range[1]) : undefined;
           if (v.type === 'leave' && v.paidLeave && days && days > e.leaveBalance) throw new Error(`Chỉ còn ${e.leaveBalance} ngày phép — chọn nghỉ không lương cho phần vượt`);
           const swapDate = v.type === 'shift_swap' ? shifts.find((s) => s.id === v.myShiftId)?.date : undefined;
+          if (USE_API) {
+            await hrOps.createRequest(
+              {
+                employeeId: v.employeeId,
+                type: v.type,
+                from: v.type === 'shift_swap' ? undefined : from,
+                to: v.type === 'shift_swap' ? undefined : to,
+                paidLeave: v.type === 'leave' ? v.paidLeave : undefined,
+                swap: v.type === 'shift_swap' && v.myShiftId && v.withEmployeeId && v.theirShiftId ? { myShiftId: v.myShiftId, withEmployeeId: v.withEmployeeId, theirShiftId: v.theirShiftId } : undefined,
+                title: v.title?.trim() || undefined,
+                amount: v.amount,
+                reason: v.reason.trim(),
+              },
+              me?.id,
+            );
+            return setTab('mine');
+          }
           addRequest({
             type: v.type,
             employeeId: v.employeeId,

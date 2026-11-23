@@ -13,6 +13,8 @@ import { TaskDrawer } from '@/features/work/TaskDrawer';
 import type { TaskPriority, TaskRepeat } from '@/features/work/types';
 import { useWorkStore } from '@/features/work/workStore';
 import { cn } from '@/lib/cn';
+import { USE_API } from '@/lib/api/config';
+import { createTeamTasks } from '@/features/work/workApi';
 
 /** Số người hiện sẵn (≈ 2 hàng trên màn hình rộng); còn lại bấm “Xem tất cả” */
 const PEOPLE_PREVIEW = 8;
@@ -196,12 +198,22 @@ export default function TeamTasksPage() {
         submitText="Giao việc"
         successMessage="Đã giao việc — nhân viên nhận thông báo"
         initialValues={{ assigneeIds: creating ?? [], priority: 'normal', repeat: 'none', due: dayjs().add(1, 'day') }}
-        onSubmit={(v) => {
-          const checklist = (v.checklist ?? '')
+        onSubmit={async (v) => {
+          const lines = (v.checklist ?? '')
             .split('\n')
             .map((x) => x.trim())
-            .filter(Boolean)
-            .map((text, i) => ({ id: `CL-${Date.now()}-${i}`, text, done: false }));
+            .filter(Boolean);
+          // Chế độ API: 1 request giao cho nhiều người — server kiểm "người làm là cấp dưới" (CV-04)
+          if (USE_API)
+            return void (await createTeamTasks(v.assigneeIds, {
+              title: v.title.trim(),
+              description: v.description?.trim() || undefined,
+              priority: v.priority,
+              due: v.due?.format('YYYY-MM-DD'),
+              repeat: v.repeat,
+              checklist: lines,
+            }));
+          const checklist = lines.map((text, i) => ({ id: `CL-${Date.now()}-${i}`, text, done: false }));
           v.assigneeIds.forEach((assigneeId) =>
             addTask({ title: v.title.trim(), description: v.description, assigneeId, creatorId: me.id, watcherIds: [], priority: v.priority, status: 'todo', due: v.due?.format('YYYY-MM-DD'), repeat: v.repeat, checklist }),
           );

@@ -5,7 +5,8 @@
  *    cổng GV / HV / PH (lớp, lịch, đơn, QR, Quan tâm), cài đặt chung, nhật ký hệ thống, thùng rác, chuông thông báo + realtime SignalR,
  *    ngân hàng câu hỏi, Tuyển sinh (lead, chia lead, test xếp lớp, lịch hẹn, chiến dịch, mẫu tin, phễu, tư vấn lên lớp), phụ huynh / người giám hộ, tài khoản cổng HV / PH,
  *    Tài chính đợt 1 (hóa đơn, thu / hoàn / hủy qua duyệt 2 người, bảng giá, ưu đãi, đóng đợt, đối soát VietQR, công nợ & nhắc, học phí ở cổng),
- *    Nội dung học (bài tập upload / quiz, kỳ thi online / giấy, thông báo lớp, đánh giá GV, flashcard, tài liệu GV) gọi backend thật
+ *    Nội dung học (bài tập upload / quiz, kỳ thi online / giấy, thông báo lớp, đánh giá GV, flashcard, tài liệu GV),
+ *    Nhân sự mở rộng (chấm công, đơn từ duyệt nhiều cấp, tuyển dụng, onboarding) + Công việc (task, giao việc cấp dưới, xếp ca, bàn giao ca) gọi backend thật
  *    (cần chạy API + Docker — xem backend/README.md).
  *  - "mock": toàn bộ chạy bằng dữ liệu giả trong trình duyệt như trước (không cần backend).
  * Đặt trong frontend/.env.local:  VITE_API_MODE=mock

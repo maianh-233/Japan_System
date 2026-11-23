@@ -100,6 +100,10 @@ export interface ApprovalStep {
   decision?: 'approved' | 'rejected';
   at?: string;
   comment?: string;
+  /** Chế độ API: người duyệt dự kiến (Id nhân viên); trống = bước mở (người có quyền duyệt đơn duyệt) */
+  approverId?: string;
+  /** Duyệt thay người duyệt dự kiến */
+  onBehalf?: boolean;
 }
 
 export interface HrRequest {
@@ -122,6 +126,9 @@ export interface HrRequest {
   status: RequestStatus;
   steps: ApprovalStep[];
   createdAt: string;
+  /** Chế độ API — server tính theo người đang xem: được quyết bước hiện tại / được hủy */
+  canDecide?: boolean;
+  canCancel?: boolean;
 }
 
 // ---------------- Tuyển dụng & Onboarding ----------------
@@ -156,10 +163,12 @@ export interface Candidate {
   /** Trình độ tiếng Nhật (GV) */
   japanese?: string;
   expectedSalary?: number;
-  interview?: { at: string; interviewer: string; mode: 'offline' | 'online'; score?: number; note?: string };
+  interview?: { at: string; interviewer: string; interviewerId?: string; mode: 'offline' | 'online'; score?: number; note?: string };
   offer?: { salary: number; startDate: string; sentAt: string; accepted?: boolean };
   rejectReason?: string;
   notes: { at: string; by: string; text: string }[];
+  /** Chế độ API: có file CV trong kho (mở bằng link tạm) */
+  hasCv?: boolean;
 }
 
 export interface OnboardingItem {
@@ -183,6 +192,8 @@ export interface Onboarding {
   branchId: string;
   startDate: string;
   mentor: string;
+  /** Chế độ API: Id người hướng dẫn */
+  mentorId?: string;
   items: OnboardingItem[];
   /** Đã tạo hồ sơ nhân viên */
   employeeId?: string;

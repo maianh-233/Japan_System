@@ -13,7 +13,7 @@ namespace JPCenter.Modules.Hr.Application.Onboardings.CreateEmployeeFromOnboardi
 /// <summary>
 /// OB-02 (= NS-12) — "Tạo hồ sơ" từ phiếu: gọi cùng use case NS-03 (<see cref="CreateEmployeeCommand"/>, kiểm quyền <c>hr.employees.create</c> /
 /// <c>hr.teachers.create</c> theo loại + chi nhánh), rồi gắn mã hồ sơ vào phiếu. Hợp đồng thử việc 2 tháng từ ngày bắt đầu, lương = lương offer (nếu có);
-/// quản lý trực tiếp = người hướng dẫn. GV / trợ giảng cần cấp độ dạy + đơn giá.
+/// quản lý trực tiếp = người hướng dẫn; Sale / Lễ tân làm theo ca. GV / trợ giảng cần cấp độ dạy + đơn giá.
 /// </summary>
 public sealed record CreateEmployeeFromOnboardingCommand(Guid Id, Gender Gender, TeacherNationality? TeacherType, List<string>? Levels,
     decimal? RateOffline, decimal? RateOnline) : ICommand<OnboardingDto>;
@@ -41,7 +41,7 @@ public sealed class CreateEmployeeFromOnboardingHandler(IHrDbContext db, Onboard
             : null;
 
         var created = await sender.Send(new CreateEmployeeCommand(EmployeeGroups.Of(o.Kind), o.Kind, o.FullName, cmd.Gender, null, o.Phone, o.Email,
-            o.BranchId.Value, o.Department, o.Position, o.MentorId.Value, false,
+            o.BranchId.Value, o.Department, o.Position, o.MentorId.Value, !teaching && o.Department is Department.Sales or Department.Reception,
             teaching ? EmployeeStatus.Active : EmployeeStatus.Probation, contract, teacher, $"Tạo từ onboarding · bắt đầu {o.StartDate:dd/MM/yyyy}"), ct);
         if (created.IsFailure) return created.Error;
 

@@ -3,6 +3,7 @@ import type { Tone } from '@/components/common';
 import type { SessionUser } from '@/types/auth';
 import type { ShiftAssignment } from '@/features/work/types';
 import { lateGraceMin, OFFICE_HOURS, WORK_SHIFTS } from './constants';
+import { serverDayOf } from './serverDays';
 import type { ApprovalStep, Employee, HrRequest, RequestType, TimeRecord } from './types';
 
 export const toMin = (t: string) => {
@@ -53,6 +54,9 @@ export const onLeave = (employeeId: string, date: string, requests: HrRequest[])
 
 /** Trạng thái chấm công 1 ngày */
 export function dayState(e: Employee, date: string, rec: TimeRecord | undefined, shifts: ShiftAssignment[], requests: HrRequest[]) {
+  // Chế độ API: dùng kết quả server nếu đã tải ngày này (serverDays.ts)
+  const server = serverDayOf(e.id, date);
+  if (server) return server;
   const exp = expectedOf(e, date, shifts);
   const today = dayjs().format('YYYY-MM-DD');
   const lateMin = exp && rec?.checkIn ? toMin(rec.checkIn) - toMin(exp.from) : 0;

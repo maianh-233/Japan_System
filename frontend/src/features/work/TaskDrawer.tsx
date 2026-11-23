@@ -7,6 +7,7 @@ import { Button, DateInput, Select, StatusTag, TextInput, UserCell, useNotify } 
 import { useHrStore } from '@/features/hr/hrStore';
 import { nameOf } from '@/features/hr/hrUtils';
 import { useAuth } from '@/hooks/useAuth';
+import { USE_API } from '@/lib/api/config';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { cn } from '@/lib/cn';
 import { fmtDate, fmtDateTime } from '@/lib/date';
@@ -18,6 +19,8 @@ import { useWorkStore } from './workStore';
 export function completeTask(task: Task) {
   const { updateTask, addTask } = useWorkStore.getState();
   updateTask(task.id, { status: 'done' });
+  // Chế độ API: server sinh lần kế tiếp (chỉ 1 lần / task — CV-02.E2)
+  if (USE_API) return task.repeat !== 'none' && task.status !== 'done';
   if (task.repeat !== 'none') {
     const unit = task.repeat === 'daily' ? 'day' : task.repeat === 'weekly' ? 'week' : 'month';
     const base = task.due ? dayjs(task.due) : dayjs();

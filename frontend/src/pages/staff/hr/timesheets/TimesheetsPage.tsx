@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Form, Tooltip } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import { ChevronLeft, ChevronRight, Clock, LogIn, TriangleAlert } from 'lucide-react';
@@ -13,6 +13,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/cn';
 import { getBranches } from '@/features/system/useBranches';
 import { ALL_BRANCHES } from '@/types/auth';
+import { USE_API } from '@/lib/api/config';
+import * as hrOps from '@/features/hr/hrOpsApi';
 
 const CELL: Record<DayState, string> = {
   ok: 'bg-success-50 text-success-700',
@@ -44,6 +46,11 @@ export default function TimesheetsPage() {
   const [dept, setDept] = useState<string>();
   const [problemsOnly, setProblemsOnly] = useState(false);
   const [editing, setEditing] = useState<{ e: Employee; date: string } | null>(null);
+  // Chế độ API: lưới tháng do server tính (CC-03) — tải lại khi đổi tháng
+  const [, setLoaded] = useState(0);
+  useEffect(() => {
+    if (USE_API) hrOps.loadTimesheets(month.format('YYYY-MM')).then(() => setLoaded((n) => n + 1)).catch(() => undefined);
+  }, [month]);
 
   const days = Array.from({ length: month.daysInMonth() }, (_, i) => month.add(i, 'day').format('YYYY-MM-DD'));
   const today = dayjs().format('YYYY-MM-DD');
@@ -213,7 +220,11 @@ export default function TimesheetsPage() {
           submitText="Lưu"
           successMessage="Đã sửa công"
           initialValues={{ checkIn: atTime(editingRec?.checkIn), checkOut: atTime(editingRec?.checkOut) }}
-          onSubmit={(v) => editRecord(editing.e.id, editing.date, { checkIn: v.checkIn?.format('HH:mm'), checkOut: v.checkOut?.format('HH:mm') }, user?.fullName ?? 'Quản lý', v.reason.trim())}
+          onSubmit={(v) => {
+            const patch = { checkIn: v.checkIn?.format('HH:mm'), checkOut: v.checkOut?.format('HH:mm') };
+            if (USE_API) return hrOps.editRecord(editing.e.id, editing.date, patch, v.reason.trim());
+            editRecord(editing.e.id, editing.date, patch, user?.fullName ?? 'Quản lý', v.reason.trim());
+          }}
         >
           <div className="grid grid-cols-2 gap-x-3">
             <Form.Item name="checkIn" label="Giờ vào">

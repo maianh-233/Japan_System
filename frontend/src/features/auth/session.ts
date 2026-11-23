@@ -15,6 +15,8 @@ import { loadGuardians } from '@/features/student/guardians/guardianApi';
 import { loadPortalAccounts } from '@/features/student/portalAccountApi';
 import { useStudentStore } from '@/features/student/studentStore';
 import { loadEmployees } from '@/features/hr/hrApi';
+import { loadHrOps } from '@/features/hr/hrOpsApi';
+import { loadWork } from '@/features/work/workApi';
 import { loadBranches } from '@/features/system/branchApi';
 import { loadSystem, rememberAccount } from '@/features/system/systemApi';
 import { loadLearningPortal, loadStaffRequests, loadTeacherPortal } from '@/features/portal/portalApi';
@@ -60,6 +62,9 @@ export async function onSignedIn(user: SessionUser & { accountId?: string }) {
     canView('finance.reconciliation') ? quiet(loadTransactions()) : Promise.resolve(),
   ]);
   await quiet(loadCrm(canView));
+  // Nhân sự mở rộng + Công việc (user story 13, 14): đơn từ, tuyển dụng, onboarding, task, ca của tôi, bàn giao
+  // Bảng công / lưới xếp ca tải theo tháng / tuần ở trang tương ứng
+  await Promise.all([quiet(loadHrOps(canView)), quiet(loadWork(canView))]);
   // Phụ huynh / người giám hộ (HV-12) — lead có liên kết HV; nạp sau Tuyển sinh để gộp vào cùng danh sách lead
   if (canView('students.contacts')) await quiet(loadGuardians());
   else useCrmStore.setState({ links: [] });

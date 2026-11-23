@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Form } from 'antd';
 import dayjs from 'dayjs';
 import { ArrowRight, Banknote, CheckCircle2, CircleDashed, ClipboardList, Minus, Plus, Target, TriangleAlert, Users } from 'lucide-react';
@@ -16,6 +16,8 @@ import { cn } from '@/lib/cn';
 import { fmtDate, fmtDateTime } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
 import { getBranches } from '@/features/system/useBranches';
+import { USE_API } from '@/lib/api/config';
+import { createHandover, handoverDraft, loadHandovers, receiveHandover, type HandoverDraft } from '@/features/work/workApi';
 import { ALL_BRANCHES } from '@/types/auth';
 
 const STATUS: Record<HandoverStatus, { label: string; tone: 'warning' | 'success' | 'danger'; icon: typeof CheckCircle2 }> = {
@@ -39,7 +41,7 @@ interface NewHandover {
   issues?: string;
 }
 
-/** Bàn giao ca — DỮ LIỆU GIẢ. */
+/** Bàn giao ca. Chế độ API: tiền mặt hệ thống + gợi ý người nhận từ server (workApi), tạo / nhận ca / tick việc tồn lưu server. */
 export default function HandoverPage() {
   const { user, branchId } = useAuth();
   const notify = useNotify();
@@ -56,6 +58,10 @@ export default function HandoverPage() {
   const [creating, setCreating] = useState(false);
   const [init, setInit] = useState<Partial<NewHandover>>();
   const [receiving, setReceiving] = useState<Handover | null>(null);
+  const [draft, setDraft] = useState<HandoverDraft | null>(null);
+  useEffect(() => {
+    if (USE_API) loadHandovers().catch(() => undefined);
+  }, []);
   const [form] = Form.useForm<NewHandover>();
   const fBranch = Form.useWatch('branchId', form);
   const fShift = Form.useWatch('fromShift', form);
@@ -79,7 +85,19 @@ export default function HandoverPage() {
     return invoices.flatMap((i) => i.payments).filter((p) => p.method === 'cash' && dayjs(p.paidAt).format('YYYY-MM-DD') === date && dayjs(p.paidAt).format('HH:mm') >= from && dayjs(p.paidAt).format('HH:mm') < to).reduce((n, p) => n + p.amount, 0);
   };
 
-  const startCreate = () => {
+  const startCreate = async () => {
+    // Chế độ API: server gợi ý ca của tôi, người nhận ca kế tiếp, tiền mặt hệ thống, lead đang mở
+    if (USE_API) {
+      try {
+        const d = await handoverDraft();
+        setDraft(d);
+        setInit({ branchId: me?.branchId, fromShift: d.shift, fromId: me?.id, toId: d.receiverId, expected: d.cashExpected, counted: d.cashExpected, leads: [], pending: [] });
+        setCreating(true);
+      } catch (e) {
+        notify.toast.error((e as Error).message);
+      }
+      return;
+    }
     const b = me?.branchId ?? (branchId === ALL_BRANCHES ? 'cg' : branchId);
     const k: ShiftKey = myShift?.shift ?? (dayjs().hour() < 12 ? 'morning' : dayjs().hour() < 17 ? 'afternoon' : 'evening');
     const idx = SHIFT_KEYS.indexOf(k);
@@ -89,8 +107,14 @@ export default function HandoverPage() {
     setCreating(true);
   };
 
-  const branchStaff = employees.filter((e) => e.shiftBased && e.status !== 'quit' && e.branchId === fBranch).map((e) => ({ value: e.id, label: `${e.fullName} · ${e.position}` }));
-  const branchLeads = leads.filter((l) => !l.hidden && l.branchId === fBranch && !['won', 'lost'].includes(l.status)).map((l) => ({ value: l.id, label: `${l.code} — ${l.fullName}` }));
+  const branchStaff =
+    USE_API && draft
+      ? [...(me ? [{ value: me.id, label: `${me.fullName} · ${me.position}` }] : []), ...draft.receivers.map((r) => ({ value: r.id, label: r.fullName }))]
+      : employees.filter((e) => e.shiftBased && e.status !== 'quit' && e.branchId === fBranch).map((e) => ({ value: e.id, label: `${e.fullName} · ${e.position}` }));
+  const branchLeads =
+    USE_API && draft
+      ? draft.leads.map((l) => ({ value: l.id, label: `${l.code} — ${l.fullName}` }))
+      : leads.filter((l) => !l.hidden && l.branchId === fBranch && !['won', 'lost'].includes(l.status)).map((l) => ({ value: l.id, label: `${l.code} — ${l.fullName}` }));
   const leadName = (id: string) => {
     const l = leads.find((x) => x.id === id);
     return l ? `${l.fullName} (${l.phone})` : id;
@@ -256,7 +280,17 @@ export default function HandoverPage() {
         submitAction="send"
         submitText="Gửi bàn giao"
         successMessage="Đã gửi bàn giao — người nhận ca được thông báo"
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
+          if (USE_API)
+            return void (await createHandover({
+              shift: v.fromShift,
+              toId: v.toId,
+              cashCounted: v.counted,
+              cashNote: v.cashNote?.trim() || undefined,
+              issues: v.issues?.trim() || undefined,
+              leads: (v.leads ?? []).filter((l) => l?.leadId),
+              pending: (v.pending ?? []).filter((p) => p?.trim()).map((p) => p.trim()),
+            }));
           addHandover({
             branchId: v.branchId,
             date: today,
@@ -274,7 +308,11 @@ export default function HandoverPage() {
           <Select options={getBranches(false).map((b) => ({ value: b.id, label: b.name }))} showSearch={false} allowClear={false} />
         </Form.Item>
         <Form.Item name="fromShift" label="Ca bàn giao" rules={[{ required: true }]}>
-          <Select options={SHIFT_KEYS.map((k) => ({ value: k, label: `${WORK_SHIFTS[k].label} ${WORK_SHIFTS[k].from}–${WORK_SHIFTS[k].to}` }))} showSearch={false} allowClear={false} onChange={(k) => form.setFieldsValue({ expected: FLOAT + cashIn(today, k as ShiftKey) })} />
+          <Select options={SHIFT_KEYS.map((k) => ({ value: k, label: `${WORK_SHIFTS[k].label} ${WORK_SHIFTS[k].from}–${WORK_SHIFTS[k].to}` }))} showSearch={false} allowClear={false} onChange={(k) =>
+              USE_API
+                ? void handoverDraft(k as ShiftKey).then((d) => form.setFieldsValue({ expected: d.cashExpected })).catch((e: Error) => notify.toast.error(e.message))
+                : form.setFieldsValue({ expected: FLOAT + cashIn(today, k as ShiftKey) })
+            } />
         </Form.Item>
         <Form.Item name="fromId" label="Người bàn giao" rules={[{ required: true, message: 'Chọn người bàn giao' }]}>
           <Select options={branchStaff} />
@@ -282,8 +320,8 @@ export default function HandoverPage() {
         <Form.Item name="toId" label="Người nhận ca" rules={[{ required: true, message: 'Chọn người nhận' }, ({ getFieldValue }) => ({ validator: (_, v) => (v && v === getFieldValue('fromId') ? Promise.reject(new Error('Phải khác người bàn giao')) : Promise.resolve()) })]}>
           <Select options={branchStaff} />
         </Form.Item>
-        <Form.Item name="expected" label={`Tiền mặt theo hệ thống${fShift ? ` (${WORK_SHIFTS[fShift as ShiftKey].label.toLowerCase()})` : ''}`}>
-          <NumberInput currency min={0} />
+        <Form.Item name="expected" label={`Tiền mặt theo hệ thống${fShift ? ` (${WORK_SHIFTS[fShift as ShiftKey].label.toLowerCase()})` : ''}`} extra={USE_API ? 'Hệ thống tính từ phiếu thu tiền mặt trong ca — không sửa được' : undefined}>
+          <NumberInput currency min={0} disabled={USE_API} />
         </Form.Item>
         <Form.Item
           name="counted"
@@ -358,7 +396,12 @@ export default function HandoverPage() {
           submitText="Xác nhận"
           successMessage="Đã nhận ca"
           initialValues={{ count: receiving.cash.counted }}
-          onSubmit={(v) => {
+          onSubmit={async (v) => {
+            if (USE_API) {
+              const h = await receiveHandover(receiving.id, v.count, v.note?.trim() || undefined);
+              if (h.status === 'disputed') notify.warning({ title: 'Đã ghi nhận lệch tiền', description: 'Quản lý / kế toán chi nhánh được thông báo.' });
+              return;
+            }
             const off = v.count !== receiving.cash.counted || receiving.cash.counted !== receiving.cash.expected;
             updateHandover(receiving.id, { status: off ? 'disputed' : 'received', receivedAt: new Date().toISOString(), receiverNote: v.note?.trim() || undefined, cash: { ...receiving.cash, receivedCount: v.count } });
             if (off) notify.warning({ title: 'Đã ghi nhận lệch tiền', description: 'Kế toán sẽ kiểm tra với 2 ca.' });

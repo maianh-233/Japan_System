@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import dayjs, { type Dayjs } from 'dayjs';
 import { CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, CircleDashed, CircleX } from 'lucide-react';
 import { Button, EmptyState, PageHeader, StatCard, useNotify } from '@/components/common';
@@ -8,6 +8,8 @@ import { useMe } from '@/features/me/useMe';
 import { useWorkStore } from '@/features/work/workStore';
 import type { ShiftAvailabilityStatus } from '@/features/work/types';
 import { cn } from '@/lib/cn';
+import { USE_API } from '@/lib/api/config';
+import { loadMyShifts } from '@/features/work/workApi';
 
 const startOfWeek = (date: Dayjs) => date.subtract((date.day() + 6) % 7, 'day').startOf('day');
 const shiftKey = (date: string, shift: ShiftKey) => `${date}:${shift}`;
@@ -23,6 +25,11 @@ export default function MyShiftAvailabilityPage() {
   const today = dayjs().format('YYYY-MM-DD');
   const days = useMemo(() => Array.from({ length: 7 }, (_, index) => week.add(index, 'day')), [week]);
   const dates = useMemo(() => days.map((date) => date.format('YYYY-MM-DD')), [days]);
+  // Chế độ API: ca đã xếp + rảnh / bận của tôi (2 tuần từ tuần đang xem); báo rảnh / bận lưu ngay (workApi)
+  const weekKey = week.format('YYYY-MM-DD');
+  useEffect(() => {
+    if (USE_API) loadMyShifts(weekKey).catch((e: Error) => notify.toast.error(e.message));
+  }, [weekKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const myAvailability = useMemo(
     () => new Map(availability.filter((item) => item.employeeId === me?.id).map((item) => [shiftKey(item.date, item.shift), item.status])),
