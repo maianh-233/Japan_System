@@ -1,8 +1,8 @@
 using System.Globalization;
 
-namespace JPCenter.Modules.Academic.Application.Common;
+namespace JPCenter.Application.Common.Time;
 
-/// <summary>Giờ học dạng "HH:mm" giống frontend; đổi giờ địa phương VN (UTC+7, không đổi giờ mùa hè) ↔ mốc thời gian</summary>
+/// <summary>Giờ dạng "HH:mm" giống frontend; đổi giờ địa phương VN (UTC+7, không đổi giờ mùa hè) ↔ mốc thời gian (giờ học, ca làm, chấm công)</summary>
 public static class TimeText
 {
     private static readonly TimeSpan Vietnam = TimeSpan.FromHours(7);

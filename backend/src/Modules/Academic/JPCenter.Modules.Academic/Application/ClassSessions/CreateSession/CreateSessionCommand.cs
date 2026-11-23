@@ -1,3 +1,4 @@
+using JPCenter.Application.Common.Time;
 using FluentValidation;
 using JPCenter.Application.Common.Auditing;
 using JPCenter.Application.Common.IntegrationEvents;

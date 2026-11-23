@@ -55,6 +55,14 @@ public sealed class Onboarding : AggregateRoot<OnboardingId>, IBranchScoped, IAu
         return Result.Success();
     }
 
+    /// <summary>OB-01 — System đã cấp tài khoản cho hồ sơ đã gắn → tự tick "Tạo tài khoản đăng nhập". Trả true nếu vừa tick.</summary>
+    public bool MarkAccountCreated(DateTimeOffset at)
+    {
+        if (_items.FirstOrDefault(i => i.Key == OnboardingTemplate.AccountKey) is not { Done: false } item) return false;
+        item.SetBySystem("Hệ thống", at);
+        return true;
+    }
+
     /// <summary>OB-02 — gắn hồ sơ vừa tạo</summary>
     public Result LinkEmployee(EmployeeId employeeId)
     {

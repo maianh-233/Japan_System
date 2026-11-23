@@ -90,4 +90,14 @@ public sealed class RecruitmentTests
         staff.Tick("bank", false, Guid.NewGuid(), "HR", Now);
         staff.Items.Single(i => i.Key == "bank").DoneAt.ShouldBeNull();
     }
+
+    [Fact]
+    public void OB01_he_thong_tu_tick_tai_khoan_mot_lan()
+    {
+        var o = Onboarding.Create(null, "Hoa", "0901", "hoa@mail.vn", "Sale", Department.Sales, EmployeeKind.Staff, BranchId.New(), Today, EmployeeId.New()).Value;
+        o.MarkAccountCreated(Now).ShouldBeTrue();
+        var item = o.Items.Single(i => i.Key == OnboardingTemplate.AccountKey);
+        (item.Done, item.DoneBy, item.DoneByName, item.DoneAt).ShouldBe((true, (Guid?)null, "Hệ thống", (DateTimeOffset?)Now));
+        o.MarkAccountCreated(Now.AddHours(1)).ShouldBeFalse(); // đã tick → không đổi
+    }
 }

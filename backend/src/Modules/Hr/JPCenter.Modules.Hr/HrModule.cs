@@ -4,11 +4,17 @@ using JPCenter.Infrastructure.Common.Jobs;
 using JPCenter.Infrastructure.Common.Persistence;
 using JPCenter.Modules.Hr.Api;
 using JPCenter.Modules.Hr.Application.Abstractions;
+using JPCenter.Modules.Hr.Application.Common;
 using JPCenter.Modules.Hr.Application.Employees.Common;
+using JPCenter.Modules.Hr.Application.HrRequests.Common;
+using JPCenter.Modules.Hr.Application.Onboardings.Common;
+using JPCenter.Modules.Hr.Application.Recruitment.Common;
+using JPCenter.Modules.Hr.Application.Timesheets.Common;
 using JPCenter.Modules.Hr.Contracts;
 using JPCenter.Modules.Hr.Infrastructure.Persistence;
 using JPCenter.Modules.Hr.Infrastructure.Persistence.Seed;
 using JPCenter.Modules.Hr.Infrastructure.Services;
+using JPCenter.Modules.System.Contracts;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,10 +35,19 @@ public sealed class HrModule : IModule
 
         // Cho module khác (Hr.Contracts)
         services.AddScoped<IEmployeeDirectory, EmployeeDirectory>();
+        services.AddScoped<IHrLeaveCalendar, HrLeaveCalendar>();
+        services.AddScoped<ITrashHandler, JobTrashHandler>();
 
         // Dùng chung giữa các use case
         services.AddScoped<EmployeeAccess>();
         services.AddScoped<EmployeeRules>();
+        services.AddScoped<CurrentEmployee>();
+        services.AddScoped<HrScope>();
+        services.AddScoped<HrNotices>();
+        services.AddScoped<TimesheetCalculator>();
+        services.AddScoped<HrRequestReader>();
+        services.AddScoped<RecruitmentDesk>();
+        services.AddScoped<OnboardingDesk>();
 
         services.AddScoped<IDataSeeder, HrSeeder>();
         services.AddScoped<IDataSeeder, HrOpsSeeder>();

@@ -18,4 +18,7 @@ public sealed class OnboardingItem
 
     internal void Set(bool done, Guid by, string byName, DateTimeOffset at) =>
         (Done, DoneBy, DoneByName, DoneAt) = done ? (true, (Guid?)by, byName, (DateTimeOffset?)at) : (false, null, null, null);
+
+    /// <summary>Hệ thống tự tick (không có người tick)</summary>
+    internal void SetBySystem(string byName, DateTimeOffset at) => (Done, DoneBy, DoneByName, DoneAt) = (true, null, byName, at);
 }

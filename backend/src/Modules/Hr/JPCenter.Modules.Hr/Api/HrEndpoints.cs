@@ -6,5 +6,12 @@ namespace JPCenter.Modules.Hr.Api;
 /// <summary>Mọi endpoint module Hr trên group <c>/api/v1/hr</c>.</summary>
 public static class HrEndpoints
 {
-    public static void Map(IEndpointRouteBuilder hr) => EmployeeEndpoints.Map(hr);
+    public static void Map(IEndpointRouteBuilder hr)
+    {
+        EmployeeEndpoints.Map(hr);
+        TimesheetEndpoints.Map(hr);
+        HrRequestEndpoints.Map(hr);
+        RecruitmentEndpoints.Map(hr);
+        OnboardingEndpoints.Map(hr);
+    }
 }

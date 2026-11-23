@@ -14,4 +14,7 @@ public interface IEmployeeDirectory
 
     /// <summary>Số nhân sự / giáo viên chưa nghỉ theo chi nhánh chính (CN-01, CN-06.E2). Chi nhánh không có ai → không có trong kết quả.</summary>
     Task<IReadOnlyDictionary<Guid, BranchHeadcount>> HeadcountByBranchAsync(CancellationToken ct);
+
+    /// <summary>Cấp dưới CHƯA nghỉ việc theo cây "quản lý trực tiếp" (trực tiếp trước, rồi gián tiếp) — Work giao việc cấp dưới (CV-04)</summary>
+    Task<IReadOnlyList<ReportEntry>> ReportsOfAsync(Guid managerId, CancellationToken ct);
 }

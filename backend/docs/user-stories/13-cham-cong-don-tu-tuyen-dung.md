@@ -253,3 +253,24 @@ Phiếu đã gắn hồ sơ → `hr.onboarding.already_created`. NS-12.E5 hết 
 - JSON khớp `TimeRecord`, `HrRequest`, `Job`, `Candidate`, `Onboarding` ở `frontend/src/features/hr/types.ts` (`steps[].approver` = tên, thêm `approverId`).
 - **Giữa module:** Hr đọc `ISettingsReader` (giờ hành chính, `lateGraceMin`) từ System.Contracts, ca được xếp qua 🆕 `Work.Contracts › IShiftSchedule`;
   Hr phát 🆕 `ShiftSwapApproved` (Work đổi ca), `NotificationRequested` (chuông). Hr.Contracts 🆕 `ITimesheetReader` cho Lương NV (giai đoạn 22).
+
+### Đã làm — giai đoạn 21 phase 3 (API, test)
+
+- **Đường dẫn:** trang cá nhân `/api/v1/hr/me/{check-in|check-out|timesheet|requests}` (cổng nhân viên, không mã quyền) · `/hr/timesheets` ·
+  `/hr/requests?tab=todo|mine|all` · `/hr/jobs`, `/hr/candidates` · `/hr/onboardings`. Đơn tạo hộ: `POST /hr/requests` có `employeeId`.
+- **Phạm vi:** chấm công / đơn từ theo người (phạm vi `own` = mình + cấp dưới theo cây quản lý), tuyển dụng / onboarding theo chi nhánh của tin / phiếu.
+  Ngoài phạm vi → 404. Tab "all" không có `hr.requests.view` → 403 `hr.request.view_forbidden`; duyệt / từ chối kiểm lượt trong handler.
+- **Bảng công:** trả sẵn `days[]` (trạng thái snake_case như `DayState`: `late_early`, `no_out`…), `stats` / `totals`, `problems` (ngày cần giải trình),
+  `today`. Giờ phải làm của NV theo ca đọc từ Work (`Work.Contracts.IShiftSchedule`). Ngày trước khi vào làm / sau ngày nghỉ việc = `off`.
+  Sửa công: `PUT /hr/timesheets/{employeeId}/{YYYY-MM-DD}` (giờ "HH:mm").
+- **Đơn từ:** mã `DT-{năm}{4 số}` (dữ liệu mẫu giữ mã cũ `DT-02xx`). Người giữ chức vụ = NV chưa nghỉ có vị trí bắt đầu bằng "Phó giám đốc" /
+  "Kế toán trưởng" / "Giám đốc" (nhiều người → vào làm sớm nhất). Đơn đổi ca: ca từ hôm nay, 2 NV làm theo ca cùng chi nhánh, chưa nằm trong
+  đơn đổi khác đang chờ; ngày đơn = ngày 2 ca. Duyệt xong phát `Hr.Contracts.ShiftSwapApproved` → Work đổi người (XC-05).
+  Trừ phép kiểm lại ở bước cuối (DN-02.E5). Thông báo chuông: người duyệt bước kế / người có `hr.requests.approve` (bước mở) / người gửi.
+- **Tuyển dụng:** xóa tin → Thùng rác (`hr.job`); kéo Kanban `POST candidates/{id}/stage` chỉ cho Ứng tuyển / Sàng lọc / lùi về giai đoạn đã có thông tin;
+  phỏng vấn / offer / nhận việc / loại / từ chối offer là thao tác riêng. CV: `POST candidates/{id}/cv` (multipart `file`, PDF / Word ≤ 10 MB),
+  mở bằng `GET candidates/{id}/cv/link`. Nhận việc trả `onboardingId` + cảnh báo "tự đóng tin".
+- **Onboarding:** "Tạo hồ sơ" gọi lại NS-03 (`CreateEmployeeCommand`): NV → thử việc 2 tháng, lương = lương offer; GV / trợ giảng → bán thời gian,
+  cần `levels` + đơn giá; quản lý trực tiếp = người hướng dẫn. Cần thêm `hr.employees.create` hoặc `hr.teachers.create`.
+  System cấp tài khoản (`StaffAccountCreated`) → tự tick mục "account" (người tick "Hệ thống").
+- ⏳ `ITimesheetReader` cho Lương NV — làm cùng giai đoạn 22. Tạo hồ sơ + gắn phiếu là 2 lần lưu (hồ sơ tạo xong mà gắn lỗi → tạo lại báo trùng email).

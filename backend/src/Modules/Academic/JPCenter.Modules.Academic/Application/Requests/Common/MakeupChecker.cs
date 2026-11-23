@@ -1,3 +1,4 @@
+using JPCenter.Application.Common.Time;
 using JPCenter.Modules.Academic.Application.Abstractions;
 using JPCenter.Modules.Academic.Application.Classes.Common;
 using JPCenter.Modules.Academic.Application.Common;

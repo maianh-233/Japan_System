@@ -35,6 +35,7 @@ public sealed class FinanceModule : IModule
         // Cho module khác (Finance.Contracts)
         services.AddScoped<IInvoiceApprovals, InvoiceApprovals>();
         services.AddScoped<ITuitionQuery, TuitionQuery>();
+        services.AddScoped<ICashLedger, CashLedger>();
 
         // Dùng chung giữa các use case
         services.AddScoped<IInvoiceNumbering, InvoiceNumbering>();

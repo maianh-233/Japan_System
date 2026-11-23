@@ -43,9 +43,30 @@ internal sealed class EmployeeDirectory(HrDbContext db) : IEmployeeDirectory
         return rows.ToDictionary(r => r.Branch.Value, r => new BranchHeadcount(r.Staff, r.Teachers));
     }
 
+    public async Task<IReadOnlyList<ReportEntry>> ReportsOfAsync(Guid managerId, CancellationToken ct)
+    {
+        var all = await db.Employees.AsNoTracking().Where(x => x.ManagerId != null).ToListAsync(ct);
+        var byManager = all.ToLookup(e => e.ManagerId!.Value);
+        var result = new List<ReportEntry>();
+        var seen = new HashSet<EmployeeId>();
+        var level = new List<EmployeeId> { new(managerId) };
+        for (var depth = 1; level.Count > 0; depth++)
+        {
+            var next = new List<EmployeeId>();
+            foreach (var child in level.SelectMany(m => byManager[m]).OrderBy(e => e.FullName))
+            {
+                if (!seen.Add(child.Id)) continue;
+                next.Add(child.Id);
+                if (!child.HasQuit) result.Add(new ReportEntry(ToSummary(child), depth));
+            }
+            level = next;
+        }
+        return result;
+    }
+
     private static EmployeeSummary ToSummary(Employee e) => new(
         e.Id.Value, e.Code, e.FullName, e.Email,
         SnakeCaseEnumConverter<EmployeeKind>.ToText(e.Kind), e.BranchId.Value,
         SnakeCaseEnumConverter<EmployeeStatus>.ToText(e.Status), e.Position,
-        SnakeCaseEnumConverter<Department>.ToText(e.Department));
+        SnakeCaseEnumConverter<Department>.ToText(e.Department), e.ManagerId?.Value, e.ShiftBased);
 }

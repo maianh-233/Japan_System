@@ -190,3 +190,20 @@ Lỗi: `work.handover.not_receiver` (403), `work.handover.closed` (409).
 - **Giữa module:** Work đọc `Hr.Contracts › IEmployeeDirectory` (🆕 `managerId`, `shiftBased`, `ReportsOfAsync`), 🆕 `IHrLeaveCalendar` (ngày nghỉ đã duyệt);
   Crm / Academic / Students lookup cho gắn task / lead bàn giao; 🆕 `Finance.Contracts › ICashLedger.CashCollectedAsync(branch, from, to)`; System settings (quỹ đầu ca).
   Work cung cấp 🆕 `Work.Contracts › IShiftSchedule` (Hr đọc cho chấm công, đơn đổi ca); nghe `ShiftSwapApproved`, `EmployeeQuit`.
+
+### Đã làm — giai đoạn 21 phase 3 (API, job, test)
+
+- **Đường dẫn** (`/api/v1/work/...`): `tasks` (`?scope=all|mine|assigned|watching`, `POST tasks/{id}/status`, `checklist`, `comments`) ·
+  `me/tasks` · `team/{reports|tasks}` · `shifts` (`?branchId=&week=`, bỏ trống chi nhánh = chi nhánh của tôi), `shifts/{toggle|apply-registrations|copy-week}` ·
+  `me/shift-registrations` · `handovers`, `handovers/draft?shift=`, `handovers/{id}/receive`, `handovers/{id}/items/{itemId}`.
+- **Quyền task:** người dính tới task + **quản lý (trực tiếp / gián tiếp) của người làm** xem, đổi trạng thái, checklist, bình luận; sửa nội dung: người giao /
+  `work.tasks.update` / quản lý người làm; xóa: người giao / `work.tasks.delete` (→ Thùng rác `work.task`). `work.tasks` phạm vi `own` = chỉ task mình dính tới.
+  Task không được xem → 404. Mã `TK-{4 số}` tiếp dãy cũ. Đổi trạng thái trả `{ task, next }` (`next` = lần lặp vừa sinh).
+- **Xếp ca:** lưới trả `employees`, `assignments`, `registrations`, `leaves` (từng ngày nghỉ đã duyệt — `Hr.Contracts.IHrLeaveCalendar`), `coverage`
+  (21 ô: số người / tối thiểu cộng theo các bộ phận có trong chi nhánh), `canEdit`. `toggle` nhận `assign` (true / false / bỏ trống = đảo).
+- **Bàn giao:** quỹ đầu ca 1.000.000đ để trong code (`HandoverDesk.OpeningFloat`, ⏳ đưa vào Cài đặt chung); tiền mặt thu trong khung giờ ca
+  = phiếu thu tiền mặt − tiền mặt hoàn của chi nhánh (`Finance.Contracts.ICashLedger`). Lead đang dở lấy từ `Crm.Contracts.ILeadLookup`.
+  Lệch tiền → báo người có `work.handover.update` của chi nhánh + người gửi.
+- **Job:** `WorkDailyJob` 07:30 giờ VN — nhắc hạn (CV-06). **Sự kiện:** nghe `ShiftSwapApproved` (đổi người 2 ca, trùng ô → bỏ qua + log) và `EmployeeQuit`
+  (gỡ ca + đăng ký rảnh / bận từ hôm nay; báo người giao các task chưa xong). Nhân sự đọc qua `IEmployeeDirectory` (thêm `managerId`, `shiftBased`,
+  `ReportsOfAsync`).

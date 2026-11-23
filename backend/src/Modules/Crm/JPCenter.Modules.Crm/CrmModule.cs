@@ -61,6 +61,7 @@ public sealed class CrmModule : IModule
         // Cho module khác (Crm.Contracts)
         services.AddScoped<IGuardianDirectory, GuardianDirectory>();
         services.AddScoped<ILeadOwnership, LeadOwnership>();
+        services.AddScoped<ILeadLookup, LeadLookup>();
 
         services.AddScoped<IDataSeeder, CrmSeeder>();
 
