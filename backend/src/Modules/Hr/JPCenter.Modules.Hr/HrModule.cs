@@ -35,6 +35,7 @@ public sealed class HrModule : IModule
         services.AddScoped<EmployeeRules>();
 
         services.AddScoped<IDataSeeder, HrSeeder>();
+        services.AddScoped<IDataSeeder, HrOpsSeeder>();
 
         if (JobServiceCollectionExtensions.IsEnabled(configuration))
         {

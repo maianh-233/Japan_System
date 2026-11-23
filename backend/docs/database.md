@@ -1643,7 +1643,7 @@ Khoản hoàn đang chờ trừ vào "hoàn tối đa"; hiện ở hộp duyệt
 | date | date | Ngày |
 | check_in | time? | Giờ vào |
 | check_out | time? | Giờ ra |
-| edited_by | uuid? | Người sửa tay → system.accounts |
+| edited_by | uuid? | Người sửa tay → employees (không FK) |
 | edited_by_name | text? | Tên người sửa lúc sửa (tooltip "sửa bởi") |
 | edit_reason | text? | Lý do sửa |
 
@@ -1768,7 +1768,7 @@ Khoản hoàn đang chờ trừ vào "hoàn tối đa"; hiện ở hộp duyệt
 | group | text | `docs` · `account` · `equipment` · `training` |
 | label | text | Tên việc |
 | done | bool | Đã xong |
-| done_by, done_by_name, done_at | uuid?, text?, timestamptz? | Ai đánh dấu (→ system.accounts, tên lúc đánh dấu), lúc nào |
+| done_by, done_by_name, done_at | uuid?, text?, timestamptz? | Ai đánh dấu (→ employees, không FK; tên lúc đánh dấu), lúc nào |
 
 ---
 
@@ -1959,4 +1959,5 @@ sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đ�
 | 2026-11-22 | Giai đoạn 20 phase 1 (user story 12): thêm bảng `class_exams` (52a — kỳ thi theo mốc, online / giấy, các phần + câu bốc từ ngân hàng) và `exam_attempts` (52b — bài làm thi online, đề riêng, tự chấm); `exam_results` + `class_exam_id`; `class_announcements` + `read_by` (uuid[], đếm xem mỗi người 1 lần), `cancelled_at`; `teacher_reviews` UQ (class_id, teacher_id, student_id, period); `teacher_documents.url` bắt buộc |
 | 2026-11-22 | Giai đoạn 20 phase 2: tạo bảng `assignments`, `submissions`, `class_exams`, `exam_attempts`, `exam_results`, `class_announcements`, `teacher_reviews`, `flash_decks`, `flash_cards`, `card_progress` — migration `AcademicLearningContent`; tạo schema `library` với `teacher_documents`, `teacher_document_views` — migration `LibraryTeacherDocuments`. Không FK tới bảng con của lộ trình (`lesson_id`, `exam_id`) và `card_progress.card_id`; Id strongly-typed trong jsonb ghi thành chuỗi uuid. Dữ liệu: nội dung học mẫu từ mock (`learning.seed.json`, `library.seed.json`) — kết quả thi mẫu chưa gắn kỳ thi (`class_exam_id` null), thông báo mẫu 0 người nhận không nạp, tài liệu GV mẫu chỉ có khóa file (chưa có nội dung) |
 | 2026-11-23 | Giai đoạn 21 phase 1 (user story 13, 14): `time_records` + `edited_by_name` (trạng thái ngày tính khi đọc); `hr_requests.from/to` → `date`; `hr_request_steps.approver_id` cho phép null (bước mở) + `approver_name`, `decided_by_id`, `decided_by_name`, `on_behalf`; `candidates.applied_at` → `timestamptz`; `onboarding_items` + `done_by_name`; `tasks.due` → `date` + `next_spawned`; `task_comments` + `by_name`; `shift_registrations.kind` bỏ `preference`, UQ (employee_id, date, shift); `handovers` UQ (branch_id, date, from_shift, from_id) |
+| 2026-11-23 | Giai đoạn 21 phase 2: tạo bảng `time_records`, `hr_requests`, `hr_request_steps` (khóa (hr_request_id, order)), `jobs`, `candidates`, `candidate_notes`, `onboardings` (UQ candidate_id, employee_id), `onboarding_items` (khóa (onboarding_id, key)) — migration `HrTimesheetsRequestsRecruitment`; tạo schema `work` với `tasks`, `task_checklist_items`, `task_comments`, `shift_assignments`, `shift_registrations`, `handovers`, `handover_leads`, `handover_items` — migration `WorkInitial`. Không FK sang schema khác (ca trong đơn đổi ca, lead, nhân viên ở Work); người duyệt / người sửa công / người tick không FK. `time_records.edited_by`, `onboarding_items.done_by` trỏ hr.employees. Dữ liệu: `hr-ops.seed.json`, `work.seed.json` từ mock (đơn đổi ca mẫu được gán ca thật lúc xuất; phép năm không trừ lại cho đơn đã duyệt) |
 | 2026-11-17 | Chốt thiết kế (user story 08): `invoices.status` chỉ lưu `open` / `cancelled` / `voided`, các trạng thái tiền tính khi đọc; `payments.method` dùng `vietqr` (không `viet_qr`). Domain `InvoiceStatus`, `PaymentMethod` sửa theo khi code module Tài chính |

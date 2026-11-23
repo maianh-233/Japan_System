@@ -17,7 +17,7 @@ public sealed class TimeRecord : AggregateRoot<TimeRecordId>, IBranchScoped, IAu
     public DateOnly Date { get; private set; }
     public TimeOnly? CheckIn { get; private set; }
     public TimeOnly? CheckOut { get; private set; }
-    /// <summary>Người sửa tay (System.Account) — quên chấm, lỗi máy...</summary>
+    /// <summary>Người sửa tay (Hr.Employee) — quên chấm, lỗi máy...</summary>
     public Guid? EditedBy { get; private set; }
     /// <summary>Tên người sửa lúc sửa (tooltip "sửa bởi")</summary>
     public string? EditedByName { get; private set; }

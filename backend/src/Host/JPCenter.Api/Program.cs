@@ -13,6 +13,7 @@ using JPCenter.Modules.Library;
 using JPCenter.Modules.Notifications;
 using JPCenter.Modules.Students;
 using JPCenter.Modules.System;
+using JPCenter.Modules.Work;
 using Serilog;
 
 // Đọc .env TRƯỚC khi tạo builder để cấu hình nhận được các biến
@@ -42,7 +43,8 @@ builder.Services
         new LibraryModule(),
         new NotificationsModule(),
         new StudentsModule(),
-        new SystemModule());
+        new SystemModule(),
+        new WorkModule());
 
 var app = builder.Build();
 

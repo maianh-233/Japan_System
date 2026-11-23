@@ -264,6 +264,561 @@ namespace JPCenter.Modules.Hr.Infrastructure.Persistence.Migrations
                     b.ToTable("employees", "hr");
                 });
 
+            modelBuilder.Entity("JPCenter.Modules.Hr.Domain.HrRequests.HrRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal?>("Amount")
+                        .HasPrecision(18)
+                        .HasColumnType("numeric(18,0)")
+                        .HasColumnName("amount");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<decimal?>("Days")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("days");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("employee_id");
+
+                    b.Property<DateOnly>("From")
+                        .HasColumnType("date")
+                        .HasColumnName("from");
+
+                    b.Property<bool?>("PaidLeave")
+                        .HasColumnType("boolean")
+                        .HasColumnName("paid_leave");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("reason");
+
+                    b.Property<DateTimeOffset>("RequestedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("requested_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<Guid?>("SwapMyShiftId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("swap_my_shift_id");
+
+                    b.Property<Guid?>("SwapTheirShiftId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("swap_their_shift_id");
+
+                    b.Property<Guid?>("SwapWithEmployeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("swap_with_employee_id");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<DateOnly>("To")
+                        .HasColumnType("date")
+                        .HasColumnName("to");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("type");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_hr_requests");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_hr_requests_code");
+
+                    b.HasIndex("SwapWithEmployeeId")
+                        .HasDatabaseName("ix_hr_requests_swap_with_employee_id");
+
+                    b.HasIndex("BranchId", "Status")
+                        .HasDatabaseName("ix_hr_requests_branch_id_status");
+
+                    b.HasIndex("EmployeeId", "Status")
+                        .HasDatabaseName("ix_hr_requests_employee_id_status");
+
+                    b.ToTable("hr_requests", "hr");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Hr.Domain.Recruitment.Candidate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("AppliedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("applied_at");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("CvKey")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("cv_key");
+
+                    b.Property<string>("CvName")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("cv_name");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("email");
+
+                    b.Property<decimal?>("ExpectedSalary")
+                        .HasPrecision(18)
+                        .HasColumnType("numeric(18,0)")
+                        .HasColumnName("expected_salary");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("full_name");
+
+                    b.Property<DateTimeOffset?>("InterviewAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("interview_at");
+
+                    b.Property<string>("InterviewMode")
+                        .HasColumnType("text")
+                        .HasColumnName("interview_mode");
+
+                    b.Property<string>("InterviewNote")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("interview_note");
+
+                    b.Property<decimal?>("InterviewScore")
+                        .HasPrecision(4, 2)
+                        .HasColumnType("numeric(4,2)")
+                        .HasColumnName("interview_score");
+
+                    b.Property<Guid?>("InterviewerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("interviewer_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Japanese")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("japanese");
+
+                    b.Property<Guid>("JobId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("job_id");
+
+                    b.Property<bool?>("OfferAccepted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("offer_accepted");
+
+                    b.Property<decimal?>("OfferSalary")
+                        .HasPrecision(18)
+                        .HasColumnType("numeric(18,0)")
+                        .HasColumnName("offer_salary");
+
+                    b.Property<DateTimeOffset?>("OfferSentAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("offer_sent_at");
+
+                    b.Property<DateOnly?>("OfferStartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("offer_start_date");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("RejectReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("reject_reason");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("source");
+
+                    b.Property<string>("Stage")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("stage");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_candidates");
+
+                    b.HasIndex("InterviewAt")
+                        .HasDatabaseName("ix_candidates_interview_at");
+
+                    b.HasIndex("JobId", "Stage")
+                        .HasDatabaseName("ix_candidates_job_id_stage");
+
+                    b.ToTable("candidates", "hr");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Hr.Domain.Recruitment.Job", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.PrimitiveCollection<List<string>>("Channels")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("channels");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateOnly>("Deadline")
+                        .HasColumnType("date")
+                        .HasColumnName("deadline");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<string>("Department")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("department");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("kind");
+
+                    b.Property<DateOnly>("PostedAt")
+                        .HasColumnType("date")
+                        .HasColumnName("posted_at");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer")
+                        .HasColumnName("quantity");
+
+                    b.Property<string>("SalaryRange")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("salary_range");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_jobs");
+
+                    b.HasIndex("BranchId", "Status")
+                        .HasDatabaseName("ix_jobs_branch_id_status");
+
+                    b.ToTable("jobs", "hr");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Hr.Domain.Recruitment.Onboarding", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<Guid?>("CandidateId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("candidate_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Department")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("department");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("email");
+
+                    b.Property<Guid?>("EmployeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("employee_id");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("full_name");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("kind");
+
+                    b.Property<Guid>("MentorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("mentor_id");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("Position")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("position");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_onboardings");
+
+                    b.HasIndex("CandidateId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_onboardings_candidate_id");
+
+                    b.HasIndex("EmployeeId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_onboardings_employee_id");
+
+                    b.HasIndex("MentorId")
+                        .HasDatabaseName("ix_onboardings_mentor_id");
+
+                    b.HasIndex("BranchId", "StartDate")
+                        .HasDatabaseName("ix_onboardings_branch_id_start_date");
+
+                    b.ToTable("onboardings", "hr");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Hr.Domain.TimeRecords.TimeRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<TimeOnly?>("CheckIn")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("check_in");
+
+                    b.Property<TimeOnly?>("CheckOut")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("check_out");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<string>("EditReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("edit_reason");
+
+                    b.Property<Guid?>("EditedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("edited_by");
+
+                    b.Property<string>("EditedByName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("edited_by_name");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("employee_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_time_records");
+
+                    b.HasIndex("BranchId", "Date")
+                        .HasDatabaseName("ix_time_records_branch_id_date");
+
+                    b.HasIndex("EmployeeId", "Date")
+                        .IsUnique()
+                        .HasDatabaseName("ix_time_records_employee_id_date");
+
+                    b.ToTable("time_records", "hr");
+                });
+
             modelBuilder.Entity("JPCenter.Modules.Hr.Domain.Employees.Employee", b =>
                 {
                     b.HasOne("JPCenter.Modules.Hr.Domain.Employees.Employee", null)
@@ -390,6 +945,226 @@ namespace JPCenter.Modules.Hr.Infrastructure.Persistence.Migrations
                     b.Navigation("ContractHistory");
 
                     b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Hr.Domain.HrRequests.HrRequest", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Hr.Domain.Employees.Employee", null)
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_hr_requests_employees_employee_id");
+
+                    b.HasOne("JPCenter.Modules.Hr.Domain.Employees.Employee", null)
+                        .WithMany()
+                        .HasForeignKey("SwapWithEmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_hr_requests_employees_swap_with_employee_id");
+
+                    b.OwnsMany("JPCenter.Modules.Hr.Domain.HrRequests.ApprovalStep", "Steps", b1 =>
+                        {
+                            b1.Property<Guid>("HrRequestId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("hr_request_id");
+
+                            b1.Property<int>("Order")
+                                .HasColumnType("integer")
+                                .HasColumnName("order");
+
+                            b1.Property<Guid?>("ApproverId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("approver_id");
+
+                            b1.Property<string>("ApproverName")
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("approver_name");
+
+                            b1.Property<DateTimeOffset?>("At")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("at");
+
+                            b1.Property<string>("Comment")
+                                .HasMaxLength(1000)
+                                .HasColumnType("character varying(1000)")
+                                .HasColumnName("comment");
+
+                            b1.Property<Guid?>("DecidedById")
+                                .HasColumnType("uuid")
+                                .HasColumnName("decided_by_id");
+
+                            b1.Property<string>("DecidedByName")
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("decided_by_name");
+
+                            b1.Property<string>("Decision")
+                                .HasColumnType("text")
+                                .HasColumnName("decision");
+
+                            b1.Property<bool>("OnBehalf")
+                                .HasColumnType("boolean")
+                                .HasColumnName("on_behalf");
+
+                            b1.Property<string>("Role")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)")
+                                .HasColumnName("role");
+
+                            b1.HasKey("HrRequestId", "Order")
+                                .HasName("pk_hr_request_steps");
+
+                            b1.HasIndex("ApproverId", "Decision")
+                                .HasDatabaseName("ix_hr_request_steps_approver_id_decision");
+
+                            b1.ToTable("hr_request_steps", "hr");
+
+                            b1.WithOwner()
+                                .HasForeignKey("HrRequestId")
+                                .HasConstraintName("fk_hr_request_steps_hr_requests_hr_request_id");
+                        });
+
+                    b.Navigation("Steps");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Hr.Domain.Recruitment.Candidate", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Hr.Domain.Recruitment.Job", null)
+                        .WithMany()
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_candidates_jobs_job_id");
+
+                    b.OwnsMany("JPCenter.Modules.Hr.Domain.Recruitment.CandidateNote", "Notes", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<DateTimeOffset>("At")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("at");
+
+                            b1.Property<Guid>("By")
+                                .HasColumnType("uuid")
+                                .HasColumnName("by");
+
+                            b1.Property<string>("ByName")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("by_name");
+
+                            b1.Property<Guid>("CandidateId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("candidate_id");
+
+                            b1.Property<string>("Text")
+                                .IsRequired()
+                                .HasMaxLength(2000)
+                                .HasColumnType("character varying(2000)")
+                                .HasColumnName("text");
+
+                            b1.HasKey("Id")
+                                .HasName("pk_candidate_notes");
+
+                            b1.HasIndex("CandidateId")
+                                .HasDatabaseName("ix_candidate_notes_candidate_id");
+
+                            b1.ToTable("candidate_notes", "hr");
+
+                            b1.WithOwner()
+                                .HasForeignKey("CandidateId")
+                                .HasConstraintName("fk_candidate_notes_candidates_candidate_id");
+                        });
+
+                    b.Navigation("Notes");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Hr.Domain.Recruitment.Onboarding", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Hr.Domain.Recruitment.Candidate", null)
+                        .WithMany()
+                        .HasForeignKey("CandidateId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_onboardings_candidates_candidate_id");
+
+                    b.HasOne("JPCenter.Modules.Hr.Domain.Employees.Employee", null)
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_onboardings_employees_employee_id");
+
+                    b.HasOne("JPCenter.Modules.Hr.Domain.Employees.Employee", null)
+                        .WithMany()
+                        .HasForeignKey("MentorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_onboardings_employees_mentor_id");
+
+                    b.OwnsMany("JPCenter.Modules.Hr.Domain.Recruitment.OnboardingItem", "Items", b1 =>
+                        {
+                            b1.Property<Guid>("OnboardingId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("onboarding_id");
+
+                            b1.Property<string>("Key")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
+                                .HasColumnName("key");
+
+                            b1.Property<bool>("Done")
+                                .HasColumnType("boolean")
+                                .HasColumnName("done");
+
+                            b1.Property<DateTimeOffset?>("DoneAt")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("done_at");
+
+                            b1.Property<Guid?>("DoneBy")
+                                .HasColumnType("uuid")
+                                .HasColumnName("done_by");
+
+                            b1.Property<string>("DoneByName")
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("done_by_name");
+
+                            b1.Property<string>("Group")
+                                .IsRequired()
+                                .HasColumnType("text")
+                                .HasColumnName("group");
+
+                            b1.Property<string>("Label")
+                                .IsRequired()
+                                .HasMaxLength(300)
+                                .HasColumnType("character varying(300)")
+                                .HasColumnName("label");
+
+                            b1.HasKey("OnboardingId", "Key")
+                                .HasName("pk_onboarding_items");
+
+                            b1.ToTable("onboarding_items", "hr");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OnboardingId")
+                                .HasConstraintName("fk_onboarding_items_onboardings_onboarding_id");
+                        });
+
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Hr.Domain.TimeRecords.TimeRecord", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Hr.Domain.Employees.Employee", null)
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_time_records_employees_employee_id");
                 });
 #pragma warning restore 612, 618
         }

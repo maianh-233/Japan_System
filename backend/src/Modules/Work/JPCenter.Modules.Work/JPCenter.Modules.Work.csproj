@@ -6,4 +6,8 @@
     <ProjectReference Include="..\..\..\BuildingBlocks\JPCenter.Infrastructure.Common\JPCenter.Infrastructure.Common.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\JPCenter.Api.Common\JPCenter.Api.Common.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- Dữ liệu mẫu xuất từ mock frontend (npm run export-seed) -->
+    <EmbeddedResource Include="Infrastructure\Persistence\Seed\*.seed.json" />
+  </ItemGroup>
 </Project>

@@ -11,7 +11,7 @@ public sealed class OnboardingItem
     public OnboardingGroup Group { get; private set; }
     public string Label { get; private set; } = null!;
     public bool Done { get; private set; }
-    /// <summary>Người tick (System.Account); null khi hệ thống tự tick</summary>
+    /// <summary>Người tick (Hr.Employee); null khi hệ thống tự tick</summary>
     public Guid? DoneBy { get; private set; }
     public string? DoneByName { get; private set; }
     public DateTimeOffset? DoneAt { get; private set; }

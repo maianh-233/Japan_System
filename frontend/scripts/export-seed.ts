@@ -161,6 +161,55 @@ const learning = learningSeed();
 write(resolve(backend, 'Academic', 'JPCenter.Modules.Academic', 'Infrastructure', 'Persistence', 'Seed', 'learning.seed.json'), learning.academic);
 write(resolve(backend, 'Library', 'JPCenter.Modules.Library', 'Infrastructure', 'Persistence', 'Seed', 'library.seed.json'), learning.library);
 
+// Nhân sự mở rộng + Công việc (user story 13, 14 — giai đoạn 21): chấm công, đơn từ, tuyển dụng, onboarding (Hr) · task, ca, bàn giao (Work)
+const hrOps = await import('@/mocks/data/hr');
+const workMock = await import('@/mocks/data/work');
+const hrWork = hrWorkSeed();
+write(resolve(backend, 'Hr', 'JPCenter.Modules.Hr', 'Infrastructure', 'Persistence', 'Seed', 'hr-ops.seed.json'), hrWork.hr);
+write(resolve(backend, 'Work', 'JPCenter.Modules.Work', 'Infrastructure', 'Persistence', 'Seed', 'work.seed.json'), hrWork.work);
+
+function hrWorkSeed() {
+  const branchOf = (employeeId: string) => MOCK_EMPLOYEES.find((e) => e.id === employeeId)?.branchId ?? null;
+  /** Đơn đổi ca mẫu không ghi ca → ca sắp tới đầu tiên của người gửi (từ ngày đơn) ↔ ca khác của đồng nghiệp cùng chi nhánh cùng ngày */
+  const swapOf = (employeeId: string, from: string) => {
+    const upcoming = workMock.MOCK_SHIFTS.filter((x) => x.date >= from).sort((a, b) => a.date.localeCompare(b.date));
+    for (const mine of upcoming.filter((x) => x.employeeId === employeeId)) {
+      const theirs = upcoming.find((x) => x.date === mine.date && x.employeeId !== employeeId && x.shift !== mine.shift && branchOf(x.employeeId) === branchOf(employeeId));
+      if (theirs) return { myShiftId: mine.id, withEmployeeId: theirs.employeeId, theirShiftId: theirs.id };
+    }
+    return undefined;
+  };
+  return {
+    hr: {
+      generatedAt: new Date().toISOString(),
+      timeRecords: hrOps.MOCK_TIME_RECORDS.map((r) => ({
+        id: r.id, employeeId: r.employeeId, branchId: branchOf(r.employeeId), date: r.date, checkIn: r.checkIn ?? null, checkOut: r.checkOut ?? null,
+        editedById: personId(r.edited?.by), editedByName: r.edited?.by ?? null, editReason: r.edited?.reason ?? null,
+      })),
+      requests: hrOps.MOCK_REQUESTS.map((r) => ({
+        ...r,
+        branchId: branchOf(r.employeeId),
+        swap: r.swap ?? (r.type === 'shift_swap' ? swapOf(r.employeeId, r.from) : undefined),
+        steps: r.steps.map((st) => ({ ...st, approverId: personId(st.approver) })),
+      })),
+      jobs: hrOps.MOCK_JOBS,
+      candidates: hrOps.MOCK_CANDIDATES.map((c) => ({
+        ...c,
+        interview: c.interview ? { ...c.interview, interviewerId: personId(c.interview.interviewer) } : null,
+        notes: c.notes.map((x) => ({ ...x, byId: personId(x.by) })),
+      })),
+      onboardings: hrOps.MOCK_ONBOARDINGS.map((o) => ({ ...o, mentorId: personId(o.mentor), items: o.items.map((i) => ({ ...i, doneById: personId(i.doneBy) })) })),
+    },
+    work: {
+      generatedAt: new Date().toISOString(),
+      shifts: workMock.MOCK_SHIFTS.map((x) => ({ ...x, branchId: branchOf(x.employeeId) })),
+      registrations: workMock.MOCK_SHIFT_AVAILABILITY,
+      tasks: workMock.MOCK_TASKS.map((t) => ({ ...t, branchId: branchOf(t.assigneeId), comments: t.comments.map((c) => ({ ...c, byId: personId(c.by) })) })),
+      handovers: workMock.MOCK_HANDOVERS,
+    },
+  };
+}
+
 function learningSeed() {
   const teacherOf = (classId: string) => MOCK_CLASSES.find((c) => c.id === classId)?.teacherIds[0] ?? null;
   /** "Giáo vụ" / "Kế toán" (tên vai trò trong mock) → nhân viên phòng đó ở chi nhánh của lớp */
@@ -368,6 +417,13 @@ const seedIds = [
   ...learning.academic.decks.flatMap((d) => [d.id, ...d.cards.map((c) => c.id)]),
   ...learning.academic.cardProgress.map((x) => x.id),
   ...learning.library.teacherDocs.map((x) => x.id),
+  ...hrWork.hr.requests.map((x) => x.id),
+  ...hrWork.hr.jobs.map((x) => x.id),
+  ...hrWork.hr.candidates.map((x) => x.id),
+  ...hrWork.hr.onboardings.map((x) => x.id),
+  ...hrWork.work.shifts.map((x) => x.id),
+  ...hrWork.work.tasks.map((x) => x.id),
+  ...hrWork.work.handovers.map((x) => x.id),
 ];
 const idPath = resolve(process.cwd(), 'src', 'lib', 'api', 'seedIds.generated.ts');
 mkdirSync(dirname(idPath), { recursive: true });

@@ -1,0 +1,2213 @@
+{
+  "generatedAt": "2026-11-23T05:23:34.185Z",
+  "shifts": [
+    {
+      "id": "SH-1",
+      "employeeId": "e-bao",
+      "date": "2026-11-09",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-2",
+      "employeeId": "e-tung",
+      "date": "2026-11-09",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-3",
+      "employeeId": "e-nhu",
+      "date": "2026-11-09",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-4",
+      "employeeId": "e-nhu",
+      "date": "2026-11-09",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-5",
+      "employeeId": "e-hang",
+      "date": "2026-11-09",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-6",
+      "employeeId": "e-hang",
+      "date": "2026-11-09",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-7",
+      "employeeId": "e-khoa",
+      "date": "2026-11-09",
+      "shift": "evening",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-8",
+      "employeeId": "e-han",
+      "date": "2026-11-09",
+      "shift": "morning",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-9",
+      "employeeId": "e-han",
+      "date": "2026-11-09",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-10",
+      "employeeId": "e-vy",
+      "date": "2026-11-09",
+      "shift": "morning",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-11",
+      "employeeId": "e-vy",
+      "date": "2026-11-09",
+      "shift": "afternoon",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-12",
+      "employeeId": "e-bao",
+      "date": "2026-11-10",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-13",
+      "employeeId": "e-tung",
+      "date": "2026-11-10",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-14",
+      "employeeId": "e-tung",
+      "date": "2026-11-10",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-15",
+      "employeeId": "e-hang",
+      "date": "2026-11-10",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-16",
+      "employeeId": "e-hang",
+      "date": "2026-11-10",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-17",
+      "employeeId": "e-khoa",
+      "date": "2026-11-10",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-18",
+      "employeeId": "e-khoa",
+      "date": "2026-11-10",
+      "shift": "evening",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-19",
+      "employeeId": "e-han",
+      "date": "2026-11-10",
+      "shift": "morning",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-20",
+      "employeeId": "e-han",
+      "date": "2026-11-10",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-21",
+      "employeeId": "e-vy",
+      "date": "2026-11-10",
+      "shift": "morning",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-22",
+      "employeeId": "e-bao",
+      "date": "2026-11-11",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-23",
+      "employeeId": "e-tung",
+      "date": "2026-11-11",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-24",
+      "employeeId": "e-nhu",
+      "date": "2026-11-11",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-25",
+      "employeeId": "e-nhu",
+      "date": "2026-11-11",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-26",
+      "employeeId": "e-hang",
+      "date": "2026-11-11",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-27",
+      "employeeId": "e-hang",
+      "date": "2026-11-11",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-28",
+      "employeeId": "e-khoa",
+      "date": "2026-11-11",
+      "shift": "evening",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-29",
+      "employeeId": "e-han",
+      "date": "2026-11-11",
+      "shift": "morning",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-30",
+      "employeeId": "e-han",
+      "date": "2026-11-11",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-31",
+      "employeeId": "e-vy",
+      "date": "2026-11-11",
+      "shift": "morning",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-32",
+      "employeeId": "e-vy",
+      "date": "2026-11-11",
+      "shift": "afternoon",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-33",
+      "employeeId": "e-bao",
+      "date": "2026-11-12",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-34",
+      "employeeId": "e-tung",
+      "date": "2026-11-12",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-35",
+      "employeeId": "e-tung",
+      "date": "2026-11-12",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-36",
+      "employeeId": "e-hang",
+      "date": "2026-11-12",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-37",
+      "employeeId": "e-hang",
+      "date": "2026-11-12",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-38",
+      "employeeId": "e-khoa",
+      "date": "2026-11-12",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-39",
+      "employeeId": "e-khoa",
+      "date": "2026-11-12",
+      "shift": "evening",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-40",
+      "employeeId": "e-han",
+      "date": "2026-11-12",
+      "shift": "morning",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-41",
+      "employeeId": "e-han",
+      "date": "2026-11-12",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-42",
+      "employeeId": "e-vy",
+      "date": "2026-11-12",
+      "shift": "morning",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-43",
+      "employeeId": "e-bao",
+      "date": "2026-11-13",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-44",
+      "employeeId": "e-tung",
+      "date": "2026-11-13",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-45",
+      "employeeId": "e-nhu",
+      "date": "2026-11-13",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-46",
+      "employeeId": "e-nhu",
+      "date": "2026-11-13",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-47",
+      "employeeId": "e-hang",
+      "date": "2026-11-13",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-48",
+      "employeeId": "e-hang",
+      "date": "2026-11-13",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-49",
+      "employeeId": "e-khoa",
+      "date": "2026-11-13",
+      "shift": "evening",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-50",
+      "employeeId": "e-han",
+      "date": "2026-11-13",
+      "shift": "morning",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-51",
+      "employeeId": "e-han",
+      "date": "2026-11-13",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-52",
+      "employeeId": "e-vy",
+      "date": "2026-11-13",
+      "shift": "morning",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-53",
+      "employeeId": "e-vy",
+      "date": "2026-11-13",
+      "shift": "afternoon",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-54",
+      "employeeId": "e-bao",
+      "date": "2026-11-14",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-55",
+      "employeeId": "e-bao",
+      "date": "2026-11-14",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-56",
+      "employeeId": "e-nhu",
+      "date": "2026-11-14",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-57",
+      "employeeId": "e-hang",
+      "date": "2026-11-14",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-58",
+      "employeeId": "e-khoa",
+      "date": "2026-11-14",
+      "shift": "evening",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-59",
+      "employeeId": "e-han",
+      "date": "2026-11-14",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-60",
+      "employeeId": "e-vy",
+      "date": "2026-11-14",
+      "shift": "morning",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-61",
+      "employeeId": "e-tung",
+      "date": "2026-11-15",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-62",
+      "employeeId": "e-nhu",
+      "date": "2026-11-15",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-63",
+      "employeeId": "e-bao",
+      "date": "2026-11-16",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-64",
+      "employeeId": "e-tung",
+      "date": "2026-11-16",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-65",
+      "employeeId": "e-nhu",
+      "date": "2026-11-16",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-66",
+      "employeeId": "e-nhu",
+      "date": "2026-11-16",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-67",
+      "employeeId": "e-hang",
+      "date": "2026-11-16",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-68",
+      "employeeId": "e-hang",
+      "date": "2026-11-16",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-69",
+      "employeeId": "e-khoa",
+      "date": "2026-11-16",
+      "shift": "evening",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-70",
+      "employeeId": "e-han",
+      "date": "2026-11-16",
+      "shift": "morning",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-71",
+      "employeeId": "e-han",
+      "date": "2026-11-16",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-72",
+      "employeeId": "e-vy",
+      "date": "2026-11-16",
+      "shift": "morning",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-73",
+      "employeeId": "e-vy",
+      "date": "2026-11-16",
+      "shift": "afternoon",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-74",
+      "employeeId": "e-bao",
+      "date": "2026-11-17",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-75",
+      "employeeId": "e-tung",
+      "date": "2026-11-17",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-76",
+      "employeeId": "e-tung",
+      "date": "2026-11-17",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-77",
+      "employeeId": "e-hang",
+      "date": "2026-11-17",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-78",
+      "employeeId": "e-hang",
+      "date": "2026-11-17",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-79",
+      "employeeId": "e-khoa",
+      "date": "2026-11-17",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-80",
+      "employeeId": "e-khoa",
+      "date": "2026-11-17",
+      "shift": "evening",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-81",
+      "employeeId": "e-han",
+      "date": "2026-11-17",
+      "shift": "morning",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-82",
+      "employeeId": "e-han",
+      "date": "2026-11-17",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-83",
+      "employeeId": "e-vy",
+      "date": "2026-11-17",
+      "shift": "morning",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-84",
+      "employeeId": "e-bao",
+      "date": "2026-11-18",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-85",
+      "employeeId": "e-tung",
+      "date": "2026-11-18",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-86",
+      "employeeId": "e-nhu",
+      "date": "2026-11-18",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-87",
+      "employeeId": "e-nhu",
+      "date": "2026-11-18",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-88",
+      "employeeId": "e-hang",
+      "date": "2026-11-18",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-89",
+      "employeeId": "e-hang",
+      "date": "2026-11-18",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-90",
+      "employeeId": "e-khoa",
+      "date": "2026-11-18",
+      "shift": "evening",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-91",
+      "employeeId": "e-han",
+      "date": "2026-11-18",
+      "shift": "morning",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-92",
+      "employeeId": "e-han",
+      "date": "2026-11-18",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-93",
+      "employeeId": "e-vy",
+      "date": "2026-11-18",
+      "shift": "morning",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-94",
+      "employeeId": "e-vy",
+      "date": "2026-11-18",
+      "shift": "afternoon",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-95",
+      "employeeId": "e-bao",
+      "date": "2026-11-19",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-96",
+      "employeeId": "e-tung",
+      "date": "2026-11-19",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-97",
+      "employeeId": "e-tung",
+      "date": "2026-11-19",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-98",
+      "employeeId": "e-hang",
+      "date": "2026-11-19",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-99",
+      "employeeId": "e-hang",
+      "date": "2026-11-19",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-100",
+      "employeeId": "e-khoa",
+      "date": "2026-11-19",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-101",
+      "employeeId": "e-khoa",
+      "date": "2026-11-19",
+      "shift": "evening",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-102",
+      "employeeId": "e-han",
+      "date": "2026-11-19",
+      "shift": "morning",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-103",
+      "employeeId": "e-han",
+      "date": "2026-11-19",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-104",
+      "employeeId": "e-vy",
+      "date": "2026-11-19",
+      "shift": "morning",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-105",
+      "employeeId": "e-bao",
+      "date": "2026-11-20",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-106",
+      "employeeId": "e-tung",
+      "date": "2026-11-20",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-107",
+      "employeeId": "e-nhu",
+      "date": "2026-11-20",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-108",
+      "employeeId": "e-nhu",
+      "date": "2026-11-20",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-109",
+      "employeeId": "e-hang",
+      "date": "2026-11-20",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-110",
+      "employeeId": "e-hang",
+      "date": "2026-11-20",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-111",
+      "employeeId": "e-khoa",
+      "date": "2026-11-20",
+      "shift": "evening",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-112",
+      "employeeId": "e-han",
+      "date": "2026-11-20",
+      "shift": "morning",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-113",
+      "employeeId": "e-han",
+      "date": "2026-11-20",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-114",
+      "employeeId": "e-vy",
+      "date": "2026-11-20",
+      "shift": "morning",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-115",
+      "employeeId": "e-vy",
+      "date": "2026-11-20",
+      "shift": "afternoon",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-116",
+      "employeeId": "e-bao",
+      "date": "2026-11-21",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-117",
+      "employeeId": "e-bao",
+      "date": "2026-11-21",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-118",
+      "employeeId": "e-nhu",
+      "date": "2026-11-21",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-119",
+      "employeeId": "e-hang",
+      "date": "2026-11-21",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-120",
+      "employeeId": "e-khoa",
+      "date": "2026-11-21",
+      "shift": "evening",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-121",
+      "employeeId": "e-han",
+      "date": "2026-11-21",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-122",
+      "employeeId": "e-vy",
+      "date": "2026-11-21",
+      "shift": "morning",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-123",
+      "employeeId": "e-tung",
+      "date": "2026-11-22",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-124",
+      "employeeId": "e-nhu",
+      "date": "2026-11-22",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-125",
+      "employeeId": "e-bao",
+      "date": "2026-11-23",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-126",
+      "employeeId": "e-tung",
+      "date": "2026-11-23",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-127",
+      "employeeId": "e-nhu",
+      "date": "2026-11-23",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-128",
+      "employeeId": "e-nhu",
+      "date": "2026-11-23",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-129",
+      "employeeId": "e-hang",
+      "date": "2026-11-23",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-130",
+      "employeeId": "e-hang",
+      "date": "2026-11-23",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-131",
+      "employeeId": "e-khoa",
+      "date": "2026-11-23",
+      "shift": "evening",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-132",
+      "employeeId": "e-han",
+      "date": "2026-11-23",
+      "shift": "morning",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-133",
+      "employeeId": "e-han",
+      "date": "2026-11-23",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-134",
+      "employeeId": "e-vy",
+      "date": "2026-11-23",
+      "shift": "morning",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-135",
+      "employeeId": "e-vy",
+      "date": "2026-11-23",
+      "shift": "afternoon",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-136",
+      "employeeId": "e-bao",
+      "date": "2026-11-24",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-137",
+      "employeeId": "e-tung",
+      "date": "2026-11-24",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-138",
+      "employeeId": "e-tung",
+      "date": "2026-11-24",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-139",
+      "employeeId": "e-hang",
+      "date": "2026-11-24",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-140",
+      "employeeId": "e-hang",
+      "date": "2026-11-24",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-141",
+      "employeeId": "e-khoa",
+      "date": "2026-11-24",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-142",
+      "employeeId": "e-khoa",
+      "date": "2026-11-24",
+      "shift": "evening",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-143",
+      "employeeId": "e-han",
+      "date": "2026-11-24",
+      "shift": "morning",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-144",
+      "employeeId": "e-han",
+      "date": "2026-11-24",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-145",
+      "employeeId": "e-vy",
+      "date": "2026-11-24",
+      "shift": "morning",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-146",
+      "employeeId": "e-bao",
+      "date": "2026-11-25",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-147",
+      "employeeId": "e-tung",
+      "date": "2026-11-25",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-148",
+      "employeeId": "e-nhu",
+      "date": "2026-11-25",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-149",
+      "employeeId": "e-nhu",
+      "date": "2026-11-25",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-150",
+      "employeeId": "e-hang",
+      "date": "2026-11-25",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-151",
+      "employeeId": "e-hang",
+      "date": "2026-11-25",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-152",
+      "employeeId": "e-khoa",
+      "date": "2026-11-25",
+      "shift": "evening",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-153",
+      "employeeId": "e-han",
+      "date": "2026-11-25",
+      "shift": "morning",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-154",
+      "employeeId": "e-han",
+      "date": "2026-11-25",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-155",
+      "employeeId": "e-vy",
+      "date": "2026-11-25",
+      "shift": "morning",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-156",
+      "employeeId": "e-vy",
+      "date": "2026-11-25",
+      "shift": "afternoon",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-157",
+      "employeeId": "e-bao",
+      "date": "2026-11-26",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-158",
+      "employeeId": "e-tung",
+      "date": "2026-11-26",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-159",
+      "employeeId": "e-tung",
+      "date": "2026-11-26",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-160",
+      "employeeId": "e-hang",
+      "date": "2026-11-26",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-161",
+      "employeeId": "e-hang",
+      "date": "2026-11-26",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-162",
+      "employeeId": "e-khoa",
+      "date": "2026-11-26",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-163",
+      "employeeId": "e-khoa",
+      "date": "2026-11-26",
+      "shift": "evening",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-164",
+      "employeeId": "e-han",
+      "date": "2026-11-26",
+      "shift": "morning",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-165",
+      "employeeId": "e-han",
+      "date": "2026-11-26",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-166",
+      "employeeId": "e-vy",
+      "date": "2026-11-26",
+      "shift": "morning",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-167",
+      "employeeId": "e-bao",
+      "date": "2026-11-27",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-168",
+      "employeeId": "e-tung",
+      "date": "2026-11-27",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-169",
+      "employeeId": "e-nhu",
+      "date": "2026-11-27",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-170",
+      "employeeId": "e-nhu",
+      "date": "2026-11-27",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-171",
+      "employeeId": "e-hang",
+      "date": "2026-11-27",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-172",
+      "employeeId": "e-hang",
+      "date": "2026-11-27",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-173",
+      "employeeId": "e-khoa",
+      "date": "2026-11-27",
+      "shift": "evening",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-174",
+      "employeeId": "e-han",
+      "date": "2026-11-27",
+      "shift": "morning",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-175",
+      "employeeId": "e-han",
+      "date": "2026-11-27",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-176",
+      "employeeId": "e-vy",
+      "date": "2026-11-27",
+      "shift": "morning",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-177",
+      "employeeId": "e-vy",
+      "date": "2026-11-27",
+      "shift": "afternoon",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-178",
+      "employeeId": "e-bao",
+      "date": "2026-11-28",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-179",
+      "employeeId": "e-bao",
+      "date": "2026-11-28",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-180",
+      "employeeId": "e-nhu",
+      "date": "2026-11-28",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-181",
+      "employeeId": "e-hang",
+      "date": "2026-11-28",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-182",
+      "employeeId": "e-khoa",
+      "date": "2026-11-28",
+      "shift": "evening",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-183",
+      "employeeId": "e-han",
+      "date": "2026-11-28",
+      "shift": "afternoon",
+      "branchId": "q1"
+    },
+    {
+      "id": "SH-184",
+      "employeeId": "e-vy",
+      "date": "2026-11-28",
+      "shift": "morning",
+      "branchId": "hc"
+    },
+    {
+      "id": "SH-185",
+      "employeeId": "e-tung",
+      "date": "2026-11-29",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-186",
+      "employeeId": "e-nhu",
+      "date": "2026-11-29",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-187",
+      "employeeId": "e-bao",
+      "date": "2026-11-30",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-188",
+      "employeeId": "e-hang",
+      "date": "2026-11-30",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-189",
+      "employeeId": "e-hang",
+      "date": "2026-11-30",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-190",
+      "employeeId": "e-bao",
+      "date": "2026-12-01",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-191",
+      "employeeId": "e-hang",
+      "date": "2026-12-01",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-192",
+      "employeeId": "e-hang",
+      "date": "2026-12-01",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-193",
+      "employeeId": "e-bao",
+      "date": "2026-12-02",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-194",
+      "employeeId": "e-hang",
+      "date": "2026-12-02",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-195",
+      "employeeId": "e-hang",
+      "date": "2026-12-02",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-196",
+      "employeeId": "e-bao",
+      "date": "2026-12-03",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-197",
+      "employeeId": "e-hang",
+      "date": "2026-12-03",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-198",
+      "employeeId": "e-hang",
+      "date": "2026-12-03",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-199",
+      "employeeId": "e-bao",
+      "date": "2026-12-04",
+      "shift": "evening",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-200",
+      "employeeId": "e-hang",
+      "date": "2026-12-04",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-201",
+      "employeeId": "e-hang",
+      "date": "2026-12-04",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-202",
+      "employeeId": "e-bao",
+      "date": "2026-12-05",
+      "shift": "morning",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-203",
+      "employeeId": "e-bao",
+      "date": "2026-12-05",
+      "shift": "afternoon",
+      "branchId": "cg"
+    },
+    {
+      "id": "SH-204",
+      "employeeId": "e-hang",
+      "date": "2026-12-05",
+      "shift": "morning",
+      "branchId": "cg"
+    }
+  ],
+  "registrations": [
+    {
+      "employeeId": "e-tung",
+      "date": "2026-11-30",
+      "shift": "afternoon",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-nhu",
+      "date": "2026-11-30",
+      "shift": "morning",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-nhu",
+      "date": "2026-11-30",
+      "shift": "afternoon",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-khoa",
+      "date": "2026-11-30",
+      "shift": "evening",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-han",
+      "date": "2026-11-30",
+      "shift": "morning",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-han",
+      "date": "2026-11-30",
+      "shift": "afternoon",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-vy",
+      "date": "2026-11-30",
+      "shift": "morning",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-vy",
+      "date": "2026-11-30",
+      "shift": "afternoon",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-tung",
+      "date": "2026-12-01",
+      "shift": "afternoon",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-tung",
+      "date": "2026-12-01",
+      "shift": "evening",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-khoa",
+      "date": "2026-12-01",
+      "shift": "afternoon",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-khoa",
+      "date": "2026-12-01",
+      "shift": "evening",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-han",
+      "date": "2026-12-01",
+      "shift": "morning",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-han",
+      "date": "2026-12-01",
+      "shift": "afternoon",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-vy",
+      "date": "2026-12-01",
+      "shift": "morning",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-tung",
+      "date": "2026-12-02",
+      "shift": "afternoon",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-nhu",
+      "date": "2026-12-02",
+      "shift": "morning",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-nhu",
+      "date": "2026-12-02",
+      "shift": "afternoon",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-khoa",
+      "date": "2026-12-02",
+      "shift": "evening",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-han",
+      "date": "2026-12-02",
+      "shift": "morning",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-han",
+      "date": "2026-12-02",
+      "shift": "afternoon",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-vy",
+      "date": "2026-12-02",
+      "shift": "morning",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-vy",
+      "date": "2026-12-02",
+      "shift": "afternoon",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-tung",
+      "date": "2026-12-03",
+      "shift": "afternoon",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-tung",
+      "date": "2026-12-03",
+      "shift": "evening",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-khoa",
+      "date": "2026-12-03",
+      "shift": "afternoon",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-khoa",
+      "date": "2026-12-03",
+      "shift": "evening",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-han",
+      "date": "2026-12-03",
+      "shift": "morning",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-han",
+      "date": "2026-12-03",
+      "shift": "afternoon",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-vy",
+      "date": "2026-12-03",
+      "shift": "morning",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-tung",
+      "date": "2026-12-04",
+      "shift": "afternoon",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-nhu",
+      "date": "2026-12-04",
+      "shift": "morning",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-nhu",
+      "date": "2026-12-04",
+      "shift": "afternoon",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-khoa",
+      "date": "2026-12-04",
+      "shift": "evening",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-han",
+      "date": "2026-12-04",
+      "shift": "morning",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-han",
+      "date": "2026-12-04",
+      "shift": "afternoon",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-vy",
+      "date": "2026-12-04",
+      "shift": "morning",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-vy",
+      "date": "2026-12-04",
+      "shift": "afternoon",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-nhu",
+      "date": "2026-12-05",
+      "shift": "afternoon",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-khoa",
+      "date": "2026-12-05",
+      "shift": "evening",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-han",
+      "date": "2026-12-05",
+      "shift": "afternoon",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-vy",
+      "date": "2026-12-05",
+      "shift": "morning",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-tung",
+      "date": "2026-12-06",
+      "shift": "morning",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-nhu",
+      "date": "2026-12-06",
+      "shift": "afternoon",
+      "status": "available"
+    },
+    {
+      "employeeId": "e-bao",
+      "date": "2026-11-30",
+      "shift": "morning",
+      "status": "busy"
+    },
+    {
+      "employeeId": "e-hang",
+      "date": "2026-12-01",
+      "shift": "evening",
+      "status": "busy"
+    },
+    {
+      "employeeId": "e-tung",
+      "date": "2026-11-30",
+      "shift": "morning",
+      "status": "busy"
+    },
+    {
+      "employeeId": "e-vy",
+      "date": "2026-11-30",
+      "shift": "evening",
+      "status": "busy"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "TK-1",
+      "code": "TK-0101",
+      "title": "Gọi lại 5 lead hẹn test xếp lớp tuần này",
+      "description": "Danh sách lead trạng thái \"Hẹn test\" của chi nhánh Cầu Giấy — xác nhận giờ test, nhắc mang CCCD.",
+      "assigneeId": "e-bao",
+      "creatorId": "e-nam",
+      "watcherIds": [
+        "e-mai"
+      ],
+      "priority": "high",
+      "status": "doing",
+      "due": "2026-11-24",
+      "repeat": "none",
+      "checklist": [
+        {
+          "id": "c1",
+          "text": "Lọc lead hẹn test",
+          "done": true
+        },
+        {
+          "id": "c2",
+          "text": "Gọi xác nhận",
+          "done": false
+        },
+        {
+          "id": "c3",
+          "text": "Cập nhật lịch test",
+          "done": false
+        }
+      ],
+      "comments": [
+        {
+          "at": "2026-11-22T08:00:00.089Z",
+          "by": "Đinh Quốc Bảo",
+          "text": "Đã gọi 2/5, 3 người còn lại hẹn tối nay.",
+          "byId": "e-bao"
+        }
+      ],
+      "createdAt": "2026-11-20T02:00:00.089Z",
+      "branchId": "cg"
+    },
+    {
+      "id": "TK-2",
+      "code": "TK-0102",
+      "title": "Gọi phụ huynh học viên vắng 2 buổi liên tiếp lớp N3-K12",
+      "assigneeId": "e-hong",
+      "creatorId": "e-nam",
+      "watcherIds": [],
+      "priority": "urgent",
+      "status": "todo",
+      "due": "2026-11-22",
+      "repeat": "none",
+      "link": {
+        "type": "class",
+        "id": "C-N3K12",
+        "label": "Lớp GVV_N3-K12"
+      },
+      "checklist": [],
+      "comments": [],
+      "createdAt": "2026-11-21T02:00:00.089Z",
+      "branchId": "cg"
+    },
+    {
+      "id": "TK-3",
+      "code": "TK-0103",
+      "title": "Đăng bài khai giảng N5-K21 lên Fanpage + chạy quảng cáo",
+      "assigneeId": "e-baoanh",
+      "creatorId": "e-trang",
+      "watcherIds": [
+        "e-nam"
+      ],
+      "priority": "normal",
+      "status": "review",
+      "due": "2026-11-25",
+      "repeat": "none",
+      "link": {
+        "type": "class",
+        "id": "C-N5K21",
+        "label": "Lớp GVV_N5-K21"
+      },
+      "checklist": [
+        {
+          "id": "c1",
+          "text": "Thiết kế banner",
+          "done": true
+        },
+        {
+          "id": "c2",
+          "text": "Viết nội dung",
+          "done": true
+        },
+        {
+          "id": "c3",
+          "text": "Duyệt ngân sách 3tr",
+          "done": false
+        }
+      ],
+      "comments": [
+        {
+          "at": "2026-11-23T03:00:00.089Z",
+          "by": "Ngô Bảo Anh",
+          "text": "Đã xong bản nháp, nhờ chị Trang duyệt.",
+          "byId": "e-baoanh"
+        }
+      ],
+      "createdAt": "2026-11-18T02:00:00.089Z",
+      "branchId": "cg"
+    },
+    {
+      "id": "TK-4",
+      "code": "TK-0104",
+      "title": "Kiểm tra quỹ tiền mặt cuối ngày",
+      "assigneeId": "e-lan2",
+      "creatorId": "e-lan",
+      "watcherIds": [],
+      "priority": "normal",
+      "status": "todo",
+      "due": "2026-11-23",
+      "repeat": "daily",
+      "checklist": [],
+      "comments": [],
+      "createdAt": "2026-09-24T02:00:00.089Z",
+      "branchId": "cg"
+    },
+    {
+      "id": "TK-5",
+      "code": "TK-0105",
+      "title": "Báo cáo tuyển sinh tuần gửi Ban giám đốc",
+      "assigneeId": "e-nam",
+      "creatorId": "e-huy",
+      "watcherIds": [
+        "e-trang"
+      ],
+      "priority": "normal",
+      "status": "todo",
+      "due": "2026-11-26",
+      "repeat": "weekly",
+      "checklist": [],
+      "comments": [],
+      "createdAt": "2026-08-25T02:00:00.089Z",
+      "branchId": "cg"
+    },
+    {
+      "id": "TK-6",
+      "code": "TK-0106",
+      "title": "Sửa máy chiếu P.301 (báo hỏng của GV Thu Hà)",
+      "assigneeId": "e-tuan",
+      "creatorId": "e-nam",
+      "watcherIds": [
+        "t-ha"
+      ],
+      "priority": "high",
+      "status": "doing",
+      "due": "2026-11-21",
+      "repeat": "none",
+      "checklist": [
+        {
+          "id": "c1",
+          "text": "Kiểm tra cáp HDMI",
+          "done": true
+        },
+        {
+          "id": "c2",
+          "text": "Đặt bóng đèn máy chiếu",
+          "done": false
+        }
+      ],
+      "comments": [],
+      "createdAt": "2026-11-19T02:00:00.089Z",
+      "branchId": "cg"
+    },
+    {
+      "id": "TK-7",
+      "code": "TK-0107",
+      "title": "Chăm sóc lead Võ Thanh Tâm (quan tâm Kaiwa)",
+      "assigneeId": "e-nhu",
+      "creatorId": "e-bao",
+      "watcherIds": [],
+      "priority": "normal",
+      "status": "todo",
+      "due": "2026-11-23",
+      "repeat": "none",
+      "link": {
+        "type": "lead",
+        "id": "L-0005",
+        "label": "Lead LD0005 — Võ Thanh Tâm"
+      },
+      "checklist": [],
+      "comments": [
+        {
+          "at": "2026-11-23T01:00:00.089Z",
+          "by": "Đinh Quốc Bảo",
+          "text": "Em gọi trong ca sáng giúp anh nhé, khách chỉ nghe máy buổi sáng.",
+          "byId": "e-bao"
+        }
+      ],
+      "createdAt": "2026-11-22T02:00:00.089Z",
+      "branchId": "cg"
+    },
+    {
+      "id": "TK-8",
+      "code": "TK-0108",
+      "title": "Gửi nhắc học phí đợt 2 cho lớp N4-K15",
+      "assigneeId": "e-lan2",
+      "creatorId": "e-lan",
+      "watcherIds": [],
+      "priority": "normal",
+      "status": "done",
+      "due": "2026-11-20",
+      "repeat": "none",
+      "link": {
+        "type": "class",
+        "id": "C-N4K15",
+        "label": "Lớp GVV_N4-K15"
+      },
+      "checklist": [],
+      "comments": [],
+      "createdAt": "2026-11-15T02:00:00.089Z",
+      "completedAt": "2026-11-20T09:00:00.090Z",
+      "branchId": "cg"
+    },
+    {
+      "id": "TK-9",
+      "code": "TK-0109",
+      "title": "Chuẩn bị phòng & tài liệu test xếp lớp Chủ nhật",
+      "assigneeId": "e-hang",
+      "creatorId": "e-mai",
+      "watcherIds": [],
+      "priority": "low",
+      "status": "todo",
+      "due": "2026-11-27",
+      "repeat": "none",
+      "checklist": [
+        {
+          "id": "c1",
+          "text": "In 20 đề test",
+          "done": false
+        },
+        {
+          "id": "c2",
+          "text": "Mượn P.401",
+          "done": false
+        }
+      ],
+      "comments": [],
+      "createdAt": "2026-11-22T02:00:00.090Z",
+      "branchId": "cg"
+    },
+    {
+      "id": "TK-11",
+      "code": "TK-0111",
+      "title": "Duyệt kế hoạch tuyển sinh Quý 1/2027",
+      "description": "Kế hoạch ngân sách quảng cáo + chỉ tiêu từng chi nhánh, chốt trước họp giao ban.",
+      "assigneeId": "e-huy",
+      "creatorId": "e-trang",
+      "watcherIds": [
+        "e-baoanh"
+      ],
+      "priority": "high",
+      "status": "todo",
+      "due": "2026-11-25",
+      "repeat": "none",
+      "checklist": [
+        {
+          "id": "c1",
+          "text": "Xem ngân sách quảng cáo",
+          "done": false
+        },
+        {
+          "id": "c2",
+          "text": "Chốt chỉ tiêu 3 chi nhánh",
+          "done": false
+        }
+      ],
+      "comments": [],
+      "createdAt": "2026-11-22T02:00:00.090Z",
+      "branchId": "cg"
+    },
+    {
+      "id": "TK-12",
+      "code": "TK-0112",
+      "title": "Ký duyệt bảng lương tháng 10",
+      "assigneeId": "e-huy",
+      "creatorId": "e-lan",
+      "watcherIds": [],
+      "priority": "urgent",
+      "status": "todo",
+      "due": "2026-11-22",
+      "repeat": "none",
+      "checklist": [],
+      "comments": [
+        {
+          "at": "2026-11-22T02:00:00.090Z",
+          "by": "Hoàng Thị Lan",
+          "text": "Bảng lương đã chốt ở Tài chính, nhờ anh duyệt để chuyển khoản.",
+          "byId": "e-lan"
+        }
+      ],
+      "createdAt": "2026-11-21T02:00:00.090Z",
+      "branchId": "cg"
+    },
+    {
+      "id": "TK-13",
+      "code": "TK-0113",
+      "title": "Gọi 3 lead quá SLA chi nhánh Quận 1",
+      "assigneeId": "e-khoa",
+      "creatorId": "e-q1m",
+      "watcherIds": [],
+      "priority": "urgent",
+      "status": "todo",
+      "due": "2026-11-23",
+      "repeat": "none",
+      "checklist": [
+        {
+          "id": "c1",
+          "text": "Phạm Gia Huy",
+          "done": true
+        },
+        {
+          "id": "c2",
+          "text": "Lead form website",
+          "done": false
+        },
+        {
+          "id": "c3",
+          "text": "Lead Facebook",
+          "done": false
+        }
+      ],
+      "comments": [],
+      "createdAt": "2026-11-23T01:00:00.090Z",
+      "branchId": "q1"
+    },
+    {
+      "id": "TK-14",
+      "code": "TK-0114",
+      "title": "Cập nhật bảng giá khóa N3 trên Zalo OA",
+      "assigneeId": "e-khoa",
+      "creatorId": "e-q1m",
+      "watcherIds": [],
+      "priority": "low",
+      "status": "doing",
+      "due": "2026-11-28",
+      "repeat": "none",
+      "checklist": [],
+      "comments": [],
+      "createdAt": "2026-11-21T02:00:00.090Z",
+      "branchId": "q1"
+    },
+    {
+      "id": "TK-15",
+      "code": "TK-0115",
+      "title": "Đối chiếu công nợ quá hạn > 30 ngày",
+      "assigneeId": "e-lan",
+      "creatorId": "e-huy",
+      "watcherIds": [],
+      "priority": "high",
+      "status": "todo",
+      "due": "2026-11-24",
+      "repeat": "monthly",
+      "checklist": [],
+      "comments": [],
+      "createdAt": "2026-11-22T02:00:00.090Z",
+      "branchId": "cg"
+    },
+    {
+      "id": "TK-10",
+      "code": "TK-0110",
+      "title": "Tổng hợp hồ sơ JLPT 12/2026 còn thiếu",
+      "assigneeId": "e-mai",
+      "creatorId": "e-nam",
+      "watcherIds": [],
+      "priority": "high",
+      "status": "done",
+      "due": "2026-11-13",
+      "repeat": "none",
+      "checklist": [],
+      "comments": [],
+      "createdAt": "2026-11-03T02:00:00.090Z",
+      "completedAt": "2026-11-12T02:00:00.090Z",
+      "branchId": "cg"
+    }
+  ],
+  "handovers": [
+    {
+      "id": "HO-1",
+      "branchId": "cg",
+      "date": "2026-11-23",
+      "fromShift": "afternoon",
+      "fromId": "e-tung",
+      "toId": "e-bao",
+      "cash": {
+        "expected": 4550000,
+        "counted": 4550000
+      },
+      "leads": [
+        {
+          "leadId": "L-0005",
+          "note": "Hẹn gọi lại 19h về lớp Kaiwa tối"
+        },
+        {
+          "leadId": "L-0011",
+          "note": "Đã gửi bảng giá, chờ phụ huynh quyết"
+        }
+      ],
+      "pending": [
+        {
+          "text": "Khách đặt cọc giữ chỗ lớp N5-K21 sẽ quay lại lấy biên lai lúc 18h"
+        },
+        {
+          "text": "Hộp thư Fanpage còn 3 tin chưa trả lời"
+        }
+      ],
+      "status": "pending",
+      "createdAt": "2026-11-23T10:32:34.090Z"
+    },
+    {
+      "id": "HO-2",
+      "branchId": "cg",
+      "date": "2026-11-22",
+      "fromShift": "afternoon",
+      "fromId": "e-hang",
+      "toId": "e-bao",
+      "cash": {
+        "expected": 2300000,
+        "counted": 2250000,
+        "receivedCount": 2250000,
+        "note": "Thiếu 50.000đ — trả lại tiền thừa nhầm cho khách"
+      },
+      "leads": [],
+      "pending": [
+        {
+          "text": "Trả CCCD cho học viên Đỗ Văn My (để quên ở quầy)",
+          "done": true
+        }
+      ],
+      "issues": "Máy in quầy kẹt giấy",
+      "status": "disputed",
+      "createdAt": "2026-11-22T10:00:00.090Z",
+      "receivedAt": "2026-11-22T11:00:00.090Z",
+      "receiverNote": "Nhận đủ 2.250.000đ, lệch 50.000đ so với hệ thống — đã báo kế toán."
+    },
+    {
+      "id": "HO-3",
+      "branchId": "cg",
+      "date": "2026-11-22",
+      "fromShift": "morning",
+      "fromId": "e-nhu",
+      "toId": "e-tung",
+      "cash": {
+        "expected": 1000000,
+        "counted": 1000000,
+        "receivedCount": 1000000
+      },
+      "leads": [
+        {
+          "leadId": "L-0004",
+          "note": "Đã gọi 2 lần không nghe máy"
+        }
+      ],
+      "pending": [],
+      "status": "received",
+      "createdAt": "2026-11-22T05:00:00.090Z",
+      "receivedAt": "2026-11-22T06:00:00.090Z"
+    },
+    {
+      "id": "HO-4",
+      "branchId": "q1",
+      "date": "2026-11-22",
+      "fromShift": "afternoon",
+      "fromId": "e-han",
+      "toId": "e-khoa",
+      "cash": {
+        "expected": 3200000,
+        "counted": 3200000,
+        "receivedCount": 3200000
+      },
+      "leads": [],
+      "pending": [
+        {
+          "text": "Gửi lịch khai giảng N3-K13 cho 2 khách walk-in"
+        }
+      ],
+      "status": "received",
+      "createdAt": "2026-11-22T10:00:00.090Z",
+      "receivedAt": "2026-11-22T10:00:00.090Z"
+    }
+  ]
+}
