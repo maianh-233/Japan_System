@@ -9,7 +9,7 @@ namespace JPCenter.Modules.Students.Application.Jlpt.SaveJlptSession;
 
 /// <summary>
 /// HV-16 bước 1 — thêm (<paramref name="Id"/> null) / sửa kỳ thi: hạn nộp &lt; ngày thi &lt; ngày có kết quả, đủ lệ phí N5 → N1, ≥ 1 địa điểm (E1).
-/// <paramref name="Fees"/>: "N5" → số tiền VND. Sửa lệ phí không đổi lệ phí các lượt đã đăng ký.
+/// <paramref name="Fees"/>: "N5" → số tiền VND. Sửa lệ phí không đổi lệ phí các lượt đã đăng ký. Mỗi ngày thi chỉ 1 kỳ (<c>duplicate_date</c>).
 /// </summary>
 public sealed record SaveJlptSessionCommand(Guid? Id, string? Label, DateOnly ExamDate, DateOnly RegClose, DateOnly ResultDate,
     IReadOnlyDictionary<string, decimal>? Fees, IReadOnlyList<string>? Venues) : ICommand<JlptSessionDto>;
@@ -26,6 +26,8 @@ public sealed class SaveJlptSessionHandler(IStudentsDbContext db, JlptReader rea
             fees[level] = m.Value;
         }
         var venues = cmd.Venues ?? [];
+        if (await db.JlptSessions.AnyAsync(s => s.ExamDate == cmd.ExamDate && (cmd.Id == null || s.Id != new JlptSessionId(cmd.Id.Value)), ct))
+            return JlptErrors.DuplicateDate;
         JlptSession session;
         if (cmd.Id is { } id)
         {

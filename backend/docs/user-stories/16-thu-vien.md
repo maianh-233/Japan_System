@@ -1,8 +1,9 @@
 # 16 · Thư viện tài liệu điện tử
 
 Module: **Library** · Bảng: `library.documents`, `library.document_views` ([database.md](../database.md)) · Giai đoạn 23
-Frontend: `pages/staff/library/documents/LibraryPage.tsx`, `features/library/{types,constants,libraryStore}.ts`,
-`features/library/{DocDetailDrawer,DocFormFields,DocViewer}.tsx`, `pages/student/documents/StudentDocumentsPage.tsx` (tab Thư viện)
+Frontend: `pages/staff/library/documents/LibraryPage.tsx`, `features/library/{types,constants,libraryStore,libraryApi}.ts`,
+`features/library/{DocDetailDrawer,DocFormFields,DocViewer,PortalLibrary}.tsx`, `pages/student/documents/StudentDocumentsPage.tsx` (tab Thư viện),
+`pages/teacher/documents/TeacherDocumentsPage.tsx` (tab Thư viện trung tâm)
 
 ## Mô hình (đọc trước)
 
@@ -162,7 +163,7 @@ Xóa → **xóa mềm** vào Thùng rác (story 10, TR-xx); dọn Thùng rác m�
 
 > Là **giáo viên**, tôi muốn **xem tài liệu dành cho GV** để **soạn bài**.
 
-**Nguồn:** Cổng GV › Tài liệu của tôi › thêm tab "Thư viện trung tâm" (dựng ở giai đoạn 23 phase 4)
+**Nguồn:** Cổng GV › Tài liệu của tôi › tab "Thư viện trung tâm" (dựng ở giai đoạn 23 phase 4)
 
 - Tài liệu `published`, đối tượng `teacher`, chi nhánh của lớp GV đang dạy hoặc mọi chi nhánh. Lượt xem `viewer_type = staff`.
 
@@ -191,7 +192,7 @@ Xóa → **xóa mềm** vào Thùng rác (story 10, TR-xx); dọn Thùng rác m�
   `LibraryStats` (tổng hợp, 14 ngày, top 6), `Watermark`; Students: điều kiện + mã chứng nhận, quy chế điểm JLPT, bước hồ sơ du học.
 - **Phase 2:** ✅ cấu hình EF + migration `LibraryDocuments` (`documents`, `document_views`), `StudentsPrograms` (JLPT, du học — bảng chứng nhận đã có từ GĐ 14)
   + dữ liệu mẫu từ mock (lượt xem dựng lại từ `daily` / `top`, tối đa 200 lượt cũ hơn 14 ngày / tài liệu).
-- **Phase 3:** ✅ API trên + job không cần (số liệu cập nhật khi ghi lượt xem). **Phase 4:** nối frontend, dọn mock.
+- **Phase 3:** ✅ API trên + job không cần (số liệu cập nhật khi ghi lượt xem). **Phase 4:** ✅ nối frontend, dọn mock (chế độ API).
 
 ## Đã làm — backend (giai đoạn 23 phase 3, 2026-11-24)
 
@@ -220,4 +221,20 @@ Code: `src/Modules/Library/JPCenter.Modules.Library/Application/Documents/`, `Ap
 - Cổng HV / PH: chi nhánh + cấp độ lớp **đang học / bảo lưu**; PH nhiều con phải truyền `studentId`. Cổng GV: lớp đang dạy chưa kết thúc / hủy.
   Cấp độ lớp lấy từ `ClassSummary.Level` (Academic.Contracts — cấp độ đầu ra của khóa, thêm ở phase này).
 - Thùng rác: khôi phục giữ lượt xem / số liệu; xóa hẳn xóa dòng (lượt xem theo FK cascade) + tệp trong kho.
-- ⏳ Thẻ tổng "lượt xem 30 ngày" (TV-01 bước 3) chưa có API riêng — frontend tự cộng từ `daily` (14 ngày) hoặc thêm ở phase 4 nếu cần.
+- Thẻ tổng ở đầu trang hiện **lượt xem 14 ngày** (cộng `daily` của các tài liệu) — không thêm API riêng cho 30 ngày (chốt phase 4).
+
+## Đã làm — frontend (giai đoạn 23 phase 4, 2026-11-24)
+
+Chế độ API (`VITE_API_MODE` khác `mock`): store thư viện khởi tạo rỗng, `features/library/libraryApi.ts` đổ dữ liệu server.
+
+- **Trang nhân viên** (`LibraryPage`): tải danh sách khi mở trang (người sửa được thấy cả tài liệu ẩn — lọc ẩn / hiện ở trang). Tải lên = `POST documents/files`
+  rồi `POST documents`; sửa = `PUT documents/{id}` (không chọn tệp mới → không gửi `fileKey`, server giữ tệp cũ); ẩn / hiện, quyền & bảo vệ (gửi đủ bộ
+  `audience, branchIds, watermark, allowDownload`), tab Thống kê tải `GET documents/{id}/stats` (có "đọc nhiều nhất").
+- **Trình xem** (`DocViewer` → `LiveViewer`): mở lượt xem → PDF trong `iframe`, audio / video thẻ HTML, link mở tab mới; watermark do server dựng phủ lên;
+  chặn tải: ẩn nút tải + thanh công cụ PDF + chặn chuột phải (bảo vệ mức giao diện — không chống chụp màn hình, watermark để truy nguồn).
+  Đóng trình xem → `POST views/{viewId}/end`. Link hết hạn (10 phút) → nút "Mở lại". Mở lượt xem ở trang nhân viên cập nhật `rowVersion` (sửa tiếp không 409).
+- **Cổng HV / PH** (tab Thư viện) và **cổng GV** (tab Thư viện trung tâm): `PortalLibrary` — server lọc đối tượng / chi nhánh / cấp độ, `matchesLevel` → nhãn
+  "Đúng trình độ"; PH truyền `studentId` của con đang chọn.
+
+**Backend chỉnh ở phase này:** `PUT documents/{id}` không có `fileKey` + giữ nguyên dạng tệp → giữ tệp hiện tại (danh sách không trả khóa tệp trong kho) — test
+`LibraryFlowTests.Create_update_protect`.

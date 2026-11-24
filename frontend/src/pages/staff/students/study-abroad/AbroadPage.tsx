@@ -1,12 +1,15 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Form } from 'antd';
 import dayjs from 'dayjs';
 import { Columns3, FolderOpen, List, Plane, ScrollText, Stamp, Users } from 'lucide-react';
-import { Button, DataTable, ModalForm, PageHeader, Select, StatCard, StatusTag, TextInput, UserCell, type DataColumn } from '@/components/common';
+import { Button, DataTable, ModalForm, PageHeader, Select, StatCard, StatusTag, TextInput, UserCell, useNotify, type DataColumn } from '@/components/common';
 import { useCrmStore } from '@/features/crm/crmStore';
-import { ABROAD_STAFF, daysTo, docProgress, PROGRAM_OPTIONS, PROGRAMS, STAGE_ORDER, STAGES, useAbroadStore, type AbroadCase, type Program } from '@/features/student/abroad/abroad';
+import { ABROAD_STAFF, assigneeOptions, daysTo, docProgress, PROGRAM_OPTIONS, PROGRAMS, STAGE_ORDER, STAGES, useAbroadStore, type AbroadCase, type Program } from '@/features/student/abroad/abroad';
+import { createAbroad, loadAbroad } from '@/features/student/abroad/abroadApi';
+import { useHrStore } from '@/features/hr/hrStore';
 import { AbroadDrawer } from '@/features/student/abroad/AbroadDrawer';
 import { useAuth } from '@/hooks/useAuth';
+import { USE_API } from '@/lib/api/config';
 import { cn } from '@/lib/cn';
 import { fmtDate } from '@/lib/date';
 import { ALL_BRANCHES } from '@/types/auth';
@@ -17,13 +20,25 @@ interface Row extends AbroadCase {
   branchId?: string;
 }
 
-/** Du học / XKLĐ — DỮ LIỆU GIẢ. */
+/** Du học / XKLĐ (HV-17) — chế độ API: hồ sơ từ server, mỗi thao tác gọi API (server kiểm điều kiện sang bước, tự ghi nhật ký). */
 export default function AbroadPage() {
   const { user, branchId, can } = useAuth();
   const cases = useAbroadStore((s) => s.cases);
   const add = useAbroadStore((s) => s.add);
   const students = useCrmStore((s) => s.students);
   const editable = can('students.study-abroad');
+  const notify = useNotify();
+  const employees = useHrStore((s) => s.employees);
+  const staffOptions = assigneeOptions(employees);
+  const [loading, setLoading] = useState(USE_API);
+
+  useEffect(() => {
+    if (!USE_API) return;
+    loadAbroad()
+      .catch((e: Error) => notify.error({ title: 'Không tải được hồ sơ du học / XKLĐ', description: e.message }))
+      .finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [program, setProgram] = useState<Program | 'all'>('all');
   const [assignee, setAssignee] = useState<string>();
@@ -39,7 +54,7 @@ export default function AbroadPage() {
       cases
         .map((c) => {
           const s = students.find((x) => x.id === c.studentId);
-          return { ...c, name: s?.fullName ?? c.studentId, code: s?.code ?? '', branchId: s?.branchId };
+          return { ...c, name: s?.fullName ?? c.studentName ?? c.studentId, code: s?.code ?? c.studentCode ?? '', branchId: c.branchId ?? s?.branchId };
         })
         .filter((r) => branchId === ALL_BRANCHES || r.branchId === branchId),
     [cases, students, branchId],
@@ -155,7 +170,13 @@ export default function AbroadPage() {
         <div className="flex flex-1 flex-wrap items-center gap-2 lg:justify-end">
           <TextInput value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="Tìm học viên, trường, nghiệp đoàn..." className="!w-full sm:!w-60" />
           <Select placeholder="Nơi tiếp nhận" value={partner} onChange={setPartner} options={partners.map((p) => ({ value: p, label: p }))} className="!w-52" />
-          <Select placeholder="Phụ trách" value={assignee} onChange={setAssignee} options={ABROAD_STAFF.map((x) => ({ value: x, label: x }))} className="!w-52" />
+          <Select
+            placeholder="Phụ trách"
+            value={assignee}
+            onChange={setAssignee}
+            options={(USE_API ? [...new Set(rows.map((r) => r.assignee))].sort() : ABROAD_STAFF).map((x) => ({ value: x, label: x }))}
+            className="!w-52"
+          />
           <label className="inline-flex items-center gap-1.5 text-[13px] text-ink-secondary">
             <input type="checkbox" checked={showCancelled} onChange={(e) => setShowCancelled(e.target.checked)} /> Hiện hồ sơ đã dừng
           </label>
@@ -198,7 +219,7 @@ export default function AbroadPage() {
           </div>
         </div>
       ) : (
-        <DataTable<Row> storageKey="students-abroad" columns={columns} data={data} rowKey="id" unitLabel="hồ sơ" onRowClick={(r) => setOpenId(r.id)} searchKeys={['name', 'code', 'partner', 'destination']} />
+        <DataTable<Row> storageKey="students-abroad" columns={columns} data={data} loading={loading} rowKey="id" unitLabel="hồ sơ" onRowClick={(r) => setOpenId(r.id)} searchKeys={['name', 'code', 'partner', 'destination']} />
       )}
 
       {openId && <AbroadDrawer caseId={openId} editable={editable} onClose={() => setOpenId(null)} />}
@@ -211,8 +232,22 @@ export default function AbroadPage() {
         submitAction="create"
         submitText="Tạo hồ sơ"
         successMessage="Đã tạo hồ sơ"
-        initialValues={{ program: 'study', intake: dayjs().add(5, 'month').format('YYYY-MM'), assignee: ABROAD_STAFF[0] }}
-        onSubmit={(v) => {
+        initialValues={{ program: 'study', intake: dayjs().add(5, 'month').format('YYYY-MM'), assignee: USE_API ? (employees.find((e) => e.fullName === user?.fullName)?.id ?? staffOptions[0]?.value) : ABROAD_STAFF[0] }}
+        onSubmit={async (v) => {
+          const fee = Number(String(v.feeTotal ?? '0').replace(/\D/g, '')) || 0;
+          if (USE_API) {
+            const created = await createAbroad(v.studentId, {
+              program: v.program,
+              partner: v.partner.trim(),
+              destination: v.destination.trim(),
+              job: v.job?.trim() || undefined,
+              intake: v.intake,
+              feeTotal: fee,
+              assigneeId: v.assignee,
+            });
+            setTimeout(() => setOpenId(created.id), 300);
+            return;
+          }
           const c = add(
             { studentId: v.studentId, program: v.program, partner: v.partner.trim(), destination: v.destination.trim(), job: v.job?.trim() || undefined, intake: v.intake, stage: 'consult', fee: { total: Number(String(v.feeTotal ?? '0').replace(/\D/g, '')) || 0, paid: 0 }, assignee: v.assignee },
             user?.fullName ?? 'Nhân viên',
@@ -243,7 +278,7 @@ export default function AbroadPage() {
             <TextInput placeholder="180000000" inputMode="numeric" />
           </Form.Item>
           <Form.Item name="assignee" label="Phụ trách" rules={[{ required: true }]}>
-            <Select options={ABROAD_STAFF.map((x) => ({ value: x, label: x }))} showSearch={false} allowClear={false} />
+            <Select options={staffOptions} optionFilterProp="label" allowClear={false} />
           </Form.Item>
         </div>
       </ModalForm>

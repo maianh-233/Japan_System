@@ -50,6 +50,7 @@ public sealed class StudentsModule : IModule
         services.AddScoped<CertificateDesk>();
         services.AddScoped<JlptReader>();
         services.AddScoped<AbroadDesk>();
+        services.AddScoped<LearnerPortal>();
 
         services.AddScoped<IDataSeeder, StudentSeeder>();
         services.AddScoped<IDataSeeder, CareSeeder>();

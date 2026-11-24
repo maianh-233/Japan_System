@@ -1,4 +1,4 @@
-import { useMemo, useState, type Key } from 'react';
+import { useCallback, useEffect, useMemo, useState, type Key } from 'react';
 import { Modal } from 'antd';
 import dayjs from 'dayjs';
 import { Award, BadgeCheck, CircleX, Eye, Hourglass, Mail, QrCode, Search, Send, ShieldAlert } from 'lucide-react';
@@ -9,9 +9,11 @@ import { CertificateModal, certificateChecks } from '@/features/academic/classes
 import { useAllStudentStats } from '@/features/academic/classes/studentInsights';
 import type { ClassInfo } from '@/features/academic/classes/types';
 import { useCrmStore } from '@/features/crm/crmStore';
+import { issueCertificates, loadCertificateRows, verifyCertificate, type CertRow, type CertVerification } from '@/features/student/certificateApi';
 import { useStudentStore } from '@/features/student/studentStore';
 import type { Certificate } from '@/features/student/types';
 import { useAuth } from '@/hooks/useAuth';
+import { USE_API } from '@/lib/api/config';
 import { cn } from '@/lib/cn';
 import { fmtDate } from '@/lib/date';
 import { getBranches } from '@/features/system/useBranches';
@@ -33,7 +35,7 @@ interface Row {
   endedAt?: string;
 }
 
-/** Chứng nhận hoàn thành khóa — DỮ LIỆU GIẢ. */
+/** Chứng nhận hoàn thành khóa (HV-15) — chế độ API: danh sách + checklist do server tính, cấp / gửi / tra cứu qua API. */
 export default function CertificatesPage() {
   const { user, branchId, currentBranch } = useAuth();
   const notify = useNotify();
@@ -48,13 +50,31 @@ export default function CertificatesPage() {
   const [preview, setPreview] = useState<Row | null>(null);
   const [lookup, setLookup] = useState('');
   const [checked, setChecked] = useState<string | null>(null);
+  const [serverRows, setServerRows] = useState<CertRow[] | null>(null);
+  const [verified, setVerified] = useState<CertVerification | null | 'loading'>(null);
+
+  const reload = useCallback(
+    () =>
+      loadCertificateRows()
+        .then(setServerRows)
+        .catch((e: Error) => {
+          setServerRows((r) => r ?? []);
+          notify.error({ title: 'Không tải được danh sách chứng nhận', description: e.message });
+        }),
+    [notify],
+  );
+  useEffect(() => {
+    if (USE_API) void reload();
+  }, [reload]);
 
   const scope = useMemo(() => classes.filter((c) => (c.status === 'finished' || c.status === 'ongoing') && (branchId === ALL_BRANCHES || c.branchId === branchId)), [classes, branchId]);
   const all = useAllStudentStats(scope);
 
-  const rows: Row[] = useMemo(
+  const mockRows: Row[] = useMemo(
     () =>
-      all.flatMap(({ cls, map }) =>
+      USE_API
+        ? []
+        : all.flatMap(({ cls, map }) =>
         [...map.values()]
           .filter((st) => st.enrollment.status === 'completed' || st.enrollment.certificate)
           .map((st) => {
@@ -76,6 +96,32 @@ export default function CertificatesPage() {
           }),
       ),
     [all, students],
+  );
+  // Chế độ API: dòng server (phạm vi chi nhánh server lọc) ghép với lớp đã nạp; lọc thêm theo chi nhánh đang chọn
+  const rows: Row[] = useMemo(
+    () =>
+      USE_API
+        ? (serverRows ?? []).flatMap((r) => {
+            const cls = classes.find((c) => c.id === r.classId);
+            if (!cls || (branchId !== ALL_BRANCHES && cls.branchId !== branchId)) return [];
+            return [
+              {
+                id: r.enrollmentId,
+                enrollmentId: r.enrollmentId,
+                cls,
+                studentId: r.studentId,
+                name: r.studentName,
+                code: r.studentCode,
+                email: r.email,
+                checks: r.checks,
+                eligible: r.eligible,
+                cert: r.certificate,
+                endedAt: r.endedAt,
+              },
+            ];
+          })
+        : mockRows,
+    [serverRows, classes, branchId, mockRows],
   );
 
   const inClass = rows.filter((r) => !classId || r.cls.id === classId);
@@ -99,12 +145,39 @@ export default function CertificatesPage() {
       confirmText: 'Cấp & gửi',
     });
     if (!ok) return;
+    if (USE_API) {
+      try {
+        const r = await issueCertificates(list.filter((x) => x.email).map((x) => ({ enrollmentId: x.enrollmentId, email: x.email! })));
+        const skipped = r.skipped.map((x) => `${list.find((l) => l.enrollmentId === x.enrollmentId)?.name ?? 'HV'}: ${x.message}`);
+        notify.success({
+          title: `Đã cấp ${r.issued} chứng nhận`,
+          description: [r.mailFailed ? `${r.mailFailed} email gửi lỗi — gửi lại sau.` : '', ...skipped].filter(Boolean).join(' · ') || undefined,
+        });
+      } catch (e) {
+        notify.error({ title: (e as Error).message });
+      }
+      setSelected([]);
+      void reload();
+      return;
+    }
     list.filter((r) => r.email).forEach((r) => sendCertificate(r.enrollmentId, { email: r.email!, by: me }));
     notify.success({ title: `Đã cấp ${list.length - noMail.length} chứng nhận` });
     setSelected([]);
   };
 
   const found = checked !== null ? rows.find((r) => r.cert?.code.toLowerCase() === checked.trim().toLowerCase()) : undefined;
+  /** Tra cứu: chế độ API hỏi trang công khai (thấy cả chứng nhận ngoài chi nhánh / năm cũ) */
+  const lookUp = (code: string) => {
+    setChecked(code);
+    if (!USE_API) return;
+    setVerified('loading');
+    verifyCertificate(code)
+      .then(setVerified)
+      .catch((e: Error) => {
+        setVerified(null);
+        notify.error({ title: e.message });
+      });
+  };
 
   const columns: DataColumn<Row>[] = [
     { key: 'name', title: 'Học viên', width: 220, mobile: 'title', sorter: (a, b) => a.name.localeCompare(b.name, 'vi'), render: (_, r) => <UserCell size="sm" name={r.name} subtitle={`${r.code}${r.email ? ` · ${r.email}` : ' · chưa có email'}`} /> },
@@ -168,15 +241,26 @@ export default function CertificatesPage() {
                 setLookup(e.target.value);
                 setChecked(null);
               }}
-              onKeyDown={(e) => e.key === 'Enter' && setChecked(lookup)}
+              onKeyDown={(e) => e.key === 'Enter' && lookup.trim() && lookUp(lookup)}
               placeholder="VD: CN-2026-N4K11-0001"
               className="h-9 min-w-0 flex-1 rounded-[var(--radius-control)] border border-line px-3 font-mono text-sm outline-none focus:border-primary-500"
             />
-            <Button icon={Search} size="sm" onClick={() => setChecked(lookup)} disabled={!lookup.trim()}>
+            <Button icon={Search} size="sm" onClick={() => lookUp(lookup)} disabled={!lookup.trim()} loading={verified === 'loading'}>
               Tra
             </Button>
           </div>
           {checked !== null &&
+            USE_API &&
+            verified !== 'loading' &&
+            (verified ? (
+              <p className="text-xs text-success-700">
+                ✓ Hợp lệ — {verified.studentName}, {verified.className ?? verified.classCode} ({verified.classCode}), cấp {fmtDate(verified.issuedAt)}
+              </p>
+            ) : (
+              <p className="text-xs text-danger-600">✗ Không tìm thấy mã này — chứng nhận có thể giả mạo.</p>
+            ))}
+          {checked !== null &&
+            !USE_API &&
             (found ? (
               <p className="text-xs text-success-700">
                 ✓ Hợp lệ — {found.name}, {found.cls.courseLabel} ({found.cls.code}), cấp {fmtDate(found.cert!.issuedAt)}
@@ -217,6 +301,7 @@ export default function CertificatesPage() {
         storageKey={`students-certificates-${tab}`}
         columns={columns}
         data={data}
+        loading={USE_API && serverRows === null}
         rowKey="id"
         unitLabel="học viên"
         searchKeys={['name', 'code', 'email']}
@@ -252,7 +337,15 @@ export default function CertificatesPage() {
         empty={{ icon: Award, title: tab === 'ready' ? 'Không có học viên chờ cấp' : tab === 'blocked' ? 'Không có học viên thiếu điều kiện' : 'Chưa cấp chứng nhận nào' }}
       />
 
-      {issuing && <CertificateModal cls={issuing.cls} studentId={issuing.studentId} onClose={() => setIssuing(null)} />}
+      {issuing && (
+        <CertificateModal
+          cls={issuing.cls}
+          studentId={issuing.studentId}
+          onClose={() => setIssuing(null)}
+          server={USE_API ? { enrollmentId: issuing.enrollmentId, checks: issuing.checks, cert: issuing.cert, name: issuing.name, email: issuing.email } : undefined}
+          onSent={() => void reload()}
+        />
+      )}
 
       <Modal open={Boolean(preview)} onCancel={() => setPreview(null)} footer={null} width={760} title="Chứng nhận hoàn thành khóa học" destroyOnHidden>
         {preview?.cert && <CertificateView row={preview} />}

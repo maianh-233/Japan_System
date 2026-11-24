@@ -11,10 +11,14 @@ public static class JlptErrors
     /// <summary>HV-16.E1</summary>
     public static readonly Error InvalidDates = Error.Validation("students.jlpt_session.invalid_dates",
         "Hạn nhận hồ sơ phải trước ngày thi, ngày có kết quả phải sau ngày thi");
+    public static readonly Error DuplicateDate = Error.Conflict("students.jlpt_session.duplicate_date", "Đã có kỳ thi vào ngày này");
     public static readonly Error InvalidFees = Error.Validation("students.jlpt_session.invalid_fees", "Nhập lệ phí cho đủ 5 cấp độ N5 → N1");
     public static readonly Error VenueRequired = Error.Validation("students.jlpt_session.venue_required", "Nhập ít nhất 1 địa điểm thi");
     public static readonly Error InvalidLevel = Error.Validation("students.jlpt.invalid_level", "Cấp độ thi phải từ N5 đến N1");
     public static readonly Error InvalidVenue = Error.Validation("students.jlpt.invalid_venue", "Địa điểm thi không thuộc kỳ thi này");
+    /// <summary>Cổng HV / PH: kỳ thi đã quá hạn nhận hồ sơ (trang nhân viên vẫn đăng ký được — HV-16.E6)</summary>
+    public static readonly Error RegistrationClosed = Error.Conflict("students.jlpt.registration_closed",
+        "Kỳ thi đã hết hạn nhận hồ sơ — liên hệ trung tâm để được hỗ trợ");
     public static readonly Error Duplicate = Error.Conflict("students.jlpt.duplicate", "Học viên đã đăng ký kỳ thi này");
     /// <summary>HV-16.E2</summary>
     public static readonly Error DocsMissing = Error.Conflict("students.jlpt.docs_missing", "Hồ sơ chưa đủ giấy tờ");

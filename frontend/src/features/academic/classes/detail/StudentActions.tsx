@@ -6,8 +6,9 @@ import { Button, DateInput, ModalForm, NumberInput, Select, StatusTag, TextArea,
 import { useCrmStore } from '@/features/crm/crmStore';
 import { summarizeInvoice, useStudentStore } from '@/features/student/studentStore';
 import * as studentApi from '@/features/student/studentApi';
+import { issueCertificate, resendCertificate } from '@/features/student/certificateApi';
 import { USE_API } from '@/lib/api/config';
-import type { Enrollment } from '@/features/student/types';
+import type { Certificate, Enrollment } from '@/features/student/types';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/cn';
 import { fmtDate } from '@/lib/date';
@@ -302,16 +303,34 @@ export function certificateChecks(cls: ClassInfo, st?: StudentStats) {
   ];
 }
 
-export function CertificateModal({ cls, studentId, onClose }: { cls: ClassInfo; studentId: string | null; onClose: () => void }) {
+/**
+ * Cấp & gửi / gửi lại chứng nhận 1 HV. `server` = dòng server trả (trang Chứng nhận — checklist server tính); không có thì tính từ số liệu lớp.
+ * Chế độ API: server kiểm điều kiện, sinh mã, gửi email (lỗi gửi vẫn giữ chứng nhận → báo để gửi lại).
+ */
+export function CertificateModal({
+  cls,
+  studentId,
+  onClose,
+  server,
+  onSent,
+}: {
+  cls: ClassInfo;
+  studentId: string | null;
+  onClose: () => void;
+  server?: { enrollmentId: string; checks: { ok: boolean; label: string }[]; cert?: Certificate; name: string; email?: string };
+  onSent?: () => void;
+}) {
   const notify = useNotify();
   const { user } = useAuth();
   const { map } = useClassStudentStats(cls);
-  const student = useCrmStore((s) => s.students.find((x) => x.id === studentId));
+  const profile = useCrmStore((s) => s.students.find((x) => x.id === studentId));
+  const student = server ? { fullName: server.name, email: server.email ?? profile?.email } : profile;
   const send = useStudentStore((s) => s.sendCertificate);
   const st = studentId ? map.get(studentId) : undefined;
-  const checks = certificateChecks(cls, st);
+  const checks = server?.checks ?? certificateChecks(cls, st);
   const eligible = checks.every((c) => c.ok);
-  const cert = st?.enrollment.certificate;
+  const cert = server ? server.cert : st?.enrollment.certificate;
+  const enrollmentId = server?.enrollmentId ?? st?.enrollment.id;
 
   return (
     <ModalForm<{ email: string; exception: boolean; exceptionReason?: string }>
@@ -325,10 +344,18 @@ export function CertificateModal({ cls, studentId, onClose }: { cls: ClassInfo; 
       submitText="Gửi email"
       successMessage="Đã gửi chứng nhận"
       initialValues={{ email: cert?.sentTo ?? student?.email, exception: false }}
-      onSubmit={(v) => {
-        if (!st) return;
+      onSubmit={async (v) => {
+        if (!enrollmentId) return;
         if (!eligible && !cert && !v.exception) throw new Error('Học viên chưa đủ điều kiện');
-        send(st.enrollment.id, { email: v.email.trim(), by: user?.fullName ?? 'Giáo vụ', exception: !eligible ? v.exceptionReason : undefined });
+        if (USE_API) {
+          const email = v.email.trim();
+          const r = cert ? await resendCertificate(enrollmentId, email) : await issueCertificate(enrollmentId, email, !eligible ? v.exceptionReason : undefined);
+          if (r.emailSent) notify.toast.success(`Đã gửi chứng nhận ${r.code ?? ''} tới ${email}`);
+          else notify.toast.warning(`Đã cấp chứng nhận ${r.code ?? ''} nhưng gửi email lỗi — bấm "Gửi lại email" sau`);
+          onSent?.();
+          return;
+        }
+        send(enrollmentId, { email: v.email.trim(), by: user?.fullName ?? 'Giáo vụ', exception: !eligible ? v.exceptionReason : undefined });
         notify.toast.success(`Đã gửi chứng nhận PDF tới ${v.email}`);
       }}
     >
@@ -341,7 +368,7 @@ export function CertificateModal({ cls, studentId, onClose }: { cls: ClassInfo; 
         <p className="mt-2 text-[13px] text-ink-secondary">
           đã hoàn thành khóa <strong>{cls.courseLabel}</strong> · lớp {cls.code}
           <br />
-          {fmtDate(effectiveStart(cls))} – {fmtDate(cls.actualEndDate ?? cls.plannedEndDate)} · {cls.totalHours} giờ · chuyên cần {st?.attendance.rate ?? 0}%
+          {fmtDate(effectiveStart(cls))} – {fmtDate(cls.actualEndDate ?? cls.plannedEndDate)} · {cls.totalHours} giờ{st ? ` · chuyên cần ${st.attendance.rate ?? 0}%` : ''}
         </p>
         <p className="mt-3 font-mono text-xs text-ink-muted">Mã tra cứu: {cert?.code ?? 'CN-…(cấp khi gửi)'}</p>
       </div>
@@ -381,7 +408,10 @@ export function CertificateModal({ cls, studentId, onClose }: { cls: ClassInfo; 
           </Form.Item>
         </>
       )}
-      <p className="text-xs text-ink-muted">Email kèm file PDF chứng nhận + link tra cứu mã. Chứng nhận cũng hiện trên Cổng học viên.</p>
+      <p className="text-xs text-ink-muted">
+        {USE_API ? 'Email gửi mã chứng nhận + link tra cứu (bản PDF theo mẫu sẽ bổ sung sau).' : 'Email kèm file PDF chứng nhận + link tra cứu mã.'} Chứng nhận cũng hiện trên
+        Cổng học viên.
+      </p>
     </ModalForm>
   );
 }

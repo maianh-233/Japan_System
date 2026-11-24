@@ -5,6 +5,7 @@ import { ParentLayout, StudentLayout, TeacherLayout } from '@/layouts/PortalLayo
 import LoginPage from '@/pages/auth/login/LoginPage';
 import ActivatePage from '@/pages/auth/activate/ActivatePage';
 import PlacementTakePage from '@/pages/public/placement/PlacementTakePage';
+import VerifyCertificatePage from '@/pages/public/verify/VerifyCertificatePage';
 import ComingSoon from '@/pages/common/ComingSoon';
 import NotFound from '@/pages/errors/NotFound';
 import StaffDashboard from '@/pages/staff/dashboard/StaffDashboard';
@@ -108,6 +109,8 @@ export const router = createBrowserRouter([
   { path: '/activate', element: <ActivatePage /> },
   // Lead làm test xếp lớp qua link Sale gửi — công khai, không cần đăng nhập (CRM-13)
   { path: '/t/:token', element: <PlacementTakePage /> },
+  { path: '/verify', element: <VerifyCertificatePage /> },
+  { path: '/verify/:code', element: <VerifyCertificatePage /> },
   {
     path: '/admin',
     element: (

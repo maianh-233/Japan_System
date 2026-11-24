@@ -10,16 +10,21 @@ using JPCenter.Modules.Students.Application.Abroad.CreateAbroadCase;
 using JPCenter.Modules.Students.Application.Abroad.GetAbroadCases;
 using JPCenter.Modules.Students.Application.Abroad.UpdateAbroadCase;
 using JPCenter.Modules.Students.Application.Certificates.GetCertificates;
+using JPCenter.Modules.Students.Application.Certificates.GetMyCertificates;
 using JPCenter.Modules.Students.Application.Certificates.IssueCertificate;
+using JPCenter.Modules.Students.Application.Certificates.IssueCertificates;
 using JPCenter.Modules.Students.Application.Certificates.ResendCertificate;
 using JPCenter.Modules.Students.Application.Certificates.VerifyCertificate;
 using JPCenter.Modules.Students.Application.Common;
 using JPCenter.Modules.Students.Application.Jlpt.ChangeJlptRegistration;
+using JPCenter.Modules.Students.Application.Jlpt.ChangeJlptRegistrations;
 using JPCenter.Modules.Students.Application.Jlpt.Common;
 using JPCenter.Modules.Students.Application.Jlpt.GetJlptRegistrations;
 using JPCenter.Modules.Students.Application.Jlpt.GetJlptSessions;
 using JPCenter.Modules.Students.Application.Jlpt.GetJlptStats;
+using JPCenter.Modules.Students.Application.Jlpt.GetMyJlpt;
 using JPCenter.Modules.Students.Application.Jlpt.RegisterJlpt;
+using JPCenter.Modules.Students.Application.Jlpt.RegisterMyJlpt;
 using JPCenter.Modules.Students.Application.Jlpt.SaveJlptSession;
 using JPCenter.Modules.Students.Application.Jlpt.UpdateJlptRegistration;
 using JPCenter.Modules.Students.Domain.Abroad;
@@ -33,16 +38,23 @@ namespace JPCenter.Modules.Students.Api.Endpoints;
 
 /// <summary>
 /// Nhóm HV riêng (giai đoạn 23) — <c>/api/v1/students/…</c>: chứng nhận hoàn thành HV-15 (<c>students.certificates.*</c>, tra cứu công khai),
-/// JLPT HV-16 (<c>students.jlpt.*</c>), du học / XKLĐ HV-17 (<c>students.study-abroad.*</c>).
+/// JLPT HV-16 (<c>students.jlpt.*</c>), du học / XKLĐ HV-17 (<c>students.study-abroad.*</c>), cổng HV / PH <c>/portal/learning</c>
+/// (chứng nhận của mình HV-15.E5, JLPT của mình + tự đăng ký).
 /// </summary>
 public static class ProgramEndpoints
 {
     public sealed record CertificateBody(string? Email, string? Exception);
 
+    public sealed record CertificatesBody(List<CertificateTarget>? Items);
+
+    public sealed record IdsBody(List<Guid>? Ids);
+
     public sealed record SessionBody(string? Label, DateOnly ExamDate, DateOnly RegClose, DateOnly ResultDate, Dictionary<string, decimal>? Fees,
         List<string>? Venues);
 
     public sealed record RegisterBody(Guid SessionId, List<Guid>? StudentIds, JlptLevel Level, string? Venue);
+
+    public sealed record MyRegisterBody(Guid? StudentId, Guid SessionId, JlptLevel Level, string? Venue);
 
     public sealed record RegistrationBody(JlptLevel Level, string? Venue, JlptDocsDto? Docs, string? Note);
 
@@ -65,6 +77,19 @@ public static class ProgramEndpoints
         MapCertificates(students);
         MapJlpt(students);
         MapAbroad(students);
+        MapPortal(students);
+    }
+
+    /// <summary>Cổng HV / PH — chỉ HV của tài khoản (PH truyền <c>studentId</c> khi có nhiều con)</summary>
+    private static void MapPortal(IEndpointRouteBuilder students)
+    {
+        var g = students.MapGroup("/portal/learning").RequirePortal(Portal.Student, Portal.Parent);
+        g.MapGet("/certificates", async (Guid? studentId, ISender s, CancellationToken ct) =>
+            (await s.Send(new GetMyCertificatesQuery(studentId), ct)).ToHttpResult());
+        g.MapGet("/jlpt", async (Guid? studentId, ISender s, CancellationToken ct) =>
+            (await s.Send(new GetMyJlptQuery(studentId), ct)).ToHttpResult());
+        g.MapPost("/jlpt-registrations", async (MyRegisterBody b, ISender s, CancellationToken ct) =>
+            (await s.Send(new RegisterMyJlptCommand(b.StudentId, b.SessionId, b.Level, b.Venue), ct)).ToHttpResult());
     }
 
     private static void MapCertificates(IEndpointRouteBuilder students)
@@ -76,6 +101,10 @@ public static class ProgramEndpoints
 
         students.MapPost("/enrollments/{id:guid}/certificate", async (Guid id, CertificateBody b, ISender s, CancellationToken ct) =>
                 (await s.Send(new IssueCertificateCommand(id, b.Email, b.Exception), ct)).ToHttpResult())
+            .RequirePermission(page, PermissionAction.Create);
+
+        students.MapPost("/certificates/issue", async (CertificatesBody b, ISender s, CancellationToken ct) =>
+                (await s.Send(new IssueCertificatesCommand(b.Items ?? []), ct)).ToHttpResult())
             .RequirePermission(page, PermissionAction.Create);
 
         students.MapPost("/enrollments/{id:guid}/certificate/resend", async (Guid id, CertificateBody b, ISender s, CancellationToken ct) =>
@@ -114,6 +143,14 @@ public static class ProgramEndpoints
             .RequirePermission(page, PermissionAction.Create);
         regs.MapPut("/{id:guid}", async (Guid id, RegistrationBody b, ISender s, CancellationToken ct) =>
                 (await s.Send(new UpdateJlptRegistrationCommand(id, b.Level, b.Venue, b.Docs, b.Note), ct)).ToHttpResult())
+            .RequirePermission(page, PermissionAction.Update);
+
+        // Hàng loạt (chọn nhiều HV): đóng phí / nộp hội đồng — 1 request
+        regs.MapPost("/pay", async (IdsBody b, ISender s, CancellationToken ct) =>
+                (await s.Send(new ChangeJlptRegistrationsCommand(b.Ids ?? [], JlptStep.Pay), ct)).ToHttpResult())
+            .RequirePermission(page, PermissionAction.Update);
+        regs.MapPost("/submit", async (IdsBody b, ISender s, CancellationToken ct) =>
+                (await s.Send(new ChangeJlptRegistrationsCommand(b.Ids ?? [], JlptStep.Submit), ct)).ToHttpResult())
             .RequirePermission(page, PermissionAction.Update);
 
         foreach (var (path, step) in new[]

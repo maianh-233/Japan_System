@@ -48,11 +48,15 @@ export function DocFormFields({ editing }: { editing?: boolean }) {
           <TextInput placeholder="https://..." />
         </Form.Item>
       ) : (
-        !editing && (
-          <Form.Item name="files" label="File" className="md:col-span-2" rules={[{ required: true, type: 'array', min: 1, message: 'Chọn file tải lên' }]}>
-            <FileUpload kind={KIND[fileType ?? 'pdf']} maxFiles={1} maxSizeMB={fileType === 'video' ? 1024 : 200} />
-          </Form.Item>
-        )
+        <Form.Item
+          name="files"
+          label={editing ? 'Đổi file' : 'File'}
+          className="md:col-span-2"
+          extra={editing ? 'Bỏ trống = giữ file hiện tại (lượt xem, thống kê giữ nguyên).' : 'PDF tối đa 100 MB; audio / video tối đa 500 MB.'}
+          rules={editing ? [] : [{ required: true, type: 'array', min: 1, message: 'Chọn file tải lên' }]}
+        >
+          <FileUpload kind={KIND[fileType ?? 'pdf']} maxFiles={1} maxSizeMB={fileType === 'pdf' ? 100 : 500} />
+        </Form.Item>
       )}
 
       <Form.Item name="title" label="Tên tài liệu" className="md:col-span-2" rules={[{ required: true, whitespace: true, message: 'Nhập tên' }]}>

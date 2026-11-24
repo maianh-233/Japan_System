@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { BadgeCheck, CircleDashed, FileCheck2, Send, Ticket, UserX, Wallet, XCircle, type LucideIcon } from 'lucide-react';
 import type { Tone } from '@/components/common';
 import type { QLevel } from '@/features/academic/questions/types';
+import { USE_API } from '@/lib/api/config';
 import { MOCK_JLPT } from '@/mocks/data/jlpt';
 
 /**
@@ -18,6 +19,10 @@ export interface JlptSession {
   /** Hạn trung tâm nhận hồ sơ (trước hạn hội đồng thi vài ngày) */
   regClose: string;
   resultDate: string;
+  /** Lệ phí theo cấp độ — chế độ API lấy theo kỳ (server); dữ liệu giả dùng JLPT_FEE */
+  fees?: Record<QLevel, number>;
+  /** Địa điểm thi của kỳ — dữ liệu giả dùng JLPT_VENUES */
+  venues?: string[];
 }
 
 export const JLPT_SESSIONS: JlptSession[] = [
@@ -29,6 +34,10 @@ export const JLPT_SESSIONS: JlptSession[] = [
 export const JLPT_VENUES = ['Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)', 'Hà Nội — ĐH Hà Nội', 'TP.HCM — ĐH KHXH&NV', 'Đà Nẵng — ĐH Ngoại ngữ Đà Nẵng'];
 
 export const JLPT_FEE: Record<QLevel, number> = { N1: 700_000, N2: 650_000, N3: 600_000, N4: 550_000, N5: 550_000 };
+
+/** Lệ phí / địa điểm của 1 kỳ (kỳ không có → bảng chung) */
+export const feeOf = (s: JlptSession | undefined, level: QLevel) => s?.fees?.[level] ?? JLPT_FEE[level];
+export const venuesOf = (s: JlptSession | undefined) => (s?.venues?.length ? s.venues : JLPT_VENUES);
 
 export type JlptStatus = 'registered' | 'paid' | 'submitted' | 'admit' | 'done' | 'absent' | 'cancelled';
 
@@ -69,6 +78,11 @@ export interface JlptReg {
   certificate?: { no: string; receivedAt: string; receivedBy: string; handedAt?: string; handedBy?: string; handedTo?: string };
   note?: string;
   createdAt: string;
+  /** Chế độ API: tên / mã HV server trả (HV ngoài danh sách đã nạp vẫn hiện), lệ phí chốt lúc đăng ký */
+  studentName?: string;
+  studentCode?: string;
+  branchId?: string;
+  fee?: number;
 }
 
 /** Tình trạng chứng chỉ gốc của 1 lượt thi đã đỗ */
@@ -124,9 +138,11 @@ export const sessionPhase = (s: JlptSession) => {
   return 'result' as const;
 };
 
-// ---------------- Store ----------------
+// ---------------- Store (chế độ API: rỗng lúc đầu, jlptApi đổ dữ liệu server; thao tác đi qua jlptApi) ----------------
 
 interface JlptState {
+  /** Kỳ thi (mới nhất trước) — chế độ API: server */
+  sessions: JlptSession[];
   regs: JlptReg[];
   add: (r: Omit<JlptReg, 'id' | 'createdAt'>) => void;
   update: (id: string, patch: Partial<JlptReg>) => void;
@@ -134,7 +150,8 @@ interface JlptState {
 }
 
 export const useJlptStore = create<JlptState>((set) => ({
-  regs: MOCK_JLPT,
+  sessions: USE_API ? [] : JLPT_SESSIONS,
+  regs: USE_API ? [] : MOCK_JLPT,
   add: (r) => set((s) => ({ regs: [...s.regs, { ...r, id: `JR-${Date.now()}`, createdAt: new Date().toISOString() }] })),
   update: (id, patch) => set((s) => ({ regs: s.regs.map((r) => (r.id === id ? { ...r, ...patch } : r)) })),
   updateMany: (ids, patch) => set((s) => ({ regs: s.regs.map((r) => (ids.includes(r.id) ? { ...r, ...patch } : r)) })),

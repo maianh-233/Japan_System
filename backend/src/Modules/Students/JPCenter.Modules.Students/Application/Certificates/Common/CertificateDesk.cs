@@ -42,13 +42,16 @@ public sealed class CertificateDesk(IStudentsDbContext db, IAttendanceStats atte
     }
 
     /// <summary>Số thứ tự tiếp theo trong năm (mã đã cấp, kể cả HV đã ẩn)</summary>
-    public async Task<string> NextCodeAsync(int year, string classCode, CancellationToken ct)
+    public async Task<string> NextCodeAsync(int year, string classCode, CancellationToken ct) =>
+        CertificateCode.Build(year, classCode, await LastSequenceAsync(year, ct) + 1);
+
+    /// <summary>Số thứ tự lớn nhất đã cấp trong năm (0 = chưa có) — cấp hàng loạt tự tăng tiếp trong bộ nhớ</summary>
+    public async Task<int> LastSequenceAsync(int year, CancellationToken ct)
     {
         var prefix = $"CN-{year}-";
         var codes = await db.Enrollments.IgnoreQueryFilters().Where(e => e.Certificate != null && e.Certificate.Code.StartsWith(prefix))
             .Select(e => e.Certificate!.Code).ToListAsync(ct);
-        var max = codes.Select(c => int.TryParse(c[^4..], out var n) ? n : 0).DefaultIfEmpty(0).Max();
-        return CertificateCode.Build(year, classCode, max + 1);
+        return codes.Select(c => int.TryParse(c[^4..], out var n) ? n : 0).DefaultIfEmpty(0).Max();
     }
 
     /// <summary>Gửi email chứng nhận (link tra cứu công khai). Lỗi gửi → false, chứng nhận vẫn giữ (HV-15.E4)</summary>

@@ -6,11 +6,14 @@ import { useNavigate } from 'react-router-dom';
 import { Button, DateInput, Select, StatusTag, TextInput, useConfirm, useNotify } from '@/components/common';
 import { useCrmStore } from '@/features/crm/crmStore';
 import { useAuth } from '@/hooks/useAuth';
+import { useHrStore } from '@/features/hr/hrStore';
+import { USE_API } from '@/lib/api/config';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { cn } from '@/lib/cn';
 import { fmtDate, fmtDateTime } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
-import { ABROAD_STAFF, daysTo, docProgress, PROGRAMS, STAGE_ORDER, STAGES, useAbroadStore, type DocState } from './abroad';
+import { assigneeOptions, daysTo, docProgress, PROGRAMS, STAGE_ORDER, STAGES, useAbroadStore, type AbroadCase, type DocState } from './abroad';
+import { advanceAbroad, cancelAbroad, noteAbroad, reopenAbroad, setAbroadDoc, setAbroadMilestones, updateAbroad } from './abroadApi';
 
 const NEXT_DOC: Record<DocState, DocState> = { missing: 'received', received: 'verified', verified: 'missing' };
 const DOC_LABEL: Record<DocState, string> = { missing: 'Chưa có', received: 'Đã nhận', verified: 'Đã kiểm tra' };
@@ -25,11 +28,22 @@ export function AbroadDrawer({ caseId, editable, onClose }: { caseId: string | n
   const c = useAbroadStore((s) => s.cases.find((x) => x.id === caseId));
   const update = useAbroadStore((s) => s.update);
   const addNote = useAbroadStore((s) => s.note);
-  const student = useCrmStore((s) => s.students.find((x) => x.id === c?.studentId));
+  const profile = useCrmStore((s) => s.students.find((x) => x.id === c?.studentId));
+  const employees = useHrStore((s) => s.employees);
   const [note, setNote] = useState('');
 
   if (!c) return <Drawer open={false} onClose={onClose} />;
+  const student = { fullName: profile?.fullName ?? c.studentName, code: profile?.code ?? c.studentCode };
   const me = user?.fullName ?? 'Nhân viên';
+  /** Chế độ API: gọi lệnh (store thay bản server trong abroadApi); lỗi → báo */
+  const call = (task: Promise<unknown>, ok?: string) =>
+    task.then(
+      () => void (ok && notify.toast.success(ok)),
+      (e: Error) => void notify.error({ title: e.message }),
+    );
+  const setDates = (patch: Partial<Pick<AbroadCase, 'interview' | 'coe' | 'visa' | 'flightDate'>>) =>
+    USE_API ? void call(setAbroadMilestones(c, patch)) : update(c.id, patch);
+  const writeNote = (text: string) => (USE_API ? void call(noteAbroad(c.id, text)) : addNote(c.id, text, me));
   const idx = STAGE_ORDER.indexOf(c.stage);
   const dp = docProgress(c);
   const pr = PROGRAMS[c.program];
@@ -49,12 +63,14 @@ export function AbroadDrawer({ caseId, editable, onClose }: { caseId: string | n
       return;
     }
     const to = STAGE_ORDER[idx + 1];
+    if (USE_API) return void call(advanceAbroad(c.id));
     update(c.id, { stage: to });
     addNote(c.id, `Chuyển sang bước "${STAGES[to].label}".`, me);
   };
   const cancel = async () => {
     const res = await confirm({ title: 'Dừng hồ sơ này?', tone: 'danger', confirmAction: 'reject', confirmText: 'Dừng hồ sơ', requireReason: { label: 'Lý do', placeholder: 'VD: trượt phỏng vấn, học viên đổi ý, không chứng minh được tài chính' } });
     if (!res) return;
+    if (USE_API) return void call(cancelAbroad(c.id, res.reason!));
     update(c.id, { cancelled: { reason: res.reason!, at: new Date().toISOString() } });
     addNote(c.id, `Dừng hồ sơ: ${res.reason}`, me);
   };
@@ -104,7 +120,15 @@ export function AbroadDrawer({ caseId, editable, onClose }: { caseId: string | n
           <Button icon={ExternalLink} size="sm" tone="neutral" variant="outline" collapseOnMobile onClick={() => navigate(`/admin/students/profiles?open=${c.studentId}`)}>
             Hồ sơ HV
           </Button>
-          <Select value={c.assignee} onChange={(v) => update(c.id, { assignee: v as string })} options={ABROAD_STAFF.map((x) => ({ value: x, label: x }))} disabled={!editable} className="!w-56" size="small" />
+          <Select
+            value={USE_API ? c.assigneeId : c.assignee}
+            onChange={(v) => (USE_API ? void call(updateAbroad(c, { assigneeId: v as string }), 'Đã đổi người phụ trách') : update(c.id, { assignee: v as string }))}
+            options={assigneeOptions(employees)}
+            optionFilterProp="label"
+            disabled={!editable}
+            className="!w-56"
+            size="small"
+          />
         </div>
       }
     >
@@ -120,7 +144,7 @@ export function AbroadDrawer({ caseId, editable, onClose }: { caseId: string | n
           <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-danger-100 bg-danger-50 px-3 py-2 text-danger-700">
             <span>Dừng ngày {fmtDate(c.cancelled.at)}: {c.cancelled.reason}</span>
             {editable && (
-              <Button icon={RotateCcw} size="sm" variant="ghost" onClick={() => (update(c.id, { cancelled: undefined }), addNote(c.id, 'Mở lại hồ sơ.', me))}>
+              <Button icon={RotateCcw} size="sm" variant="ghost" onClick={() => (USE_API ? void call(reopenAbroad(c.id)) : (update(c.id, { cancelled: undefined }), addNote(c.id, 'Mở lại hồ sơ.', me)))}>
                 Mở lại
               </Button>
             )}
@@ -168,7 +192,11 @@ export function AbroadDrawer({ caseId, editable, onClose }: { caseId: string | n
                 <button
                   type="button"
                   disabled={!editable}
-                  onClick={() => update(c.id, { docs: c.docs.map((x, k) => (k === i ? { ...x, state: NEXT_DOC[x.state] } : x)) })}
+                  onClick={() =>
+                    USE_API && d.id
+                      ? void call(setAbroadDoc(c.id, d.id, NEXT_DOC[d.state]))
+                      : update(c.id, { docs: c.docs.map((x, k) => (k === i ? { ...x, state: NEXT_DOC[x.state] } : x)) })
+                  }
                   className={cn(
                     'flex w-full items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left',
                     d.state === 'verified' ? 'border-success-100 bg-success-50' : d.state === 'received' ? 'border-primary-200 bg-primary-50' : 'border-line bg-surface',
@@ -189,14 +217,14 @@ export function AbroadDrawer({ caseId, editable, onClose }: { caseId: string | n
         <section>
           <h3 className="mb-2 text-sm font-semibold text-ink">Mốc thời gian</h3>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            {dateField('Ngày phỏng vấn', c.interview?.date, (v) => update(c.id, { interview: v ? { ...c.interview, date: v } : undefined }))}
+            {dateField('Ngày phỏng vấn', c.interview?.date, (v) => setDates({ interview: v ? { ...c.interview, date: v } : undefined }))}
             <label className="flex flex-col gap-1">
               <span className="text-xs text-ink-muted">Kết quả phỏng vấn</span>
               <Select
                 disabled={!editable || !c.interview}
                 value={c.interview?.result}
                 placeholder="Chờ kết quả"
-                onChange={(v) => c.interview && update(c.id, { interview: { ...c.interview, result: v as 'pass' | 'fail' } })}
+                onChange={(v) => c.interview && setDates({ interview: { ...c.interview, result: (v ?? undefined) as 'pass' | 'fail' | undefined } })}
                 options={[
                   { value: 'pass', label: 'Đỗ' },
                   { value: 'fail', label: 'Trượt' },
@@ -205,12 +233,12 @@ export function AbroadDrawer({ caseId, editable, onClose }: { caseId: string | n
               />
             </label>
             <div />
-            {dateField('Nộp hồ sơ COE', c.coe?.submittedAt, (v) => update(c.id, { coe: { ...c.coe, submittedAt: v } }))}
-            {dateField('Nhận COE', c.coe?.grantedAt, (v) => update(c.id, { coe: { ...c.coe, grantedAt: v } }))}
+            {dateField('Nộp hồ sơ COE', c.coe?.submittedAt, (v) => setDates({ coe: { ...c.coe, submittedAt: v } }))}
+            {dateField('Nhận COE', c.coe?.grantedAt, (v) => setDates({ coe: { ...c.coe, grantedAt: v } }))}
             <div className="flex items-end text-xs text-ink-muted">{c.coe?.submittedAt && !c.coe.grantedAt && `Đã chờ ${-(daysTo(c.coe.submittedAt) ?? 0)} ngày`}</div>
-            {dateField('Nộp visa', c.visa?.appliedAt, (v) => update(c.id, { visa: { ...c.visa, appliedAt: v } }))}
-            {dateField('Nhận visa', c.visa?.issuedAt, (v) => update(c.id, { visa: { ...c.visa, issuedAt: v } }))}
-            {dateField('Ngày bay', c.flightDate, (v) => update(c.id, { flightDate: v }))}
+            {dateField('Nộp visa', c.visa?.appliedAt, (v) => setDates({ visa: { ...c.visa, appliedAt: v } }))}
+            {dateField('Nhận visa', c.visa?.issuedAt, (v) => setDates({ visa: { ...c.visa, issuedAt: v } }))}
+            {dateField('Ngày bay', c.flightDate, (v) => setDates({ flightDate: v }))}
           </div>
         </section>
 
@@ -219,8 +247,8 @@ export function AbroadDrawer({ caseId, editable, onClose }: { caseId: string | n
           <h3 className="mb-2 text-sm font-semibold text-ink">Nhật ký xử lý</h3>
           {editable && (
             <div className="mb-2 flex gap-2">
-              <TextInput value={note} onChange={(e) => setNote(e.target.value)} placeholder="VD: Gọi phụ huynh bổ sung sổ tiết kiệm trước 30/11" onPressEnter={() => note.trim() && (addNote(c.id, note.trim(), me), setNote(''))} />
-              <Button icon={Send} disabled={!note.trim()} onClick={() => (addNote(c.id, note.trim(), me), setNote(''))}>
+              <TextInput value={note} onChange={(e) => setNote(e.target.value)} placeholder="VD: Gọi phụ huynh bổ sung sổ tiết kiệm trước 30/11" onPressEnter={() => note.trim() && (writeNote(note.trim()), setNote(''))} />
+              <Button icon={Send} disabled={!note.trim()} onClick={() => (writeNote(note.trim()), setNote(''))}>
                 Ghi
               </Button>
             </div>

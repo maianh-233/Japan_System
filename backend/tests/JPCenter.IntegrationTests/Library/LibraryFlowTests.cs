@@ -150,6 +150,10 @@ public sealed class LibraryFlowTests(SeededApiFactory api)
         var updated = await Ok(await admin.PutAsJsonAsync($"{Docs}/{id}", Body(file, "Đề N3 (bản 2)", [Cg], rowVersion: v1), Ct));
         updated.GetProperty("title").GetString().ShouldBe("Đề N3 (bản 2)");
         await Expect(await admin.PutAsJsonAsync($"{Docs}/{id}", Body(file, "Sửa đè", [Cg], rowVersion: v1), Ct), HttpStatusCode.Conflict);
+        // Không gửi khóa tệp (form sửa không tải lại tệp) → giữ tệp hiện tại
+        updated = await Ok(await admin.PutAsJsonAsync($"{Docs}/{id}",
+            new { title = "Đề N3 (bản 3)", category = "jlpt", fileType = "pdf", levels = new[] { "n3" }, rowVersion = updated.GetProperty("rowVersion").GetUInt32() }, Ct));
+        (updated.GetProperty("title").GetString(), updated.GetProperty("fileName").GetString()).ShouldBe(("Đề N3 (bản 3)", file.GetProperty("fileName").GetString()));
 
         // TV-04
         await Expect(await admin.PutAsJsonAsync($"{Docs}/{id}/access", new { audience = Array.Empty<string>(), branchIds = new[] { Cg }, watermark = true, allowDownload = false, rowVersion = updated.GetProperty("rowVersion").GetUInt32() }, Ct),
@@ -161,7 +165,7 @@ public sealed class LibraryFlowTests(SeededApiFactory api)
         {
             await using var scope = api.Scope();
             return await scope.ServiceProvider.GetRequiredService<SystemDbContext>().AuditLogs.AsNoTracking()
-                .AnyAsync(l => l.Action == "Cho tải về tài liệu thư viện" && l.Target == "Đề N3 (bản 2)", Ct);
+                .AnyAsync(l => l.Action == "Cho tải về tài liệu thư viện" && l.Target == "Đề N3 (bản 3)", Ct);
         });
 
         // TV-03 ẩn / hiện (ẩn 2 lần không lỗi)

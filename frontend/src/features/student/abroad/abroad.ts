@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { FileStack, Handshake, MessagesSquare, Plane, ScrollText, Stamp, type LucideIcon } from 'lucide-react';
 import type { Tone } from '@/components/common';
 import type { QLevel } from '@/features/academic/questions/types';
+import { USE_API } from '@/lib/api/config';
 import { MOCK_ABROAD } from '@/mocks/data/abroad';
 import { DOC_TEMPLATES, docTemplate } from './docs';
 
@@ -52,21 +53,37 @@ export interface AbroadCase {
   jlptRequired?: QLevel;
   stage: Stage;
   cancelled?: { reason: string; at: string };
-  docs: { name: string; state: DocState }[];
+  /** `id` có ở chế độ API (đổi trạng thái 1 giấy tờ) */
+  docs: { id?: string; name: string; state: DocState }[];
   interview?: { date: string; result?: 'pass' | 'fail' };
   coe?: { submittedAt?: string; grantedAt?: string };
   visa?: { appliedAt?: string; issuedAt?: string };
   flightDate?: string;
   fee: { total: number; paid: number };
+  /** Tên người phụ trách */
   assignee: string;
   notes: { at: string; by: string; text: string }[];
   createdAt: string;
+  /** Chế độ API: Id nhân viên phụ trách, tên / mã HV + chi nhánh (HV ngoài danh sách đã nạp vẫn hiện) */
+  assigneeId?: string;
+  studentName?: string;
+  studentCode?: string;
+  branchId?: string;
 }
 
 export const ABROAD_STAFF = ['Lý Thanh Vy (Tư vấn du học)', 'Võ Thị Hạnh (Phụ trách XKLĐ)', 'Đinh Quốc Bảo (Sale)'];
 
+/** Người phụ trách chọn được: chế độ API = nhân viên đang làm (value = Id); dữ liệu giả = ABROAD_STAFF (value = tên) */
+export function assigneeOptions(employees: { id: string; fullName: string; position: string; kind: string; status: string }[]) {
+  if (!USE_API) return ABROAD_STAFF.map((x) => ({ value: x, label: x }));
+  return employees
+    .filter((e) => e.kind === 'staff' && e.status !== 'quit')
+    .map((e) => ({ value: e.id, label: e.position ? `${e.fullName} (${e.position})` : e.fullName }));
+}
+
 export const docProgress = (c: AbroadCase) => ({ done: c.docs.filter((d) => d.state === 'verified').length, total: c.docs.length });
 
+/** Store hồ sơ du học / XKLĐ. Chế độ API: rỗng lúc đầu, abroadApi đổ dữ liệu server; thao tác đi qua abroadApi. */
 interface AbroadState {
   cases: AbroadCase[];
   add: (c: Omit<AbroadCase, 'id' | 'createdAt' | 'notes' | 'docs'>, by: string) => AbroadCase;
@@ -75,7 +92,7 @@ interface AbroadState {
 }
 
 export const useAbroadStore = create<AbroadState>((set) => ({
-  cases: MOCK_ABROAD,
+  cases: USE_API ? [] : MOCK_ABROAD,
   add: (c, by) => {
     const item: AbroadCase = { ...c, id: `AB-${Date.now()}`, createdAt: new Date().toISOString(), docs: docTemplate(c.program).map((name) => ({ name, state: 'missing' })), notes: [{ at: new Date().toISOString(), by, text: 'Tạo hồ sơ.' }] };
     set((s) => ({ cases: [item, ...s.cases] }));

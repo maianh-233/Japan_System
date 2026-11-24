@@ -8,10 +8,12 @@ import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { fmtDate, fromNow } from '@/lib/date';
 import { formatFileSize } from '@/lib/format';
 import { getBranches } from '@/features/system/useBranches';
+import { USE_API } from '@/lib/api/config';
 import { DOC_AUDIENCE_OPTIONS, DOC_CATEGORIES, DOC_FILE_TYPES } from './constants';
 import { DocViewer } from './DocViewer';
+import { endStaffView, loadDocStats, setDocAccess, setDocStatus, startStaffView } from './libraryApi';
 import { useLibraryStore } from './libraryStore';
-import type { DocAudience } from './types';
+import type { DocAudience, LibraryDoc } from './types';
 
 export type DocTab = 'view' | 'access' | 'stats';
 
@@ -43,7 +45,23 @@ export function DocDetailDrawer({ docId, initialTab = 'view', editable, onClose,
     if (docId) setTab(initialTab);
   }, [docId, initialTab]);
 
+  // Chế độ API: "đọc nhiều nhất" chỉ có ở API thống kê riêng — tải khi mở tab
+  useEffect(() => {
+    if (USE_API && docId && tab === 'stats') void loadDocStats(docId).catch((e: Error) => notify.error({ title: e.message }));
+  }, [docId, tab, notify]);
+
   if (!doc) return <Drawer open={false} onClose={onClose} />;
+
+  /** Đổi quyền / bảo vệ: chế độ API gửi đủ bộ lên server (lỗi → báo, store giữ bản cũ) */
+  const change = (patch: Partial<Pick<LibraryDoc, 'audience' | 'branchIds' | 'watermark' | 'allowDownload' | 'status'>>, done?: () => void) => {
+    if (!USE_API) {
+      update(doc.id, patch);
+      done?.();
+      return;
+    }
+    const { status, ...access } = patch;
+    void (status ? setDocStatus(doc.id, status) : setDocAccess(doc, access)).then(done, (e: Error) => notify.error({ title: e.message }));
+  };
   const cat = DOC_CATEGORIES[doc.category];
   const FT = DOC_FILE_TYPES[doc.fileType];
   const max = Math.max(1, ...doc.stats.daily);
@@ -91,7 +109,11 @@ export function DocDetailDrawer({ docId, initialTab = 'view', editable, onClose,
             label: label(Eye, 'Xem trực tuyến'),
             children: (
               <div className="flex flex-col gap-4">
-                <DocViewer doc={doc} onViewed={() => view(doc.id, user?.fullName ?? 'Nhân viên', user?.roleName ?? '')} />
+                <DocViewer
+                  doc={doc}
+                  onViewed={() => view(doc.id, user?.fullName ?? 'Nhân viên', user?.roleName ?? '')}
+                  source={{ start: () => startStaffView(doc.id), end: (id) => void endStaffView(id) }}
+                />
                 {doc.description && <p className="text-[13px] text-ink-secondary">{doc.description}</p>}
                 <dl className="grid grid-cols-1 gap-x-4 gap-y-2 text-[13px] sm:grid-cols-[110px_1fr]">
                   {info.map(([k, v]) => (
@@ -110,19 +132,16 @@ export function DocDetailDrawer({ docId, initialTab = 'view', editable, onClose,
             children: (
               <div className="flex flex-col gap-5 text-[13px]">
                 <Setting title="Hiển thị trong thư viện" hint="Tắt = ẩn với mọi người (vd: bản thảo chưa kiểm tra).">
-                  <Switch checked={doc.status === 'published'} disabled={!editable} onChange={(v) => update(doc.id, { status: v ? 'published' : 'hidden' })} />
+                  <Switch checked={doc.status === 'published'} disabled={!editable} onChange={(v) => change({ status: v ? 'published' : 'hidden' })} />
                 </Setting>
                 <Setting title="Watermark tên người xem" hint="In mờ tên + email + thời gian lên từng trang để truy nguồn khi bị chụp màn hình.">
-                  <Switch checked={doc.watermark} disabled={!editable} onChange={(v) => update(doc.id, { watermark: v })} />
+                  <Switch checked={doc.watermark} disabled={!editable} onChange={(v) => change({ watermark: v })} />
                 </Setting>
                 <Setting title="Cho phép tải về / in" hint="Chỉ bật với tài liệu công khai (đề mẫu chính thức, tài liệu tự biên soạn).">
                   <Switch
                     checked={doc.allowDownload}
                     disabled={!editable}
-                    onChange={(v) => {
-                      update(doc.id, { allowDownload: v });
-                      if (v) notify.toast.warning('Người xem tải được bản gốc — không còn watermark trên file tải về');
-                    }}
+                    onChange={(v) => change({ allowDownload: v }, () => v && notify.toast.warning('Người xem tải được bản gốc — không còn watermark trên file tải về'))}
                   />
                 </Setting>
                 <Setting title="Ai được xem" hint="Học viên chỉ thấy tài liệu đúng cấp độ lớp đang học (Cổng học viên).">
@@ -130,7 +149,7 @@ export function DocDetailDrawer({ docId, initialTab = 'view', editable, onClose,
                     disabled={!editable}
                     value={doc.audience}
                     options={DOC_AUDIENCE_OPTIONS}
-                    onChange={(v) => v.length && update(doc.id, { audience: v as DocAudience[] })}
+                    onChange={(v) => v.length && change({ audience: v as DocAudience[] })}
                   />
                 </Setting>
                 <Setting title="Chi nhánh" hint="Tài liệu riêng của chi nhánh (vd: đơn hàng XKLĐ Hải Châu).">
@@ -140,7 +159,7 @@ export function DocDetailDrawer({ docId, initialTab = 'view', editable, onClose,
                     className="!w-72"
                     placeholder="Tất cả chi nhánh"
                     value={doc.branchIds === 'all' ? [] : doc.branchIds}
-                    onChange={(v) => update(doc.id, { branchIds: (v as string[]).length ? (v as string[]) : 'all' })}
+                    onChange={(v) => change({ branchIds: (v as string[]).length ? (v as string[]) : 'all' })}
                     options={getBranches(false).map((b) => ({ value: b.id, label: b.name }))}
                   />
                 </Setting>

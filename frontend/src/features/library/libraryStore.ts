@@ -1,8 +1,9 @@
 import { create } from 'zustand';
+import { USE_API } from '@/lib/api/config';
 import { MOCK_LIBRARY } from '@/mocks/data/library';
 import type { LibraryDoc } from './types';
 
-/** Store THƯ VIỆN TÀI LIỆU giả lập. */
+/** Store THƯ VIỆN TÀI LIỆU. Chế độ API: rỗng lúc đầu, libraryApi đổ dữ liệu server; thao tác đi qua libraryApi (không dùng add / update / view). */
 
 export type DocInput = Omit<LibraryDoc, 'id' | 'stats' | 'uploadedAt' | 'uploadedBy'>;
 
@@ -15,7 +16,7 @@ interface LibraryState {
 }
 
 export const useLibraryStore = create<LibraryState>((set) => ({
-  docs: MOCK_LIBRARY,
+  docs: USE_API ? [] : MOCK_LIBRARY,
 
   add: (input, by) => {
     const d: LibraryDoc = { ...input, id: `DOC-${Date.now()}`, uploadedBy: by, uploadedAt: new Date().toISOString(), stats: { views: 0, readers: 0, avgMinutes: 0, daily: Array(14).fill(0), top: [] } };

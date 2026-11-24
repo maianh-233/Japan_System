@@ -1,5 +1,5 @@
-import { useMemo, useState, type Key } from 'react';
-import { Form, Tooltip } from 'antd';
+import { useEffect, useMemo, useState, type Key } from 'react';
+import { Form, Spin, Tooltip } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import { Award, Bell, CalendarDays, Check, ClipboardPen, FileWarning, Percent, Ticket, Trophy, UserPlus, Users, Wallet, X, PackageCheck, HandHelping } from 'lucide-react';
 import { Button, DataTable, DateInput, ModalForm, NumberInput, PageHeader, Select, StatCard, StatusTag, TextInput, UserCell, useNotify, type DataColumn } from '@/components/common';
@@ -8,9 +8,11 @@ import { teacherName } from '@/features/academic/classes/constants';
 import type { QLevel } from '@/features/academic/questions/types';
 import { Q_LEVELS } from '@/features/academic/questions/constants';
 import { useCrmStore } from '@/features/crm/crmStore';
-import { CERT_STAGE, certStage, DOCS, JLPT_FEE, JLPT_SESSIONS, JLPT_STATUS, JLPT_VENUES, judge, PASS_TOTAL, SECTIONS, sessionPhase, useJlptStore, type JlptReg, type JlptStatus } from '@/features/student/jlpt/jlpt';
+import { CERT_STAGE, certStage, DOCS, feeOf, JLPT_STATUS, judge, PASS_TOTAL, SECTIONS, sessionPhase, useJlptStore, venuesOf, type JlptReg, type JlptStatus } from '@/features/student/jlpt/jlpt';
+import { jlptBulk, jlptStep, loadJlpt, registerJlpt, updateJlptReg, type JlptStepName } from '@/features/student/jlpt/jlptApi';
 import { useStudentStore } from '@/features/student/studentStore';
 import { useAuth } from '@/hooks/useAuth';
+import { USE_API } from '@/lib/api/config';
 import { cn } from '@/lib/cn';
 import { fmtDate } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
@@ -27,11 +29,12 @@ interface Row extends JlptReg {
   result?: ReturnType<typeof judge>;
 }
 
-/** Thi JLPT — DỮ LIỆU GIẢ. */
+/** Thi JLPT (HV-16) — chế độ API: kỳ thi + lượt đăng ký từ server, mỗi thao tác gọi API (hàng loạt = 1 request). */
 export default function JlptPage() {
   const { branchId, currentBranch, user } = useAuth();
   const notify = useNotify();
   const regs = useJlptStore((s) => s.regs);
+  const sessions = useJlptStore((s) => s.sessions);
   const add = useJlptStore((s) => s.add);
   const update = useJlptStore((s) => s.update);
   const updateMany = useJlptStore((s) => s.updateMany);
@@ -39,7 +42,9 @@ export default function JlptPage() {
   const enrollments = useStudentStore((s) => s.enrollments);
   const classes = useClassStore((s) => s.classes);
 
-  const [sessionId, setSessionId] = useState(JLPT_SESSIONS[0].id);
+  const [sessionId, setSessionId] = useState<string>();
+  const [loading, setLoading] = useState(USE_API);
+  const [admitFor, setAdmitFor] = useState<Row | null>(null);
   const [level, setLevel] = useState<QLevel | 'all'>('all');
   const [status, setStatus] = useState<string>();
   const [result, setResult] = useState<string>();
@@ -48,23 +53,39 @@ export default function JlptPage() {
   const [scoring, setScoring] = useState<Row | null>(null);
   const [certFor, setCertFor] = useState<Row | null>(null);
 
-  const session = JLPT_SESSIONS.find((s) => s.id === sessionId)!;
-  const phase = sessionPhase(session);
+  const session = sessions.find((s) => s.id === sessionId) ?? sessions[0];
+  const phase = session ? sessionPhase(session) : 'upcoming';
+
+  useEffect(() => {
+    if (!USE_API) return;
+    loadJlpt()
+      .catch((e: Error) => notify.error({ title: 'Không tải được dữ liệu JLPT', description: e.message }))
+      .finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /** Chế độ API: chạy lệnh, báo thành công / lỗi (store đã thay bản server trong jlptApi) */
+  const run = (task: Promise<unknown>, ok?: string) =>
+    task.then(
+      () => void (ok && notify.toast.success(ok)),
+      (e: Error) => void notify.error({ title: e.message }),
+    );
+  const step = (r: Row, name: JlptStepName, body?: Parameters<typeof jlptStep>[2], ok?: string) => run(jlptStep(r.id, name, body), ok);
 
   const rows: Row[] = useMemo(
     () =>
       regs
-        .filter((r) => r.sessionId === sessionId)
+        .filter((r) => r.sessionId === session?.id)
         .map((r) => {
           const st = students.find((s) => s.id === r.studentId);
           const enr = enrollments.filter((e) => e.studentId === r.studentId).sort((a, b) => b.enrolledAt.localeCompare(a.enrolledAt))[0];
           const cls = classes.find((c) => c.id === enr?.classId);
           return {
             ...r,
-            name: st?.fullName ?? r.studentId,
-            code: st?.code ?? '',
+            name: st?.fullName ?? r.studentName ?? r.studentId,
+            code: st?.code ?? r.studentCode ?? '',
             phone: st?.phone,
-            branchId: st?.branchId,
+            branchId: r.branchId ?? st?.branchId,
             classCode: cls?.code,
             teacherIds: cls?.teacherIds ?? [],
             missingDocs: DOCS.filter((d) => !r.docs[d.key]).length,
@@ -72,7 +93,7 @@ export default function JlptPage() {
           };
         })
         .filter((r) => branchId === ALL_BRANCHES || r.branchId === branchId),
-    [regs, sessionId, students, enrollments, classes, branchId],
+    [regs, session?.id, students, enrollments, classes, branchId],
   );
   const base = rows.filter(
     (r) =>
@@ -111,7 +132,9 @@ export default function JlptPage() {
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      update(r.id, { docs: { ...r.docs, [d.key]: !r.docs[d.key] } });
+                      const docs = { ...r.docs, [d.key]: !r.docs[d.key] };
+                      if (USE_API) void run(updateJlptReg(r, { docs }));
+                      else update(r.id, { docs });
                     }}
                     className={cn('inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[11px] font-medium', r.docs[d.key] ? 'bg-success-50 text-success-700' : 'bg-danger-50 text-danger-700')}
                     title="Bấm để đánh dấu đã nhận / chưa nhận"
@@ -136,16 +159,32 @@ export default function JlptPage() {
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
+                    const msg = `Đã thu ${formatCurrency(r.fee ?? feeOf(session, r.level))} — ${r.name}`;
+                    if (USE_API) return void step(r, 'pay', undefined, msg);
                     update(r.id, { paidAt: new Date().toISOString(), status: r.status === 'registered' ? 'paid' : r.status });
-                    notify.toast.success(`Đã thu ${formatCurrency(JLPT_FEE[r.level])} — ${r.name}`);
+                    notify.toast.success(msg);
                   }}
                   className="text-[13px] font-medium text-danger-600 hover:underline"
                 >
-                  Chưa đóng · thu {formatCurrency(JLPT_FEE[r.level])}
+                  Chưa đóng · thu {formatCurrency(r.fee ?? feeOf(session, r.level))}
                 </button>
               ),
           },
-          { key: 'admitNo', title: 'Số báo danh', width: 150, render: (_, r) => (r.admitNo ? <span className="font-mono text-xs">{r.admitNo}</span> : <span className="text-ink-muted">—</span>) },
+          {
+            key: 'admitNo',
+            title: 'Số báo danh',
+            width: 150,
+            render: (_, r) =>
+              r.admitNo ? (
+                <span className="font-mono text-xs">{r.admitNo}</span>
+              ) : r.status === 'submitted' ? (
+                <Button size="sm" variant="ghost" icon={Ticket} onClick={(e) => (e.stopPropagation(), setAdmitFor(r))}>
+                  Nhập SBD
+                </Button>
+              ) : (
+                <span className="text-ink-muted">—</span>
+              ),
+          },
         ] as DataColumn<Row>[])
       : ([
           {
@@ -218,6 +257,7 @@ export default function JlptPage() {
                       icon={HandHelping}
                       onClick={(e) => {
                         e.stopPropagation();
+                        if (USE_API) return void step(r, 'cert-handed', { handedTo: r.name }, `Đã phát chứng chỉ cho ${r.name}`);
                         update(r.id, { certificate: { ...r.certificate!, handedAt: new Date().toISOString(), handedBy: user?.fullName ?? 'Giáo vụ', handedTo: r.name } });
                         notify.toast.success(`Đã phát chứng chỉ cho ${r.name}`);
                       }}
@@ -246,13 +286,40 @@ export default function JlptPage() {
     },
   ];
 
-  const daysLeft = dayjs(session.examDate).diff(dayjs().startOf('day'), 'day');
   const bulkStep = (to: JlptStatus) => {
     const ids = selected.map(String);
+    setSelected([]);
+    if (USE_API) {
+      // Hàng loạt chỉ đóng phí / nộp hội đồng; số báo danh nhập từng người
+      return void jlptBulk(ids, to === 'paid' ? 'pay' : 'submit').then(
+        (r) =>
+          void (r.skipped.length
+            ? notify.warning({
+                title: `Đã cập nhật ${r.updated} / ${ids.length} học viên`,
+                description: r.skipped.map((x) => `${rows.find((row) => row.id === x.id)?.name ?? 'HV'}: ${x.message}`).join(' · '),
+              })
+            : notify.toast.success(`Đã cập nhật ${r.updated} học viên → ${JLPT_STATUS[to].label}`)),
+        (e: Error) => void notify.error({ title: e.message }),
+      );
+    }
     updateMany(ids, { status: to });
     notify.toast.success(`Đã cập nhật ${ids.length} học viên → ${JLPT_STATUS[to].label}`);
-    setSelected([]);
   };
+
+  if (!session)
+    return (
+      <>
+        <PageHeader title="Chứng chỉ JLPT" breadcrumb={[{ title: 'Học viên' }, { title: 'Chứng chỉ JLPT' }]} />
+        {loading ? (
+          <div className="grid place-items-center py-16">
+            <Spin />
+          </div>
+        ) : (
+          <p className="text-ink-muted">Chưa có kỳ thi JLPT nào.</p>
+        )}
+      </>
+    );
+  const daysLeft = dayjs(session.examDate).diff(dayjs().startOf('day'), 'day');
 
   return (
     <>
@@ -271,9 +338,9 @@ export default function JlptPage() {
 
       {/* Kỳ thi */}
       <div className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
-        {JLPT_SESSIONS.map((s) => {
+        {sessions.slice(0, 3).map((s) => {
           const ph = sessionPhase(s);
-          const activeTab = s.id === sessionId;
+          const activeTab = s.id === session.id;
           const n = regs.filter((r) => r.sessionId === s.id && r.status !== 'cancelled').length;
           return (
             <button
@@ -385,6 +452,7 @@ export default function JlptPage() {
         storageKey={`students-jlpt-${phase === 'upcoming' ? 'reg' : 'result'}`}
         columns={columns}
         data={data}
+        loading={loading}
         rowKey="id"
         unitLabel="học viên"
         searchKeys={['name', 'code', 'phone', 'admitNo', 'classCode']}
@@ -398,12 +466,19 @@ export default function JlptPage() {
                   <Button icon={Bell} size="sm" variant="soft" onClick={() => (notify.toast.success(`Đã nhắc ${selected.length} học viên qua Zalo / SMS`), setSelected([]))}>
                     Nhắc hồ sơ / lệ phí
                   </Button>
+                  {USE_API && (
+                    <Button icon={Wallet} size="sm" variant="soft" onClick={() => bulkStep('paid')}>
+                      Đã đóng lệ phí
+                    </Button>
+                  )}
                   <Button icon={ClipboardPen} size="sm" variant="soft" onClick={() => bulkStep('submitted')}>
                     Đã nộp hội đồng
                   </Button>
-                  <Button icon={Ticket} size="sm" tone="success" variant="soft" onClick={() => bulkStep('admit')}>
-                    Đã có phiếu dự thi
-                  </Button>
+                  {!USE_API && (
+                    <Button icon={Ticket} size="sm" tone="success" variant="soft" onClick={() => bulkStep('admit')}>
+                      Đã có phiếu dự thi
+                    </Button>
+                  )}
                 </>
               )
             : undefined
@@ -442,7 +517,16 @@ export default function JlptPage() {
             ? (r) => (r.status !== 'cancelled' ? <Button icon={ClipboardPen} iconOnly size="sm" variant="soft" tooltip="Nhập / sửa điểm" aria-label="Nhập điểm" onClick={() => setScoring(r)} /> : null)
             : (r) =>
                 r.status !== 'cancelled' && r.status !== 'admit' ? (
-                  <Button icon={X} iconOnly size="sm" tone="neutral" variant="ghost" tooltip="Hủy đăng ký" aria-label="Hủy đăng ký" onClick={() => update(r.id, { status: 'cancelled' })} />
+                  <Button
+                    icon={X}
+                    iconOnly
+                    size="sm"
+                    tone="neutral"
+                    variant="ghost"
+                    tooltip="Hủy đăng ký"
+                    aria-label="Hủy đăng ký"
+                    onClick={() => (USE_API ? void step(r, 'cancel', undefined, `Đã hủy đăng ký — ${r.name}`) : update(r.id, { status: 'cancelled' }))}
+                  />
                 ) : null
         }
         actionsWidth={70}
@@ -454,12 +538,19 @@ export default function JlptPage() {
         open={registering}
         onClose={() => setRegistering(false)}
         title={`Đăng ký thi JLPT kỳ ${session.label}`}
-        description={`Lệ phí: N1 ${formatCurrency(JLPT_FEE.N1)} · N2 ${formatCurrency(JLPT_FEE.N2)} · N3 ${formatCurrency(JLPT_FEE.N3)} · N4/N5 ${formatCurrency(JLPT_FEE.N4)}`}
+        description={`Lệ phí: N1 ${formatCurrency(feeOf(session, 'N1'))} · N2 ${formatCurrency(feeOf(session, 'N2'))} · N3 ${formatCurrency(feeOf(session, 'N3'))} · N4 ${formatCurrency(feeOf(session, 'N4'))} · N5 ${formatCurrency(feeOf(session, 'N5'))}`}
         submitAction="create"
         submitText="Đăng ký"
         successMessage="Đã đăng ký thi"
-        initialValues={{ level: 'N4', venue: JLPT_VENUES[0], studentIds: [] }}
-        onSubmit={(v) => {
+        initialValues={{ level: 'N4', venue: venuesOf(session)[0], studentIds: [] }}
+        onSubmit={async (v) => {
+          if (USE_API) {
+            const r = await registerJlpt(session.id, v.studentIds, v.level, v.venue);
+            const extra = [...r.warnings, ...r.skipped];
+            if (extra.length) notify.warning({ title: `Đã đăng ký ${r.created} học viên`, description: extra.join(' · ') });
+            return;
+          }
+          const sessionId = session.id;
           const taken = new Set(regs.filter((r) => r.sessionId === sessionId && r.status !== 'cancelled').map((r) => r.studentId));
           v.studentIds.filter((id) => !taken.has(id)).forEach((studentId) => add({ studentId, sessionId, level: v.level, venue: v.venue, status: 'registered', docs: { photo: false, idCard: false, form: false } }));
         }}
@@ -469,7 +560,7 @@ export default function JlptPage() {
             mode="multiple"
             optionFilterProp="label"
             placeholder="Tìm theo tên, mã HV"
-            options={students.filter((s) => !s.hidden && (branchId === ALL_BRANCHES || s.branchId === branchId)).map((s) => ({ value: s.id, label: `${s.fullName} · ${s.code}`, disabled: regs.some((r) => r.sessionId === sessionId && r.studentId === s.id && r.status !== 'cancelled') }))}
+            options={students.filter((s) => !s.hidden && (branchId === ALL_BRANCHES || s.branchId === branchId)).map((s) => ({ value: s.id, label: `${s.fullName} · ${s.code}`, disabled: regs.some((r) => r.sessionId === session.id && r.studentId === s.id && r.status !== 'cancelled') }))}
           />
         </Form.Item>
         <div className="grid grid-cols-1 gap-x-3 sm:grid-cols-[120px_1fr]">
@@ -477,13 +568,41 @@ export default function JlptPage() {
             <Select options={Q_LEVELS.map((l) => ({ value: l, label: l }))} showSearch={false} allowClear={false} />
           </Form.Item>
           <Form.Item name="venue" label="Địa điểm thi" rules={[{ required: true }]}>
-            <Select options={JLPT_VENUES.map((x) => ({ value: x, label: x }))} showSearch={false} allowClear={false} />
+            <Select options={venuesOf(session).map((x) => ({ value: x, label: x }))} showSearch={false} allowClear={false} />
           </Form.Item>
         </div>
       </ModalForm>
 
       {/* Nhập điểm */}
-      {scoring && <ScoreModal row={scoring} onClose={() => setScoring(null)} onSave={(scores, absent) => update(scoring.id, absent ? { status: 'absent', scores: undefined } : { status: 'done', scores })} />}
+      {scoring && (
+        <ScoreModal
+          row={scoring}
+          onClose={() => setScoring(null)}
+          onSave={(scores, absent) =>
+            USE_API
+              ? jlptStep(scoring.id, absent ? 'absent' : 'result', absent ? undefined : { scores })
+              : update(scoring.id, absent ? { status: 'absent', scores: undefined } : { status: 'done', scores })
+          }
+        />
+      )}
+      {/* Số báo danh (phiếu dự thi) — từng người */}
+      <ModalForm<{ admitNo: string }>
+        key={`admit-${admitFor?.id}`}
+        open={Boolean(admitFor)}
+        onClose={() => setAdmitFor(null)}
+        title={`Phiếu dự thi · ${admitFor?.name ?? ''} (JLPT ${admitFor?.level ?? ''})`}
+        submitAction="save"
+        successMessage="Đã ghi số báo danh"
+        initialValues={{ admitNo: '' }}
+        onSubmit={async (v) => {
+          if (USE_API) await jlptStep(admitFor!.id, 'admit', { admitNo: v.admitNo.trim() });
+          else update(admitFor!.id, { status: 'admit', admitNo: v.admitNo.trim() });
+        }}
+      >
+        <Form.Item name="admitNo" label="Số báo danh" rules={[{ required: true, whitespace: true, message: 'Nhập số báo danh' }]}>
+          <TextInput placeholder="Vd: 23A1010101" />
+        </Form.Item>
+      </ModalForm>
       <ModalForm<{ no: string; receivedAt: Dayjs }>
         key={`cert-${certFor?.id}`}
         open={Boolean(certFor)}
@@ -493,20 +612,26 @@ export default function JlptPage() {
         submitAction="save"
         successMessage="Đã ghi nhận chứng chỉ về — học viên được thông báo đến nhận"
         initialValues={{ receivedAt: dayjs() }}
-        onSubmit={(v) => update(certFor!.id, { certificate: { no: v.no.trim(), receivedAt: v.receivedAt.format('YYYY-MM-DD'), receivedBy: user?.fullName ?? 'Giáo vụ' } })}
+        onSubmit={async (v) => {
+          if (USE_API) await jlptStep(certFor!.id, 'cert-received', { no: v.no.trim() });
+          else update(certFor!.id, { certificate: { no: v.no.trim(), receivedAt: v.receivedAt.format('YYYY-MM-DD'), receivedBy: user?.fullName ?? 'Giáo vụ' } });
+        }}
       >
         <Form.Item name="no" label="Số chứng chỉ" rules={[{ required: true, message: 'Nhập số chứng chỉ' }]}>
           <TextInput placeholder="Vd: N3A123456789" />
         </Form.Item>
-        <Form.Item name="receivedAt" label="Ngày về trung tâm" rules={[{ required: true }]}>
-          <DateInput />
-        </Form.Item>
+        {!USE_API && (
+          <Form.Item name="receivedAt" label="Ngày về trung tâm" rules={[{ required: true }]}>
+            <DateInput />
+          </Form.Item>
+        )}
       </ModalForm>
     </>
   );
 }
 
-function ScoreModal({ row, onClose, onSave }: { row: Row; onClose: () => void; onSave: (scores: number[], absent: boolean) => void }) {
+function ScoreModal({ row, onClose, onSave }: { row: Row; onClose: () => void; onSave: (scores: number[], absent: boolean) => unknown }) {
+  const notify = useNotify();
   const [form] = Form.useForm<{ s: number[] }>();
   const s = Form.useWatch('s', form) ?? row.scores ?? [];
   const j = s.length === SECTIONS[row.level].length && s.every((x) => typeof x === 'number') ? judge(row.level, s) : undefined;
@@ -521,9 +646,16 @@ function ScoreModal({ row, onClose, onSave }: { row: Row; onClose: () => void; o
       submitText="Lưu kết quả"
       successMessage="Đã lưu kết quả"
       initialValues={{ s: row.scores ?? [] }}
-      onSubmit={(v) => onSave(v.s, false)}
+      onSubmit={async (v) => void (await onSave(v.s, false))}
       footerExtra={
-        <Button tone="danger" variant="ghost" icon={X} onClick={() => (onSave([], true), onClose())}>
+        <Button
+          tone="danger"
+          variant="ghost"
+          icon={X}
+          onClick={() =>
+            Promise.resolve(onSave([], true)).then(onClose, (e: Error) => notify.error({ title: e.message }))
+          }
+        >
           Vắng thi
         </Button>
       }

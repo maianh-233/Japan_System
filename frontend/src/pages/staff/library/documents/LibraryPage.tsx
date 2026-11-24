@@ -1,15 +1,18 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Spin } from 'antd';
 import { Eye, EyeOff, LayoutGrid, LibraryBig, List, Lock, TrendingUp, Upload, Users } from 'lucide-react';
-import { Button, DataTable, DrawerForm, EmptyState, PageHeader, Select, StatCard, StatusTag, type DataColumn } from '@/components/common';
+import { Button, DataTable, DrawerForm, EmptyState, PageHeader, Select, StatCard, StatusTag, useNotify, type DataColumn } from '@/components/common';
 import { Q_LEVELS, Q_SKILL_OPTIONS } from '@/features/academic/questions/constants';
 import type { QLevel } from '@/features/academic/questions/types';
 import { DOC_AUDIENCE, DOC_AUDIENCE_OPTIONS, DOC_CATEGORIES, DOC_FILE_TYPE_OPTIONS, DOC_FILE_TYPES } from '@/features/library/constants';
 import { DocDetailDrawer, type DocTab } from '@/features/library/DocDetailDrawer';
 import { DocFormFields, type DocFormValues } from '@/features/library/DocFormFields';
 import { DocCover } from '@/features/library/DocViewer';
+import { createDoc, linkOf, loadLibrary, setDocStatus, updateDoc } from '@/features/library/libraryApi';
 import { useLibraryStore, type DocInput } from '@/features/library/libraryStore';
 import type { DocCategory, LibraryDoc } from '@/features/library/types';
 import { useAuth } from '@/hooks/useAuth';
+import { USE_API } from '@/lib/api/config';
 import { cn } from '@/lib/cn';
 import { fmtDate, fromNow } from '@/lib/date';
 import { normalizeText } from '@/lib/text';
@@ -19,13 +22,30 @@ type Dialog = { kind: 'create' } | { kind: 'edit'; id: string } | null;
 
 const NEW_DOC: Partial<DocFormValues> = { fileType: 'pdf', category: 'reference', levels: [], skills: [], audience: ['student', 'teacher'], watermark: true, allowDownload: false };
 
-/** Thư viện tài liệu — DỮ LIỆU GIẢ. Xem trực tuyến có watermark, chặn tải về, thống kê lượt đọc. */
+/** Thư viện tài liệu (TV-01 → 06). Xem trực tuyến có watermark, chặn tải về, thống kê lượt đọc. */
 export default function LibraryPage() {
   const { user, branchId, can } = useAuth();
   const docs = useLibraryStore((s) => s.docs);
   const add = useLibraryStore((s) => s.add);
   const update = useLibraryStore((s) => s.update);
   const editable = can('library.documents');
+  const notify = useNotify();
+  const [loading, setLoading] = useState(USE_API);
+
+  // Chế độ API: tải danh sách khi mở trang (người sửa được thấy cả tài liệu đang ẩn)
+  useEffect(() => {
+    if (!USE_API) return;
+    loadLibrary(editable)
+      .catch((e: Error) => notify.error({ title: 'Không tải được thư viện', description: e.message }))
+      .finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editable]);
+
+  const toggleStatus = (d: LibraryDoc) => {
+    const status = d.status === 'published' ? 'hidden' : 'published';
+    if (!USE_API) return update(d.id, { status });
+    void setDocStatus(d.id, status).catch((e: Error) => notify.error({ title: e.message }));
+  };
 
   const [category, setCategory] = useState<DocCategory | 'all'>('all');
   const [level, setLevel] = useState<QLevel>();
@@ -271,6 +291,10 @@ export default function LibraryPage() {
               </li>
             ))}
           </ul>
+        ) : loading ? (
+          <div className="grid place-items-center py-16">
+            <Spin />
+          </div>
         ) : (
           <EmptyState icon={LibraryBig} title="Không có tài liệu phù hợp" description="Đổi bộ lọc hoặc tải tài liệu mới lên." />
         )
@@ -279,6 +303,7 @@ export default function LibraryPage() {
           storageKey="library-documents"
           columns={columns}
           data={data}
+          loading={loading}
           rowKey="id"
           unitLabel="tài liệu"
           onRowClick={(d) => open(d.id)}
@@ -295,7 +320,7 @@ export default function LibraryPage() {
                       variant="soft"
                       aria-label={d.status === 'published' ? 'Ẩn tài liệu' : 'Hiện tài liệu'}
                       tooltip={d.status === 'published' ? 'Ẩn tài liệu' : 'Hiện tài liệu'}
-                      onClick={() => update(d.id, { status: d.status === 'published' ? 'hidden' : 'published' })}
+                      onClick={() => toggleStatus(d)}
                     />
                   </>
                 )
@@ -317,8 +342,18 @@ export default function LibraryPage() {
         submitAction={editing ? 'save' : 'create'}
         submitText={editing ? 'Lưu' : 'Tải lên'}
         successMessage={editing ? 'Đã lưu tài liệu' : 'Đã tải tài liệu lên thư viện'}
-        initialValues={editing ? { ...editing, branchIds: editing.branchIds === 'all' ? [] : editing.branchIds } : NEW_DOC}
+        initialValues={editing ? { ...editing, url: linkOf(editing.id), branchIds: editing.branchIds === 'all' ? [] : editing.branchIds } : NEW_DOC}
         onSubmit={async (v) => {
+          if (USE_API) {
+            const file = v.files?.[0]?.file;
+            const link = v.fileType === 'link' ? v.url?.trim() : undefined;
+            if (editing) await updateDoc(editing.id, toInput(v), file, link);
+            else {
+              const d = await createDoc(toInput(v), file, link);
+              setTimeout(() => open(d.id, 'access'), 300);
+            }
+            return;
+          }
           await new Promise((r) => setTimeout(r, 500));
           if (editing) update(editing.id, toInput(v));
           else {

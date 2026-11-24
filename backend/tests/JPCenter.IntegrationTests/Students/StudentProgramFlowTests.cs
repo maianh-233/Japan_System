@@ -12,13 +12,16 @@ namespace JPCenter.IntegrationTests.Students;
 public sealed class StudentProgramFlowTests(SeededApiFactory api)
 {
     private const string Students = "/api/v1/students";
-    private const string Admin = "admin@jpcenter.vn", GiaoVu = "giaovu@jpcenter.vn", Sale = "tung.tung@jpcenter.vn";
+    private const string Portal = "/api/v1/students/portal/learning";
+    private const string Admin = "admin@jpcenter.vn", GiaoVu = "giaovu@jpcenter.vn", Sale = "tung.tung@jpcenter.vn",
+        StudentAcc = "hocvien@jpcenter.vn", ParentAcc = "phuhuynh@jpcenter.vn";
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
     private static int _seq;
 
     private static readonly Guid Cg = SeedData.IdOf("cg");
     private static readonly Guid ClassN5K21 = SeedData.IdOf("C-N5K21");
     private static readonly Guid EmployeeHa = SeedData.IdOf("t-ha");
+    private static readonly Guid St1 = SeedData.IdOf("ST-1");
 
     private async Task<HttpClient> SignIn(string email)
     {
@@ -107,7 +110,20 @@ public sealed class StudentProgramFlowTests(SeededApiFactory api)
         await Expect(await gv.PostAsJsonAsync($"{Students}/enrollments/{studying}/certificate", new { email = "x@y.vn", exception = "Ngoại lệ" }, Ct),
             HttpStatusCode.Conflict, "students.certificate.not_completed");
 
+        // Cấp hàng loạt (1 request): HV đủ điều kiện được cấp, HV đã cấp / chưa hoàn thành bị bỏ qua kèm lý do
+        var others = rows.Where(r => Missing(r, "certificate") && r.GetProperty("eligible").GetBoolean() && r.GetProperty("enrollmentId").GetGuid() != eid)
+            .Take(1).Select(r => r.GetProperty("enrollmentId").GetGuid()).ToList();
+        var bulk = await Ok(await gv.PostAsJsonAsync($"{Students}/certificates/issue",
+            new { items = others.Append(eid).Append(studying).Select((id, i) => new { enrollmentId = id, email = $"lo{i}@gmail.com" }) }, Ct));
+        bulk.GetProperty("skipped").EnumerateArray().Select(x => x.GetProperty("code").GetString())
+            .ShouldBe(["students.certificate.already_issued", "students.certificate.not_completed"], ignoreOrder: true);
+        bulk.GetProperty("issued").GetArrayLength().ShouldBe(others.Count);
+        foreach (var x in bulk.GetProperty("issued").EnumerateArray())
+            x.GetProperty("enrollment").GetProperty("certificate").GetProperty("code").GetString().ShouldNotBe(code);
+
         var sale = await SignIn(Sale);
+        await Expect(await sale.PostAsJsonAsync($"{Students}/certificates/issue", new { items = new[] { new { enrollmentId = eid, email = "a@b.vn" } } }, Ct),
+            HttpStatusCode.Forbidden);
         await Expect(await sale.GetAsync($"{Students}/certificates", Ct), HttpStatusCode.Forbidden);
         await Expect(await sale.PostAsJsonAsync(url, new { email = "a@b.vn" }, Ct), HttpStatusCode.Forbidden);
     }
@@ -133,6 +149,7 @@ public sealed class StudentProgramFlowTests(SeededApiFactory api)
         var session = await Ok(await gv.PostAsJsonAsync($"{Students}/jlpt-sessions", Session($"Thử {Guid.NewGuid():N}"[..20]), Ct));
         var sid = session.GetProperty("id").GetGuid();
         session.GetProperty("closed").GetBoolean().ShouldBeFalse();
+        await Expect(await gv.PostAsJsonAsync($"{Students}/jlpt-sessions", Session("Trùng ngày"), Ct), HttpStatusCode.Conflict, "students.jlpt_session.duplicate_date");
 
         var a = await NewStudent(gv);
         var b = await NewStudent(gv);
@@ -188,9 +205,22 @@ public sealed class StudentProgramFlowTests(SeededApiFactory api)
         var regs = await Ok(await gv.GetAsync($"{Students}/jlpt-registrations?sessionId={sid}", Ct));
         regs.GetArrayLength().ShouldBe(2);
 
+        // Hàng loạt (1 request): đóng phí rồi nộp hội đồng — lượt sai thứ tự / thiếu giấy tờ bị bỏ qua kèm lý do
+        var c = await NewStudent(gv);
+        var d = await NewStudent(gv);
+        var two = (await Ok(await gv.PostAsJsonAsync($"{Students}/jlpt-registrations", new { sessionId = sid, studentIds = new[] { c, d }, level = "N5", venue = "Hà Nội — ĐH Hà Nội" }, Ct)))
+            .GetProperty("created").EnumerateArray().Select(x => x.GetProperty("id").GetGuid()).ToList();
+        var paid = await Ok(await gv.PostAsJsonAsync($"{Students}/jlpt-registrations/pay", new { ids = two.Append(reg.GetProperty("id").GetGuid()) }, Ct));
+        (paid.GetProperty("updated").GetArrayLength(), paid.GetProperty("skipped")[0].GetProperty("code").GetString()).ShouldBe((2, "students.jlpt.invalid_status"));
+        await Ok(await gv.PutAsJsonAsync($"{Students}/jlpt-registrations/{two[0]}", new { level = "N5", venue = "Hà Nội — ĐH Hà Nội", docs = new { photo = true, idCard = true, form = true } }, Ct));
+        var submitted = await Ok(await gv.PostAsJsonAsync($"{Students}/jlpt-registrations/submit", new { ids = two }, Ct));
+        submitted.GetProperty("updated")[0].GetProperty("status").GetString().ShouldBe("submitted");
+        submitted.GetProperty("skipped")[0].GetProperty("code").GetString().ShouldBe("students.jlpt.docs_missing");
+
         var sale = await SignIn(Sale);
         await Expect(await sale.GetAsync($"{Students}/jlpt-registrations", Ct), HttpStatusCode.Forbidden);
         await Expect(await sale.PostAsync($"{r}/pay", null, Ct), HttpStatusCode.Forbidden);
+        await Expect(await sale.PostAsJsonAsync($"{Students}/jlpt-registrations/submit", new { ids = two }, Ct), HttpStatusCode.Forbidden);
     }
 
     // ---------------- HV-17 ----------------
@@ -254,6 +284,58 @@ public sealed class StudentProgramFlowTests(SeededApiFactory api)
         var sale = await SignIn(Sale);
         await Expect(await sale.GetAsync($"{Students}/abroad-cases", Ct), HttpStatusCode.Forbidden);
         await Expect(await sale.PostAsync($"{url}/advance", null, Ct), HttpStatusCode.Forbidden);
+    }
+
+    // ---------------- Cổng HV / PH ----------------
+
+    [Fact(DisplayName = "Cổng HV / PH: chứng nhận của mình (không lộ thông tin nội bộ), JLPT của mình, tự đăng ký kỳ còn nhận hồ sơ, PH chọn con")]
+    public async Task LearnerPortal()
+    {
+        var student = await SignIn(StudentAcc);
+        var certs = await Ok(await student.GetAsync($"{Portal}/certificates", Ct));
+        certs.GetArrayLength().ShouldBeGreaterThan(0);
+        foreach (var c in certs.EnumerateArray())
+        {
+            c.GetProperty("studentId").GetGuid().ShouldBe(St1);
+            c.GetProperty("checks").GetArrayLength().ShouldBe(4);
+            if (!Missing(c, "certificate"))
+            {
+                Missing(c.GetProperty("certificate"), "exception").ShouldBeTrue();
+                Missing(c.GetProperty("certificate"), "sentBy").ShouldBeTrue();
+            }
+        }
+
+        // Kỳ mới còn nhận hồ sơ → HV tự đăng ký; ghi chú nội bộ của trung tâm không hiện ở cổng
+        var gv = await SignIn(GiaoVu);
+        var open = (await Ok(await gv.PostAsJsonAsync($"{Students}/jlpt-sessions", Session($"Cổng {Guid.NewGuid():N}"[..20], "2027-12-05", "2027-08-20", "2028-01-25"), Ct))).GetProperty("id").GetGuid();
+        var mine = await Ok(await student.PostAsJsonAsync($"{Portal}/jlpt-registrations", new { sessionId = open, level = "N4", venue = "Hà Nội — ĐH Hà Nội" }, Ct));
+        (mine.GetProperty("status").GetString(), mine.GetProperty("level").GetString(), mine.GetProperty("studentId").GetGuid()).ShouldBe(("registered", "N4", St1));
+        await Expect(await student.PostAsJsonAsync($"{Portal}/jlpt-registrations", new { sessionId = open, level = "N3", venue = "Hà Nội — ĐH Hà Nội" }, Ct),
+            HttpStatusCode.Conflict, "students.jlpt.duplicate");
+        var regUrl = $"{Students}/jlpt-registrations/{mine.GetProperty("id").GetGuid()}";
+        await Ok(await gv.PutAsJsonAsync(regUrl, new { level = "N4", venue = "Hà Nội — ĐH Hà Nội", docs = new { photo = true, idCard = false, form = false }, note = "Nội bộ: gọi nhắc CCCD" }, Ct));
+
+        var jlpt = await Ok(await student.GetAsync($"{Portal}/jlpt", Ct));
+        jlpt.GetProperty("sessions").EnumerateArray().ShouldContain(s => s.GetProperty("id").GetGuid() == open);
+        var reg = jlpt.GetProperty("registrations").EnumerateArray().Single(r => r.GetProperty("sessionId").GetGuid() == open);
+        reg.GetProperty("docs").GetProperty("photo").GetBoolean().ShouldBeTrue();
+        Missing(reg, "note").ShouldBeTrue();
+
+        // Kỳ đã hết hạn nhận hồ sơ: cổng không cho tự đăng ký (trang nhân viên vẫn được)
+        var closed = (await Ok(await gv.PostAsJsonAsync($"{Students}/jlpt-sessions", Session($"Hết {Guid.NewGuid():N}"[..20], "2026-12-13", "2026-01-01", "2027-02-01"), Ct)))
+            .GetProperty("id").GetGuid();
+        await Expect(await student.PostAsJsonAsync($"{Portal}/jlpt-registrations", new { sessionId = closed, level = "N4", venue = "Hà Nội — ĐH Hà Nội" }, Ct),
+            HttpStatusCode.Conflict, "students.jlpt.registration_closed");
+
+        // PH nhiều con phải chọn con; con người khác → không thấy
+        var parent = await SignIn(ParentAcc);
+        await Expect(await parent.GetAsync($"{Portal}/jlpt", Ct), HttpStatusCode.NotFound, "students.student.not_found");
+        (await Ok(await parent.GetAsync($"{Portal}/jlpt?studentId={St1}", Ct))).GetProperty("registrations").EnumerateArray()
+            .ShouldContain(r => r.GetProperty("sessionId").GetGuid() == open);
+        await Expect(await parent.GetAsync($"{Portal}/certificates?studentId={await NewStudent(gv)}", Ct), HttpStatusCode.NotFound, "students.student.not_found");
+
+        // Nhân viên không dùng được API cổng
+        await Expect(await gv.GetAsync($"{Portal}/certificates", Ct), HttpStatusCode.Forbidden);
     }
 
     /// <summary>API bỏ trường null khỏi JSON</summary>

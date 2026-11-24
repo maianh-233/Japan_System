@@ -361,7 +361,7 @@ Phát `EnrollmentCompleted` → cổng HV hiện "Đã học xong", trang Chứn
 
 | Mã | Tình huống | Hệ thống xử lý |
 |---|---|---|
-| HV-16.E1 | Ngày kỳ thi không hợp lệ (hạn nộp ≥ ngày thi, ngày có kết quả ≤ ngày thi); thiếu lệ phí 1 cấp độ; không có địa điểm | `students.jlpt_session.invalid_dates` / `invalid_fees` / `venue_required` |
+| HV-16.E1 | Ngày kỳ thi không hợp lệ (hạn nộp ≥ ngày thi, ngày có kết quả ≤ ngày thi); thiếu lệ phí 1 cấp độ; không có địa điểm; đã có kỳ thi cùng ngày 🆕 | `students.jlpt_session.invalid_dates` / `invalid_fees` / `venue_required` / `duplicate_date` |
 | HV-16.E2 | Nộp hội đồng khi thiếu giấy tờ | `students.jlpt.docs_missing` |
 | HV-16.E3 | Chuyển trạng thái sai thứ tự; sửa giấy tờ / cấp độ sau khi đã nộp hội đồng; hủy sau khi có kết quả | `students.jlpt.invalid_status` |
 | HV-16.E8 | Điểm sai số phần / ngoài thang (N1–N3: 3 × 60, N4–N5: 120 + 60) | `students.jlpt.invalid_scores` |
@@ -503,7 +503,7 @@ Test: `tests/JPCenter.IntegrationTests/Students/StudentProgramFlowTests.cs`.
 - HV-15: chuyên cần (`IAttendanceStats`), bài thi cuối = kết quả thi **gần nhất** của HV trong lớp (`ILearningStats.ExamPercents` nay xếp theo giờ thi cũ → mới),
   nợ của ghi danh qua `Finance.Contracts.ITuitionQuery.DebtByEnrollmentAsync` (mới). Phạm vi theo chi nhánh của lớp. Email gửi mã + link `/verify/{code}`;
   lỗi gửi → `emailSent = false`, chứng nhận vẫn giữ (E4). Cấp ngoại lệ ghi nhật ký `warning`. Tra cứu công khai không phân biệt hoa / thường,
-  không lộ email / lý do; mã sai → `students.certificate.invalid_code`. ⏳ PDF theo mẫu chưa sinh (chưa chọn thư viện PDF — cần ADR); cổng HV xem chứng nhận (E5): phase 4.
+  không lộ email / lý do; mã sai → `students.certificate.invalid_code`. ⏳ PDF theo mẫu chưa sinh (chưa chọn thư viện PDF — cần ADR); cổng HV xem chứng nhận (E5): ✅ phase 4.
 - HV-16: kỳ thi dùng chung mọi chi nhánh; lượt đăng ký theo chi nhánh của HV. Đăng ký nhiều HV: HV đã đăng ký kỳ / ngoài phạm vi → `skipped` kèm mã lỗi;
   cấp độ / địa điểm sai → lỗi cả lô. Server trả `total`, `passed`, `failSections`. Thống kê theo cấp độ + theo lớp (ghi danh gần nhất bắt đầu trước ngày thi);
   ⏳ theo GV cần Academic.Contracts trả GV của lớp. `level` trả `"N3"`.
@@ -512,3 +512,25 @@ Test: `tests/JPCenter.IntegrationTests/Students/StudentProgramFlowTests.cs`.
   Phạm vi `own` = HV có lead do mình phụ trách (như HV-01).
 - JSON bỏ trường `null` (quy ước chung): `certificate`, `interview`, `coe`, `visa`, `cancelled`… vắng mặt khi chưa có.
 
+## Đã làm — HV-15 → 17 frontend + API bổ sung (giai đoạn 23 phase 4, 2026-11-24)
+
+**API thêm** (`/api/v1/students/...`, test `StudentProgramFlowTests`):
+
+| Việc | API | Quyền |
+|---|---|---|
+| HV-15 cấp hàng loạt (tab Chờ cấp — 1 request) | `POST certificates/issue` `{ items: [{ enrollmentId, email }] }` → `{ issued: [{ enrollment, emailSent }], skipped: [{ enrollmentId, code, message }] }` — chỉ HV đủ điều kiện, ngoại lệ cấp từng người; mã nối tiếp trong năm | `students.certificates.create` |
+| HV-16 hàng loạt (chọn nhiều HV) | `POST jlpt-registrations/pay` · `POST jlpt-registrations/submit` `{ ids }` → `{ updated, skipped }` — số báo danh / điểm vẫn nhập từng người | `students.jlpt.update` |
+| HV-15.E5 cổng HV / PH | `GET portal/learning/certificates?studentId=` — lớp đang học / bảo lưu / đã hoàn thành + checklist + chứng nhận (mã, ngày cấp, email nhận; không có người gửi / lý do ngoại lệ) | cổng HV / PH |
+| HV-16 cổng HV / PH | `GET portal/learning/jlpt?studentId=` → `{ sessions, registrations }` (bỏ ghi chú nội bộ) · `POST portal/learning/jlpt-registrations` `{ studentId?, sessionId, level, venue }` — tự đăng ký kỳ **còn hạn** nhận hồ sơ (`students.jlpt.registration_closed`), trùng kỳ → `duplicate` | cổng HV / PH |
+
+PH nhiều con phải truyền `studentId`; HV không thuộc tài khoản → `students.student.not_found` (`LearnerPortal`). Kỳ thi trùng ngày thi → `students.jlpt_session.duplicate_date`
+(trước đây lỗi 500 do chỉ mục duy nhất `exam_date`).
+
+**Frontend** (chế độ API — store khởi tạo rỗng, dữ liệu giả chỉ còn cho chế độ `mock`):
+- `features/student/certificateApi.ts`: trang Chứng nhận dùng danh sách + checklist server; modal cấp / gửi lại (dùng chung tab HV của lớp) gọi API, báo khi email lỗi;
+  tra cứu mã gọi trang công khai. Trang công khai mới `/verify/:code` (`pages/public/verify`) — link trong email chứng nhận. Cổng HV › Chứng nhận khóa học đọc API cổng.
+- `features/student/jlpt/jlptApi.ts`: kỳ thi (lệ phí, địa điểm theo kỳ — `feeOf`, `venuesOf`) + lượt đăng ký; hồ sơ, thu phí, hủy, số báo danh (modal từng người), điểm / vắng,
+  chứng chỉ gốc về / phát; hàng loạt "Đã đóng lệ phí" / "Đã nộp hội đồng". Cổng HV › Chứng chỉ JLPT đọc / tự đăng ký qua API cổng.
+- `features/student/abroad/abroadApi.ts`: hồ sơ (cả hồ sơ đã dừng — trang lọc), tạo (người phụ trách = nhân viên đang làm), đổi người phụ trách (kiểm sửa đè), sang bước,
+  giấy tờ, mốc ngày (gửi đủ bộ), ghi chú, dừng / mở lại — nhật ký do server ghi.
+- ⏳ Chưa có giao diện thêm / sửa kỳ thi JLPT (API có sẵn) và nhập tiền đóng phí dịch vụ du học (`POST abroad-cases/{id}/payments`) — làm khi cần.

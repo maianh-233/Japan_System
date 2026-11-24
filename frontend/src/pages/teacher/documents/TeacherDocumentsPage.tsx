@@ -1,8 +1,11 @@
 import { useState } from 'react';
-import { Form } from 'antd';
+import { Form, Tabs } from 'antd';
 import { Eye, FileAudio, FileImage, FileText, FileVideo, Link2, Trash2, type LucideIcon } from 'lucide-react';
 import { Button, EmptyState, FileUpload, ModalForm, PageHeader, Select, TextArea, TextInput, useConfirm, useNotify, type UploadItem } from '@/components/common';
 import { useClassStore } from '@/features/academic/classes/classStore';
+import { useCurriculumStore } from '@/features/academic/curriculum/curriculumStore';
+import { PortalLibrary } from '@/features/library/PortalLibrary';
+import { levelOf } from '@/features/portal/quiz';
 import { usePortalStore } from '@/features/portal/portalStore';
 import * as learningApi from '@/features/academic/classes/learningApi';
 import { USE_API } from '@/lib/api/config';
@@ -32,7 +35,7 @@ interface Values {
   sessionId?: string;
 }
 
-/** Cổng GV › Tài liệu của tôi: tài liệu tự soạn, gửi cho lớp mình dạy (khác Thư viện trung tâm) */
+/** Cổng GV › Tài liệu của tôi: tài liệu tự soạn, gửi cho lớp mình dạy · tab Thư viện trung tâm (TV-08 — xem, không sửa) */
 export default function TeacherDocumentsPage() {
   const me = useTeacherId();
   const notify = useNotify();
@@ -43,6 +46,9 @@ export default function TeacherDocumentsPage() {
   const enrollments = useStudentStore((s) => s.enrollments);
   const sessions = useClassStore((s) => s.sessions);
   const [editing, setEditing] = useState<TeacherDoc | 'new' | null>(null);
+  const [libCount, setLibCount] = useState<number>();
+  const curricula = useCurriculumStore((s) => s.curricula);
+  const open = classes.filter((c) => c.status !== 'finished');
   const docs = allDocs.filter((d) => d.teacherId === me);
   const roster = (ids: string[]) => new Set(enrollments.filter((e) => ids.includes(e.classId) && e.status === 'studying').map((e) => e.studentId)).size;
 
@@ -50,73 +56,97 @@ export default function TeacherDocumentsPage() {
     <>
       <PageHeader
         title="Tài liệu của tôi"
-        subtitle="Tài liệu bạn tự soạn, chỉ học viên lớp được chọn thấy (mục Tài liệu trên Cổng học viên). Tài liệu chung của trung tâm nằm ở Thư viện."
+        subtitle="Tài liệu bạn tự soạn, chỉ học viên lớp được chọn thấy (mục Tài liệu trên Cổng học viên). Tài liệu chung của trung tâm ở tab Thư viện trung tâm."
         actions={
           <Button action="create" collapseOnMobile onClick={() => setEditing('new')}>
             Thêm tài liệu
           </Button>
         }
       />
-      {!docs.length && <EmptyState icon={FileText} title="Chưa có tài liệu" action={<Button action="create" onClick={() => setEditing('new')}>Thêm tài liệu</Button>} />}
-      <div className="grid gap-3 md:grid-cols-2">
-        {docs.map((d) => {
-          const Icon = KIND_ICON[d.kind];
-          const total = roster(d.classIds);
-          return (
-            <article key={d.id} className="flex flex-col rounded-xl border border-line bg-surface p-4">
-              <div className="flex items-start gap-3">
-                <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary-50 text-primary-700">
-                  <Icon size={20} aria-hidden />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-semibold text-ink">{d.title}</h3>
-                  <p className="truncate text-xs text-ink-muted">
-                    {d.fileName}
-                    {d.size ? ` · ${formatFileSize(d.size)}` : ''} · {fmtDate(d.createdAt)}
-                  </p>
-                </div>
-              </div>
-              {d.description && <p className="mt-2 text-[13px] text-ink-secondary">{d.description}</p>}
-              <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
-                {d.classIds.map((id) => {
-                  const c = classes.find((x) => x.id === id);
-                  return (
-                    <span key={id} className="rounded bg-primary-50 px-1.5 py-0.5 text-primary-700">
-                      {c ? shortCode(c) : id}
-                    </span>
-                  );
-                })}
-                <span className="inline-flex items-center gap-1 text-ink-muted">
-                  <Eye size={12} aria-hidden /> {d.viewedBy.length}/{total} HV đã xem
-                </span>
-              </div>
-              <div className="mt-auto flex gap-1.5 pt-3">
-                <Button action="edit" size="sm" onClick={() => setEditing(d)} />
-                <Button
-                  icon={Trash2}
-                  size="sm"
-                  variant="ghost"
-                  tone="danger"
-                  onClick={async () => {
-                    if (await confirm({ title: `Xóa “${d.title}”?`, description: 'Học viên không còn thấy tài liệu này.', tone: 'danger', confirmAction: 'delete' })) {
-                      if (USE_API) {
-                        try {
-                          await learningApi.deleteTeacherDoc(d.id);
-                        } catch (e) {
-                          return notify.error({ title: (e as Error).message });
-                        }
-                      } else removeTeacherDoc(d.id);
-                      notify.toast.success('Đã xóa tài liệu');
-                    }
-                  }}
-                >
-                  Xóa
-                </Button>
-              </div>
-            </article>
-          );
-        })}
-      </div>
+      <Tabs
+        items={[
+          {
+            key: 'mine',
+            label: `Của tôi (${docs.length})`,
+            children: (
+              <>
+            {!docs.length && <EmptyState icon={FileText} title="Chưa có tài liệu" action={<Button action="create" onClick={() => setEditing('new')}>Thêm tài liệu</Button>} />}
+            <div className="grid gap-3 md:grid-cols-2">
+              {docs.map((d) => {
+                const Icon = KIND_ICON[d.kind];
+                const total = roster(d.classIds);
+                return (
+                  <article key={d.id} className="flex flex-col rounded-xl border border-line bg-surface p-4">
+                    <div className="flex items-start gap-3">
+                      <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary-50 text-primary-700">
+                        <Icon size={20} aria-hidden />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-ink">{d.title}</h3>
+                        <p className="truncate text-xs text-ink-muted">
+                          {d.fileName}
+                          {d.size ? ` · ${formatFileSize(d.size)}` : ''} · {fmtDate(d.createdAt)}
+                        </p>
+                      </div>
+                    </div>
+                    {d.description && <p className="mt-2 text-[13px] text-ink-secondary">{d.description}</p>}
+                    <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
+                      {d.classIds.map((id) => {
+                        const c = classes.find((x) => x.id === id);
+                        return (
+                          <span key={id} className="rounded bg-primary-50 px-1.5 py-0.5 text-primary-700">
+                            {c ? shortCode(c) : id}
+                          </span>
+                        );
+                      })}
+                      <span className="inline-flex items-center gap-1 text-ink-muted">
+                        <Eye size={12} aria-hidden /> {d.viewedBy.length}/{total} HV đã xem
+                      </span>
+                    </div>
+                    <div className="mt-auto flex gap-1.5 pt-3">
+                      <Button action="edit" size="sm" onClick={() => setEditing(d)} />
+                      <Button
+                        icon={Trash2}
+                        size="sm"
+                        variant="ghost"
+                        tone="danger"
+                        onClick={async () => {
+                          if (await confirm({ title: `Xóa “${d.title}”?`, description: 'Học viên không còn thấy tài liệu này.', tone: 'danger', confirmAction: 'delete' })) {
+                            if (USE_API) {
+                              try {
+                                await learningApi.deleteTeacherDoc(d.id);
+                              } catch (e) {
+                                return notify.error({ title: (e as Error).message });
+                              }
+                            } else removeTeacherDoc(d.id);
+                            notify.toast.success('Đã xóa tài liệu');
+                          }
+                        }}
+                      >
+                        Xóa
+                      </Button>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+              </>
+            ),
+          },
+          {
+            key: 'library',
+            label: `Thư viện trung tâm${libCount === undefined ? '' : ` (${libCount})`}`,
+            children: (
+              <PortalLibrary
+                asTeacher
+                branchIds={open.map((c) => c.branchId)}
+                levels={open.map((c) => levelOf(curricula.find((x) => x.id === c.curriculumId)?.level))}
+                onCount={setLibCount}
+              />
+            ),
+          },
+        ]}
+      />
 
       <ModalForm<Values>
         key={editing === 'new' ? 'new' : (editing?.id ?? 'none')}
