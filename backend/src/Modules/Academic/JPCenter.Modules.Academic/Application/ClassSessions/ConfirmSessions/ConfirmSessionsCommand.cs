@@ -9,6 +9,7 @@ using JPCenter.Modules.Academic.Application.ClassSessions.Common;
 using JPCenter.Modules.Academic.Application.Common;
 using JPCenter.Modules.Academic.Domain.Classes;
 using JPCenter.Modules.Academic.Domain.ClassSessions;
+using JPCenter.Modules.Finance.Contracts;
 using JPCenter.Modules.Academic.Domain.Rooms;
 using JPCenter.SharedKernel.Domain;
 using JPCenter.SharedKernel.Primitives;
@@ -34,8 +35,8 @@ public sealed class ConfirmSessionsValidator : AbstractValidator<ConfirmSessions
     }
 }
 
-public sealed class ConfirmSessionsHandler(IAcademicDbContext db, SessionReader reader, SessionConfirmer confirmer, IAuditTrail audit)
-    : ICommandHandler<ConfirmSessionsCommand, ConfirmSessionsResult>
+public sealed class ConfirmSessionsHandler(IAcademicDbContext db, SessionReader reader, SessionConfirmer confirmer, IPayrollLocks payroll,
+    IAuditTrail audit) : ICommandHandler<ConfirmSessionsCommand, ConfirmSessionsResult>
 {
     public async Task<Result<ConfirmSessionsResult>> Handle(ConfirmSessionsCommand cmd, CancellationToken ct)
     {
@@ -46,6 +47,11 @@ public sealed class ConfirmSessionsHandler(IAcademicDbContext db, SessionReader 
             if (await reader.ForUpdateAsync(id, PermissionAction.Approve, ct) is not var (session, cls))
             {
                 failed.Add(new ConfirmFailureDto(id, SessionErrors.NotFound.Code, SessionErrors.NotFound.Message));
+                continue;
+            }
+            if (await payroll.IsTeacherPayrollLockedAsync(cls.BranchId.Value, session.Date, ct))
+            {
+                failed.Add(new ConfirmFailureDto(id, SessionErrors.PayrollLocked.Code, SessionErrors.PayrollLocked.Message));
                 continue;
             }
             var done = confirmer.Confirm(session, cls, cmd.Note);

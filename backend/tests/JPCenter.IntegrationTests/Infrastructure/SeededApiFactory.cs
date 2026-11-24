@@ -20,8 +20,8 @@ public sealed class SeededApiFactory : WebApplicationFactory<Program>, IAsyncLif
 {
     public const string Password = "Test@12345";
     public const int OutboxMaxAttempts = 3;
-    /// <summary>Khóa ký webhook ngân hàng (TC-10.E6)</summary>
-    public const string BankWebhookSecret = "test-bank-webhook-secret";
+    /// <summary>Khóa ký webhook ngân hàng (TC-10.E6) = <c>checksum</c> của tích hợp VietQR trong dữ liệu mẫu (TH-07)</summary>
+    public const string BankWebhookSecret = "cs_31be77";
     private readonly PostgresFixture _pg = new();
 
     static SeededApiFactory() => Environment.SetEnvironmentVariable("JPCENTER_SKIP_DOTENV", "1");
@@ -47,7 +47,10 @@ public sealed class SeededApiFactory : WebApplicationFactory<Program>, IAsyncLif
         builder.UseSetting("Seed:Enabled", "true");
         builder.UseSetting("Seed:DefaultPassword", Password);
         builder.UseSetting("RateLimit:Enabled", "false");
-        builder.UseSetting("Finance:BankWebhookSecret", BankWebhookSecret);
+        builder.UseSetting("Finance:BankWebhookSecret", "fallback-bank-webhook-secret");
+        // Tích hợp: email qua bộ ghi giả (không gọi SMTP trong dữ liệu mẫu), Zoom chế độ thử (không gọi mạng)
+        builder.UseSetting("Integrations:email:Live", "false");
+        builder.UseSetting("Integrations:zoom:Live", "false");
         // Outbox chạy nhanh để test không phải chờ lâu
         builder.UseSetting("Outbox:PollMilliseconds", "200");
         builder.UseSetting("Outbox:RetryBaseMilliseconds", "50");

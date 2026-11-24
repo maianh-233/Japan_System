@@ -18,5 +18,6 @@ public static class SystemEndpoints
         SettingsEndpoints.Map(system);
         AuditLogEndpoints.Map(system);
         TrashEndpoints.Map(system);
+        IntegrationEndpoints.Map(system);
     }
 }

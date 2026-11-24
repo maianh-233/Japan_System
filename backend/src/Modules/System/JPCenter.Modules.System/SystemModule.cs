@@ -12,6 +12,7 @@ using JPCenter.Modules.System.Application.Approvals.Common;
 using JPCenter.Modules.System.Application.AuditLogs.Common;
 using JPCenter.Modules.System.Application.Auth.Common;
 using JPCenter.Modules.System.Application.Branches.Common;
+using JPCenter.Modules.System.Application.Integrations.Common;
 using JPCenter.Modules.System.Application.Settings.Common;
 using JPCenter.Modules.System.Application.Trash.Common;
 using JPCenter.Modules.System.Application.Permissions.Common;
@@ -62,6 +63,9 @@ public sealed class SystemModule : IModule
         services.AddScoped<IHolidayCalendar, HolidayCalendar>();
         services.AddScoped<IApprovalInbox, ApprovalInbox>();
         services.AddScoped<ICenterSettings, CenterSettingsProvider>();
+        services.AddScoped<IMessageChannels, MessageChannels>();
+        services.AddScoped<IMeetingRooms, MeetingRooms>();
+        services.AddScoped<IIntegrationLog, IntegrationLogWriter>();
 
         // Thùng rác: mỗi loại dữ liệu xóa mềm 1 ITrashHandler (module khác tự đăng ký của mình)
         services.AddScoped<ITrashHandler, RoleTrashHandler>();
@@ -90,6 +94,10 @@ public sealed class SystemModule : IModule
         services.AddScoped<SettingsReader>();
         services.AddScoped<AuditLogReader>();
         services.AddScoped<TrashBin>();
+        services.AddScoped<IntegrationCalls>();
+        services.AddScoped<IntegrationReader>();
+        services.AddScoped<IIntegrationGateway, IntegrationGateway>();
+        services.AddHttpClient(IntegrationGateway.HttpClientName, c => c.Timeout = TimeSpan.FromSeconds(15));
 
         // Job định kỳ (Host bật scheduler khi Jobs:Enabled ≠ false)
         if (JobServiceCollectionExtensions.IsEnabled(configuration))

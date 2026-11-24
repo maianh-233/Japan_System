@@ -9,6 +9,7 @@ using JPCenter.Modules.Academic.Application.ClassSessions.Common;
 using JPCenter.Modules.Academic.Application.Common;
 using JPCenter.Modules.Academic.Domain.Classes;
 using JPCenter.Modules.Academic.Domain.ClassSessions;
+using JPCenter.Modules.Finance.Contracts;
 using JPCenter.Modules.Academic.Domain.Rooms;
 using JPCenter.SharedKernel.Domain;
 using JPCenter.SharedKernel.Primitives;
@@ -24,12 +25,13 @@ public sealed class ConfirmSessionValidator : AbstractValidator<ConfirmSessionCo
     public ConfirmSessionValidator() => RuleFor(x => x.Note).MaximumLength(1000);
 }
 
-public sealed class ConfirmSessionHandler(IAcademicDbContext db, SessionReader reader, SessionConfirmer confirmer, IAuditTrail audit)
-    : ICommandHandler<ConfirmSessionCommand, SessionResult>
+public sealed class ConfirmSessionHandler(IAcademicDbContext db, SessionReader reader, SessionConfirmer confirmer, IPayrollLocks payroll,
+    IAuditTrail audit) : ICommandHandler<ConfirmSessionCommand, SessionResult>
 {
     public async Task<Result<SessionResult>> Handle(ConfirmSessionCommand cmd, CancellationToken ct)
     {
         if (await reader.ForUpdateAsync(cmd.Id, PermissionAction.Approve, ct) is not var (session, cls)) return SessionErrors.NotFound;
+        if (await payroll.IsTeacherPayrollLockedAsync(cls.BranchId.Value, session.Date, ct)) return SessionErrors.PayrollLocked;
         var done = confirmer.Confirm(session, cls, cmd.Note);
         if (done.IsFailure) return done.Error;
         await db.SaveChangesAsync(ct);

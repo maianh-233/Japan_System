@@ -13,7 +13,7 @@ public static class IntegrationCatalog
         new(Sms, IntegrationCategory.Notify, [new("brandname", "Brandname"), new("apiKey", "API key", Secret: true)], ["otp", "fallback"]),
         new(Email, IntegrationCategory.Notify,
             [new("host", "SMTP host"), new("port", "Cổng"), new("user", "Tài khoản"), new("pass", "Mật khẩu", Secret: true)],
-            ["invoice", "invite", "test"]),
+            ["invoice", "invite", "payslip", "test"]),
         new(VietQr, IntegrationCategory.Payment,
             [new("clientId", "Client ID"), new("apiKey", "API key", Secret: true), new("checksum", "Checksum key", Secret: true)],
             ["qr", "autoMatch"]),

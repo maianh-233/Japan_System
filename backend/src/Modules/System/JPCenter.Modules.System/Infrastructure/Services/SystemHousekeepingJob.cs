@@ -1,6 +1,7 @@
 using JPCenter.Application.Common.Messaging;
 using JPCenter.Modules.System.Application.Permissions.ExpireOverrides;
 using JPCenter.Modules.System.Application.Trash.PurgeExpiredTrash;
+using JPCenter.Modules.System.Domain.Integrations;
 using JPCenter.Modules.System.Infrastructure.Persistence;
 using JPCenter.SharedKernel.Domain;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +15,7 @@ namespace JPCenter.Modules.System.Infrastructure.Services;
 /// 1. PQ-12 — báo quyền lẻ sắp hết hạn, ghi nhật ký quyền lẻ đã hết hạn (<see cref="ExpireOverridesCommand"/>).
 /// 2. TR-04 — xóa hẳn mục Thùng rác quá hạn (<see cref="PurgeExpiredTrashCommand"/>).
 /// 3. Dọn dữ liệu tạm: Idempotency-Key quá hạn; token dùng 1 lần (OTP, link mời) hết hạn quá 30 ngày;
-///    phiên đăng nhập đã kết thúc quá 90 ngày (giữ đủ cho "Lịch sử đăng nhập").
+///    phiên đăng nhập đã kết thúc quá 90 ngày (giữ đủ cho "Lịch sử đăng nhập"); nhật ký tích hợp cũ hơn 180 ngày (TH-05).
 /// </summary>
 [DisallowConcurrentExecution]
 public sealed class SystemHousekeepingJob(ISender sender, SystemDbContext db, IClock clock, ILogger<SystemHousekeepingJob> logger) : IJob
@@ -33,10 +34,11 @@ public sealed class SystemHousekeepingJob(ISender sender, SystemDbContext db, IC
         var sessions = await db.UserSessions
             .Where(x => (x.RevokedAt != null && x.RevokedAt < now - KeepSessions) || x.ExpiresAt < now - KeepSessions)
             .ExecuteDeleteAsync(ct);
+        var integrationLogs = await db.IntegrationLogs.Where(x => x.At < now.AddDays(-IntegrationLog.RetentionDays)).ExecuteDeleteAsync(ct);
 
         logger.LogInformation(
-            "Dọn hệ thống: nhắc {Reminded} quyền lẻ sắp hết hạn, {Expired} quyền lẻ hết hạn; xóa hẳn {Trash} mục thùng rác; xóa {Keys} idempotency key, {Tokens} token, {Sessions} phiên",
+            "Dọn hệ thống: nhắc {Reminded} quyền lẻ sắp hết hạn, {Expired} quyền lẻ hết hạn; xóa hẳn {Trash} mục thùng rác; xóa {Keys} idempotency key, {Tokens} token, {Sessions} phiên, {IntegrationLogs} nhật ký tích hợp",
             overrides.IsSuccess ? overrides.Value.Reminded : 0, overrides.IsSuccess ? overrides.Value.Expired : 0, trash.IsSuccess ? trash.Value : 0,
-            keys, tokens, sessions);
+            keys, tokens, sessions, integrationLogs);
     }
 }

@@ -204,7 +204,6 @@ public sealed partial class Class : AggregateRoot<ClassId>, IBranchScoped, IAudi
         if (s.PlannedEndDate < s.PlannedStartDate) return ClassErrors.InvalidDates;
         if (s.Fee.Amount < 0) return ClassErrors.InvalidFee;
         if (!s.Online && s.RoomId is null) return ClassErrors.RoomRequired;
-        if (s.Online && string.IsNullOrWhiteSpace(s.MeetingUrl)) return ClassErrors.MeetingUrlRequired;
         return code.Value;
     }
 
@@ -217,7 +216,8 @@ public sealed partial class Class : AggregateRoot<ClassId>, IBranchScoped, IAudi
         AssistantIds = [.. s.AssistantIds.Distinct().Except(TeacherIds)];
         Online = s.Online;
         RoomId = s.Online ? null : s.RoomId;
-        MeetingUrl = s.Online ? s.MeetingUrl!.Trim() : null;
+        // Lớp online để trống link → hệ thống tự tạo phòng (TH-08) hoặc hiện "Chưa có link phòng"
+        MeetingUrl = s.Online ? Clean(s.MeetingUrl) : null;
         (PlannedStartDate, PlannedEndDate) = (s.PlannedStartDate, s.PlannedEndDate);
         Weekdays = [.. s.Weekdays.Distinct().Order()];
         (StartTime, EndTime, TotalHours) = (s.StartTime, s.EndTime, s.TotalHours);
@@ -226,9 +226,24 @@ public sealed partial class Class : AggregateRoot<ClassId>, IBranchScoped, IAudi
         Note = Clean(s.Note);
     }
 
+    /// <summary>
+    /// TH-08 — gắn link phòng học online hệ thống vừa tạo (Zoom / Meet). Chỉ lớp online chưa có link: link giáo vụ nhập tay được giữ (E1).
+    /// </summary>
+    public Result SetMeetingRoom(string url)
+    {
+        if (!Online) return ClassErrors.NotOnline;
+        if (MeetingUrl is not null) return ClassErrors.HasMeetingUrl;
+        if (string.IsNullOrWhiteSpace(url)) return ClassErrors.MeetingRoomFailed;
+        MeetingUrl = url.Trim();
+        return Result.Success();
+    }
+
+    /// <summary>Lớp online chưa có link phòng — cần tạo phòng tự động / nhập tay</summary>
+    public bool NeedsMeetingRoom => Online && MeetingUrl is null && Status is not (ClassStatus.Finished or ClassStatus.Cancelled);
+
     private bool SameExceptNote(CourseId courseId, CurriculumId? curriculumId, ClassSetup s) =>
         courseId == CourseId && curriculumId == CurriculumId && s.Code.Trim().ToUpperInvariant() == Code && s.Name.Trim() == Name
-        && s.BranchId == BranchId && !ScheduleDiffers(s) && (!s.Online || s.MeetingUrl?.Trim() == MeetingUrl)
+        && s.BranchId == BranchId && !ScheduleDiffers(s) && (!s.Online || Clean(s.MeetingUrl) == MeetingUrl)
         && s.PlannedStartDate == PlannedStartDate && s.PlannedEndDate == PlannedEndDate && s.TotalHours == TotalHours
         && s.MinStudents == MinStudents && s.MaxStudents == MaxStudents && s.Fee == Fee && s.PreviousClassId == PreviousClassId;
 

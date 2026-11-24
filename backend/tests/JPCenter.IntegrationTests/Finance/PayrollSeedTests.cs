@@ -44,7 +44,9 @@ public sealed class PayrollSeedTests(SeededApiFactory api)
         tiers.Select(t => t.From.Amount).ShouldBe(Items("commissionTiers").Select(t => t.GetProperty("from").GetDecimal()));
         tiers[0].From.ShouldBe(Money.Zero);
 
-        (await db.SaleTargets.CountAsync(Ct)).ShouldBe(Items("saleTargets").Count);
+        // Đếm theo tháng của dữ liệu mẫu — test khác (PayrollFlowTests) đặt thêm chỉ tiêu tháng tương lai
+        var seedMonths = Items("saleTargets").Select(t => t.GetProperty("month").GetString()!).Distinct().ToList();
+        (await db.SaleTargets.CountAsync(t => seedMonths.Contains(t.Month), Ct)).ShouldBe(Items("saleTargets").Count);
     }
 
     [Fact]

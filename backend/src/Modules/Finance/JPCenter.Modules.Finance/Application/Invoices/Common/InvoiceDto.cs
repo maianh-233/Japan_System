@@ -8,6 +8,8 @@ namespace JPCenter.Modules.Finance.Application.Invoices.Common;
 /// số liệu tính sẵn (<c>InvoiceSummary</c>), HV / lớp, lịch đóng đợt, yêu cầu chờ duyệt, lịch sử nhắc (TC-05).
 /// </summary>
 /// <param name="Status">unpaid · partial · paid · overdue · refunded · cancelled · voided</param>
+/// <param name="SaleId">Sale được ghi nhận doanh số (TC-04.E5, TC-12) — chỉ trả ở trang nhân viên, không có ở cổng HV / PH</param>
+/// <param name="SaleAssigned">Kế toán đã gán tay (không tự chọn lại)</param>
 /// <param name="DueDate">Hạn đang áp dụng (nhiều đợt: đợt đầu chưa đóng đủ); hết nợ → hạn gốc</param>
 public sealed record InvoiceDto(
     Guid Id,
@@ -40,7 +42,10 @@ public sealed record InvoiceDto(
     string? CancelReason,
     VoidedDto? Voided,
     IReadOnlyList<InvoiceRequestDto> Requests,
-    IReadOnlyList<ReminderDto> Reminders);
+    IReadOnlyList<ReminderDto> Reminders,
+    Guid? SaleId,
+    string? SaleName,
+    bool SaleAssigned);
 
 public sealed record InstallmentDueDto(decimal Amount, DateOnly DueDate);
 

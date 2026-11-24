@@ -1,13 +1,14 @@
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using JPCenter.Api.Common.Auditing;
+using JPCenter.Api.Common.Errors;
 using JPCenter.Api.Common.Http;
 using JPCenter.Api.Common.Results;
 using JPCenter.Api.Common.Security;
 using JPCenter.Application.Common.Messaging;
 using JPCenter.Application.Common.Security;
 using JPCenter.Modules.Finance.Application.Common;
+using JPCenter.Modules.Finance.Application.Reconciliation.Common;
 using JPCenter.Modules.Finance.Application.Reconciliation.GetBankTransactions;
 using JPCenter.Modules.Finance.Application.Reconciliation.GetMatchSuggestions;
 using JPCenter.Modules.Finance.Application.Reconciliation.IgnoreTransaction;
@@ -19,18 +20,17 @@ using JPCenter.SharedKernel.Primitives;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Configuration;
 
 namespace JPCenter.Modules.Finance.Api.Endpoints;
 
 /// <summary>
 /// TC-10 — đối soát VietQR (<c>finance.reconciliation.*</c>) + webhook ngân hàng <c>POST integrations/bank/transactions</c>
-/// (không đăng nhập; header <c>X-Signature: sha256=&lt;hex HMAC-SHA256(body, Finance:BankWebhookSecret)&gt;</c> — sai → 401, E6).
+/// (không đăng nhập; header <c>X-Signature: sha256=&lt;hex HMAC-SHA256(body)&gt;</c>, khóa = <c>vietqr.checksum</c> của Tích hợp — TH-07;
+/// sai → 401 + nhật ký tích hợp (E6); VietQR chưa kết nối → 503).
 /// </summary>
 public static class ReconciliationEndpoints
 {
     public const string SignatureHeader = "X-Signature";
-    public const string SecretKey = "Finance:BankWebhookSecret";
 
     public sealed record BankWebhookBody(string? Ref, DateTimeOffset At, decimal Amount, string? Content, string? Payer, string? Account);
 
@@ -40,17 +40,19 @@ public static class ReconciliationEndpoints
 
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
-    private static readonly Error BadSignature = Error.Unauthorized("finance.bank_webhook.signature", "Chữ ký webhook không hợp lệ");
-
     public static void Map(IEndpointRouteBuilder finance)
     {
         const string page = FinanceAccess.Reconciliation;
 
-        finance.MapPost("/integrations/bank/transactions", async (HttpRequest request, IConfiguration config, ISender s, CancellationToken ct) =>
+        finance.MapPost("/integrations/bank/transactions", async (HttpContext http, BankWebhookGate gate, ISender s, CancellationToken ct) =>
             {
-                using var reader = new StreamReader(request.Body, Encoding.UTF8);
+                using var reader = new StreamReader(http.Request.Body, Encoding.UTF8);
                 var raw = await reader.ReadToEndAsync(ct);
-                if (!Verify(raw, request.Headers[SignatureHeader].ToString(), config[SecretKey])) return BadSignature.ToProblem();
+                var check = await gate.CheckAsync(raw, http.Request.Headers[SignatureHeader].ToString(), ct);
+                if (check.IsFailure)
+                    return check.Error == BankWebhookGate.NotConnected
+                        ? Results.Problem(ProblemFactory.Create(StatusCodes.Status503ServiceUnavailable, check.Error.Code, check.Error.Message, http: http))
+                        : check.Error.ToProblem();
                 BankWebhookBody? b;
                 try
                 {
@@ -61,7 +63,8 @@ public static class ReconciliationEndpoints
                     b = null;
                 }
                 if (b is null) return Error.Validation("finance.bank_webhook.invalid_body", "Nội dung webhook không hợp lệ").ToProblem();
-                return (await s.Send(new ReceiveBankTransactionCommand(b.Ref, b.At, b.Amount, b.Content, b.Payer, b.Account), ct)).ToHttpResult();
+                return (await s.Send(new ReceiveBankTransactionCommand(b.Ref, b.At, b.Amount, b.Content, b.Payer, b.Account, check.Value), ct))
+                    .ToHttpResult();
             })
             .AllowAnonymous();
 
@@ -88,16 +91,6 @@ public static class ReconciliationEndpoints
             .Audited("Bỏ khớp giao dịch", AuditCategory.Finance, AuditSeverity.Warning);
     }
 
-    /// <summary>So chữ ký HMAC-SHA256 (thời gian cố định). Chưa cấu hình khóa → từ chối mọi webhook.</summary>
-    public static bool Verify(string body, string header, string? secret)
-    {
-        if (string.IsNullOrEmpty(secret) || !header.StartsWith("sha256=", StringComparison.OrdinalIgnoreCase)) return false;
-        var expected = Sign(body, secret);
-        var given = Encoding.ASCII.GetBytes(header["sha256=".Length..].Trim().ToLowerInvariant());
-        return CryptographicOperations.FixedTimeEquals(Encoding.ASCII.GetBytes(expected), given);
-    }
-
-    /// <summary>Hex chữ thường của HMAC-SHA256(body) — ngân hàng / test ký theo cách này</summary>
-    public static string Sign(string body, string secret) =>
-        Convert.ToHexStringLower(HMACSHA256.HashData(Encoding.UTF8.GetBytes(secret), Encoding.UTF8.GetBytes(body)));
+    /// <summary>Ký nội dung như ngân hàng (test dùng)</summary>
+    public static string Sign(string body, string secret) => BankWebhookGate.Sign(body, secret);
 }

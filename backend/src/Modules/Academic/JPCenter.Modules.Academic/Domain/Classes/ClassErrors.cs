@@ -14,7 +14,12 @@ public static class ClassErrors
     public static readonly Error InvalidFee = Error.Validation("academic.class.invalid_fee", "Học phí không được âm");
     public static readonly Error NameRequired = Error.Validation("academic.class.name_required", "Nhập tên lớp");
     public static readonly Error RoomRequired = Error.Validation("academic.class.room_required", "Lớp offline cần chọn phòng");
-    public static readonly Error MeetingUrlRequired = Error.Validation("academic.class.meeting_url_required", "Lớp online cần link học");
+    /// <summary>TH-08 — tạo phòng cho lớp không học online</summary>
+    public static readonly Error NotOnline = Error.Validation("academic.class.not_online", "Lớp không học online");
+    /// <summary>TH-08.E1 — đã có link (nhập tay / đã tạo) thì không tạo phòng mới</summary>
+    public static readonly Error HasMeetingUrl = Error.Conflict("academic.class.has_meeting_url", "Lớp đã có link phòng học — xóa link cũ trước nếu muốn tạo lại");
+    /// <summary>TH-08.E2 — không tạo được phòng (Zoom / Meet chưa kết nối, lỗi dịch vụ)</summary>
+    public static readonly Error MeetingRoomFailed = Error.Conflict("academic.class.meeting_room_failed", "Chưa tạo được phòng học online");
     public static readonly Error PauseReason = Error.Validation("academic.class.pause_reason", "Cần ghi lý do tạm dừng");
     public static readonly Error CancelReason = Error.Validation("academic.class.cancel_reason", "Cần ghi lý do hủy lớp");
     public static readonly Error NotEnrolling = Error.Conflict("academic.class.not_enrolling", "Lớp không ở trạng thái chờ khai giảng");

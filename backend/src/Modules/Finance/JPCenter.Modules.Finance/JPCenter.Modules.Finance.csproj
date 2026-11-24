@@ -7,6 +7,7 @@
     <ProjectReference Include="..\..\Academic\JPCenter.Modules.Academic.Contracts\JPCenter.Modules.Academic.Contracts.csproj" />
     <ProjectReference Include="..\..\Crm\JPCenter.Modules.Crm.Contracts\JPCenter.Modules.Crm.Contracts.csproj" />
     <ProjectReference Include="..\..\Hr\JPCenter.Modules.Hr.Contracts\JPCenter.Modules.Hr.Contracts.csproj" />
+    <ProjectReference Include="..\..\Notifications\JPCenter.Modules.Notifications.Contracts\JPCenter.Modules.Notifications.Contracts.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\JPCenter.Application.Common\JPCenter.Application.Common.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\JPCenter.Infrastructure.Common\JPCenter.Infrastructure.Common.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\JPCenter.Api.Common\JPCenter.Api.Common.csproj" />

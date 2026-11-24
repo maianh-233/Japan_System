@@ -27,7 +27,7 @@ public sealed class UpdateClassValidator : AbstractValidator<UpdateClassCommand>
 }
 
 public sealed class UpdateClassHandler(IAcademicDbContext db, ClassRules rules, ClassReader reader, ClassRoster roster, AcademicAccess access,
-    IClock clock, IAuditTrail audit) : ICommandHandler<UpdateClassCommand, ClassResult>
+    IClock clock, IAuditTrail audit, ClassMeetingRooms rooms) : ICommandHandler<UpdateClassCommand, ClassResult>
 {
     public async Task<Result<ClassResult>> Handle(UpdateClassCommand cmd, CancellationToken ct)
     {
@@ -81,6 +81,8 @@ public sealed class UpdateClassHandler(IAcademicDbContext db, ClassRules rules, 
 
         await db.SaveChangesAsync(ct);
         audit.Record(AuditCategory.Data, AuditSeverity.Info, "Sửa lớp", cls.Code, cls.Name);
+        // TH-08 — lớp online chưa có link: tự tạo phòng (lỗi → lớp vẫn lưu, chỉ cảnh báo)
+        if (await rooms.EnsureAsync(cls, ct) is { } roomWarning) warnings.Add(roomWarning);
         return new ClassResult(await reader.ReloadAsync(cls.Id, ct), warnings);
     }
 }

@@ -395,3 +395,21 @@ lương = lương cứng × công ÷ công chuẩn + phụ cấp + hoa hồng (T
     chốt lại = ghi đè snapshot cùng dòng (TC-13.E4); "Đã chi" chỉ khi đang khóa (`finance.payroll.not_locked`), không chi 2 lần. Tháng đang khóa → điều chỉnh / xác nhận buổi
     trả `finance.payroll.locked` (TC-13.E2 — Academic hỏi `Finance.Contracts.IPayrollLocks` trước khi xác nhận / bỏ xác nhận buổi). Chốt phát `PayrollLocked`.
   - Tháng `YYYY-MM` sai định dạng → `finance.payroll.invalid_month`. Hạn chốt = ngày `payroll.lockDay` tháng sau (`PayrollMonth.LockDeadline`).
+- **API (giai đoạn 22 phase 3):** TC-12 → TC-14 theo bảng trên, khác / bổ sung:
+  - `GET payroll/teacher|staff?month=&branchId=` trả bảng `{ month, branches, rows, locks, locked, lockDeadline, lockOverdue, pendingSessions, total }`.
+    Dòng GV theo **(GV, chi nhánh)** — buổi tính ở chi nhánh của lớp (E5), lương cứng + điều chỉnh ở chi nhánh chính; mỗi buổi có `branchId`, `amount` (kể cả buổi chờ xác nhận — chưa cộng).
+    Chi nhánh đang khóa → dòng lấy từ **bản chốt** (`payroll_locks.lines`, JSON các dòng); bản chốt rỗng (dữ liệu mẫu cũ) → tạm tính.
+  - Chốt / mở khóa / đã chi: `POST payroll/{teacher|staff}/{month}/lock|unlock|paid` `{ branchIds }` (rỗng = mọi chi nhánh đang hoạt động trong phạm vi) → `{ locks, warnings }`.
+    Chốt khi đã khóa → `finance.payroll.locked`; mở khóa / chi theo cả lô (1 chi nhánh đã chi → `already_paid`, chưa khóa → `not_locked`). Chốt phát `Finance.Contracts.PayrollLocked`
+    → gửi phiếu lương ở nền: email (việc `payslip` của tích hợp email) + chuông.
+  - Điều chỉnh: `POST pay-adjustments` `{ month, employeeId, amount, reason }` · `DELETE pay-adjustments/{id}` (xóa mềm); quyền theo loại người (GV → lương GV, NV → lương NV)
+    tại chi nhánh chính; tháng đang khóa → `finance.payroll.locked`. Academic xác nhận / bỏ xác nhận buổi (cả hàng loạt) hỏi `IPayrollLocks` → `finance.payroll.locked`.
+  - Lương NV: công từ bảng công Hr (`Hr.Contracts.IPayrollSource` — cùng quy tắc trang Chấm công), nghỉ có lương / công tác không tính Chủ nhật; chưa có bản ghi chấm công
+    trong tháng → `hasTimesheet = false`, công chuẩn. Hoa hồng tháng của Sale (TC-12) cộng vào lương.
+  - Hoa hồng: `GET commissions?month=&branchId=` → `{ month, tiers, results }` (mỗi Sale: `deals` = Id hóa đơn, `booked`, `collected`, `target`, `kpi`, `tier`, `commission`, `rank`);
+    `own` → chỉ của mình. `PUT commission-tiers` `{ tiers }` · `PUT sale-targets` `{ employeeId, month, target }` · `PUT invoices/{id}/sale` `{ employeeId }`
+    (phải là Sale chưa nghỉ — `finance.commission.not_sale`). Hóa đơn (trang nhân viên) có thêm `saleId`, `saleName`, `saleAssigned`; cổng HV / PH không có.
+  - Lập hóa đơn từ ghi danh tự ghi nhận Sale (`SaleAttribution`: `Crm.Contracts.ILeadOwnership.SalesOfStudentAsync` + Sale đang làm ở chi nhánh).
+  - Cổng GV: `GET portal/payroll?month=` → `{ month, slip, locked, paid }` — phiếu tạm tính gộp mọi chi nhánh của chính GV.
+  - Webhook ngân hàng đọc khóa từ tích hợp VietQR (story 15 TH-07). ⏳ Xuất Excel bảng lương, khôi phục điều chỉnh đã xóa từ Thùng rác.
+

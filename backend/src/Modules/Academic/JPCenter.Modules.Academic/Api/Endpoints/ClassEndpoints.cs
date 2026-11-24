@@ -6,6 +6,7 @@ using JPCenter.Modules.Academic.Application.Classes.CancelClass;
 using JPCenter.Modules.Academic.Application.Classes.CheckClassSchedule;
 using JPCenter.Modules.Academic.Application.Classes.Common;
 using JPCenter.Modules.Academic.Application.Classes.CreateClass;
+using JPCenter.Modules.Academic.Application.Classes.CreateMeetingRoom;
 using JPCenter.Modules.Academic.Application.Classes.FinishClass;
 using JPCenter.Modules.Academic.Application.Classes.GetClass;
 using JPCenter.Modules.Academic.Application.Classes.GetClasses;
@@ -74,6 +75,11 @@ public static class ClassEndpoints
 
         g.MapPut("/{id:guid}", async (Guid id, ClassBody b, ISender s, CancellationToken ct) =>
                 (await s.Send(new UpdateClassCommand(id, b.ToInput(), b.ApplyToUpcoming ?? true, b.RowVersion ?? 0), ct)).ToHttpResult())
+            .RequirePermission(page, PermissionAction.Update);
+
+        // TH-08.E2 — "Tạo lại link" phòng học online
+        g.MapPost("/{id:guid}/meeting-room", async (Guid id, ISender s, CancellationToken ct) =>
+                (await s.Send(new CreateMeetingRoomCommand(id), ct)).ToHttpResult())
             .RequirePermission(page, PermissionAction.Update);
 
         g.MapPost("/{id:guid}/start", async (Guid id, StartBody b, ISender s, CancellationToken ct) =>

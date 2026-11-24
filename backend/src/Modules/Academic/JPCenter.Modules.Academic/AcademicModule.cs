@@ -64,6 +64,7 @@ public sealed class AcademicModule : IModule
         services.AddScoped<ClassRoster>();
         services.AddScoped<ClassReader>();
         services.AddScoped<ClassRules>();
+        services.AddScoped<ClassMeetingRooms>();
         services.AddScoped<UpcomingSessions>();
         services.AddScoped<SessionScheduler>();
         services.AddScoped<SessionReader>();
@@ -83,6 +84,7 @@ public sealed class AcademicModule : IModule
         services.AddScoped<IAttendanceStats, AttendanceStats>();
         services.AddScoped<IQuestionPicker, QuestionPicker>();
         services.AddScoped<IScheduleLookup, ScheduleLookup>();
+        services.AddScoped<ITeachingLog, TeachingLog>();
 
         // Nội dung học (user story 12, giai đoạn 20)
         services.AddScoped<LearningAccess>();

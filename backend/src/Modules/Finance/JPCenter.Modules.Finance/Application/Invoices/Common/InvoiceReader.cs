@@ -25,7 +25,7 @@ public sealed class InvoiceReader(IFinanceDbContext db, IEnrollmentLookup studen
                 i.Payments.Select(p => p.CollectorId)
                     .Concat(i.Refunds.SelectMany(r => new[] { (Guid?)r.By, r.ApprovedBy }))
                     .Concat(i.Requests.SelectMany(r => new[] { (Guid?)r.RequestedBy, r.DecidedBy }))
-                    .Concat([i.VoidRequestedBy, i.VoidApprovedBy]))
+                    .Concat([i.VoidRequestedBy, i.VoidApprovedBy, i.SaleId]))
             .Concat(reminders.Select(r => r.By)), ct);
         var today = clock.Today;
         var byInvoice = reminders.ToLookup(r => r.InvoiceId);
@@ -50,7 +50,8 @@ public sealed class InvoiceReader(IFinanceDbContext db, IEnrollmentLookup studen
                 i.Requests.OrderByDescending(r => r.RequestedAt).Select(r => new InvoiceRequestDto(r.Id.Value, r.Kind, r.Amount?.Amount, r.Method,
                     r.Reason, Name(r.RequestedBy), r.RequestedAt, r.Status, r.ApprovalId, r.DecidedBy is null ? null : Name(r.DecidedBy), r.DecidedAt,
                     r.DecisionNote)).ToList(),
-                byInvoice[i.Id].Select(r => Reminder(r, Name)).ToList());
+                byInvoice[i.Id].Select(r => Reminder(r, Name)).ToList(),
+                i.SaleId, i.SaleId is null ? null : Name(i.SaleId), i.SaleAssignedBy is not null);
         }).ToList();
     }
 

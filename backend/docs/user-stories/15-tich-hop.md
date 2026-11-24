@@ -135,3 +135,19 @@ Meet: 1 space) → ghi vào `academic.classes.meeting_url`. Zoom chưa kết n�
 - JSON khớp `frontend/src/features/system/types.ts › Integration` — `id` = khóa (`zalo-oa`...), `fields` từ danh mục, `config` đã che.
 - **Domain (giai đoạn 22 phase 1):** `IntegrationCatalog` (trường bắt buộc / bí mật / việc theo khóa), `Integration.Connect` (giữ bí mật cũ, bỏ trường lạ),
   `Disconnect` (xóa cấu hình, tắt việc), `SetEvent`, `RecordCall` (lỗi xác thực → `error`), `ChannelPlan` (Zalo → SMS, OTP chỉ SMS).
+- **API (giai đoạn 22 phase 3):** đã làm TH-01 → TH-08 theo bảng trên, khác / bổ sung:
+  - `GET integrations` trả `fields` (`key, label, secret, required`), `events` (`key, label, on`), `usage` `{ label, value, failed }` đếm `integration_logs` 30 ngày,
+    `connectedBy` = tên người kết nối. `POST integrations/{key}/test` trả `{ ok, message, integration }`. Kết nối / ngắt / bật việc ghi Nhật ký hệ thống `setting`.
+  - Thêm việc **`payslip`** cho `email` (gửi phiếu lương khi chốt bảng lương — TC-13); dữ liệu cũ chưa có việc này = tắt.
+  - **Chế độ thử / thật** (`Integrations:<key>:Live`): mặc định Zalo OA, SMS thử; email thử ở Development (gửi qua `Email:*` — Mailpit), thật ở môi trường khác
+    (SMTP theo cấu hình tích hợp); Zoom thật (Server-to-Server OAuth: lấy token, tạo phòng `type = 3` định kỳ không giờ cố định), `Live = false` → link giả "(thử)".
+    ⏳ Gửi thật Zalo ZNS / SMS Brandname (cần tài khoản + mẫu tin duyệt — bật `Live` hiện ghi lỗi rõ ràng), tạo phòng Google Meet (cần tài khoản dịch vụ Workspace).
+  - Kiểm tra (TH-04): SMTP = mở kết nối tới máy chủ, VietQR = ký thử HMAC, nguồn lead = chỉ lưu cấu hình (không có lệnh gọi thử).
+  - Module khác gọi `System.Contracts`: `IMessageChannels.SendAsync(OutgoingMessage)` → `MessageOutcome` (không ném lỗi), `IMeetingRooms.CreateAsync(classId, topic)`,
+    `IIntegrationLog.WriteAsync / BankWebhookAsync` (khóa `checksum` đã giải mã + cờ `autoMatch`).
+  - TH-07: khóa ký = `vietqr.checksum`; đang kết nối mà không giải mã được khóa → dự phòng `Finance:BankWebhookSecret`; chưa kết nối → **503** `system.integration.not_connected`;
+    chữ ký sai → 401 + 1 dòng nhật ký; mỗi giao dịch nhận → 1 dòng nhật ký (số tiền, mã hóa đơn khớp / chưa khớp / tắt tự khớp).
+  - TH-08: lớp online được lưu với link trống (bỏ lỗi `academic.class.meeting_url_required`); tạo / sửa lớp → tự tạo phòng sau khi lưu, lỗi chỉ trả cảnh báo.
+    `POST academic/classes/{id}/meeting-room`: `academic.class.not_online` · `has_meeting_url` (đã có link) · `meeting_room_failed` (kèm lý do).
+  - Job dọn hệ thống 02:00 xóa nhật ký tích hợp cũ hơn 180 ngày (TH-05).
+

@@ -13,6 +13,9 @@ public sealed class FinanceAccess(ICurrentUser user)
     public const string Invoices = "finance.invoices";
     public const string Reconciliation = "finance.reconciliation";
     public const string Debts = "finance.debts";
+    public const string TeacherPayroll = "finance.teacher-payroll";
+    public const string StaffPayroll = "finance.staff-payroll";
+    public const string Commissions = "finance.commissions";
 
     public static readonly Error BranchNotAllowed = Error.Forbidden("finance.branch_not_allowed",
         "Bạn chỉ thao tác được dữ liệu tài chính của chi nhánh mình được phân công");

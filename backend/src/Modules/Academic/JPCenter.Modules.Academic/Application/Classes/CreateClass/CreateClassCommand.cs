@@ -26,7 +26,7 @@ public sealed class CreateClassValidator : AbstractValidator<CreateClassCommand>
 }
 
 public sealed class CreateClassHandler(IAcademicDbContext db, ClassRules rules, ClassReader reader, SessionScheduler scheduler,
-    AcademicAccess access, IIntegrationEventPublisher events, IAuditTrail audit) : ICommandHandler<CreateClassCommand, ClassResult>
+    AcademicAccess access, IIntegrationEventPublisher events, IAuditTrail audit, ClassMeetingRooms rooms) : ICommandHandler<CreateClassCommand, ClassResult>
 {
     public async Task<Result<ClassResult>> Handle(CreateClassCommand cmd, CancellationToken ct)
     {
@@ -66,6 +66,8 @@ public sealed class CreateClassHandler(IAcademicDbContext db, ClassRules rules, 
         events.Publish(new Ev.ClassOpened(cls.Id.Value, cls.Code, cls.CourseId.Value, cls.BranchId.Value, cls.PlannedStartDate, cls.Fee.Amount));
         await db.SaveChangesAsync(ct);
         audit.Record(AuditCategory.Data, AuditSeverity.Info, "Mở lớp", cls.Code, cls.Name);
+        // TH-08 — lớp online chưa có link: tự tạo phòng (lỗi → lớp vẫn lưu, chỉ cảnh báo)
+        if (await rooms.EnsureAsync(cls, ct) is { } roomWarning) warnings.Add(roomWarning);
         return new ClassResult(await reader.ReloadAsync(cls.Id, ct), warnings);
     }
 }

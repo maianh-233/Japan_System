@@ -4,8 +4,10 @@ using JPCenter.Infrastructure.Common.Jobs;
 using JPCenter.Infrastructure.Common.Persistence;
 using JPCenter.Modules.Finance.Api;
 using JPCenter.Modules.Finance.Application.Abstractions;
+using JPCenter.Modules.Finance.Application.Commissions.Common;
 using JPCenter.Modules.Finance.Application.Common;
 using JPCenter.Modules.Finance.Application.Invoices.Common;
+using JPCenter.Modules.Finance.Application.Payroll.Common;
 using JPCenter.Modules.Finance.Application.Reconciliation.Common;
 using JPCenter.Modules.Finance.Contracts;
 using JPCenter.Modules.Finance.Infrastructure.Persistence;
@@ -21,6 +23,7 @@ namespace JPCenter.Modules.Finance;
 /// <summary>
 /// Điểm vào module Finance (Tài chính, user story 08) — schema <c>finance</c>, API <c>/api/v1/finance</c>.
 /// Giai đoạn 19: bảng giá, ưu đãi, đóng đợt, hóa đơn từ ghi danh, thu / hoàn / hủy (duyệt 2 người), đối soát VietQR, công nợ + tự nhắc, cổng HV / PH.
+/// Giai đoạn 22: lương GV / NV (chốt / mở khóa / đã chi, phiếu lương), hoa hồng & KPI Sale, webhook ngân hàng theo tích hợp VietQR.
 /// </summary>
 public sealed class FinanceModule : IModule
 {
@@ -36,6 +39,7 @@ public sealed class FinanceModule : IModule
         services.AddScoped<IInvoiceApprovals, InvoiceApprovals>();
         services.AddScoped<ITuitionQuery, TuitionQuery>();
         services.AddScoped<ICashLedger, CashLedger>();
+        services.AddScoped<IPayrollLocks, PayrollLocks>();
 
         // Dùng chung giữa các use case
         services.AddScoped<IInvoiceNumbering, InvoiceNumbering>();
@@ -45,6 +49,11 @@ public sealed class FinanceModule : IModule
         services.AddScoped<InvoiceFinder>();
         services.AddScoped<BankMatcher>();
         services.AddScoped<TransactionFinder>();
+        services.AddScoped<BankWebhookGate>();
+        services.AddScoped<CommissionCalculator>();
+        services.AddScoped<PayrollCalculator>();
+        services.AddScoped<PayrollBoards>();
+        services.AddScoped<PayrollGuard>();
 
         services.AddScoped<IDataSeeder, FinanceSeeder>();
         services.AddScoped<IDataSeeder, PayrollSeeder>();

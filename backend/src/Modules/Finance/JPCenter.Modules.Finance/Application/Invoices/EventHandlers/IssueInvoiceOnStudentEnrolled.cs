@@ -1,5 +1,9 @@
 using JPCenter.Application.Common.IntegrationEvents;
+using JPCenter.Modules.Crm.Contracts;
 using JPCenter.Modules.Finance.Application.Abstractions;
+using JPCenter.Modules.Finance.Application.Commissions.Common;
+using JPCenter.Modules.Finance.Domain.Commissions;
+using JPCenter.Modules.Hr.Contracts;
 using JPCenter.Modules.Finance.Domain.Invoices;
 using JPCenter.Modules.Students.Contracts;
 using JPCenter.Modules.Students.Contracts.IntegrationEvents;
@@ -13,11 +17,11 @@ namespace JPCenter.Modules.Finance.Application.Invoices.EventHandlers;
 
 /// <summary>
 /// TC-04 — ghi danh mới (HV-06, CRM-07, chuyển lớp HV-09) → lập hóa đơn: học phí − giảm trừ, hạn mặc định +7 ngày, mã theo mẫu ở Cài đặt chung
-/// (số lấy từ bộ đếm nguyên tử — E4), nội dung chuyển khoản riêng. Nhận 2 lần → bỏ qua (E1, UQ enrollment_id). Phải thu = 0 → đã đóng ngay (E3).
+/// (số lấy từ bộ đếm nguyên tử — E4), nội dung chuyển khoản riêng, Sale ghi nhận doanh số (E5). Nhận 2 lần → bỏ qua (E1, UQ enrollment_id). Phải thu = 0 → đã đóng ngay (E3).
 /// </summary>
 public sealed class IssueInvoiceOnStudentEnrolled(
     IFinanceDbContext db, IInvoiceNumbering numbering, ICenterSettings settings, IBranchDirectory branches, IEnrollmentLookup students,
-    IClock clock, ILogger<IssueInvoiceOnStudentEnrolled> logger) : IIntegrationEventHandler<StudentEnrolled>
+    ILeadOwnership leads, IEmployeeDirectory employees, IClock clock, ILogger<IssueInvoiceOnStudentEnrolled> logger) : IIntegrationEventHandler<StudentEnrolled>
 {
     public const int DefaultDueDays = 7;
 
@@ -43,6 +47,11 @@ public sealed class IssueInvoiceOnStudentEnrolled(
             logger.LogError("Không lập được hóa đơn cho ghi danh {EnrollmentId}: {Error}", e.EnrollmentId, issued.Error.Message);
             return;
         }
+        // TC-04.E5 — Sale ghi nhận doanh số: Sale lead đã chốt › lead mới nhất › chia đều Sale đang làm ở chi nhánh (cố định theo HV)
+        var leadSales = await leads.SalesOfStudentAsync(e.StudentId, ct);
+        var branchSales = (await employees.ListActiveAsync(ct))
+            .Where(x => x.Department == CommissionCalculator.SalesDepartment && x.IsWorking && x.BranchId == e.BranchId).Select(x => x.Id);
+        issued.Value.AttributeSale(SaleAttribution.Pick(e.StudentId, leadSales.WonLeadSaleId, leadSales.LatestLeadSaleId, branchSales));
         issued.Value.ClearDomainEvents();
         db.Invoices.Add(issued.Value);
         await db.SaveChangesAsync(ct);

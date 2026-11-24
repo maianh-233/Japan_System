@@ -67,7 +67,6 @@ public sealed class ClassTests
         Make(Setup(min: 10, max: 8)).Error.Code.ShouldBe("academic.class.invalid_size");
         Make(Setup(max: 25)).Error.Message.ShouldContain("sức chứa phòng (20");
         Make(Setup(plannedEnd: Start.AddDays(-1))).Error.Code.ShouldBe("academic.class.invalid_dates");
-        Make(Setup(online: true)).Error.Code.ShouldBe("academic.class.meeting_url_required");
         Make(Setup(name: " ")).Error.Code.ShouldBe("academic.class.name_required");
     }
 
@@ -80,6 +79,21 @@ public sealed class ClassTests
         var online = Class.Create(Course, Cur, TeacherType.Vn, Setup(online: true, url: " https://meet.x/a "), null).Value;
         online.RoomId.ShouldBeNull();
         online.MeetingUrl.ShouldBe("https://meet.x/a");
+    }
+
+    [Fact(DisplayName = "TH-08: lớp online để trống link → chờ tạo phòng; link tay được giữ; lớp offline không tạo phòng")]
+    public void Phong_hoc_online()
+    {
+        var c = Class.Create(Course, Cur, TeacherType.Vn, Setup(online: true, url: "  "), null).Value;
+        (c.MeetingUrl, c.NeedsMeetingRoom).ShouldBe((null, true));
+        c.SetMeetingRoom(" ").Error.Code.ShouldBe("academic.class.meeting_room_failed");
+        c.SetMeetingRoom("https://zoom.us/j/1").IsSuccess.ShouldBeTrue();
+        (c.MeetingUrl, c.NeedsMeetingRoom).ShouldBe(("https://zoom.us/j/1", false));
+        c.SetMeetingRoom("https://zoom.us/j/2").Error.Code.ShouldBe("academic.class.has_meeting_url");
+
+        var manual = Class.Create(Course, Cur, TeacherType.Vn, Setup(online: true, url: "https://meet.x/a"), null).Value;
+        manual.SetMeetingRoom("https://zoom.us/j/3").Error.Code.ShouldBe("academic.class.has_meeting_url");
+        Open().SetMeetingRoom("https://zoom.us/j/4").Error.Code.ShouldBe("academic.class.not_online");
     }
 
     [Fact]

@@ -8,6 +8,7 @@ using JPCenter.Modules.System.Domain.Sessions;
 using JPCenter.Modules.System.Domain.Settings;
 using JPCenter.Modules.System.Domain.Trash;
 using JPCenter.Modules.System.Domain.Users;
+using JPCenter.Modules.System.Domain.Integrations;
 using Microsoft.EntityFrameworkCore;
 
 namespace JPCenter.Modules.System.Application.Abstractions;
@@ -25,6 +26,8 @@ public interface ISystemDbContext
     DbSet<ApprovalRequest> ApprovalRequests { get; }
     DbSet<TrashItem> TrashItems { get; }
     DbSet<Setting> Settings { get; }
+    DbSet<Integration> Integrations { get; }
+    DbSet<IntegrationLog> IntegrationLogs { get; }
 
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

@@ -4,7 +4,7 @@ namespace JPCenter.Modules.System.Domain.Integrations;
 /// TH-06 — thứ tự kênh thử gửi cho 1 việc. Gửi lần lượt, kênh đầu thành công thì dừng.
 /// <list type="bullet">
 /// <item>OTP (<c>otp</c>) → chỉ SMS.</item>
-/// <item>Việc email (<c>invoice</c>, <c>invite</c>, <c>test</c>) → chỉ email, không dự phòng chéo.</item>
+/// <item>Việc email (<c>invoice</c>, <c>invite</c>, <c>payslip</c>, <c>test</c>) → chỉ email, không dự phòng chéo.</item>
 /// <item>Việc Zalo (<c>attendance</c>, <c>tuition</c>, <c>schedule</c>, <c>result</c>): Zalo nếu đang chạy + việc bật; SMS dự phòng (việc <c>fallback</c> bật)
 /// khi Zalo gửi lỗi hoặc Zalo không chạy (chưa kết nối / lỗi). Admin đã TẮT việc trên Zalo đang chạy = không muốn gửi tin này → không gửi SMS thay.</item>
 /// </list>
@@ -14,7 +14,7 @@ public static class ChannelPlan
 {
     public const string Otp = "otp";
     public const string Fallback = "fallback";
-    private static readonly string[] EmailEvents = ["invoice", "invite", "test"];
+    private static readonly string[] EmailEvents = ["invoice", "invite", "payslip", "test"];
 
     public static IReadOnlyList<MessageChannel> For(string eventKey, IEnumerable<Integration> integrations)
     {

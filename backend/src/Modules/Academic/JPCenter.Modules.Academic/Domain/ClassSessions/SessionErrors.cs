@@ -29,4 +29,6 @@ public static class SessionErrors
     public static readonly Error QrClosed = Error.Conflict("academic.attendance.qr_closed", "Chưa tới giờ hoặc buổi học đã kết thúc — không điểm danh QR được");
     public static readonly Error AlreadyMadeUp = Error.Conflict("academic.session.already_made_up", "Buổi này đã có buổi học bù khác");
     public static readonly Error MakeupTargetInvalid = Error.Conflict("academic.session.makeup_target", "Chỉ xếp học bù cho buổi đã hủy của cùng lớp");
+    /// <summary>TC-13.E2 / DT-15.E5 — bảng lương GV tháng của buổi đã chốt: mở khóa ở Tài chính trước khi xác nhận / bỏ xác nhận</summary>
+    public static readonly Error PayrollLocked = Error.Conflict("finance.payroll.locked", "Bảng lương tháng này đã chốt — mở khóa trước khi sửa");
 }
