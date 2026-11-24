@@ -6,13 +6,18 @@ import { useClassStore } from '@/features/academic/classes/classStore';
 import { sessionTeachers } from '@/features/academic/classes/sessionUtils';
 import { useFinanceStore } from '@/features/finance/financeStore';
 import { monthOptions, teacherPayroll } from '@/features/finance/financeUtils';
+import { useMyPayroll } from '@/features/finance/payrollApi';
 import { useHrStore } from '@/features/hr/hrStore';
 import { shortCode, useTeacherId } from '@/features/portal/usePortal';
+import { USE_API } from '@/lib/api/config';
 import { formatCurrency } from '@/lib/format';
 
 const ROLE: Record<string, string> = { teacher: 'GV chính', substitute: 'Dạy thay', assistant: 'Trợ giảng' };
 
-/** Cổng GV › Chấm công: buổi đã dạy trong tháng, giờ công, lương TẠM TÍNH (chốt cuối tháng ở Tài chính) */
+/**
+ * Cổng GV › Chấm công: buổi đã dạy trong tháng, giờ công, lương TẠM TÍNH (chốt cuối tháng ở Tài chính).
+ * Chế độ API: phiếu lương do server tính (`GET finance/portal/payroll`) — chỉ của chính GV, gộp mọi chi nhánh.
+ */
 export default function TeacherTimesheetPage() {
   const me = useTeacherId();
   const [month, setMonth] = useState(dayjs().format('YYYY-MM'));
@@ -21,7 +26,12 @@ export default function TeacherTimesheetPage() {
   const sessions = useClassStore((s) => s.sessions);
   const adjusts = useFinanceStore((s) => s.adjusts);
 
-  const pay = useMemo(() => teacherPayroll(month, employees, classes, sessions, adjusts).find((p) => p.employee.id === me), [month, employees, classes, sessions, adjusts, me]);
+  const mine = useMyPayroll(month);
+  const local = useMemo(
+    () => (USE_API ? undefined : teacherPayroll(month, employees, classes, sessions, adjusts).find((p) => p.employee.id === me)),
+    [month, employees, classes, sessions, adjusts, me],
+  );
+  const pay = USE_API ? mine?.pay : local;
   type Item = NonNullable<typeof pay>['items'][number];
 
   // Buổi đã qua của mình mà thiếu check-in / check-out
@@ -39,7 +49,7 @@ export default function TeacherTimesheetPage() {
 
   const columns: DataColumn<Item>[] = [
     { key: 'date', title: 'Ngày', width: 110, render: (_, r) => <span className="tabular">{dayjs(r.session.date).format('dd DD/MM')}</span> },
-    { key: 'cls', title: 'Lớp', width: 160, mobile: 'title', render: (_, r) => `${shortCode(r.cls)} · buổi ${r.session.no}` },
+    { key: 'cls', title: 'Lớp', width: 160, mobile: 'title', render: (_, r) => `${shortCode(r.cls)}${r.session.no ? ` · buổi ${r.session.no}` : ''}` },
     { key: 'role', title: 'Vai trò', width: 110, render: (_, r) => ROLE[r.role] ?? r.role },
     {
       key: 'time',
@@ -78,7 +88,18 @@ export default function TeacherTimesheetPage() {
   return (
     <>
       <PageHeader title="Chấm công" subtitle="Lương dạy = giờ thực dạy (check-in → check-out) × đơn giá. Chỉ buổi giáo vụ đã XÁC NHẬN mới vào lương. Số liệu là tạm tính." />
-      <Select value={month} onChange={setMonth} options={monthOptions()} showSearch={false} allowClear={false} className="mb-4 !w-44" />
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <Select value={month} onChange={setMonth} options={monthOptions()} showSearch={false} allowClear={false} className="!w-44" />
+        {mine?.paid ? (
+          <StatusTag tone="success" icon={Wallet} size="sm">
+            Đã chi lương
+          </StatusTag>
+        ) : mine?.locked ? (
+          <StatusTag tone="primary" icon={CalendarCheck} size="sm">
+            Đã chốt lương
+          </StatusTag>
+        ) : null}
+      </div>
 
       <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard label="Buổi đã dạy" value={pay?.items.length ?? 0} icon={CalendarCheck} tone="primary" hint={`${pay?.confirmed.length ?? 0} đã xác nhận`} />
@@ -100,7 +121,7 @@ export default function TeacherTimesheetPage() {
         </div>
       )}
 
-      <DataTable<Item> storageKey="teacher-timesheet" columns={columns} data={pay?.items ?? []} rowKey={(r) => r.session.id} unitLabel="buổi" empty={{ icon: CalendarCheck, title: 'Chưa có buổi dạy trong tháng' }} />
+      <DataTable<Item> storageKey="teacher-timesheet" columns={columns} data={pay?.items ?? []} loading={USE_API && !mine} rowKey={(r) => r.session.id} unitLabel="buổi" empty={{ icon: CalendarCheck, title: 'Chưa có buổi dạy trong tháng' }} />
 
       {pay && (pay.adjusts.length > 0 || pay.base > 0) && (
         <section className="mt-4 rounded-xl border border-line bg-surface p-4 text-[13px]">

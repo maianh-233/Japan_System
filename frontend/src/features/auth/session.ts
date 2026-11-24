@@ -24,6 +24,10 @@ import { startRealtime } from '@/features/portal/realtime';
 import { loadNotifications } from '@/features/notifications/notificationApi';
 import { loadSettings } from '@/features/system/settingsApi';
 import { loadInvoices, loadPortalInvoices, loadPricing, loadTransactions } from '@/features/finance/financeApi';
+// Lương / hoa hồng: bảng tải theo tháng ở trang tương ứng; import để thay hàm thao tác của store (chế độ API)
+import '@/features/finance/payrollApi';
+import { loadIntegrations } from '@/features/system/integrationApi';
+import { useSystemStore } from '@/features/system/systemStore';
 import { loadLearnerLearning, loadTeacherLearning } from '@/features/academic/classes/learningApi';
 import { restore } from './realAuth';
 
@@ -61,6 +65,9 @@ export async function onSignedIn(user: SessionUser & { accountId?: string }) {
     canView('finance.tuition') ? quiet(loadPricing()) : Promise.resolve(),
     canView('finance.reconciliation') ? quiet(loadTransactions()) : Promise.resolve(),
   ]);
+  // Tích hợp (user story 15) — trang Tích hợp + cảnh báo tích hợp lỗi ở bảng điều khiển
+  if (canView('system.integrations')) await quiet(loadIntegrations());
+  else useSystemStore.setState({ integrations: [], intLogs: [] });
   await quiet(loadCrm(canView));
   // Nhân sự mở rộng + Công việc (user story 13, 14): đơn từ, tuyển dụng, onboarding, task, ca của tôi, bàn giao
   // Bảng công / lưới xếp ca tải theo tháng / tuần ở trang tương ứng

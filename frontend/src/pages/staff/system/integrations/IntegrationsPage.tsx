@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Drawer, Form, Switch } from 'antd';
 import { CheckCircle2, Copy, FlaskConical, Plug, PlugZap, RefreshCw, Settings2, TriangleAlert, Unplug, XCircle } from 'lucide-react';
 import { Button, ModalForm, PageHeader, StatCard, StatusTag, TextInput, useConfirm, useNotify } from '@/components/common';
 import { INTEGRATION_CATEGORIES, INTEGRATION_STATUS } from '@/features/system/constants';
+import { connectIntegration, disconnectIntegration, loadIntegrationLogs, loadIntegrations, setIntegrationEvent, testIntegration } from '@/features/system/integrationApi';
 import { useSystemStore } from '@/features/system/systemStore';
 import type { Integration, IntegrationCategory } from '@/features/system/types';
 import { useActor } from '@/features/system/useActor';
@@ -11,10 +12,16 @@ import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { cn } from '@/lib/cn';
 import { fmtDateTime, fromNow } from '@/lib/date';
 import { formatNumber } from '@/lib/format';
+import { USE_API } from '@/lib/api/config';
+import { reportError } from '@/lib/api/report';
 
-const mask = (v?: string) => (v ? `••••••${v.slice(-4)}` : '—');
+/** Server đã che khóa bí mật (`••••••abcd`) — chỉ dữ liệu giả cần che */
+const mask = (v?: string) => (!v ? '—' : v.startsWith('••') ? v : `••••••${v.slice(-4)}`);
 
-/** Tích hợp: Zalo OA, SMS, Email, VietQR / webhook ngân hàng, Zoom / Meet, nguồn lead. DỮ LIỆU GIẢ — không gọi dịch vụ thật. */
+/**
+ * Tích hợp: Zalo OA, SMS, Email, VietQR / webhook ngân hàng, Zoom / Meet, nguồn lead.
+ * Chế độ API: kết nối / ngắt / bật việc / kiểm tra gọi server (integrationApi) — Zalo, SMS ở chế độ thử ghi "(thử)"; chế độ mock: giả lập.
+ */
 export default function IntegrationsPage() {
   const { can } = useAuth();
   const { isMobile } = useBreakpoint();
@@ -29,7 +36,28 @@ export default function IntegrationsPage() {
   const [testing, setTesting] = useState<string | null>(null);
   const open = integrations.find((x) => x.id === openId);
 
+  // Chế độ API: số liệu 30 ngày mới nhất khi vào trang, nhật ký khi mở chi tiết
+  useEffect(() => {
+    if (USE_API) void loadIntegrations().catch(reportError);
+  }, []);
+  useEffect(() => {
+    if (USE_API && openId) void loadIntegrationLogs(openId).catch(reportError);
+  }, [openId]);
+
   const test = async (it: Integration) => {
+    if (USE_API) {
+      setTesting(it.id);
+      try {
+        const r = await testIntegration(it.id);
+        if (r.ok) notify.success({ title: `${it.name}: kết nối tốt`, description: r.message });
+        else notify.error({ title: `${it.name}: kiểm tra thất bại`, description: r.message });
+      } catch (e) {
+        reportError(e);
+      } finally {
+        setTesting(null);
+      }
+      return;
+    }
     setTesting(it.id);
     await new Promise((r) => setTimeout(r, 900)); // giả lập gọi dịch vụ
     setTesting(null);
@@ -49,6 +77,15 @@ export default function IntegrationsPage() {
       confirmText: 'Ngắt kết nối',
     });
     if (!ok) return;
+    if (USE_API) {
+      try {
+        await disconnectIntegration(it.id);
+        notify.toast.success(`Đã ngắt ${it.name}`);
+      } catch (e) {
+        reportError(e);
+      }
+      return;
+    }
     updateIntegration(it.id, { status: 'disconnected', account: undefined, config: {}, error: undefined, events: it.events.map((e) => ({ ...e, on: false })) }, actor, 'Ngắt tích hợp');
     notify.toast.success(`Đã ngắt ${it.name}`);
   };
@@ -202,7 +239,7 @@ export default function IntegrationsPage() {
                       notify.toast.success('Đã sao chép URL');
                     }}
                   />
-                  {editable && (
+                  {editable && !USE_API && (
                     <Button
                       icon={RefreshCw}
                       iconOnly
@@ -230,7 +267,11 @@ export default function IntegrationsPage() {
                       size="small"
                       checked={e.on}
                       disabled={!editable || open.status === 'disconnected'}
-                      onChange={(v) => updateIntegration(open.id, { events: open.events.map((x) => (x.key === e.key ? { ...x, on: v } : x)) }, actor, `${v ? 'Bật' : 'Tắt'} “${e.label}”`)}
+                      onChange={(v) =>
+                        USE_API
+                          ? void setIntegrationEvent(open.id, e.key, v).catch(reportError)
+                          : updateIntegration(open.id, { events: open.events.map((x) => (x.key === e.key ? { ...x, on: v } : x)) }, actor, `${v ? 'Bật' : 'Tắt'} “${e.label}”`)
+                      }
                       aria-label={e.label}
                     />
                   </li>
@@ -279,6 +320,17 @@ export default function IntegrationsPage() {
         initialValues={configuring ? Object.fromEntries(configuring.fields.filter((f) => !f.secret).map((f) => [f.key, configuring.config[f.key] ?? ''])) : {}}
         onSubmit={async (v) => {
           const it = configuring!;
+          if (USE_API) {
+            // Server kiểm trường bắt buộc (khóa bí mật để trống = giữ khóa cũ), mã hóa khóa rồi lưu
+            const wasOff = it.status === 'disconnected';
+            const config = Object.fromEntries(it.fields.map((f) => [f.key, (v[f.key] ?? '').trim()]));
+            await connectIntegration(it.id, config, it.account);
+            // Kết nối mới: bật sẵn các việc như trước
+            if (wasOff) for (const e of it.events) await setIntegrationEvent(it.id, e.key, true);
+            const r = await testIntegration(it.id);
+            if (!r.ok) notify.warning({ title: `${it.name}: đã lưu nhưng kiểm tra chưa đạt`, description: r.message });
+            return;
+          }
           const missing = it.fields.filter((f) => !v[f.key] && !it.config[f.key]);
           if (missing.length) throw new Error(`Thiếu: ${missing.map((f) => f.label).join(', ')}`);
           await new Promise((r) => setTimeout(r, 800)); // giả lập kiểm tra kết nối

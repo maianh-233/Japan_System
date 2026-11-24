@@ -77,6 +77,8 @@ export interface Invoice {
   transferContent?: string;
   /** Cổng HV / PH: tài khoản nhận của chi nhánh (server trả) — không có = chi nhánh chưa khai báo, đóng tại quầy */
   qr?: { bank: string; account: string; holder: string; content: string };
+  /** Sale được ghi nhận doanh số (server chọn lúc lập hóa đơn / kế toán gán lại — TC-04.E5, TC-12). Không có ở cổng HV / PH */
+  saleId?: string;
 }
 
 export interface Refund {

@@ -18,7 +18,7 @@ import { USE_API } from '@/lib/api/config';
 
 /**
  * Store Tài chính. Hóa đơn / thu / hoàn dùng chung studentStore. Chế độ API: bảng giá, ưu đãi, chính sách đợt, giao dịch ngân hàng,
- * lịch sử nhắc nạp từ server (financeApi) — action ở đây chỉ còn cho chế độ mock. Lương / hoa hồng vẫn giả lập (giai đoạn 22).
+ * lịch sử nhắc nạp từ server (financeApi); lương / hoa hồng server tính, action lương / hoa hồng được payrollApi thay bằng bản gọi API.
  */
 interface FinanceState {
   prices: BranchPrice[];
@@ -32,6 +32,8 @@ interface FinanceState {
   targets: SaleTarget[];
   /** Ghi nhận doanh số hóa đơn cho Sale khác (mặc định suy theo chi nhánh) */
   saleOverrides: Record<string, string>;
+  /** Chế độ API: tăng sau mỗi thao tác lương / hoa hồng → các bảng tải lại từ server (payrollApi) */
+  payrollVersion: number;
 
   setPrice: (courseId: string, branchId: string, fee: number | null) => void;
   savePromotion: (p: Omit<Promotion, 'id' | 'used'> & { id?: string }) => void;
@@ -72,6 +74,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   tiers: MOCK_COMMISSION_TIERS,
   targets: MOCK_SALE_TARGETS,
   saleOverrides: {},
+  payrollVersion: 0,
 
   setPrice: (courseId, branchId, fee) =>
     set((s) => ({ prices: [...s.prices.filter((p) => !(p.courseId === courseId && p.branchId === branchId)), ...(fee === null ? [] : [{ courseId, branchId, fee }])] })),

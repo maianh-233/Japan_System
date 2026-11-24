@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { BadgePercent, Crown, Plus, Settings2, Target, Trash2, TrendingUp, Trophy } from 'lucide-react';
 import { Button, DataTable, ModalForm, NumberInput, PageHeader, Select, StatCard, StatusTag, UserCell, useNotify, type DataColumn } from '@/components/common';
 import { useFinanceStore } from '@/features/finance/financeStore';
+import { reassignInvoiceSale, saveCommissionTiers, saveSaleTarget, useServerCommissions } from '@/features/finance/payrollApi';
 import { monthOptions, saleResults, tierOf, useInvoiceRows, type SaleResult } from '@/features/finance/financeUtils';
 import type { CommissionTier } from '@/features/finance/types';
 import { useHrStore } from '@/features/hr/hrStore';
@@ -13,11 +14,16 @@ import { cn } from '@/lib/cn';
 import { fmtDate } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
 import { getBranches } from '@/features/system/useBranches';
+import { USE_API } from '@/lib/api/config';
+import { reportError } from '@/lib/api/report';
 import { ALL_BRANCHES } from '@/types/auth';
 
 const short = (v: number) => (v >= 1_000_000 ? `${(v / 1_000_000).toLocaleString('vi-VN', { maximumFractionDigits: 1 })} tr` : formatCurrency(v));
 
-/** Hoa hồng & KPI Sale: doanh số theo Sale / tháng, bậc hoa hồng, chỉ tiêu, xếp hạng. DỮ LIỆU GIẢ. */
+/**
+ * Hoa hồng & KPI Sale: doanh số theo Sale / tháng, bậc hoa hồng, chỉ tiêu, xếp hạng.
+ * Chế độ API: server tính thực thu / bậc / hoa hồng theo Sale ghi nhận trên hóa đơn (payrollApi); chế độ mock: tự tính.
+ */
 export default function CommissionsPage() {
   const { branchId, can } = useAuth();
   const { isMobile } = useBreakpoint();
@@ -32,7 +38,9 @@ export default function CommissionsPage() {
   const [tierOpen, setTierOpen] = useState(false);
   const [targetFor, setTargetFor] = useState<SaleResult | null>(null);
 
-  const all = useMemo(() => saleResults(month, employees, invoiceRows, tiers, targets), [month, employees, invoiceRows, tiers, targets]);
+  const server = useServerCommissions(month, branchId, invoiceRows);
+  const local = useMemo(() => (USE_API ? [] : saleResults(month, employees, invoiceRows, tiers, targets)), [month, employees, invoiceRows, tiers, targets]);
+  const all = server ?? local;
   const rows = all.filter((r) => branchId === ALL_BRANCHES || r.employee.branchId === branchId);
   const open = rows.find((r) => r.employee.id === openId);
   const sum = (f: (r: SaleResult) => number) => rows.reduce((n, r) => n + f(r), 0);
@@ -78,7 +86,7 @@ export default function CommissionsPage() {
     <>
       <PageHeader
         title="Hoa hồng & KPI Sale"
-        subtitle="Hoa hồng tính trên THỰC THU trong tháng của các hóa đơn Sale phụ trách (trừ phần hoàn tiền), theo bậc lũy tiến. Tự đưa vào Lương nhân viên."
+        subtitle="Hoa hồng tính trên THỰC THU trong tháng của các hóa đơn Sale phụ trách (trừ phần hoàn tiền): đạt mốc nào thì toàn bộ thực thu hưởng % của mốc đó. Tự đưa vào Lương nhân viên."
         breadcrumb={[{ title: 'Tài chính' }, { title: 'Hoa hồng & KPI Sale' }]}
         actions={
           editable ? (
@@ -159,6 +167,7 @@ export default function CommissionsPage() {
         data={rows}
         rowKey={(r) => r.employee.id}
         unitLabel="Sale"
+        loading={USE_API && !server}
         onRowClick={(r) => setOpenId(r.employee.id)}
         rowActions={(r) => (editable ? <Button icon={Target} iconOnly size="sm" variant="ghost" tone="neutral" tooltip="Đặt chỉ tiêu" aria-label="Đặt chỉ tiêu" onClick={() => setTargetFor(r)} /> : null)}
         actionsWidth={60}
@@ -211,7 +220,11 @@ export default function CommissionsPage() {
                         <Select
                           size="small"
                           value={d.saleId}
-                          onChange={(v) => v && (assignSale(d.id, v), notify.toast.success('Đã ghi nhận doanh số cho Sale khác'))}
+                          onChange={(v) => {
+                            if (!v) return;
+                            if (!USE_API) return void (assignSale(d.id, v), notify.toast.success('Đã ghi nhận doanh số cho Sale khác'));
+                            reassignInvoiceSale(d.id, v).then(() => notify.toast.success('Đã ghi nhận doanh số cho Sale khác'), reportError);
+                          }}
                           options={salesOf(d.branchId).map((e) => ({ value: e.id, label: e.fullName }))}
                           showSearch={false}
                           allowClear={false}
@@ -238,7 +251,7 @@ export default function CommissionsPage() {
         submitAction="save"
         successMessage="Đã đặt chỉ tiêu"
         initialValues={{ target: targetFor?.target || undefined }}
-        onSubmit={(v) => setTarget(targetFor!.employee.id, month, v.target)}
+        onSubmit={async (v) => (USE_API ? await saveSaleTarget(targetFor!.employee.id, month, v.target) : setTarget(targetFor!.employee.id, month, v.target))}
       >
         <Form.Item name="target" label="Chỉ tiêu thực thu" rules={[{ required: true, message: 'Nhập chỉ tiêu' }]}>
           <NumberInput currency min={0} step={5_000_000} />
@@ -249,16 +262,17 @@ export default function CommissionsPage() {
       <ModalForm<{ tiers: CommissionTier[] }>
         open={tierOpen}
         onClose={() => setTierOpen(false)}
-        title="Bậc hoa hồng lũy tiến"
+        title="Bậc hoa hồng"
         description="Thực thu trong tháng đạt mốc nào thì toàn bộ thực thu hưởng % của mốc đó."
         submitAction="save"
         successMessage="Đã lưu bậc hoa hồng"
         initialValues={{ tiers }}
-        onSubmit={(v) => {
+        onSubmit={async (v) => {
           const list = v.tiers.filter((t) => t.from !== undefined && t.percent !== undefined);
           if (!list.some((t) => t.from === 0)) throw new Error('Cần có bậc bắt đầu từ 0đ');
           if (new Set(list.map((t) => t.from)).size !== list.length) throw new Error('Các mốc không được trùng nhau');
-          setTiers(list);
+          if (USE_API) await saveCommissionTiers(list);
+          else setTiers(list);
         }}
       >
         <Form.List name="tiers">

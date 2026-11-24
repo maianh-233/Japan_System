@@ -3,7 +3,7 @@
  * Đổ dữ liệu server vào store cũ (useStudentStore.invoices, useFinanceStore.prices / promotions / plans / txns / reminders)
  * nên các trang đọc store như trước. Hóa đơn chỉ sinh từ ghi danh — server lập NỀN (sự kiện) nên sau ghi danh / chuyển lớp / cho nghỉ
  * tải lại hóa đơn sau chốc lát. Hoàn tiền / hủy hóa đơn đi qua hộp duyệt chung (System) — người thứ 2 duyệt mới ghi.
- * ⏳ Lương GV / NV, hoa hồng (giai đoạn 22) vẫn là dữ liệu giả.
+ * Lương GV / NV, hoa hồng (giai đoạn 22): payrollApi.ts.
  */
 import { useStudentStore } from '@/features/student/studentStore';
 import type { Invoice, PaymentMethod, TuitionStatus } from '@/features/student/types';
@@ -60,6 +60,7 @@ interface ServerInvoice {
   cancelled: boolean;
   voided?: { reason: string; requestedBy: string; approvedBy: string; at: string } | null;
   reminders: ServerReminder[];
+  saleId?: string | null;
 }
 
 interface ServerActionResult {
@@ -150,6 +151,7 @@ const toInvoice = (i: ServerInvoice): Invoice => ({
   cancelled: i.cancelled || !!i.voided || undefined,
   voided: i.voided ?? undefined,
   transferContent: i.transferContent,
+  saleId: i.saleId ? fromGuid(i.saleId) : undefined,
 });
 
 const toReminder = (r: ServerReminder): Reminder => ({

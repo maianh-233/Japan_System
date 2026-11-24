@@ -150,4 +150,6 @@ Meet: 1 space) → ghi vào `academic.classes.meeting_url`. Zoom chưa kết n�
   - TH-08: lớp online được lưu với link trống (bỏ lỗi `academic.class.meeting_url_required`); tạo / sửa lớp → tự tạo phòng sau khi lưu, lỗi chỉ trả cảnh báo.
     `POST academic/classes/{id}/meeting-room`: `academic.class.not_online` · `has_meeting_url` (đã có link) · `meeting_room_failed` (kèm lý do).
   - Job dọn hệ thống 02:00 xóa nhật ký tích hợp cũ hơn 180 ngày (TH-05).
-
+- **Frontend (giai đoạn 22 phase 4):** `features/system/integrationApi.ts` — trang Tích hợp nạp danh sách (sau đăng nhập + khi vào trang), nhật ký khi mở chi tiết;
+  kết nối (lưu → bật sẵn các việc nếu mới kết nối → kiểm tra), ngắt, bật / tắt việc, kiểm tra gọi server. Khóa bí mật hiển thị bản server đã che;
+  bỏ nút "Tạo lại URL webhook" ở chế độ API (chưa có API). Bảng điều khiển cảnh báo tích hợp lỗi theo dữ liệu thật.

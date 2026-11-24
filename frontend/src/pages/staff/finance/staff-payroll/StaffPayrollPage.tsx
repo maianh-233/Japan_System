@@ -7,6 +7,7 @@ import { INSURANCE_RATE, LATE_FINE, NO_OUT_FINE, PERSONAL_DEDUCTION, STANDARD_DA
 import { useFinanceStore } from '@/features/finance/financeStore';
 import { saleResults, staffPayroll, useInvoiceRows, type StaffPay } from '@/features/finance/financeUtils';
 import { AdjustModal, PayrollBar, usePayrollLock } from '@/features/finance/PayrollBar';
+import { useServerStaffPayroll } from '@/features/finance/payrollApi';
 import { DEPARTMENTS, EMPLOYEE_STATUS } from '@/features/hr/constants';
 import { useHrStore } from '@/features/hr/hrStore';
 import { useWorkStore } from '@/features/work/workStore';
@@ -14,9 +15,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { cn } from '@/lib/cn';
 import { formatCurrency } from '@/lib/format';
+import { USE_API } from '@/lib/api/config';
 import { ALL_BRANCHES } from '@/types/auth';
 
-/** Lương nhân viên: lương cứng theo công thực tế (Chấm công / Xếp ca) + phụ cấp + hoa hồng − khấu trừ. DỮ LIỆU GIẢ. */
+/**
+ * Lương nhân viên: lương cứng theo công thực tế (Chấm công / Xếp ca) + phụ cấp + hoa hồng − khấu trừ.
+ * Chế độ API: server tính từ bảng công Nhân sự + hoa hồng (payrollApi); chế độ mock: tự tính.
+ */
 export default function StaffPayrollPage() {
   const { branchId } = useAuth();
   const { isMobile } = useBreakpoint();
@@ -33,10 +38,20 @@ export default function StaffPayrollPage() {
   const { locked } = usePayrollLock('staff', month);
   const current = month === dayjs().format('YYYY-MM');
 
-  const commissions = useMemo(() => Object.fromEntries(saleResults(month, employees, invoiceRows, tiers, targets).map((r) => [r.employee.id, r.commission])), [month, employees, invoiceRows, tiers, targets]);
-  const all = useMemo(() => staffPayroll(month, employees, records, shifts, requests, adjusts, commissions), [month, employees, records, shifts, requests, adjusts, commissions]);
-  const rows = all.filter((p) => branchId === ALL_BRANCHES || p.employee.branchId === branchId).sort((a, b) => a.employee.department.localeCompare(b.employee.department) || b.net - a.net);
-  const totals = rows.reduce<Record<string, number>>((m, p) => ({ ...m, [p.employee.branchId]: (m[p.employee.branchId] ?? 0) + p.net }), {});
+  const server = useServerStaffPayroll(month, branchId);
+  const commissions = useMemo(
+    () => (USE_API ? {} : Object.fromEntries(saleResults(month, employees, invoiceRows, tiers, targets).map((r) => [r.employee.id, r.commission]))),
+    [month, employees, invoiceRows, tiers, targets],
+  );
+  const all = useMemo(
+    () => (USE_API ? [] : staffPayroll(month, employees, records, shifts, requests, adjusts, commissions)),
+    [month, employees, records, shifts, requests, adjusts, commissions],
+  );
+  const rows = (server?.rows ?? all)
+    .filter((p) => branchId === ALL_BRANCHES || p.employee.branchId === branchId)
+    .sort((a, b) => a.employee.department.localeCompare(b.employee.department) || b.net - a.net);
+  const totals = server?.totals ?? rows.reduce<Record<string, number>>((m, p) => ({ ...m, [p.employee.branchId]: (m[p.employee.branchId] ?? 0) + p.net }), {});
+  const noTimesheet = rows.filter((p) => p.hasTimesheet === false).length;
   const open = rows.find((p) => p.employee.id === openId);
 
   const money = (v: number, tone?: 'plus' | 'minus') =>
@@ -85,12 +100,19 @@ export default function StaffPayrollPage() {
         <StatCard label="Ngày vắng không phép" value={rows.reduce((n, p) => n + p.absent, 0)} icon={CalendarX2} tone="warning" hint={`${rows.reduce((n, p) => n + p.late, 0)} lượt đi muộn`} />
       </div>
 
+      {noTimesheet > 0 && (
+        <p className="mb-3 rounded-lg bg-warning-50 px-3 py-2 text-[13px] text-warning-700">
+          {noTimesheet} nhân viên chưa có chấm công tháng này — tạm tính {STANDARD_DAYS} công chuẩn.
+        </p>
+      )}
+
       <DataTable<StaffPay>
         storageKey="fin-staff-pay"
         columns={columns}
         data={rows}
         rowKey={(p) => p.employee.id}
         unitLabel="nhân viên"
+        loading={USE_API && !server}
         onRowClick={(p) => setOpenId(p.employee.id)}
         rowActions={(p) => (!locked ? <Button icon={Plus} iconOnly size="sm" variant="ghost" tone="neutral" tooltip="Thưởng / phạt" aria-label="Thưởng / phạt" onClick={() => setAdjFor(p)} /> : null)}
         actionsWidth={60}

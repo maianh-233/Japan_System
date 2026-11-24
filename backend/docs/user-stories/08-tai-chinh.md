@@ -412,4 +412,7 @@ lương = lương cứng × công ÷ công chuẩn + phụ cấp + hoa hồng (T
   - Lập hóa đơn từ ghi danh tự ghi nhận Sale (`SaleAttribution`: `Crm.Contracts.ILeadOwnership.SalesOfStudentAsync` + Sale đang làm ở chi nhánh).
   - Cổng GV: `GET portal/payroll?month=` → `{ month, slip, locked, paid }` — phiếu tạm tính gộp mọi chi nhánh của chính GV.
   - Webhook ngân hàng đọc khóa từ tích hợp VietQR (story 15 TH-07). ⏳ Xuất Excel bảng lương, khôi phục điều chỉnh đã xóa từ Thùng rác.
-
+- **Frontend (giai đoạn 22 phase 4):** `features/finance/payrollApi.ts` — trang Lương GV / Lương NV / Hoa hồng đọc bảng server tính (đổi sang `TeacherPay`,
+  `StaffPay`, `SaleResult` cũ), khóa lương tháng ghi vào store cho `PayrollBar`; chốt / mở khóa / đã chi gọi 1 request cho các chi nhánh đang xem; điều chỉnh,
+  bậc, chỉ tiêu, gán lại Sale gọi API rồi tải lại bảng. Xem mọi chi nhánh: dòng GV theo chi nhánh được gộp thành 1 phiếu / GV. Lương NV hiện nhãn
+  "chưa có chấm công". Hóa đơn có `saleId` từ server (Sale ghi nhận). Cổng GV › Chấm công: `portal/payroll` (gộp mọi chi nhánh, nhãn đã chốt / đã chi).

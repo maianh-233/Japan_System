@@ -40,6 +40,8 @@ export interface InvoiceRow {
  */
 export function saleOfInvoice(inv: Invoice, studentId: string | undefined, branchId: string, employees: Employee[], overrides: Record<string, string>, leadSale?: Map<string, string>) {
   if (overrides[inv.id]) return overrides[inv.id];
+  // Chế độ API: server đã chọn Sale lúc lập hóa đơn / kế toán gán lại
+  if (inv.saleId) return inv.saleId;
   const fromLead = studentId ? leadSale?.get(studentId) : undefined;
   if (fromLead && employees.some((e) => e.id === fromLead)) return fromLead;
   const sales = employees.filter((e) => e.department === 'sales' && e.branchId === branchId && e.status !== 'quit').sort((a, b) => a.id.localeCompare(b.id));
@@ -310,6 +312,8 @@ export interface StaffPay {
   insurance: number;
   tax: number;
   net: number;
+  /** false = tháng chưa có bản ghi chấm công — server tạm lấy công chuẩn (TC-14.E2). Chế độ mock: không có */
+  hasTimesheet?: boolean;
 }
 
 /** Thuế TNCN lũy tiến tháng */

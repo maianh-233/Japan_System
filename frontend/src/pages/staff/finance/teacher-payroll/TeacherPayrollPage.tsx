@@ -10,6 +10,7 @@ import { SUBSTITUTE_BONUS, TEACHER_LATE_FINE } from '@/features/finance/constant
 import { useFinanceStore } from '@/features/finance/financeStore';
 import { teacherPayroll, type TeacherPay } from '@/features/finance/financeUtils';
 import { AdjustModal, PayrollBar, usePayrollLock } from '@/features/finance/PayrollBar';
+import { useServerTeacherPayroll } from '@/features/finance/payrollApi';
 import { EMPLOYEE_KIND } from '@/features/hr/constants';
 import { useHrStore } from '@/features/hr/hrStore';
 import { useAuth } from '@/hooks/useAuth';
@@ -17,9 +18,13 @@ import { useBreakpoint } from '@/hooks/useBreakpoint';
 import { cn } from '@/lib/cn';
 import { fmtDate } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
+import { USE_API } from '@/lib/api/config';
 import { ALL_BRANCHES } from '@/types/auth';
 
-/** Lương giáo viên / trợ giảng: tự tính từ buổi đã dạy (đã xác nhận) × đơn giá. DỮ LIỆU GIẢ. */
+/**
+ * Lương giáo viên / trợ giảng: buổi đã dạy (đã xác nhận) × đơn giá. Chế độ API: server tính + giữ bản chốt (payrollApi) —
+ * buổi tính ở chi nhánh của LỚP; chế độ mock: tự tính từ dữ liệu giả.
+ */
 export default function TeacherPayrollPage() {
   const { branchId } = useAuth();
   const { isMobile } = useBreakpoint();
@@ -35,10 +40,15 @@ export default function TeacherPayrollPage() {
   const [adjFor, setAdjFor] = useState<TeacherPay | null>(null);
   const { locked } = usePayrollLock('teacher', month);
 
-  const all = useMemo(() => teacherPayroll(month, employees, classes, sessions, adjusts), [month, employees, classes, sessions, adjusts]);
-  const rows = all.filter((p) => branchId === ALL_BRANCHES || p.employee.branchId === branchId).filter((p) => p.items.length || p.base || p.adjust).sort((a, b) => b.total - a.total);
-  const totals = rows.reduce<Record<string, number>>((m, p) => ({ ...m, [p.employee.branchId]: (m[p.employee.branchId] ?? 0) + p.total }), {});
+  const server = useServerTeacherPayroll(month, branchId);
+  const local = useMemo(() => (USE_API ? [] : teacherPayroll(month, employees, classes, sessions, adjusts)), [month, employees, classes, sessions, adjusts]);
+  // Server đã lọc theo chi nhánh của LỚP (GV dạy chi nhánh khác vẫn có dòng) — chỉ dữ liệu giả lọc theo chi nhánh chính của GV
+  const rows = (server ? server.rows : local.filter((p) => branchId === ALL_BRANCHES || p.employee.branchId === branchId))
+    .filter((p) => p.items.length || p.base || p.adjust)
+    .sort((a, b) => b.total - a.total);
+  const totals = server?.totals ?? rows.reduce<Record<string, number>>((m, p) => ({ ...m, [p.employee.branchId]: (m[p.employee.branchId] ?? 0) + p.total }), {});
   const pending = rows.reduce((n, p) => n + p.pending.length, 0);
+  const loading = USE_API && !server;
   const open = rows.find((p) => p.employee.id === openId);
 
   const columns: DataColumn<TeacherPay>[] = [
@@ -109,6 +119,7 @@ export default function TeacherPayrollPage() {
         data={rows}
         rowKey={(p) => p.employee.id}
         unitLabel="giáo viên"
+        loading={loading}
         onRowClick={(p) => setOpenId(p.employee.id)}
         rowActions={(p) => (!locked ? <Button icon={Plus} iconOnly size="sm" variant="ghost" tone="neutral" tooltip="Thưởng / phạt" aria-label="Thưởng / phạt" onClick={() => setAdjFor(p)} /> : null)}
         actionsWidth={60}

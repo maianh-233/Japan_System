@@ -7,8 +7,11 @@ import { fmtDateTime } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
 import { useSettings } from '@/features/system/settings';
 import { getBranches } from '@/features/system/useBranches';
+import { USE_API } from '@/lib/api/config';
+import { reportError } from '@/lib/api/report';
 import { ALL_BRANCHES } from '@/types/auth';
 import { useFinanceStore } from './financeStore';
+import { addPayAdjust, payrollAction } from './payrollApi';
 import { monthOptions } from './financeUtils';
 import type { PayrollLock } from './types';
 
@@ -63,8 +66,38 @@ export function PayrollBar({
       tone: pendingWarning ? 'warning' : 'primary',
     });
     if (!ok) return;
-    st.ids.forEach((b) => lockPayroll({ kind, month, branchId: b, lockedBy: user?.fullName ?? 'Kế toán', total: totals[b] ?? 0 }));
+    if (USE_API) {
+      // Chỉ chốt chi nhánh chưa chốt (chi nhánh đã chốt server từ chối chốt lại khi chưa mở khóa)
+      const open = st.ids.filter((b) => !st.locks.some((l) => l.branchId === b));
+      const warnings = await run(() => payrollAction(kind, month, 'lock', open));
+      if (!warnings) return;
+      warnings.forEach((w) => notify.toast.warning(w));
+    } else st.ids.forEach((b) => lockPayroll({ kind, month, branchId: b, lockedBy: user?.fullName ?? 'Kế toán', total: totals[b] ?? 0 }));
     notify.toast.success('Đã chốt bảng lương — phiếu lương đã gửi qua email / cổng nhân sự');
+  };
+
+  /** Chế độ API: gọi server, lỗi (đã chi, chưa chốt…) báo lại; trả undefined khi lỗi */
+  const run = async <T,>(f: () => Promise<T>) => {
+    try {
+      return await f();
+    } catch (e) {
+      reportError(e);
+      return undefined;
+    }
+  };
+
+  const unlock = async () => {
+    if (USE_API) {
+      if ((await run(() => payrollAction(kind, month, 'unlock', st.ids))) === undefined) return;
+    } else st.ids.forEach((b) => unlockPayroll(kind, month, b));
+    notify.toast.info('Đã mở chốt — có thể điều chỉnh lại');
+  };
+
+  const paid = async () => {
+    if (USE_API) {
+      if ((await run(() => payrollAction(kind, month, 'paid', st.ids))) === undefined) return;
+    } else st.ids.forEach((b) => markPaid(kind, month, b));
+    notify.toast.success('Đã ghi nhận chuyển khoản lương');
   };
 
   return (
@@ -95,10 +128,10 @@ export function PayrollBar({
         )}
         {editable && st.locked && !st.paid && (
           <>
-            <Button icon={LockOpen} size="sm" variant="ghost" tone="neutral" onClick={() => (st.ids.forEach((b) => unlockPayroll(kind, month, b)), notify.toast.info('Đã mở chốt — có thể điều chỉnh lại'))}>
+            <Button icon={LockOpen} size="sm" variant="ghost" tone="neutral" onClick={() => void unlock()}>
               Mở chốt
             </Button>
-            <Button icon={Wallet} size="sm" tone="success" onClick={() => (st.ids.forEach((b) => markPaid(kind, month, b)), notify.toast.success('Đã ghi nhận chuyển khoản lương'))}>
+            <Button icon={Wallet} size="sm" tone="success" onClick={() => void paid()}>
               Đã chuyển lương
             </Button>
           </>
@@ -122,7 +155,12 @@ export function AdjustModal({ open, onClose, month, employee }: { open: boolean;
       submitAction="save"
       successMessage="Đã thêm điều chỉnh"
       initialValues={{ sign: '+' }}
-      onSubmit={(v) => addAdjust({ month, employeeId: employee!.id, amount: v.sign === '-' ? -v.amount : v.amount, reason: v.reason.trim(), by: user?.fullName ?? 'Kế toán' })}
+      onSubmit={async (v) => {
+        const a = { month, employeeId: employee!.id, amount: v.sign === '-' ? -v.amount : v.amount, reason: v.reason.trim() };
+        // Chế độ API: lỗi (tháng đã chốt…) hiện ngay trong form
+        if (USE_API) await addPayAdjust(a);
+        else addAdjust({ ...a, by: user?.fullName ?? 'Kế toán' });
+      }}
     >
       <div className="grid grid-cols-[120px_1fr] gap-x-3">
         <Form.Item name="sign" label="Loại">
