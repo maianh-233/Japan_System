@@ -12,7 +12,7 @@ Mỗi file = 1 nhóm nghiệp vụ. Viết từ giao diện frontend đã dựng
 | 03 | [Quản lý chi nhánh](03-chi-nhanh.md) | `CN-xx` | ✍️ Đã viết |
 | 04 | [Quản lý nhân viên & giáo viên](04-nhan-su.md) | `NS-xx` | ✍️ Đã viết |
 | 05 | [Tuyển sinh (lead, chia lead, test xếp lớp, lịch hẹn, chiến dịch)](05-tuyen-sinh.md) | `CRM-xx` | ✅ Giai đoạn 18 |
-| 06 | [Học viên & ghi danh (phụ huynh, cảnh báo bỏ học, chứng nhận, JLPT, du học)](06-hoc-vien.md) | `HV-xx` | ✅ HV-01 → HV-14 · 🚧 HV-15 → HV-17 (giai đoạn 23) |
+| 06 | [Học viên & ghi danh (phụ huynh, cảnh báo bỏ học, chứng nhận, JLPT, du học)](06-hoc-vien.md) | `HV-xx` | ✅ HV-01 → HV-17 |
 | 07 | [Lớp học & buổi học (điểm danh, dạy thay, đơn từ, lên lớp)](07-lop-hoc.md) | `DT-xx` | 🚧 Backend đợt 1 (phòng, lớp, buổi) |
 | 08 | [Học phí, hóa đơn & tài chính (đối soát, công nợ, lương, hoa hồng)](08-tai-chinh.md) | `TC-xx` | ✅ Đợt 1 TC-01 → TC-11 (giai đoạn 19) · 🚧 TC-12 → TC-14 (giai đoạn 22) |
 | 09 | [Khóa học & lộ trình (phiên bản, tài liệu giảng dạy, mốc thi)](09-khoa-hoc-lo-trinh.md) | `KH-xx`, `LT-xx` | ✍️ Đã viết |
@@ -22,9 +22,10 @@ Mỗi file = 1 nhóm nghiệp vụ. Viết từ giao diện frontend đã dựng
 | 13 | [Chấm công, đơn từ & phê duyệt, tuyển dụng, onboarding](13-cham-cong-don-tu-tuyen-dung.md) | `CC-xx`, `DN-xx`, `TD-xx`, `OB-xx` | ✅ Giai đoạn 21 |
 | 14 | [Công việc: task / Kanban, giao việc cấp dưới, xếp ca, bàn giao ca](14-cong-viec-xep-ca-ban-giao.md) | `CV-xx`, `XC-xx`, `BG-xx` | ✅ Giai đoạn 21 |
 | 15 | [Tích hợp: Zalo OA, SMS, email, webhook ngân hàng, Zoom / Meet](15-tich-hop.md) | `TH-xx` | ✅ Giai đoạn 22 |
-| 16 | [Thư viện tài liệu điện tử (watermark, chặn tải, thống kê lượt đọc, cổng HV / GV)](16-thu-vien.md) | `TV-xx` | 🚧 Giai đoạn 23 |
+| 16 | [Thư viện tài liệu điện tử (watermark, chặn tải, thống kê lượt đọc, cổng HV / GV)](16-thu-vien.md) | `TV-xx` | ✅ Giai đoạn 23 |
+| 17 | [Báo cáo & bảng điều khiển (việc hôm nay, tuyển sinh, doanh thu, công nợ, đào tạo, so sánh chi nhánh, xuất Excel)](17-bao-cao.md) | `BC-xx` | 🚧 Giai đoạn 24 |
 
-**Chưa có nhóm story riêng** (trang frontend đã dựng — viết khi bắt đầu làm module): Phòng học & báo hỏng · Báo cáo & bảng điều khiển. Thứ tự làm: [../ke-hoach.md](../ke-hoach.md).
+**Chưa có nhóm story riêng** (trang frontend đã dựng — viết khi bắt đầu làm module): Phòng học & báo hỏng. Thứ tự làm: [../ke-hoach.md](../ke-hoach.md).
 
 ## Mẫu 1 user story
 

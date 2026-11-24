@@ -1915,8 +1915,9 @@ Không xóa mềm — job dọn xóa hẳn (TB-05). Chỉ mục: (`recipient_typ
 
 ## Module Reporting — schema `reporting`
 
-Không có bảng nghiệp vụ. Chỉ **view / read model** dựng từ integration event của các module khác (doanh thu, chuyển đổi lead,
-sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đây.
+Không có bảng, không có view, không có DbContext ([ADR 0004](decisions/0004-bao-cao-doc-qua-contracts.md), user story [17](user-stories/17-bao-cao.md)).
+Báo cáo đọc số liệu thô qua interface `I…ReportSource` trong Contracts của module sở hữu dữ liệu, Reporting chỉ ghép + tính tỷ lệ.
+Khi cần read model riêng (báo cáo chậm, số liệu đóng sổ) → viết ADR mới rồi ghi bảng vào đây.
 
 ---
 
@@ -1969,4 +1970,5 @@ sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đ�
 | 2026-11-24 | Giai đoạn 22 phase 2: tạo bảng `pay_adjustments` (chỉ mục (month, employee_id), `amount` numeric(18,0) có dấu), `payroll_locks` (UQ kind, month, branch_id; `lines` jsonb), `commission_tiers` (`percent` numeric(5,2)), `sale_targets` (UQ employee_id, month); `invoices` + `sale_id` (chỉ mục), `sale_assigned_by` — migration `FinancePayroll`. Nhân viên / chi nhánh không FK (schema khác). Dữ liệu: `payroll.seed.json` từ mock (điều chỉnh, bảng lương tháng trước đã chốt + đã chi với snapshot rỗng, bậc hoa hồng, chỉ tiêu 3 tháng; Sale ghi nhận của hóa đơn mẫu theo quy tắc frontend — DB cũ được bổ sung khi chưa hóa đơn nào có Sale). `integrations.config`: trường bí mật mã hóa Data Protection (tiền tố `enc:`), dữ liệu cũ tự mã hóa khi khởi động (`IntegrationSecretsSeeder`) — không đổi cấu trúc bảng |
 | 2026-11-24 | Giai đoạn 23 phase 1 (user story 16 thư viện, HV-15 → 17): `document_views` + `viewer_role`, `ended_at`, `minutes` giới hạn 0 → 240; `documents.title` ≤ 200, `tags` chuẩn hóa; `certificates.exception` ≤ 500 chỉ lưu khi chưa đủ điều kiện; `jlpt_sessions.fees` đủ N5 → N1; `jlpt_registrations.passed` tự tính từ `scores` |
 | 2026-11-24 | Giai đoạn 23 phase 2: tạo bảng `jlpt_sessions` (UQ exam_date, `fees` jsonb), `jlpt_registrations` (UQ session_id + student_id trừ lượt hủy, chứng chỉ gốc cột `cert_*`), `abroad_cases` (`intake` varchar(7)), `abroad_documents`, `abroad_notes` — migration `StudentsPrograms`; `library.documents` (chỉ mục gin `levels`, `branch_ids`; `avg_minutes` numeric(8,1)), `document_views` (chỉ mục (document_id, started_at), (viewer_type, viewer_id); `minutes` numeric(6,1)) — migration `LibraryDocuments`. Người phụ trách / người xem / chi nhánh không FK (schema khác). Dữ liệu: `programs.seed.json` (kỳ thi, đăng ký JLPT, hồ sơ du học — chi nhánh theo HV; lệch quy tắc trong mock được chỉnh cho khớp domain), `library.seed.json` + `documents` (lượt xem dựng lại từ `daily` / `top` của mock, số liệu tổng tính lại) |
+| 2026-11-24 | Giai đoạn 24 phase 1 (user story 17, ADR 0004): schema `reporting` bỏ dự kiến view / read model dựng từ integration event — báo cáo đọc qua Contracts của module sở hữu. Không đổi cấu trúc bảng |
 | 2026-11-17 | Chốt thiết kế (user story 08): `invoices.status` chỉ lưu `open` / `cancelled` / `voided`, các trạng thái tiền tính khi đọc; `payments.method` dùng `vietqr` (không `viet_qr`). Domain `InvoiceStatus`, `PaymentMethod` sửa theo khi code module Tài chính |
