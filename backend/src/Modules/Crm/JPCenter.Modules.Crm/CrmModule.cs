@@ -62,6 +62,7 @@ public sealed class CrmModule : IModule
         services.AddScoped<IGuardianDirectory, GuardianDirectory>();
         services.AddScoped<ILeadOwnership, LeadOwnership>();
         services.AddScoped<ILeadLookup, LeadLookup>();
+        services.AddScoped<ILeadReportSource, LeadReportSource>();
 
         services.AddScoped<IDataSeeder, CrmSeeder>();
 

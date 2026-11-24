@@ -25,7 +25,8 @@ Quy mô: 1 trung tâm, vài chi nhánh, chạy 1 instance, không Redis. Dữ li
 
 1. **Phương án A.** Reporting **không có bảng, không có view, không có DbContext** ở giai đoạn này. Schema `reporting` để trống.
 2. Module sở hữu dữ liệu khai báo interface đọc trong `<Module>.Contracts` (vd `ILeadReportSource`, `IRevenueReportSource`),
-   trả **số thô theo chi nhánh × tháng** (đếm, tổng tiền, phút) — không trả tỷ lệ. Truy vấn GROUP BY chạy trong DB (không kéo cả bảng lên RAM).
+   trả **số thô** (đếm, tổng tiền, phút) hoặc dòng mỏng chỉ chiếu vài cột — không trả tỷ lệ. Lọc chi nhánh / khoảng ngày chạy trong DB;
+   số liệu cần quy tắc tính khi đọc (công nợ `Invoice.Summarize`, tuổi nợ, SLA lead) đọc bản ghi lên rồi tính bằng chính domain của module đó.
 3. Reporting (Domain) giữ phần tính toán thuần: kỳ báo cáo theo giờ VN, tỷ lệ / tăng trưởng, xếp hạng, so sánh chi nhánh, mức độ của việc hôm nay,
    ngưỡng cảnh báo. Unit test không cần DB.
 4. **Excel ghi ở frontend** (`lib/spreadsheet.ts`), giống xuất nhật ký hệ thống (NK-02) — backend trả số liệu + ghi nhật ký. Không thêm thư viện.

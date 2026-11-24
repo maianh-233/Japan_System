@@ -11,6 +11,7 @@ using JPCenter.Modules.Finance;
 using JPCenter.Modules.Hr;
 using JPCenter.Modules.Library;
 using JPCenter.Modules.Notifications;
+using JPCenter.Modules.Reporting;
 using JPCenter.Modules.Students;
 using JPCenter.Modules.System;
 using JPCenter.Modules.Work;
@@ -42,6 +43,7 @@ builder.Services
         new HrModule(),
         new LibraryModule(),
         new NotificationsModule(),
+        new ReportingModule(),
         new StudentsModule(),
         new SystemModule(),
         new WorkModule());

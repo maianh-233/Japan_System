@@ -197,13 +197,22 @@ chuyên cần cả kỳ, thực thu cả kỳ, thực thu tháng này, công n�
 
 ## Dữ liệu / API
 
-**Bảng:** không có (schema `reporting` để trống). Nguồn đọc qua Contracts — chi tiết ở phase 3.
+**Bảng:** không có (schema `reporting` để trống). Nguồn đọc qua Contracts (chi nhánh `null` = mọi chi nhánh, người gọi đã lọc theo quyền):
+
+| Interface | Module | Dùng cho |
+|---|---|---|
+| `ILeadReportSource` — lead tạo trong kỳ, chiến dịch + lead / chốt, lead đang mở (SLA, hẹn gọi lại) | Crm | BC-01, 02, 03, 06 |
+| `IEnrollmentReportSource` — ghi danh đang học / bảo lưu + ghi danh mới | Students | BC-01, 05, 06 |
+| `IAcademicReportSource` — lớp mở, điểm danh theo tháng, phút dùng phòng, buổi chưa xác nhận / chưa nhật ký / chưa điểm danh, đơn chờ duyệt | Academic | BC-01, 02, 05, 06 |
+| `IFinanceReportSource` — thực thu theo tháng, doanh số ký, hóa đơn còn nợ (tuổi nợ), giao dịch chưa khớp | Finance | BC-01, 02, 04, 06 |
+| `IHrRequestInbox` — đơn từ đến lượt người đang đăng nhập duyệt | Hr | BC-02 |
+| `IIntegrationHealth` — tích hợp đang lỗi | System | BC-01 |
 
 | Endpoint | Story | Quyền |
 |---|---|---|
 | `GET /api/v1/reporting/dashboard?branchId=` | BC-01 (thẻ + cần xử lý) | `dashboard.overview.view` |
 | `GET /api/v1/reporting/today-work?branchId=` | BC-02 | `dashboard.overview.view` |
-| `GET /api/v1/reporting/reports?branchId=&months=` | BC-03 → 06 (cùng hình dạng `ReportData` của `useReports.ts`) | `dashboard.reports.view` |
+| `GET /api/v1/reporting/reports?branchId=&months=` (mặc định 6) | BC-03 → 06 (cùng hình dạng `ReportData` của `useReports.ts`; nhãn nguồn / trạng thái frontend tự gắn) | `dashboard.reports.view` |
 | `POST /api/v1/reporting/reports/export` `{ branchId, months }` | BC-07 | `dashboard.reports.export` |
 
 **Mã lỗi:** `reporting.period.invalid`.

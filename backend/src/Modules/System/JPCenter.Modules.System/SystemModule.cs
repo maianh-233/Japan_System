@@ -66,6 +66,7 @@ public sealed class SystemModule : IModule
         services.AddScoped<IMessageChannels, MessageChannels>();
         services.AddScoped<IMeetingRooms, MeetingRooms>();
         services.AddScoped<IIntegrationLog, IntegrationLogWriter>();
+        services.AddScoped<IIntegrationHealth, IntegrationHealth>();
 
         // Thùng rác: mỗi loại dữ liệu xóa mềm 1 ITrashHandler (module khác tự đăng ký của mình)
         services.AddScoped<ITrashHandler, RoleTrashHandler>();

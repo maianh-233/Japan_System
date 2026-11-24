@@ -35,6 +35,7 @@ public sealed class HrModule : IModule
 
         // Cho module khác (Hr.Contracts)
         services.AddScoped<IEmployeeDirectory, EmployeeDirectory>();
+        services.AddScoped<IHrRequestInbox, HrRequestInbox>();
         services.AddScoped<IHrLeaveCalendar, HrLeaveCalendar>();
         services.AddScoped<IPayrollSource, PayrollSource>();
         services.AddScoped<ITrashHandler, JobTrashHandler>();

@@ -39,6 +39,7 @@ public sealed class FinanceModule : IModule
         services.AddScoped<IInvoiceApprovals, InvoiceApprovals>();
         services.AddScoped<ITuitionQuery, TuitionQuery>();
         services.AddScoped<ICashLedger, CashLedger>();
+        services.AddScoped<IFinanceReportSource, FinanceReportSource>();
         services.AddScoped<IPayrollLocks, PayrollLocks>();
 
         // Dùng chung giữa các use case
