@@ -21,6 +21,8 @@ internal sealed class JobTrashHandler(HrDbContext db) : ITrashHandler
         if (job is null) return new TrashRestoreOutcome(false);
         if (!db.IsSoftDeleted(job)) return new TrashRestoreOutcome(true, "Tin đang hiển thị — không cần khôi phục");
         db.Undelete(job);
+        // DbContext riêng của Hr — System chỉ lưu bảng trash_items của nó
+        await db.SaveChangesAsync(ct);
         return new TrashRestoreOutcome(true);
     }
 

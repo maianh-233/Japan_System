@@ -114,8 +114,21 @@ public sealed class WorkFlowTests(SeededApiFactory api)
         var again = await Ok(await admin.PostAsJsonAsync($"/api/v1/work/tasks/{id}/status", new { status = "done" }, Ct));
         (!again.TryGetProperty("next", out var none) || none.ValueKind == JsonValueKind.Null).ShouldBeTrue(); // null bị bỏ khỏi JSON
 
-        // Xóa → Thùng rác
-        (await admin.DeleteAsync($"/api/v1/work/tasks/{next.GetProperty("id").GetGuid()}", Ct)).StatusCode.ShouldBe(HttpStatusCode.NoContent);
+        // Xóa → Thùng rác → khôi phục: task phải lưu lại thật (handler lưu DbContext của Work)
+        var nextId = next.GetProperty("id").GetGuid();
+        (await admin.DeleteAsync($"/api/v1/work/tasks/{nextId}", Ct)).StatusCode.ShouldBe(HttpStatusCode.NoContent);
+        Guid? trashId = null;
+        for (var i = 0; i < 40 && trashId is null; i++)
+        {
+            await using (var scope = api.Scope())
+                trashId = await scope.ServiceProvider.GetRequiredService<JPCenter.Modules.System.Infrastructure.Persistence.SystemDbContext>().TrashItems
+                    .AsNoTracking().Where(t => t.Kind == "work.task" && t.EntityId == nextId).Select(t => (Guid?)t.Id.Value).FirstOrDefaultAsync(Ct);
+            if (trashId is null) await Task.Delay(250, Ct);
+        }
+        trashId.ShouldNotBeNull();
+        await Ok(await admin.PostAsync($"/api/v1/system/trash/{trashId}/restore", null, Ct));
+        await using (var scope = api.Scope())
+            (await scope.ServiceProvider.GetRequiredService<WorkDbContext>().Tasks.AsNoTracking().AnyAsync(t => t.Id == new JPCenter.Modules.Work.Domain.Tasks.WorkTaskId(nextId), Ct)).ShouldBeTrue();
     }
 
     [Fact]

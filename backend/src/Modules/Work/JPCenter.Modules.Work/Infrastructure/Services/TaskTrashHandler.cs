@@ -21,6 +21,8 @@ internal sealed class TaskTrashHandler(WorkDbContext db) : ITrashHandler
         if (task is null) return new TrashRestoreOutcome(false);
         if (!db.IsSoftDeleted(task)) return new TrashRestoreOutcome(true, "Task đang hoạt động — không cần khôi phục");
         db.Undelete(task);
+        // DbContext riêng của Work — System chỉ lưu bảng trash_items của nó
+        await db.SaveChangesAsync(ct);
         return new TrashRestoreOutcome(true);
     }
 
