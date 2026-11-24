@@ -96,12 +96,28 @@ public sealed class Enrollment : AggregateRoot<EnrollmentId>, IBranchScoped, IAu
         return r;
     }
 
-    public Result IssueCertificate(string code, DateTimeOffset issuedAt, string sentTo, Guid sentBy, string? exception)
+    /// <summary>
+    /// HV-15 — cấp chứng nhận: ghi danh phải <c>completed</c> (E2); chưa đủ điều kiện (<paramref name="eligible"/> = false, xét bằng
+    /// <see cref="CertificateEligibility"/>) thì bắt buộc lý do ngoại lệ (E1); mỗi ghi danh cấp 1 lần (E3).
+    /// </summary>
+    public Result IssueCertificate(string code, DateTimeOffset issuedAt, string? sentTo, Guid sentBy, bool eligible, string? exception)
     {
-        if (Certificate is not null) return Error.Conflict("students.certificate.already_issued", "Đã cấp chứng nhận cho ghi danh này");
-        if (Status != EnrollmentStatus.Completed && string.IsNullOrWhiteSpace(exception))
-            return Error.Conflict("students.certificate.not_completed", "Học viên chưa hoàn thành lớp — cần ghi lý do cấp ngoại lệ");
-        Certificate = new Certificate(code, issuedAt, sentTo, sentBy, exception);
+        if (Certificate is not null) return CertificateErrors.AlreadyIssued;
+        if (Status != EnrollmentStatus.Completed) return CertificateErrors.NotCompleted;
+        var reason = Clean(exception);
+        if (!eligible && reason is null) return CertificateErrors.NotEligible;
+        if (reason is { Length: > Certificate.MaxException }) return CertificateErrors.ExceptionTooLong;
+        if (Certificate.CleanEmail(sentTo) is not { } email) return CertificateErrors.EmailRequired;
+        Certificate = new Certificate(code, issuedAt, email, sentBy, eligible ? null : reason);
+        return Result.Success();
+    }
+
+    /// <summary>HV-15 bước 3 — gửi lại (email có thể khác), tăng số lần gửi</summary>
+    public Result ResendCertificate(string? sentTo, Guid sentBy)
+    {
+        if (Certificate is null) return CertificateErrors.NotFound;
+        if (Certificate.CleanEmail(sentTo) is not { } email) return CertificateErrors.EmailRequired;
+        Certificate.Resend(email, sentBy);
         return Result.Success();
     }
 

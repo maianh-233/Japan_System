@@ -337,11 +337,12 @@ Phát `EnrollmentCompleted` → cổng HV hiện "Đã học xong", trang Chứn
 
 | Mã | Tình huống | Hệ thống xử lý |
 |---|---|---|
-| HV-15.E1 | Chưa đủ điều kiện | Không cho, trừ khi nhập **lý do cấp ngoại lệ** → lưu `exception`, nhật ký `warning` |
-| HV-15.E2 | Ghi danh chưa `completed` | `students.certificate.not_completed` |
+| HV-15.E1 | Chưa đủ điều kiện | `students.certificate.not_eligible`, trừ khi nhập **lý do cấp ngoại lệ** (≤ 500) → lưu `exception`, nhật ký `warning`. Đủ điều kiện thì không lưu lý do |
+| HV-15.E2 | Ghi danh chưa `completed` | `students.certificate.not_completed` — kể cả có lý do ngoại lệ (HV-11 tự hoàn thành khi lớp kết thúc) |
 | HV-15.E3 | Cấp lần 2 | `students.certificate.already_issued` — chỉ "Gửi lại" |
 | HV-15.E4 | Gửi email lỗi | Giữ chứng nhận; báo lỗi gửi, cho gửi lại |
 | HV-15.E5 | Cổng HV | Xem / tải PDF chứng nhận của mình |
+| HV-15.E6 | Email trống / sai dạng; gửi lại khi chưa cấp | `students.certificate.email_required` / `students.certificate.not_found` |
 
 ---
 
@@ -360,11 +361,13 @@ Phát `EnrollmentCompleted` → cổng HV hiện "Đã học xong", trang Chứn
 
 | Mã | Tình huống | Hệ thống xử lý |
 |---|---|---|
-| HV-16.E1 | Ngày kỳ thi không hợp lệ (hạn nộp sau ngày thi…) | `students.jlpt_session.invalid_dates` |
+| HV-16.E1 | Ngày kỳ thi không hợp lệ (hạn nộp ≥ ngày thi, ngày có kết quả ≤ ngày thi); thiếu lệ phí 1 cấp độ; không có địa điểm | `students.jlpt_session.invalid_dates` / `invalid_fees` / `venue_required` |
 | HV-16.E2 | Nộp hội đồng khi thiếu giấy tờ | `students.jlpt.docs_missing` |
-| HV-16.E3 | Chuyển trạng thái sai thứ tự | `students.jlpt.invalid_status` |
+| HV-16.E3 | Chuyển trạng thái sai thứ tự; sửa giấy tờ / cấp độ sau khi đã nộp hội đồng; hủy sau khi có kết quả | `students.jlpt.invalid_status` |
+| HV-16.E8 | Điểm sai số phần / ngoài thang (N1–N3: 3 × 60, N4–N5: 120 + 60) | `students.jlpt.invalid_scores` |
+| HV-16.E9 | Cấp độ Beginner, địa điểm không thuộc kỳ thi, HV đăng ký trùng kỳ | `students.jlpt.invalid_level` / `invalid_venue` / `duplicate` |
 | HV-16.E4 | Nhận chứng chỉ khi chưa đỗ | `students.jlpt.not_passed` |
-| HV-16.E5 | Phát chứng chỉ chưa về | `students.jlpt.cert_not_received` |
+| HV-16.E5 | Phát chứng chỉ chưa về; phát lần 2 | `students.jlpt.cert_not_received` / `students.jlpt.cert_already_handed` |
 | HV-16.E6 | Đăng ký sau hạn nhận hồ sơ 🆕 | Cảnh báo, vẫn cho (trung tâm có thể nộp bổ sung) |
 | HV-16.E7 | Lệ phí 🆕 | Thu ngoài hóa đơn học phí ⏳ — tạm ghi `fee`, `paid_at`; khi Finance có "phiếu thu khác" thì nối |
 
@@ -386,7 +389,10 @@ Phát `EnrollmentCompleted` → cổng HV hiện "Đã học xong", trang Chứn
 |---|---|---|
 | HV-17.E1 | Thao tác trên hồ sơ đã hủy | `students.abroad.cancelled` |
 | HV-17.E2 | Phỏng vấn trượt | Ở lại giai đoạn phỏng vấn, cho đặt lịch mới hoặc hủy |
-| HV-17.E3 | Sang COE khi giấy tờ chưa kiểm tra hết 🆕 | Cảnh báo, vẫn cho |
+| HV-17.E3 | Rời bước Giấy tờ khi còn giấy chưa kiểm tra | `students.abroad.docs_not_verified` — **chặn** (chốt 2026-11-24 theo giao diện `AbroadDrawer`; trước ghi "cảnh báo, vẫn cho") |
+| HV-17.E4 | Sang bước kế khi chưa đỗ phỏng vấn / chưa nhận COE / chưa có visa | `students.abroad.interview_not_passed` / `coe_missing` / `visa_missing` — đi từng bước, mỗi lần tự ghi chú |
+| HV-17.E5 | Mở lại hồ sơ đã dừng | Giữ bước đang dở, ghi chú "Mở lại hồ sơ." |
+| HV-17.E6 | Đóng phí vượt tổng; ngày nhận COE / visa trước ngày nộp; kỳ không dạng YYYY-MM | `students.abroad.invalid_payment` / `invalid_dates` / `invalid_intake` |
 
 ---
 
@@ -425,7 +431,7 @@ Phát `EnrollmentCompleted` → cổng HV hiện "Đã học xong", trang Chứn
   sĩ số lớp cho Academic (`IEnrollmentLookup`), HV-13 dùng lại API tài khoản cổng đã có ở System.
 - **Chờ module khác:** HV-12 phụ huynh (dữ liệu ở Crm — giai đoạn 16), HV-14 cảnh báo bỏ học (cần điểm danh — giai đoạn 15),
   hóa đơn của ghi danh (Finance — giai đoạn 17; Students phát event, chưa ai nghe).
-- **Làm sau (nhóm riêng):** HV-15 chứng nhận, HV-16 JLPT, HV-17 du học / XKLĐ.
+- **Làm sau (nhóm riêng):** HV-15 chứng nhận, HV-16 JLPT, HV-17 du học / XKLĐ → giai đoạn 23 (dưới).
 - **Domain (phase 1):** `Student.Create / Update` kiểm họ tên, ngày sinh không ở tương lai, SĐT 10 số bắt đầu bằng 0 (+84 → 0), email; `Hide` nêu lớp còn học.
   `Enrollment`: bảo lưu cần lý do + hạn sau hôm nay ≤ 6 tháng, cho nghỉ / chuyển lớp cần lý do, hoàn thành chỉ từ "đang học"; ghi chú giống frontend
   ("Bảo lưu đến dd/MM/yyyy — …", "Học lại từ …", "Chuyển sang lớp … — …").
@@ -471,3 +477,13 @@ Code: `src/Modules/Students/JPCenter.Modules.Students/Application/{Students,Enro
   trình duyệt, phần chăm sóc (người phụ trách = nhân viên thật, tiến độ, hẹn, nhật ký liên hệ) lưu server.
 - Tính nguy cơ: job hằng đêm 02:00 + ngay khi Academic phát `AttendanceRecorded`; chuyên cần qua `Academic.Contracts.IAttendanceStats`.
 - ⏳ Bài tập / điểm thi / nợ quá hạn tạm tính 0 (chưa có API). ✅ (giai đoạn 16) Ngưỡng đọc từ Cài đặt chung `atRisk.*` (`ICenterSettings`).
+
+## Phạm vi giai đoạn 23 — HV-15 → 17 (chốt 2026-11-24)
+
+- **Domain (phase 1):** `CertificateEligibility` (checklist 4 điều kiện giống frontend `certificateChecks`, ngưỡng từ Cài đặt chung `atRisk`),
+  `CertificateCode` (`CN-{năm}-{lớp rút gọn}-{số:4}`), `Enrollment.IssueCertificate / ResendCertificate`; `JlptScoring` (điểm liệt + tổng chuẩn),
+  `JlptSession` kiểm ngày / lệ phí / địa điểm, `JlptRegistration` (lệ phí theo kỳ, đổi cấp độ trước khi nộp, tự tính đỗ, chứng chỉ gốc về / phát 1 lần);
+  `AbroadCase.Advance` (từng bước có điều kiện), dừng / mở lại, phí không vượt tổng.
+- **Cần từ module khác (phase 3):** chuyên cần + bài thi cuối (`Academic.Contracts`), nợ của ghi danh (`Finance.Contracts` `ITuitionQuery`),
+  PDF chứng nhận + gửi email (`IEmailSender`, kho file `students/certificates`), tra cứu công khai `/verify/{code}`.
+- **Thống kê tỉ lệ đỗ** (HV-16 bước 4) tính khi đọc theo cấp độ / lớp / GV — không lưu cột.

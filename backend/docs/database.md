@@ -591,10 +591,10 @@ Khóa chính (scope, key).
 | enrollment_id | uuid FK UQ | → enrollments |
 | code | text UQ | Mã tra cứu, vd CN-2026-N3K12-0007 |
 | issued_at | timestamptz | Lúc cấp |
-| sent_to | text | Email đã gửi (lần gần nhất) |
+| sent_to | text | Email đã gửi (lần gần nhất, đã chuẩn hóa) |
 | sent_by | uuid | Người gửi → hr.employees |
 | send_count | int | Số lần gửi |
-| exception | text? | Lý do cấp ngoại lệ (chưa đủ điều kiện) |
+| exception | text? | Lý do cấp ngoại lệ (≤ 500) — chỉ lưu khi chưa đủ điều kiện (HV-15.E1) |
 | file_key | text? | File PDF trong kho file |
 
 ### 28. care_cases
@@ -637,7 +637,7 @@ Khóa chính (scope, key).
 | exam_date | date | Ngày thi |
 | registration_close | date | Hạn trung tâm nhận hồ sơ |
 | result_date | date | Ngày có kết quả |
-| fees | jsonb | Lệ phí theo cấp độ `{N1: 700000, …}` |
+| fees | jsonb | Lệ phí đủ 5 cấp độ N5 → N1 `{N1: 700000, …}` |
 | venues | text[] | Địa điểm thi |
 
 ### 31. jlpt_registrations
@@ -653,11 +653,11 @@ Khóa chính (scope, key).
 | venue | text | Địa điểm thi |
 | status | text | `registered` · `paid` đóng phí · `submitted` nộp hội đồng · `admit` có phiếu dự thi · `done` có kết quả · `absent` vắng · `cancelled` hủy |
 | doc_photo, doc_id_card, doc_form | bool | Đã nộp ảnh 3×4, CCCD, phiếu ĐK đã ký |
-| fee | numeric | Lệ phí |
+| fee | numeric | Lệ phí (theo cấp độ của kỳ thi lúc đăng ký) |
 | paid_at | timestamptz? | Lúc đóng phí |
 | admit_no | text? | Số báo danh |
 | scores | int[] | Điểm từng phần |
-| passed | bool? | Đỗ / trượt |
+| passed | bool? | Đỗ / trượt — tự tính theo quy chế (điểm liệt từng phần + tổng tối thiểu) |
 | cert_no | text? | Số chứng chỉ gốc |
 | cert_received_at, cert_received_by | timestamptz?, uuid? | Chứng chỉ về trung tâm |
 | cert_handed_at, cert_handed_by | timestamptz?, uuid? | Đã phát cho học viên |
@@ -1291,12 +1291,12 @@ Entity `ClassExam`. UQ (class_id, exam_id) trong số chưa hủy.
 ## Module Library — schema `library`
 
 ### 64. documents
-**Chức năng:** Thư viện tài liệu điện tử (sách, đề JLPT, tự học, audio / video) — không gắn lộ trình; watermark, chặn tải; số liệu đọc tổng hợp. Entity `LibraryDocument`.
+**Chức năng:** Thư viện tài liệu điện tử (sách, đề JLPT, tự học, audio / video) — user story 16, không gắn lộ trình; watermark, chặn tải; số liệu đọc tổng hợp. Entity `LibraryDocument`.
 
 | Thuộc tính | Kiểu | Giải thích |
 |---|---|---|
 | id | uuid PK | |
-| title | text | Tên tài liệu |
+| title | text | Tên tài liệu (≤ 200) |
 | subtitle | text? | Tên tiếng Nhật / phụ đề |
 | description | text? | Mô tả |
 | category | text | `textbook` · `jlpt` · `reference` · `self_study` · `media` |
@@ -1308,7 +1308,7 @@ Entity `ClassExam`. UQ (class_id, exam_id) trong số chưa hủy.
 | duration | int? | Phút (audio / video) |
 | levels | text[] | Trình độ |
 | skills | text[] | Kỹ năng |
-| tags | text[] | Thẻ |
+| tags | text[] | Thẻ (≤ 20 thẻ × 30 ký tự, không trùng) |
 | publisher | text? | Nhà xuất bản |
 | year | int? | Năm |
 | audience | text[] | Ai xem được: `student` · `teacher` · `staff` |
@@ -1324,7 +1324,7 @@ Entity `ClassExam`. UQ (class_id, exam_id) trong số chưa hủy.
 | last_viewed_at | timestamptz? | Lần xem cuối |
 
 ### 65. document_views
-**Chức năng:** Từng lượt xem tài liệu (chỉ thêm) — dựng biểu đồ 14 ngày, người đọc nhiều nhất. Entity `DocumentView`.
+**Chức năng:** Từng lượt xem tài liệu (chỉ thêm) — user story 16, TV-05: mở = bắt đầu, đóng = kết thúc + phút đọc; dựng biểu đồ 14 ngày, top 6 người đọc (TV-06). Entity `DocumentView`.
 
 | Thuộc tính | Kiểu | Giải thích |
 |---|---|---|
@@ -1332,10 +1332,12 @@ Entity `ClassExam`. UQ (class_id, exam_id) trong số chưa hủy.
 | document_id | uuid FK | → documents |
 | viewer_type | text | `staff` · `student` · `guardian` |
 | viewer_id | uuid | → hr.employees / students.students / crm.leads |
-| viewer_name | text | Tên người xem (in vào watermark) |
+| viewer_name | text | Tên người xem (in vào watermark, top người đọc) |
+| viewer_role | text? | Vai trò hiện ở top người đọc ("Giáo vụ", "Học viên"…) — trống thì suy từ `viewer_type` |
 | branch_id | uuid? | Chi nhánh người xem |
 | started_at | timestamptz | Lúc mở |
-| minutes | numeric | Số phút đọc |
+| ended_at | timestamptz? | Lúc đóng trình xem — trống = chưa kết thúc, không tính vào phút đọc TB |
+| minutes | numeric | Số phút đọc (0 → 240 / lượt) |
 
 ### 66. teacher_documents
 **Chức năng:** Tài liệu GV tự soạn, gửi cho lớp mình dạy (có thể gắn buổi) — user story 12, ND-10. Đổi file / link → xóa lượt xem (HV xem lại bản mới). Entity `TeacherDocument`.
@@ -1965,4 +1967,5 @@ sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đ�
 | 2026-11-23 | Giai đoạn 21 phase 2: tạo bảng `time_records`, `hr_requests`, `hr_request_steps` (khóa (hr_request_id, order)), `jobs`, `candidates`, `candidate_notes`, `onboardings` (UQ candidate_id, employee_id), `onboarding_items` (khóa (onboarding_id, key)) — migration `HrTimesheetsRequestsRecruitment`; tạo schema `work` với `tasks`, `task_checklist_items`, `task_comments`, `shift_assignments`, `shift_registrations`, `handovers`, `handover_leads`, `handover_items` — migration `WorkInitial`. Không FK sang schema khác (ca trong đơn đổi ca, lead, nhân viên ở Work); người duyệt / người sửa công / người tick không FK. `time_records.edited_by`, `onboarding_items.done_by` trỏ hr.employees. Dữ liệu: `hr-ops.seed.json`, `work.seed.json` từ mock (đơn đổi ca mẫu được gán ca thật lúc xuất; phép năm không trừ lại cho đơn đã duyệt) |
 | 2026-11-24 | Giai đoạn 22 phase 1 (user story 08 TC-12 → 14, story 15): `invoices` + `sale_id`, `sale_assigned_by` (Sale ghi nhận doanh số); `payroll_locks` + `unlocked_at`, `unlocked_by` (mở khóa / chốt lại); `pay_adjustments.reason` ≤ 500; `integrations.key` dùng khóa trùng id frontend (`zalo-oa`…), `category` / trường `config` / `events` theo danh mục `IntegrationCatalog`; `integration_logs.message` ≤ 1000 |
 | 2026-11-24 | Giai đoạn 22 phase 2: tạo bảng `pay_adjustments` (chỉ mục (month, employee_id), `amount` numeric(18,0) có dấu), `payroll_locks` (UQ kind, month, branch_id; `lines` jsonb), `commission_tiers` (`percent` numeric(5,2)), `sale_targets` (UQ employee_id, month); `invoices` + `sale_id` (chỉ mục), `sale_assigned_by` — migration `FinancePayroll`. Nhân viên / chi nhánh không FK (schema khác). Dữ liệu: `payroll.seed.json` từ mock (điều chỉnh, bảng lương tháng trước đã chốt + đã chi với snapshot rỗng, bậc hoa hồng, chỉ tiêu 3 tháng; Sale ghi nhận của hóa đơn mẫu theo quy tắc frontend — DB cũ được bổ sung khi chưa hóa đơn nào có Sale). `integrations.config`: trường bí mật mã hóa Data Protection (tiền tố `enc:`), dữ liệu cũ tự mã hóa khi khởi động (`IntegrationSecretsSeeder`) — không đổi cấu trúc bảng |
+| 2026-11-24 | Giai đoạn 23 phase 1 (user story 16 thư viện, HV-15 → 17): `document_views` + `viewer_role`, `ended_at`, `minutes` giới hạn 0 → 240; `documents.title` ≤ 200, `tags` chuẩn hóa; `certificates.exception` ≤ 500 chỉ lưu khi chưa đủ điều kiện; `jlpt_sessions.fees` đủ N5 → N1; `jlpt_registrations.passed` tự tính từ `scores` |
 | 2026-11-17 | Chốt thiết kế (user story 08): `invoices.status` chỉ lưu `open` / `cancelled` / `voided`, các trạng thái tiền tính khi đọc; `payments.method` dùng `vietqr` (không `viet_qr`). Domain `InvoiceStatus`, `PaymentMethod` sửa theo khi code module Tài chính |

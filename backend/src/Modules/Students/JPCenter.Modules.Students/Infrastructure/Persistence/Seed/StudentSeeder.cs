@@ -57,8 +57,8 @@ internal sealed class StudentSeeder(StudentsDbContext db, IClock clock, ILogger<
             if (done.IsFailure) logger.LogWarning("Ghi danh mẫu {Id}: {Error}", e.Id, done.Error.Message);
             if (e.Certificate is { } c)
             {
-                x.IssueCertificate(c.Code, At(c.IssuedAt) ?? clock.UtcNow, c.SentTo, Person(c.SentById), c.Exception);
-                for (var i = 1; i < c.SendCount; i++) x.Certificate!.Resend(c.SentTo, Person(c.SentById));
+                x.IssueCertificate(c.Code, At(c.IssuedAt) ?? clock.UtcNow, c.SentTo, Person(c.SentById), c.Exception is null, c.Exception);
+                for (var i = 1; i < c.SendCount; i++) x.ResendCertificate(c.SentTo, Person(c.SentById));
             }
             db.AddWithId(x, SeedData.IdOf(e.Id));
         }

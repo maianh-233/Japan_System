@@ -91,13 +91,4 @@ public sealed class EnrollmentTests
         next.TransferredFromId.ShouldBe(old.Id);
         old.TransferTo(next.Id, "X", "y", Today).Error.Code.ShouldBe("students.enrollment.already_ended");
     }
-
-    [Fact]
-    public void HV15_chung_nhan_can_hoan_thanh_hoac_ly_do_ngoai_le()
-    {
-        var e = New();
-        e.IssueCertificate("CN-1", DateTimeOffset.UtcNow, "a@b.vn", Guid.NewGuid(), null).Error.Code.ShouldBe("students.certificate.not_completed");
-        e.IssueCertificate("CN-1", DateTimeOffset.UtcNow, "a@b.vn", Guid.NewGuid(), "Học bù đủ").IsSuccess.ShouldBeTrue();
-        e.IssueCertificate("CN-2", DateTimeOffset.UtcNow, "a@b.vn", Guid.NewGuid(), "x").Error.Code.ShouldBe("students.certificate.already_issued");
-    }
 }

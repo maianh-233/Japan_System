@@ -1,4 +1,5 @@
 using JPCenter.SharedKernel.Domain;
+using JPCenter.SharedKernel.Primitives;
 
 namespace JPCenter.Modules.Students.Domain.Enrollments;
 
@@ -7,6 +8,8 @@ namespace JPCenter.Modules.Students.Domain.Enrollments;
 /// </summary>
 public sealed class Certificate : Entity<CertificateId>
 {
+    public const int MaxException = 500;
+
     private Certificate() { }
 
     internal Certificate(string code, DateTimeOffset issuedAt, string sentTo, Guid sentBy, string? exception) : base(CertificateId.New()) =>
@@ -24,7 +27,10 @@ public sealed class Certificate : Entity<CertificateId>
     /// <summary>File PDF đã sinh (khóa trong kho file)</summary>
     public string? FileKey { get; private set; }
 
-    public void Resend(string sentTo, Guid sentBy) => (SentTo, SentBy, SendCount) = (sentTo, sentBy, SendCount + 1);
+    internal void Resend(string sentTo, Guid sentBy) => (SentTo, SentBy, SendCount) = (sentTo, sentBy, SendCount + 1);
+
+    /// <summary>Email nhận đã chuẩn hóa, null nếu trống / sai dạng</summary>
+    internal static string? CleanEmail(string? email) => EmailAddress.Normalize(email) is { } e && EmailAddress.IsValid(e) ? e : null;
 
     public void AttachFile(string fileKey) => FileKey = fileKey;
 }
