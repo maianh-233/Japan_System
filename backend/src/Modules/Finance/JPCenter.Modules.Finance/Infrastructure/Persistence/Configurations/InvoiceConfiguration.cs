@@ -23,6 +23,7 @@ internal sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         b.HasIndex(x => x.StudentId);
         b.HasIndex(x => x.ClassId);
         b.HasIndex(x => new { x.BranchId, x.Status, x.DueDate });
+        b.HasIndex(x => x.SaleId);
         b.Property(x => x.Code).HasMaxLength(50);
         b.Property(x => x.TransferContent).HasMaxLength(InvoiceCode.MaxTransferContent);
         b.Property(x => x.CancelReason).HasMaxLength(500);

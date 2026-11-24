@@ -183,6 +183,103 @@ namespace JPCenter.Modules.Finance.Infrastructure.Persistence.Migrations
                     b.ToTable("bank_transactions", "finance");
                 });
 
+            modelBuilder.Entity("JPCenter.Modules.Finance.Domain.Commissions.CommissionTier", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<decimal>("From")
+                        .HasPrecision(18)
+                        .HasColumnType("numeric(18,0)")
+                        .HasColumnName("from");
+
+                    b.Property<decimal>("Percent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)")
+                        .HasColumnName("percent");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_commission_tiers");
+
+                    b.ToTable("commission_tiers", "finance");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Finance.Domain.Commissions.SaleTarget", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("employee_id");
+
+                    b.Property<string>("Month")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("character varying(7)")
+                        .HasColumnName("month");
+
+                    b.Property<decimal>("Target")
+                        .HasPrecision(18)
+                        .HasColumnType("numeric(18,0)")
+                        .HasColumnName("target");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_sale_targets");
+
+                    b.HasIndex("EmployeeId", "Month")
+                        .IsUnique()
+                        .HasDatabaseName("ix_sale_targets_employee_id_month");
+
+                    b.ToTable("sale_targets", "finance");
+                });
+
             modelBuilder.Entity("JPCenter.Modules.Finance.Domain.Invoices.Invoice", b =>
                 {
                     b.Property<Guid>("Id")
@@ -264,6 +361,14 @@ namespace JPCenter.Modules.Finance.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("issued_at");
 
+                    b.Property<Guid?>("SaleAssignedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("sale_assigned_by");
+
+                    b.Property<Guid?>("SaleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("sale_id");
+
                     b.Property<string>("Schedule")
                         .IsRequired()
                         .HasColumnType("jsonb")
@@ -335,6 +440,9 @@ namespace JPCenter.Modules.Finance.Infrastructure.Persistence.Migrations
                     b.HasIndex("InstallmentPlanId")
                         .HasDatabaseName("ix_invoices_installment_plan_id");
 
+                    b.HasIndex("SaleId")
+                        .HasDatabaseName("ix_invoices_sale_id");
+
                     b.HasIndex("StudentId")
                         .HasDatabaseName("ix_invoices_student_id");
 
@@ -376,6 +484,149 @@ namespace JPCenter.Modules.Finance.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_invoice_counters_branch_id_period");
 
                     b.ToTable("invoice_counters", "finance");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Finance.Domain.Payroll.PayAdjustment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18)
+                        .HasColumnType("numeric(18,0)")
+                        .HasColumnName("amount");
+
+                    b.Property<Guid>("By")
+                        .HasColumnType("uuid")
+                        .HasColumnName("by");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("employee_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Month")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("character varying(7)")
+                        .HasColumnName("month");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("reason");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_pay_adjustments");
+
+                    b.HasIndex("Month", "EmployeeId")
+                        .HasDatabaseName("ix_pay_adjustments_month_employee_id");
+
+                    b.ToTable("pay_adjustments", "finance");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Finance.Domain.Payroll.PayrollLock", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("Lines")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("lines");
+
+                    b.Property<DateTimeOffset>("LockedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("locked_at");
+
+                    b.Property<Guid>("LockedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("locked_by");
+
+                    b.Property<string>("Month")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("character varying(7)")
+                        .HasColumnName("month");
+
+                    b.Property<DateTimeOffset?>("PaidAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("paid_at");
+
+                    b.Property<decimal>("Total")
+                        .HasPrecision(18)
+                        .HasColumnType("numeric(18,0)")
+                        .HasColumnName("total");
+
+                    b.Property<DateTimeOffset?>("UnlockedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("unlocked_at");
+
+                    b.Property<Guid?>("UnlockedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("unlocked_by");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_payroll_locks");
+
+                    b.HasIndex("Kind", "Month", "BranchId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_payroll_locks_kind_month_branch_id");
+
+                    b.ToTable("payroll_locks", "finance");
                 });
 
             modelBuilder.Entity("JPCenter.Modules.Finance.Domain.Pricing.BranchPrice", b =>

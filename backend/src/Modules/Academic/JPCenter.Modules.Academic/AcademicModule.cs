@@ -26,7 +26,6 @@ using JPCenter.Modules.Academic.Infrastructure.Persistence;
 using JPCenter.Modules.Academic.Infrastructure.Persistence.Seed;
 using JPCenter.Modules.Academic.Infrastructure.Services;
 using Quartz;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -86,7 +85,6 @@ public sealed class AcademicModule : IModule
         services.AddScoped<IScheduleLookup, ScheduleLookup>();
 
         // Nội dung học (user story 12, giai đoạn 20)
-        services.AddDataProtection();
         services.AddScoped<LearningAccess>();
         services.AddScoped<LearningNotices>();
         services.AddScoped<LearningFiles>();

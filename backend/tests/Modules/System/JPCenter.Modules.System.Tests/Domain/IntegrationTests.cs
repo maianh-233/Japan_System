@@ -72,6 +72,16 @@ public sealed class IntegrationTests
     }
 
     [Fact]
+    public void Ma_hoa_lai_chi_truong_bi_mat_khong_doi_thi_bao_khong_thay_doi()
+    {
+        var z = Zalo();
+        z.RewriteSecrets(v => v.StartsWith("enc:") ? v : "enc:" + v).ShouldBeTrue();
+        z.Config["secret"].ShouldBe("enc:s3cr3tKey");
+        z.Config["oaId"].ShouldBe("1");
+        z.RewriteSecrets(v => v.StartsWith("enc:") ? v : "enc:" + v).ShouldBeFalse();
+    }
+
+    [Fact]
     public void TH_02_ngat_xoa_cau_hinh_tat_viec()
     {
         var z = Zalo("tuition", "attendance");

@@ -103,6 +103,15 @@ public sealed class Integration : AggregateRoot<IntegrationId>, IAuditable
     public Dictionary<string, string> MaskedConfig(Func<string, string> reveal) =>
         Config.ToDictionary(kv => kv.Key, kv => Spec.Field(kv.Key)?.Secret == true ? Mask(reveal(kv.Value)) : kv.Value);
 
+    /// <summary>Đổi giá trị các trường bí mật (vd mã hóa dữ liệu cũ còn để chữ thường). Trả true nếu có thay đổi.</summary>
+    public bool RewriteSecrets(Func<string, string> rewrite)
+    {
+        var next = Config.ToDictionary(kv => kv.Key, kv => Spec.Field(kv.Key)?.Secret == true ? rewrite(kv.Value) : kv.Value);
+        if (next.All(kv => Config[kv.Key] == kv.Value)) return false;
+        Config = next;
+        return true;
+    }
+
     public static string Mask(string value) => value.Length <= 4 ? "••••••" : "••••••" + value[^4..];
 
     public void MarkError(string error) => (Status, LastError) = (IntegrationStatus.Error, error.Length > 500 ? error[..500] : error);

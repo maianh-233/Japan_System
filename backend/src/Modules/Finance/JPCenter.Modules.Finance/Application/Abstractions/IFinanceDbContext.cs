@@ -1,5 +1,7 @@
 using JPCenter.Modules.Finance.Domain.BankTransactions;
+using JPCenter.Modules.Finance.Domain.Commissions;
 using JPCenter.Modules.Finance.Domain.Invoices;
+using JPCenter.Modules.Finance.Domain.Payroll;
 using JPCenter.Modules.Finance.Domain.Pricing;
 using JPCenter.Modules.Finance.Domain.Reminders;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +18,10 @@ public interface IFinanceDbContext
     DbSet<InstallmentPlan> InstallmentPlans { get; }
     DbSet<BankTransaction> BankTransactions { get; }
     DbSet<PaymentReminder> PaymentReminders { get; }
+    DbSet<PayAdjustment> PayAdjustments { get; }
+    DbSet<PayrollLock> PayrollLocks { get; }
+    DbSet<CommissionTier> CommissionTiers { get; }
+    DbSet<SaleTarget> SaleTargets { get; }
 
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

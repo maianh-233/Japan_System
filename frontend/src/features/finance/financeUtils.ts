@@ -48,8 +48,8 @@ export function saleOfInvoice(inv: Invoice, studentId: string | undefined, branc
   return sales[h % sales.length].id;
 }
 
-/** Học viên → Sale phụ trách lead liên kết */
-function leadSaleMap(leads: Lead[], links: LeadStudentLink[]) {
+/** Học viên → Sale phụ trách lead liên kết (lead đã chốt trước, rồi lead mới nhất) — dùng cả ở scripts/export-seed.ts */
+export function leadSaleMap(leads: Lead[], links: LeadStudentLink[]) {
   const m = new Map<string, string>();
   const byStudent = new Map<string, Lead[]>();
   links.forEach((k) => {

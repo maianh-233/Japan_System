@@ -75,6 +75,7 @@
 | `OutboxMessage`, `OutboxCollector`, `OutboxInterceptor`, `OutboxProcessor<TContext>`, `OutboxSignal`, `OutboxOptions` (`Outbox/`) | Hạ tầng Outbox — tự gắn qua `AddInfrastructureCommon()` + `AddModuleDbContext()`: bảng `outbox_messages` mỗi schema, gửi ngay sau khi lưu (kiểm tra dự phòng 5 giây), thử lại lùi dần, chỉ chạy lại handler lỗi (`handled_by` — thay cho bảng Inbox), quá 8 lần → `failed_at` + log lỗi, xóa bản đã gửi sau 7 ngày. Cấu hình `Outbox:*` | ✅ |
 | ~~`InboxMessage`~~ | **Không làm**: `handled_by` trong outbox + handler chịu được chạy lại là đủ cho 1 instance | — |
 | `S3FileStorage` + `FileStorageOptions` (`Files/`, đăng ký sẵn trong `AddInfrastructureCommon()`) | Hiện thực `IFileStorage` trên kho S3-compatible: local SeaweedFS (`deploy/docker-compose.yml`), thật Cloudflare R2. Cấu hình `Storage:*` (ServiceUrl, Bucket, AccessKey, SecretKey, CreateBucket, LinkMinutes). Chưa cấu hình → lỗi hệ thống rõ ràng. Test: Testcontainers SeaweedFS (`FileStorageTests.cs`) | ✅ |
+| `AddPersistentDataProtection()` (`Security/DataProtectionSetup`, gọi sẵn trong `AddInfrastructureCommon()`) | ASP.NET Data Protection dùng chung (`IDataProtectionProvider` — mã hóa khóa bí mật tích hợp, token làm bài): tên ứng dụng cố định `JPCenter`, khóa lưu bền ra `DataProtection:KeysPath` (mặc định `%LOCALAPPDATA%/JPCenter/dp-keys`; Docker phải gắn volume). Module không tự gọi `AddDataProtection()` | ✅ |
 | `SequenceCodeGenerator` (PostgreSQL sequence) | Hiện thực `ICodeGenerator` | 📝 |
 
 ## JPCenter.Api.Common

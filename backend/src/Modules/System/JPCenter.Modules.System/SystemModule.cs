@@ -102,6 +102,8 @@ public sealed class SystemModule : IModule
 
         services.AddScoped<IDataSeeder, SystemSeeder>();
         services.AddScoped<IDataSeeder, SettingsSeeder>();
+        services.AddScoped<IDataSeeder, IntegrationSecretsSeeder>();
+        services.AddSingleton<IIntegrationSecrets, IntegrationSecrets>();
     }
 
     public void MapEndpoints(IEndpointRouteBuilder group) => SystemEndpoints.Map(group);

@@ -47,6 +47,7 @@ public sealed class FinanceModule : IModule
         services.AddScoped<TransactionFinder>();
 
         services.AddScoped<IDataSeeder, FinanceSeeder>();
+        services.AddScoped<IDataSeeder, PayrollSeeder>();
 
         if (JobServiceCollectionExtensions.IsEnabled(configuration))
         {

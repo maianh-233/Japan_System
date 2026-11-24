@@ -152,6 +152,10 @@ const fin = await import('@/mocks/data/finance');
 const { MOCK_INVOICES } = await import('@/mocks/data/students');
 write(resolve(backend, 'Finance', 'JPCenter.Modules.Finance', 'Infrastructure', 'Persistence', 'Seed', 'finance.seed.json'), financeSeed());
 
+// Lương + hoa hồng (giai đoạn 22): điều chỉnh lương, bảng lương đã chốt, bậc hoa hồng, chỉ tiêu Sale, Sale ghi nhận của từng hóa đơn (TC-04.E5)
+const { saleOfInvoice, leadSaleMap } = await import('@/features/finance/financeUtils');
+write(resolve(backend, 'Finance', 'JPCenter.Modules.Finance', 'Infrastructure', 'Persistence', 'Seed', 'payroll.seed.json'), payrollSeed());
+
 // Nội dung học (user story 12 — giai đoạn 20): bài tập, bài nộp, kết quả thi, thông báo lớp, đánh giá GV, flashcard (Academic) · tài liệu GV (Library)
 const { MOCK_ASSIGNMENTS } = await import('@/mocks/data/classes');
 const { MOCK_SUBMISSIONS, MOCK_EXAM_RESULTS } = await import('@/mocks/data/submissions');
@@ -313,6 +317,25 @@ function financeSeed() {
       matchedById: t.matchedBy === 'Hệ thống' ? null : personId(t.matchedBy),
     })),
     reminders: fin.MOCK_REMINDERS.map((r) => ({ ...r, byId: r.by.startsWith('Hệ thống') ? null : personId(r.by) })),
+  };
+}
+
+function payrollSeed() {
+  const enrollment = new Map(MOCK_ENROLLMENTS.map((e) => [e.id, e]));
+  const leadSale = leadSaleMap(MOCK_LEADS, MOCK_LINKS);
+  return {
+    generatedAt: new Date().toISOString(),
+    payAdjustments: fin.MOCK_PAY_ADJUSTS.map((a) => ({ ...a, byId: personId(a.by) })),
+    // Mock chốt tháng trước với tổng 0đ, chưa có chi tiết từng người — backend nạp nguyên (snapshot rỗng)
+    payrollLocks: fin.MOCK_PAYROLL_LOCKS.map((l) => ({ ...l, lockedById: personId(l.lockedBy) })),
+    commissionTiers: fin.MOCK_COMMISSION_TIERS,
+    saleTargets: fin.MOCK_SALE_TARGETS,
+    invoiceSales: MOCK_INVOICES.flatMap((inv) => {
+      const e = enrollment.get(inv.enrollmentId);
+      const branchId = e ? classBranch(e.classId) : null;
+      const saleId = e && branchId ? saleOfInvoice(inv, e.studentId, branchId, MOCK_EMPLOYEES, {}, leadSale) : undefined;
+      return saleId ? [{ invoiceId: inv.id, saleId }] : [];
+    }),
   };
 }
 

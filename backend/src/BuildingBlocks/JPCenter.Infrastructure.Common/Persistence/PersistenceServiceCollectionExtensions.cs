@@ -11,6 +11,7 @@ using JPCenter.Application.Common.Security;
 using JPCenter.Infrastructure.Common.Auditing;
 using JPCenter.Infrastructure.Common.Idempotency;
 using JPCenter.Infrastructure.Common.Realtime;
+using JPCenter.Infrastructure.Common.Security;
 using JPCenter.Infrastructure.Common.Time;
 using JPCenter.SharedKernel.Domain;
 using Microsoft.EntityFrameworkCore;
@@ -63,6 +64,9 @@ public static class PersistenceServiceCollectionExtensions
 
         // Realtime: mặc định bỏ qua; web host (Api.Common.AddRealtime) thay bằng SignalR
         services.TryAddSingleton<IRealtimeNotifier, NullRealtimeNotifier>();
+
+        // Mã hóa dữ liệu (khóa bí mật tích hợp, token): khóa lưu bền ra thư mục
+        services.AddPersistentDataProtection();
         return services;
     }
 

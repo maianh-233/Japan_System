@@ -1,0 +1,383 @@
+{
+  "generatedAt": "2026-11-24T02:41:49.296Z",
+  "payAdjustments": [
+    {
+      "id": "PA-1",
+      "month": "2026-11",
+      "employeeId": "t-ha",
+      "amount": 500000,
+      "reason": "Thưởng lớp N3-K12 đạt tỷ lệ đỗ thi thử 90%",
+      "by": "Lê Hoàng Nam",
+      "byId": "e-nam"
+    },
+    {
+      "id": "PA-2",
+      "month": "2026-11",
+      "employeeId": "t-sato",
+      "amount": 300000,
+      "reason": "Hỗ trợ chấm bài thi thử JLPT",
+      "by": "Lê Hoàng Nam",
+      "byId": "e-nam"
+    },
+    {
+      "id": "PA-3",
+      "month": "2026-11",
+      "employeeId": "e-tung",
+      "amount": -200000,
+      "reason": "Làm mất chìa khóa tủ hồ sơ",
+      "by": "Phạm Thu Trang",
+      "byId": "e-trang"
+    },
+    {
+      "id": "PA-4",
+      "month": "2026-11",
+      "employeeId": "e-hong",
+      "amount": 400000,
+      "reason": "Trực sự kiện ngày hội du học (Chủ nhật)",
+      "by": "Phạm Thu Trang",
+      "byId": "e-trang"
+    }
+  ],
+  "payrollLocks": [
+    {
+      "kind": "teacher",
+      "month": "2026-10",
+      "branchId": "cg",
+      "lockedBy": "Hoàng Thị Lan",
+      "lockedAt": "2026-11-03T17:00:00.000Z",
+      "total": 0,
+      "paidAt": "2026-11-04T17:00:00.000Z",
+      "lockedById": "e-lan"
+    },
+    {
+      "kind": "staff",
+      "month": "2026-10",
+      "branchId": "cg",
+      "lockedBy": "Hoàng Thị Lan",
+      "lockedAt": "2026-11-03T17:00:00.000Z",
+      "total": 0,
+      "paidAt": "2026-11-04T17:00:00.000Z",
+      "lockedById": "e-lan"
+    },
+    {
+      "kind": "teacher",
+      "month": "2026-10",
+      "branchId": "q1",
+      "lockedBy": "Hoàng Thị Lan",
+      "lockedAt": "2026-11-03T17:00:00.000Z",
+      "total": 0,
+      "paidAt": "2026-11-04T17:00:00.000Z",
+      "lockedById": "e-lan"
+    },
+    {
+      "kind": "staff",
+      "month": "2026-10",
+      "branchId": "q1",
+      "lockedBy": "Hoàng Thị Lan",
+      "lockedAt": "2026-11-03T17:00:00.000Z",
+      "total": 0,
+      "paidAt": "2026-11-04T17:00:00.000Z",
+      "lockedById": "e-lan"
+    },
+    {
+      "kind": "teacher",
+      "month": "2026-10",
+      "branchId": "hc",
+      "lockedBy": "Hoàng Thị Lan",
+      "lockedAt": "2026-11-03T17:00:00.000Z",
+      "total": 0,
+      "paidAt": "2026-11-04T17:00:00.000Z",
+      "lockedById": "e-lan"
+    },
+    {
+      "kind": "staff",
+      "month": "2026-10",
+      "branchId": "hc",
+      "lockedBy": "Hoàng Thị Lan",
+      "lockedAt": "2026-11-03T17:00:00.000Z",
+      "total": 0,
+      "paidAt": "2026-11-04T17:00:00.000Z",
+      "lockedById": "e-lan"
+    }
+  ],
+  "commissionTiers": [
+    {
+      "from": 0,
+      "percent": 3
+    },
+    {
+      "from": 5000000,
+      "percent": 4
+    },
+    {
+      "from": 10000000,
+      "percent": 5
+    },
+    {
+      "from": 20000000,
+      "percent": 6
+    }
+  ],
+  "saleTargets": [
+    {
+      "employeeId": "e-khoa",
+      "month": "2026-09",
+      "target": 12000000
+    },
+    {
+      "employeeId": "e-khoa",
+      "month": "2026-10",
+      "target": 12000000
+    },
+    {
+      "employeeId": "e-khoa",
+      "month": "2026-11",
+      "target": 12000000
+    },
+    {
+      "employeeId": "e-bao",
+      "month": "2026-09",
+      "target": 8000000
+    },
+    {
+      "employeeId": "e-bao",
+      "month": "2026-10",
+      "target": 8000000
+    },
+    {
+      "employeeId": "e-bao",
+      "month": "2026-11",
+      "target": 8000000
+    },
+    {
+      "employeeId": "e-vy",
+      "month": "2026-09",
+      "target": 10000000
+    },
+    {
+      "employeeId": "e-vy",
+      "month": "2026-10",
+      "target": 10000000
+    },
+    {
+      "employeeId": "e-vy",
+      "month": "2026-11",
+      "target": 10000000
+    },
+    {
+      "employeeId": "e-han",
+      "month": "2026-09",
+      "target": 9000000
+    },
+    {
+      "employeeId": "e-han",
+      "month": "2026-10",
+      "target": 9000000
+    },
+    {
+      "employeeId": "e-han",
+      "month": "2026-11",
+      "target": 9000000
+    },
+    {
+      "employeeId": "e-tung",
+      "month": "2026-09",
+      "target": 7000000
+    },
+    {
+      "employeeId": "e-tung",
+      "month": "2026-10",
+      "target": 7000000
+    },
+    {
+      "employeeId": "e-tung",
+      "month": "2026-11",
+      "target": 7000000
+    },
+    {
+      "employeeId": "e-nhu",
+      "month": "2026-09",
+      "target": 5000000
+    },
+    {
+      "employeeId": "e-nhu",
+      "month": "2026-10",
+      "target": 5000000
+    },
+    {
+      "employeeId": "e-nhu",
+      "month": "2026-11",
+      "target": 5000000
+    }
+  ],
+  "invoiceSales": [
+    {
+      "invoiceId": "INV-1",
+      "saleId": "e-tung"
+    },
+    {
+      "invoiceId": "INV-2",
+      "saleId": "e-tung"
+    },
+    {
+      "invoiceId": "INV-3",
+      "saleId": "e-tung"
+    },
+    {
+      "invoiceId": "INV-4",
+      "saleId": "e-khoa"
+    },
+    {
+      "invoiceId": "INV-5",
+      "saleId": "e-khoa"
+    },
+    {
+      "invoiceId": "INV-6",
+      "saleId": "e-vy"
+    },
+    {
+      "invoiceId": "INV-7",
+      "saleId": "e-nhu"
+    },
+    {
+      "invoiceId": "INV-8",
+      "saleId": "e-nhu"
+    },
+    {
+      "invoiceId": "INV-9",
+      "saleId": "e-vy"
+    },
+    {
+      "invoiceId": "INV-10",
+      "saleId": "e-bao"
+    },
+    {
+      "invoiceId": "INV-11",
+      "saleId": "e-han"
+    },
+    {
+      "invoiceId": "INV-12",
+      "saleId": "e-han"
+    },
+    {
+      "invoiceId": "INV-13",
+      "saleId": "e-khoa"
+    },
+    {
+      "invoiceId": "INV-14",
+      "saleId": "e-vy"
+    },
+    {
+      "invoiceId": "INV-15",
+      "saleId": "e-vy"
+    },
+    {
+      "invoiceId": "INV-16",
+      "saleId": "e-khoa"
+    },
+    {
+      "invoiceId": "INV-17",
+      "saleId": "e-vy"
+    },
+    {
+      "invoiceId": "INV-18",
+      "saleId": "e-tung"
+    },
+    {
+      "invoiceId": "INV-19",
+      "saleId": "e-khoa"
+    },
+    {
+      "invoiceId": "INV-20",
+      "saleId": "e-vy"
+    },
+    {
+      "invoiceId": "INV-21",
+      "saleId": "e-tung"
+    },
+    {
+      "invoiceId": "INV-22",
+      "saleId": "e-khoa"
+    },
+    {
+      "invoiceId": "INV-23",
+      "saleId": "e-khoa"
+    },
+    {
+      "invoiceId": "INV-24",
+      "saleId": "e-vy"
+    },
+    {
+      "invoiceId": "INV-25",
+      "saleId": "e-han"
+    },
+    {
+      "invoiceId": "INV-26",
+      "saleId": "e-vy"
+    },
+    {
+      "invoiceId": "INV-27",
+      "saleId": "e-bao"
+    },
+    {
+      "invoiceId": "INV-28",
+      "saleId": "e-han"
+    },
+    {
+      "invoiceId": "INV-29",
+      "saleId": "e-vy"
+    },
+    {
+      "invoiceId": "INV-30",
+      "saleId": "e-tung"
+    },
+    {
+      "invoiceId": "INV-31",
+      "saleId": "e-tung"
+    },
+    {
+      "invoiceId": "INV-32",
+      "saleId": "e-vy"
+    },
+    {
+      "invoiceId": "INV-33",
+      "saleId": "e-tung"
+    },
+    {
+      "invoiceId": "INV-34",
+      "saleId": "e-han"
+    },
+    {
+      "invoiceId": "INV-35",
+      "saleId": "e-vy"
+    },
+    {
+      "invoiceId": "INV-36",
+      "saleId": "e-tung"
+    },
+    {
+      "invoiceId": "INV-37",
+      "saleId": "e-han"
+    },
+    {
+      "invoiceId": "INV-38",
+      "saleId": "e-vy"
+    },
+    {
+      "invoiceId": "INV-39",
+      "saleId": "e-vy"
+    },
+    {
+      "invoiceId": "INV-40",
+      "saleId": "e-khoa"
+    },
+    {
+      "invoiceId": "INV-41",
+      "saleId": "e-vy"
+    },
+    {
+      "invoiceId": "INV-42",
+      "saleId": "e-tung"
+    }
+  ]
+}
