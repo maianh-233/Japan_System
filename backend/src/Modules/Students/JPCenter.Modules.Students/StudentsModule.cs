@@ -3,7 +3,10 @@ using JPCenter.Application.Common.Messaging;
 using JPCenter.Infrastructure.Common.Jobs;
 using JPCenter.Infrastructure.Common.Persistence;
 using JPCenter.Modules.Students.Api;
+using JPCenter.Modules.Students.Application.Abroad.Common;
 using JPCenter.Modules.Students.Application.Abstractions;
+using JPCenter.Modules.Students.Application.Certificates.Common;
+using JPCenter.Modules.Students.Application.Jlpt.Common;
 using JPCenter.Modules.Students.Application.CareCases.Common;
 using JPCenter.Modules.Students.Application.Common;
 using JPCenter.Modules.Students.Application.Enrollments.Common;
@@ -44,6 +47,9 @@ public sealed class StudentsModule : IModule
         services.AddScoped<RiskCalculator>();
         services.AddScoped<CareCaseReader>();
         services.AddScoped<CareCaseOpener>();
+        services.AddScoped<CertificateDesk>();
+        services.AddScoped<JlptReader>();
+        services.AddScoped<AbroadDesk>();
 
         services.AddScoped<IDataSeeder, StudentSeeder>();
         services.AddScoped<IDataSeeder, CareSeeder>();

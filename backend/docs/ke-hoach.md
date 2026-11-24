@@ -33,7 +33,7 @@
 | 20 | **Nội dung học**: bài tập (upload / quiz), bài thi theo mốc (online / giấy), điểm, thông báo lớp, đánh giá GV, flashcard, tài liệu GV. Dấu hiệu bài tập / điểm thật cho cảnh báo bỏ học. Story [12](user-stories/12-noi-dung-hoc.md) | 17 | ✅ 2026-11-22 |
 | 21 | **Nhân sự mở rộng + Công việc**: chấm công NV, đơn từ duyệt nhiều cấp, tuyển dụng, onboarding, task / Kanban, giao việc cấp dưới, xếp ca, bàn giao ca, trang cá nhân. Story [13](user-stories/13-cham-cong-don-tu-tuyen-dung.md), [14](user-stories/14-cong-viec-xep-ca-ban-giao.md) | 16 | ✅ 2026-11-23 |
 | 22 | **Tài chính đợt 2 + tích hợp**: lương GV (DT-15.E5 khóa bảng lương), lương NV, hoa hồng / KPI Sale; Zalo OA, SMS, ngân hàng, Zoom / Meet. Story [08](user-stories/08-tai-chinh.md) TC-12 → 14, [15](user-stories/15-tich-hop.md) | 18, 19, 21 | ✅ 2026-11-24 |
-| 23 | **Thư viện + nhóm HV riêng**: thư viện (watermark, chặn tải, thống kê), HV-15 chứng nhận, HV-16 JLPT, HV-17 du học / XKLĐ. Story [16](user-stories/16-thu-vien.md), [06](user-stories/06-hoc-vien.md) HV-15 → 17 | 16 | 🚧 phase 2 |
+| 23 | **Thư viện + nhóm HV riêng**: thư viện (watermark, chặn tải, thống kê), HV-15 chứng nhận, HV-16 JLPT, HV-17 du học / XKLĐ. Story [16](user-stories/16-thu-vien.md), [06](user-stories/06-hoc-vien.md) HV-15 → 17 | 16 | 🚧 phase 3 |
 | 24 | **Báo cáo + bảng điều khiển** (Reporting, chỉ đọc): việc cần làm theo vai trò, chuyển đổi, doanh thu, công nợ, chuyên cần, lấp đầy phòng, so sánh chi nhánh, xuất Excel | tất cả | |
 | 25 | **Sẵn sàng chạy thật**: bỏ chế độ mock, E2E Playwright luồng chính, rà bảo mật + hiệu năng, Docker 1 instance, backup Postgres, Seq, CI, hướng dẫn vận hành | tất cả | |
 

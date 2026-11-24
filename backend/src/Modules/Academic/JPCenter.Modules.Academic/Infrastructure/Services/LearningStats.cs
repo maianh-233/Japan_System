@@ -31,6 +31,12 @@ internal sealed class LearningStats(AcademicDbContext db, IClock clock) : ILearn
         var resQuery = db.ExamResults.AsNoTracking().Where(r => ids.Contains(r.ClassId));
         if (studentIds is not null) resQuery = resQuery.Where(r => studentIds.Contains(r.StudentId));
         var results = await resQuery.ToListAsync(ct);
+        // Thứ tự thi cũ → mới (giờ thi của lớp, không có thì lúc bắt đầu làm) — phần tử cuối = bài thi gần nhất (HV-15 "bài thi cuối")
+        var examIds = results.Where(r => r.ClassExamId is not null).Select(r => r.ClassExamId!.Value).Distinct().ToList();
+        var startsAt = await db.ClassExams.AsNoTracking().IgnoreQueryFilters().Where(e => examIds.Contains(e.Id))
+            .ToDictionaryAsync(e => e.Id, e => e.StartsAt, ct);
+        results = results.OrderBy(r => r.ClassExamId is { } ce && startsAt.TryGetValue(ce, out var at) ? at : r.StartedAt ?? DateTimeOffset.MinValue)
+            .ThenBy(r => r.Id.Value).ToList();
 
         var byAssignment = assignments.ToDictionary(a => a.Id);
         var students = submissions.Select(s => (byAssignment[s.AssignmentId].ClassId, s.StudentId))

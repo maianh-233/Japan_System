@@ -14,5 +14,7 @@ public static class CertificateErrors
     /// <summary>HV-15.E3</summary>
     public static readonly Error AlreadyIssued = Error.Conflict("students.certificate.already_issued", "Đã cấp chứng nhận cho ghi danh này — chỉ gửi lại");
     public static readonly Error EmailRequired = Error.Validation("students.certificate.email_required", "Nhập email nhận chứng nhận hợp lệ");
+    /// <summary>Tra cứu công khai /verify/{code} — mã không có / chưa cấp</summary>
+    public static readonly Error InvalidCode = Error.NotFound("students.certificate.invalid_code", "Không tìm thấy chứng nhận với mã này");
     public static readonly Error ExceptionTooLong = Error.Validation("students.certificate.exception_too_long", "Lý do cấp ngoại lệ tối đa 500 ký tự");
 }

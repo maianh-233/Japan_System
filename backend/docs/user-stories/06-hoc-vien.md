@@ -487,3 +487,28 @@ Code: `src/Modules/Students/JPCenter.Modules.Students/Application/{Students,Enro
 - **Cần từ module khác (phase 3):** chuyên cần + bài thi cuối (`Academic.Contracts`), nợ của ghi danh (`Finance.Contracts` `ITuitionQuery`),
   PDF chứng nhận + gửi email (`IEmailSender`, kho file `students/certificates`), tra cứu công khai `/verify/{code}`.
 - **Thống kê tỉ lệ đỗ** (HV-16 bước 4) tính khi đọc theo cấp độ / lớp / GV — không lưu cột.
+
+## Đã làm — HV-15 → 17 (giai đoạn 23 phase 3, 2026-11-24)
+
+Code: `src/Modules/Students/JPCenter.Modules.Students/Application/{Certificates,Jlpt,Abroad}/`, `Api/Endpoints/ProgramEndpoints.cs` ·
+Test: `tests/JPCenter.IntegrationTests/Students/StudentProgramFlowTests.cs`.
+
+| Story | API (`/api/v1/students/...`) | Quyền |
+|---|---|---|
+| HV-15 | `GET certificates?classId=&eligible=` (HV đã hoàn thành lớp + checklist 4 điều kiện) · `POST enrollments/{id}/certificate` `{ email, exception? }` · `POST enrollments/{id}/certificate/resend` `{ email }` → `{ enrollment, emailSent }` · công khai `GET public/certificates/{code}` | `students.certificates.view / create / update` |
+| HV-16 | `GET/POST jlpt-sessions` · `PUT jlpt-sessions/{id}` (`fees: { "N5": … }`, `venues`) · `GET jlpt-registrations?sessionId=&studentId=&status=` · `GET jlpt-registrations/stats?sessionId=` · `POST jlpt-registrations` `{ sessionId, studentIds, level, venue }` → `{ created, skipped, warnings }` · `PUT jlpt-registrations/{id}` `{ level, venue, docs, note }` · `POST jlpt-registrations/{id}/{pay\|submit\|admit\|result\|absent\|cancel\|cert-received\|cert-handed}` `{ admitNo?, scores?, note?, no?, handedTo? }` | `students.jlpt.*` |
+| HV-17 | `GET abroad-cases?studentId=&program=&stage=&includeCancelled=` · `POST abroad-cases` · `PUT abroad-cases/{id}` `{ …, rowVersion }` · `POST {id}/advance` · `PUT {id}/documents/{documentId}` `{ state }` · `PUT {id}/milestones` `{ interviewDate, interviewResult, coeSubmittedAt, coeGrantedAt, visaAppliedAt, visaIssuedAt, flightDate }` · `POST {id}/payments` `{ amount }` · `POST {id}/notes\|cancel` `{ text }` · `POST {id}/reopen` | `students.study-abroad.*` |
+
+**Chốt khi code:**
+- HV-15: chuyên cần (`IAttendanceStats`), bài thi cuối = kết quả thi **gần nhất** của HV trong lớp (`ILearningStats.ExamPercents` nay xếp theo giờ thi cũ → mới),
+  nợ của ghi danh qua `Finance.Contracts.ITuitionQuery.DebtByEnrollmentAsync` (mới). Phạm vi theo chi nhánh của lớp. Email gửi mã + link `/verify/{code}`;
+  lỗi gửi → `emailSent = false`, chứng nhận vẫn giữ (E4). Cấp ngoại lệ ghi nhật ký `warning`. Tra cứu công khai không phân biệt hoa / thường,
+  không lộ email / lý do; mã sai → `students.certificate.invalid_code`. ⏳ PDF theo mẫu chưa sinh (chưa chọn thư viện PDF — cần ADR); cổng HV xem chứng nhận (E5): phase 4.
+- HV-16: kỳ thi dùng chung mọi chi nhánh; lượt đăng ký theo chi nhánh của HV. Đăng ký nhiều HV: HV đã đăng ký kỳ / ngoài phạm vi → `skipped` kèm mã lỗi;
+  cấp độ / địa điểm sai → lỗi cả lô. Server trả `total`, `passed`, `failSections`. Thống kê theo cấp độ + theo lớp (ghi danh gần nhất bắt đầu trước ngày thi);
+  ⏳ theo GV cần Academic.Contracts trả GV của lớp. `level` trả `"N3"`.
+- HV-17: checklist giấy tờ theo mẫu chương trình (giống `DOC_TEMPLATES`), ghi chú "Tạo hồ sơ." khi tạo; người phụ trách phải là nhân viên có thật.
+  Các thao tác bước / giấy tờ / mốc / phí / ghi chú / dừng / mở lại không kiểm `xmin` (mỗi thao tác tự kiểm điều kiện); sửa thông tin chung có kiểm.
+  Phạm vi `own` = HV có lead do mình phụ trách (như HV-01).
+- JSON bỏ trường `null` (quy ước chung): `certificate`, `interview`, `coe`, `visa`, `cancelled`… vắng mặt khi chưa có.
+

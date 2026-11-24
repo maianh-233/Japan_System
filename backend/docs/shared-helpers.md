@@ -15,6 +15,7 @@
 | `Money` (`Primitives/`): `Create` (kiểm tra ≥ 0, không lẻ), `FromTrusted`, `+ − < >`, `Percent()` | Học phí, lương, thanh toán | ✅ |
 | `PhoneNumber.Normalize` / `IsValid` (`Primitives/`): bỏ khoảng trắng / chấm / gạch, +84 → 0; hợp lệ = 10 số bắt đầu bằng 0 | Lead, học viên, nhân viên — lưu dạng chuẩn hóa để kiểm tra trùng SĐT | ✅ |
 | `EmailAddress.Normalize` / `IsValid` (`Primitives/`): bỏ khoảng trắng, chữ thường, dạng a@b.c | Email liên hệ của lead, học viên | ✅ |
+| `JlptLevelText.Of(level)` / `.Parse(text)` (`Primitives/`) | DTO trả cấp độ JLPT dạng chữ giống frontend (`N5`…`N1`, `beginner`) — JSON chung đổi enum thành `n5`. Academic `LevelText` gọi lại hàm này | ✅ |
 | `DateRange`, `TimeRange` (kiểm tra chồng lấn) | Lịch lớp, ca làm, trùng phòng / GV | 📝 |
 | `IClock` (`Domain/`: `UtcNow`, `Today` + `LocalNow` theo giờ VN) | Thay `DateTime.Now` ở mọi nơi | ✅ interface |
 | `Guard` (`Against.NullOrEmpty`, `Against.OutOfRange`) | Kiểm tra tham số trong factory | 📝 |
@@ -49,6 +50,7 @@
 | `FilePolicy` (`TeachingMaterials` 50 MB · `Submissions` 20 MB · `Audio` 20 MB (mp3 / wav / m4a) · `Documents` 10 MB · `Images` 5 MB) + `FileTypes` (đuôi + magic bytes) + `FileErrors` (`file.*`) | Chọn quy định tải lên; tự tạo `new FilePolicy(tên, maxBytes, [FileTypes.Pdf, …])` khi cần khác. Thêm loại file mới → 1 dòng trong `FileTypes` | ✅ |
 | `TimeText` (`Time/`): `At(date, time)` giờ VN → mốc UTC · `Of(DateTimeOffset / TimeOnly)` → "HH:mm" giờ VN · `Moment(at)` "HH:mm dd/MM" · `DateOf(at)` | Giờ học, ca làm, chấm công dạng "HH:mm" như frontend; khung giờ ca → mốc UTC để truy vấn (chuyển từ Academic sang khi Hr / Work cũng dùng — GĐ 21) | ✅ |
 | `IRealtimeNotifier.ToEmployeesAsync / ToAccountsAsync(ids, type, payload)` (`Realtime/`) | Đẩy sự kiện realtime (SignalR) tới nhân viên / GV / tài khoản cổng — gọi SAU khi lưu; tên sự kiện `<đối tượng>.<việc>` (vd `substitute-invite.created`). Mặc định bỏ qua (`NullRealtimeNotifier`), web host thay bằng SignalR | ✅ |
+| `TextSearch.Normalize(text)` (`Text/`) | Tìm kiếm không dấu: chữ thường, bỏ dấu tiếng Việt (đ → d), gọn khoảng trắng — so `Normalize(từ khóa)` với `Normalize(trường)`. Thư viện dùng từ GĐ 23; Hr / System / Finance còn bản riêng, gộp dần | ✅ |
 | `INotificationSender` (in-app / Zalo / email / SMS) | Gửi thông báo từ mọi module | 📝 |
 | `ValidationRules` mở rộng FluentValidation: `.VietnamPhone()`, `.VndMoney()`, `.Code()` | Validator dùng lại | 📝 |
 

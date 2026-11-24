@@ -14,7 +14,7 @@ namespace JPCenter.Modules.Library.Api;
 
 /// <summary>
 /// <c>/api/v1/library</c> — giai đoạn 20: tài liệu GV (ND-10). Cổng GV <c>/portal/teaching/documents</c> (chỉ tài liệu mình soạn, lớp mình dạy) ·
-/// cổng HV / PH <c>/portal/learning/documents</c> (lớp đã ghi danh). Thư viện điện tử của trung tâm: giai đoạn 23.
+/// cổng HV / PH <c>/portal/learning/documents</c> (lớp đã ghi danh). Giai đoạn 23: thư viện điện tử (<see cref="Endpoints.LibraryDocumentEndpoints"/>).
 /// </summary>
 public static class LibraryEndpoints
 {
@@ -53,5 +53,7 @@ public static class LibraryEndpoints
             (await s.Send(new GetLearningDocsQuery(studentId), ct)).ToHttpResult());
         learning.MapGet("/{id:guid}/link", async (Guid id, Guid? studentId, ISender s, CancellationToken ct) =>
             (await s.Send(new OpenLearningDocCommand(id, studentId), ct)).ToHttpResult());
+
+        Endpoints.LibraryDocumentEndpoints.Map(library);
     }
 }

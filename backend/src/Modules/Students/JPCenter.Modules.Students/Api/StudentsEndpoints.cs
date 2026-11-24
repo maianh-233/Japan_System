@@ -111,5 +111,8 @@ public static class StudentsEndpoints
 
         // ---------- Cảnh báo bỏ học & chăm sóc (HV-14) ----------
         Endpoints.CareEndpoints.Map(students);
+
+        // ---------- Chứng nhận, JLPT, du học / XKLĐ (HV-15 → 17) ----------
+        Endpoints.ProgramEndpoints.Map(students);
     }
 }

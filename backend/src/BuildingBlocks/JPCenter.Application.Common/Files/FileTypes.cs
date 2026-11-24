@@ -26,6 +26,14 @@ public static class FileTypes
     public static readonly FileType Wav = new("wav", "audio/wav", h => StartsWith(h, "RIFF"u8) && At(h, 8, "WAVE"u8));
     /// <summary>M4A / MP4 audio: hộp <c>ftyp</c> ở byte 4</summary>
     public static readonly FileType M4a = new("m4a", "audio/mp4", h => At(h, 4, "ftyp"u8));
+    public static readonly FileType Ogg = new("ogg", "audio/ogg", h => StartsWith(h, "OggS"u8));
+
+    /// <summary>Video MP4 / M4V / MOV: hộp <c>ftyp</c> ở byte 4 (thư viện điện tử — user story 16)</summary>
+    public static readonly FileType Mp4 = new("mp4", "video/mp4", h => At(h, 4, "ftyp"u8));
+    public static readonly FileType M4v = new("m4v", "video/mp4", Mp4.Matches);
+    public static readonly FileType Mov = new("mov", "video/quicktime", h => At(h, 4, "ftyp"u8) || At(h, 4, "moov"u8) || At(h, 4, "mdat"u8));
+    /// <summary>WebM (EBML)</summary>
+    public static readonly FileType Webm = new("webm", "video/webm", h => h.StartsWith((ReadOnlySpan<byte>)[0x1A, 0x45, 0xDF, 0xA3]));
 
     public static readonly FileType Jpg = new("jpg", "image/jpeg", h => h.StartsWith((ReadOnlySpan<byte>)[0xFF, 0xD8, 0xFF]));
     public static readonly FileType Jpeg = new("jpeg", "image/jpeg", Jpg.Matches);

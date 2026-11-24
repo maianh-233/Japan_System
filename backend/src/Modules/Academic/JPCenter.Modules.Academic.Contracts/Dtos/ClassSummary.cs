@@ -3,6 +3,7 @@ namespace JPCenter.Modules.Academic.Contracts.Dtos;
 /// <summary>
 /// Thông tin lớp module khác được đọc (ghi danh, hóa đơn, lịch hẹn…).
 /// <paramref name="Status"/>: enrolling · ongoing · paused · finished · cancelled.
+/// <paramref name="Level"/> = cấp độ đầu ra của khóa (<c>JlptLevelText</c>: N5 … N1, beginner) — Library ưu tiên tài liệu đúng trình độ lớp đang học (TV-07).
 /// <paramref name="TaughtSessions"/> = buổi thường + học bù đã xác nhận — gợi ý học phí theo số buổi còn lại / khấu trừ khi chuyển lớp (HV-06.E4, HV-09).
 /// </summary>
 public sealed record ClassSummary(
@@ -15,7 +16,8 @@ public sealed record ClassSummary(
     int MaxStudents,
     decimal Fee,
     int SessionCount,
-    int TaughtSessions)
+    int TaughtSessions,
+    string? Level = null)
 {
     /// <summary>Nhận ghi danh mới / học lại: chờ khai giảng hoặc đang học (tạm dừng / đã đóng → <c>academic.class.closed</c>)</summary>
     public bool AcceptsStudents => Status is "enrolling" or "ongoing";

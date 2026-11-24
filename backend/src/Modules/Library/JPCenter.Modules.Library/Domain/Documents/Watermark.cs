@@ -8,7 +8,7 @@ public static class Watermark
 {
     public static string Text(string viewerName, string? contact, DateTime localTime)
     {
-        var parts = new[] { viewerName.Trim(), contact?.Trim(), localTime.ToString("dd/MM/yyyy HH:mm", System.Globalization.CultureInfo.InvariantCulture) };
+        var parts = new[] { viewerName.Trim(), contact?.Trim(), localTime.ToString("dd/MM/yyyy HH:mm", global::System.Globalization.CultureInfo.InvariantCulture) };
         return string.Join(" · ", parts.Where(p => !string.IsNullOrEmpty(p)));
     }
 }

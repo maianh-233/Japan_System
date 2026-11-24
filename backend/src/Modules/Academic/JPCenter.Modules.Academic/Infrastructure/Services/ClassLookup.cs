@@ -4,6 +4,7 @@ using JPCenter.Modules.Academic.Contracts.Dtos;
 using JPCenter.Modules.Academic.Domain.Classes;
 using JPCenter.Modules.Academic.Domain.ClassSessions;
 using JPCenter.Modules.Academic.Infrastructure.Persistence;
+using JPCenter.SharedKernel.Primitives;
 using Microsoft.EntityFrameworkCore;
 
 namespace JPCenter.Modules.Academic.Infrastructure.Services;
@@ -38,7 +39,11 @@ internal sealed class ClassLookup(AcademicDbContext db) : IClassLookup
             .GroupBy(s => s.ClassId)
             .Select(g => new { g.Key, Count = g.Count() })
             .ToDictionaryAsync(x => x.Key, x => x.Count, ct);
+        var courseIds = classes.Select(c => c.CourseId).Distinct().ToList();
+        var levels = await db.Courses.AsNoTracking().IgnoreQueryFilters().Where(c => courseIds.Contains(c.Id))
+            .ToDictionaryAsync(c => c.Id, c => c.LevelTo, ct);
         return classes.ToDictionary(c => c.Id.Value, c => new ClassSummary(c.Id.Value, c.Code, c.Name, c.BranchId.Value, c.CourseId.Value,
-            SnakeCaseEnumConverter<ClassStatus>.ToText(c.Status), c.MaxStudents, c.Fee.Amount, c.SessionCount, taught.GetValueOrDefault(c.Id)));
+            SnakeCaseEnumConverter<ClassStatus>.ToText(c.Status), c.MaxStudents, c.Fee.Amount, c.SessionCount, taught.GetValueOrDefault(c.Id),
+            levels.TryGetValue(c.CourseId, out var level) ? JlptLevelText.Of(level) : null));
     }
 }

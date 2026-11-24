@@ -191,4 +191,33 @@ Xóa → **xóa mềm** vào Thùng rác (story 10, TR-xx); dọn Thùng rác m�
   `LibraryStats` (tổng hợp, 14 ngày, top 6), `Watermark`; Students: điều kiện + mã chứng nhận, quy chế điểm JLPT, bước hồ sơ du học.
 - **Phase 2:** ✅ cấu hình EF + migration `LibraryDocuments` (`documents`, `document_views`), `StudentsPrograms` (JLPT, du học — bảng chứng nhận đã có từ GĐ 14)
   + dữ liệu mẫu từ mock (lượt xem dựng lại từ `daily` / `top`, tối đa 200 lượt cũ hơn 14 ngày / tài liệu).
-- **Phase 3:** API trên + job không cần (số liệu cập nhật khi ghi lượt xem). **Phase 4:** nối frontend, dọn mock.
+- **Phase 3:** ✅ API trên + job không cần (số liệu cập nhật khi ghi lượt xem). **Phase 4:** nối frontend, dọn mock.
+
+## Đã làm — backend (giai đoạn 23 phase 3, 2026-11-24)
+
+Code: `src/Modules/Library/JPCenter.Modules.Library/Application/Documents/`, `Api/Endpoints/LibraryDocumentEndpoints.cs` · Test: `tests/JPCenter.IntegrationTests/Library/LibraryFlowTests.cs`.
+
+| Story | API (`/api/v1/library/...`) | Quyền |
+|---|---|---|
+| TV-01 | `GET documents?branchId=&category=&level=&skill=&fileType=&audience=&q=&includeHidden=` (từ khóa không dấu) | `library.documents.view` |
+| TV-02 | `POST documents/files` (form-data `file`, PDF ≤ 100 MB, mp3 / m4a / wav / ogg / mp4 / m4v / mov / webm ≤ 500 MB) → `{ fileKey, fileName, size, fileType }` · `POST documents` | `.create` |
+| TV-03 | `PUT documents/{id}` `{ …, rowVersion }` · `POST documents/{id}/hide\|publish` · `DELETE documents/{id}` (Thùng rác `library.document`) | `.update` / `.delete` |
+| TV-04 | `PUT documents/{id}/access` `{ audience, branchIds, watermark, allowDownload, rowVersion }` | `.update` |
+| TV-05 | `POST documents/{id}/views` → `{ viewId, url, downloadUrl?, expiresAt, watermark?, allowDownload, rowVersion }` · `POST views/{viewId}/end` | `.view` |
+| TV-06 | `GET documents/{id}/stats` → `{ views, readers, avgMinutes, lastViewedAt, daily[14], top[≤6] }` | `.view` |
+| TV-07 | `GET portal/learning/library?studentId=&category=&q=` · `POST portal/learning/library/{id}/views?studentId=` · `POST portal/learning/library/views/{viewId}/end` | cổng HV / PH |
+| TV-08 | `GET portal/teaching/library?category=&q=` · `POST portal/teaching/library/{id}/views` · `POST portal/teaching/library/views/{viewId}/end` | cổng GV |
+
+**Chốt khi code:**
+- Phạm vi `branch`: tài liệu dùng chung + tài liệu có 1 chi nhánh mình được gán (lọc trong bộ nhớ — thư viện vài trăm tài liệu); người phạm vi `branch`
+  **không** tạo / mở được tài liệu "mọi chi nhánh" (`library.branch_not_allowed`), chi nhánh gán sẵn ngoài phạm vi giữ được khi sửa quyền truy cập.
+- Tài liệu ngoài phạm vi / ẩn / sai đối tượng → `library.document.not_found` (cả trang nhân viên lẫn cổng).
+- Khóa tệp gửi lên phải nằm trong `library/documents/` và có thật trong kho (không nhận khóa tùy ý) — sai → `library.document.file_required`.
+- Lượt xem + số liệu tổng hợp trong 1 giao dịch; số liệu ghi bằng `ExecuteUpdate` (2 người mở cùng lúc không lỗi sửa đè). Vì `xmin` vẫn đổi,
+  `POST documents/{id}/views` trả `rowVersion` mới — frontend dùng khi sửa tiếp. Cổng không có `rowVersion`.
+- Watermark: nhân viên / GV = tên · email công việc (Hr.Contracts) · giờ VN; HV = tên · mã HV; PH = tên · email (hoặc SĐT). Dạng link: không watermark, không link tải.
+- Danh sách trả `stats.daily` (14 ngày) nhưng `stats.top` rỗng — top 6 ở `GET documents/{id}/stats`. `levels` trả `"N3"` (không phải `n3`).
+- Cổng HV / PH: chi nhánh + cấp độ lớp **đang học / bảo lưu**; PH nhiều con phải truyền `studentId`. Cổng GV: lớp đang dạy chưa kết thúc / hủy.
+  Cấp độ lớp lấy từ `ClassSummary.Level` (Academic.Contracts — cấp độ đầu ra của khóa, thêm ở phase này).
+- Thùng rác: khôi phục giữ lượt xem / số liệu; xóa hẳn xóa dòng (lượt xem theo FK cascade) + tệp trong kho.
+- ⏳ Thẻ tổng "lượt xem 30 ngày" (TV-01 bước 3) chưa có API riêng — frontend tự cộng từ `daily` (14 ngày) hoặc thêm ở phase 4 nếu cần.

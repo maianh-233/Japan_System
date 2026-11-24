@@ -27,6 +27,15 @@ public sealed class StudentAccess(ICurrentUser user, JPCenter.Modules.Crm.Contra
     public const string Classes = "academic.classes";
     /// <summary>Cảnh báo bỏ học & chăm sóc (HV-14)</summary>
     public const string AtRisk = "students.at-risk";
+    /// <summary>Chứng nhận hoàn thành (HV-15)</summary>
+    public const string Certificates = "students.certificates";
+    /// <summary>Thi JLPT (HV-16)</summary>
+    public const string Jlpt = "students.jlpt";
+    /// <summary>Du học / XKLĐ (HV-17)</summary>
+    public const string Abroad = "students.study-abroad";
+
+    /// <summary>Tên người đang thao tác (ghi chú hồ sơ du học)</summary>
+    public string ActorName => user.Access?.DisplayName ?? "Hệ thống";
 
     public Guid ActorId => user.Access?.EmployeeId ?? user.AccountId ?? Guid.Empty;
 

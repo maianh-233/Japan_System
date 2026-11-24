@@ -17,4 +17,12 @@ public sealed class TuitionQuery(FinanceDbContext db, IClock clock) : ITuitionQu
         var open = await query.ToListAsync(ct);
         return open.Where(i => i.Summarize(today).Status == TuitionStatus.Overdue).Select(i => i.StudentId).ToHashSet();
     }
+
+    public async Task<IReadOnlyDictionary<Guid, decimal>> DebtByEnrollmentAsync(IReadOnlyCollection<Guid> enrollmentIds, CancellationToken ct)
+    {
+        if (enrollmentIds.Count == 0) return new Dictionary<Guid, decimal>();
+        var open = await db.Invoices.AsNoTracking()
+            .Where(i => i.Status == InvoiceStatus.Open && enrollmentIds.Contains(i.EnrollmentId)).ToListAsync(ct);
+        return open.GroupBy(i => i.EnrollmentId).ToDictionary(g => g.Key, g => g.Sum(i => i.Remaining.Amount));
+    }
 }
