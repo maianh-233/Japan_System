@@ -171,18 +171,18 @@ thêm / đổi / xóa thuộc tính → sửa dòng trong bảng + ghi 1 dòng �
 | Thuộc tính | Kiểu | Giải thích |
 |---|---|---|
 | id | uuid PK | |
-| key | text UQ | Khóa cố định: `zalo_oa`, `vietqr`, `zoom`… |
+| key | text UQ | Khóa cố định trong danh mục `IntegrationCatalog` (trùng id frontend): `zalo-oa`, `sms`, `email`, `vietqr`, `zoom`, `meet`, `fb-lead`, `web-form`, `tiktok-lead` |
 | name | text | Tên hiển thị |
 | description | text | Mô tả |
-| category | text | `notify` thông báo · `payment` thanh toán · `meeting` học online · `lead` nguồn lead |
+| category | text | `notify` thông báo · `payment` thanh toán · `meeting` học online · `lead` nguồn lead — lấy theo danh mục |
 | status | text | `connected` · `error` · `disconnected` |
 | account | text? | Tài khoản / trang đã kết nối |
 | connected_at | timestamptz? | Lúc kết nối |
 | connected_by | uuid? | Người kết nối → user_accounts |
 | last_sync_at | timestamptz? | Lần đồng bộ cuối |
 | last_error | text? | Lỗi gần nhất |
-| config | jsonb | Cấu hình key → value (trường bí mật mã hóa) |
-| events | jsonb | Sự kiện dùng kênh này: key → bật/tắt |
+| config | jsonb | Cấu hình key → value theo danh mục (trường bí mật mã hóa, API chỉ trả 4 ký tự cuối); ngắt kết nối → rỗng |
+| events | jsonb | Việc dùng kênh này: key → bật/tắt (đủ các việc của danh mục; chỉ bật khi đã kết nối) |
 | webhook_url | text? | URL hệ thống cấp cho bên ngoài gọi vào |
 
 ### 9. integration_logs
@@ -194,7 +194,7 @@ thêm / đổi / xóa thuộc tính → sửa dòng trong bảng + ghi 1 dòng �
 | integration_id | uuid FK | → integrations |
 | at | timestamptz | Thời điểm |
 | ok | bool | Thành công? |
-| message | text | Nội dung / lỗi |
+| message | text | Nội dung / lỗi (≤ 1000, không ghi OTP / SĐT đầy đủ). Dọn dòng cũ hơn 180 ngày |
 
 ### 10. audit_logs
 **Chức năng:** Nhật ký hệ thống — ai làm gì, lúc nào (chỉ thêm, không sửa / xóa). Entity `AuditLog`.
@@ -1389,6 +1389,8 @@ Entity `ClassExam`. UQ (class_id, exam_id) trong số chưa hủy.
 | cancelled_at, cancel_reason | timestamptz?, text? | Hủy phần còn lại (nghỉ / lớp hủy) |
 | voided_at, void_reason | timestamptz?, text? | Hủy hóa đơn lập sai |
 | void_requested_by, void_approved_by | uuid? | Người đề nghị / người duyệt (khác nhau) |
+| sale_id | uuid? | Sale được ghi nhận doanh số / hoa hồng → hr.employees (TC-04.E5: lead đã chốt › lead mới nhất › chia đều Sale chi nhánh theo HV; null = chưa có Sale) |
+| sale_assigned_by | uuid? | Kế toán gán tay Sale (ghi đè, không tự chọn lại); null = hệ thống tự chọn lúc lập |
 
 > Không lưu: phải thu (`amount − discount`), thực thu (`Σ payments − Σ refunds`), còn nợ (`phải thu − Σ payments`, hoàn tiền không làm tăng nợ) — tính từ bảng con.
 
@@ -1531,7 +1533,7 @@ Khoản hoàn đang chờ trừ vào "hoàn tối đa"; hiện ở hộp duyệt
 | month | text | Tháng `YYYY-MM` |
 | employee_id | uuid | → hr.employees |
 | amount | numeric | Dương = thưởng / phụ cấp, âm = phạt |
-| reason | text | Lý do |
+| reason | text | Lý do (≤ 500) |
 | by | uuid | Người nhập |
 
 ### 77. payroll_locks
@@ -1547,7 +1549,8 @@ Khoản hoàn đang chờ trừ vào "hoàn tối đa"; hiện ở hộp duyệt
 | locked_at | timestamptz | Lúc chốt |
 | total | numeric | Tổng quỹ lương |
 | lines | jsonb | Chi tiết từng người lúc chốt |
-| paid_at | timestamptz? | Đã chuyển khoản lương |
+| paid_at | timestamptz? | Đã chuyển khoản lương — đã chi thì không mở khóa được (TC-13.E3) |
+| unlocked_at, unlocked_by | timestamptz?, uuid? | Mở khóa gần nhất — có giá trị = đang mở để sửa; chốt lại ghi đè snapshot cùng dòng và xóa 2 cột này (TC-13.E4) |
 
 ### 78. commission_tiers
 **Chức năng:** Bậc hoa hồng Sale theo doanh thu thực thu. Entity `CommissionTier`.
@@ -1556,7 +1559,7 @@ Khoản hoàn đang chờ trừ vào "hoàn tối đa"; hiện ở hộp duyệt
 |---|---|---|
 | id | uuid PK | |
 | from | numeric | Doanh thu từ (đ) |
-| percent | numeric | % hoa hồng |
+| percent | numeric | % hoa hồng (0 → 100) trên cả số thực thu. Bảng sửa cả bộ 1 lần: bắt buộc mốc 0đ, không trùng mốc |
 
 ### 79. sale_targets
 **Chức năng:** Chỉ tiêu doanh số tháng từng Sale (KPI, bảng xếp hạng). Entity `SaleTarget`. UQ (employee_id, month).
@@ -1960,4 +1963,5 @@ sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đ�
 | 2026-11-22 | Giai đoạn 20 phase 2: tạo bảng `assignments`, `submissions`, `class_exams`, `exam_attempts`, `exam_results`, `class_announcements`, `teacher_reviews`, `flash_decks`, `flash_cards`, `card_progress` — migration `AcademicLearningContent`; tạo schema `library` với `teacher_documents`, `teacher_document_views` — migration `LibraryTeacherDocuments`. Không FK tới bảng con của lộ trình (`lesson_id`, `exam_id`) và `card_progress.card_id`; Id strongly-typed trong jsonb ghi thành chuỗi uuid. Dữ liệu: nội dung học mẫu từ mock (`learning.seed.json`, `library.seed.json`) — kết quả thi mẫu chưa gắn kỳ thi (`class_exam_id` null), thông báo mẫu 0 người nhận không nạp, tài liệu GV mẫu chỉ có khóa file (chưa có nội dung) |
 | 2026-11-23 | Giai đoạn 21 phase 1 (user story 13, 14): `time_records` + `edited_by_name` (trạng thái ngày tính khi đọc); `hr_requests.from/to` → `date`; `hr_request_steps.approver_id` cho phép null (bước mở) + `approver_name`, `decided_by_id`, `decided_by_name`, `on_behalf`; `candidates.applied_at` → `timestamptz`; `onboarding_items` + `done_by_name`; `tasks.due` → `date` + `next_spawned`; `task_comments` + `by_name`; `shift_registrations.kind` bỏ `preference`, UQ (employee_id, date, shift); `handovers` UQ (branch_id, date, from_shift, from_id) |
 | 2026-11-23 | Giai đoạn 21 phase 2: tạo bảng `time_records`, `hr_requests`, `hr_request_steps` (khóa (hr_request_id, order)), `jobs`, `candidates`, `candidate_notes`, `onboardings` (UQ candidate_id, employee_id), `onboarding_items` (khóa (onboarding_id, key)) — migration `HrTimesheetsRequestsRecruitment`; tạo schema `work` với `tasks`, `task_checklist_items`, `task_comments`, `shift_assignments`, `shift_registrations`, `handovers`, `handover_leads`, `handover_items` — migration `WorkInitial`. Không FK sang schema khác (ca trong đơn đổi ca, lead, nhân viên ở Work); người duyệt / người sửa công / người tick không FK. `time_records.edited_by`, `onboarding_items.done_by` trỏ hr.employees. Dữ liệu: `hr-ops.seed.json`, `work.seed.json` từ mock (đơn đổi ca mẫu được gán ca thật lúc xuất; phép năm không trừ lại cho đơn đã duyệt) |
+| 2026-11-24 | Giai đoạn 22 phase 1 (user story 08 TC-12 → 14, story 15): `invoices` + `sale_id`, `sale_assigned_by` (Sale ghi nhận doanh số); `payroll_locks` + `unlocked_at`, `unlocked_by` (mở khóa / chốt lại); `pay_adjustments.reason` ≤ 500; `integrations.key` dùng khóa trùng id frontend (`zalo-oa`…), `category` / trường `config` / `events` theo danh mục `IntegrationCatalog`; `integration_logs.message` ≤ 1000 |
 | 2026-11-17 | Chốt thiết kế (user story 08): `invoices.status` chỉ lưu `open` / `cancelled` / `voided`, các trạng thái tiền tính khi đọc; `payments.method` dùng `vietqr` (không `viet_qr`). Domain `InvoiceStatus`, `PaymentMethod` sửa theo khi code module Tài chính |

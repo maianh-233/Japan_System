@@ -14,15 +14,16 @@ Mỗi file = 1 nhóm nghiệp vụ. Viết từ giao diện frontend đã dựng
 | 05 | [Tuyển sinh (lead, chia lead, test xếp lớp, lịch hẹn, chiến dịch)](05-tuyen-sinh.md) | `CRM-xx` | ✅ Giai đoạn 18 |
 | 06 | [Học viên & ghi danh (phụ huynh, cảnh báo bỏ học, chứng nhận, JLPT, du học)](06-hoc-vien.md) | `HV-xx` | ✅ HV-01 → HV-11 (giai đoạn 14) · ⏳ HV-12 → HV-17 |
 | 07 | [Lớp học & buổi học (điểm danh, dạy thay, đơn từ, lên lớp)](07-lop-hoc.md) | `DT-xx` | 🚧 Backend đợt 1 (phòng, lớp, buổi) |
-| 08 | [Học phí, hóa đơn & tài chính (đối soát, công nợ, lương, hoa hồng)](08-tai-chinh.md) | `TC-xx` | ✅ Đợt 1 TC-01 → TC-11 (giai đoạn 19) · ⏳ TC-12 → TC-14 |
+| 08 | [Học phí, hóa đơn & tài chính (đối soát, công nợ, lương, hoa hồng)](08-tai-chinh.md) | `TC-xx` | ✅ Đợt 1 TC-01 → TC-11 (giai đoạn 19) · 🚧 TC-12 → TC-14 (giai đoạn 22) |
 | 09 | [Khóa học & lộ trình (phiên bản, tài liệu giảng dạy, mốc thi)](09-khoa-hoc-lo-trinh.md) | `KH-xx`, `LT-xx` | ✍️ Đã viết |
 | 10 | [Nền chung: cài đặt chung, thông báo, nhật ký hệ thống, thùng rác](10-he-thong-chung.md) | `CD-xx`, `TB-xx`, `NK-xx`, `TR-xx` | ✅ Giai đoạn 16 |
 | 11 | [Ngân hàng câu hỏi (soạn, duyệt, file nghe, nhập Excel, bốc câu cho đề)](11-ngan-hang-cau-hoi.md) | `NH-xx` | ✅ Giai đoạn 17 |
 | 12 | [Nội dung học (bài tập, kỳ thi online / giấy, điểm, thông báo lớp, đánh giá GV, flashcard, tài liệu GV)](12-noi-dung-hoc.md) | `ND-xx` | ✅ Giai đoạn 20 |
-| 13 | [Chấm công, đơn từ & phê duyệt, tuyển dụng, onboarding](13-cham-cong-don-tu-tuyen-dung.md) | `CC-xx`, `DN-xx`, `TD-xx`, `OB-xx` | 🚧 Giai đoạn 21 |
-| 14 | [Công việc: task / Kanban, giao việc cấp dưới, xếp ca, bàn giao ca](14-cong-viec-xep-ca-ban-giao.md) | `CV-xx`, `XC-xx`, `BG-xx` | 🚧 Giai đoạn 21 |
+| 13 | [Chấm công, đơn từ & phê duyệt, tuyển dụng, onboarding](13-cham-cong-don-tu-tuyen-dung.md) | `CC-xx`, `DN-xx`, `TD-xx`, `OB-xx` | ✅ Giai đoạn 21 |
+| 14 | [Công việc: task / Kanban, giao việc cấp dưới, xếp ca, bàn giao ca](14-cong-viec-xep-ca-ban-giao.md) | `CV-xx`, `XC-xx`, `BG-xx` | ✅ Giai đoạn 21 |
+| 15 | [Tích hợp: Zalo OA, SMS, email, webhook ngân hàng, Zoom / Meet](15-tich-hop.md) | `TH-xx` | 🚧 Giai đoạn 22 |
 
-**Chưa có nhóm story riêng** (trang frontend đã dựng — viết khi bắt đầu làm module): Phòng học & báo hỏng · Thư viện tài liệu · Hệ thống (tích hợp) · Báo cáo & bảng điều khiển. Thứ tự làm: [../ke-hoach.md](../ke-hoach.md).
+**Chưa có nhóm story riêng** (trang frontend đã dựng — viết khi bắt đầu làm module): Phòng học & báo hỏng · Thư viện tài liệu · Báo cáo & bảng điều khiển. Thứ tự làm: [../ke-hoach.md](../ke-hoach.md).
 
 ## Mẫu 1 user story
 

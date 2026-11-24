@@ -379,3 +379,19 @@ lương = lương cứng × công ÷ công chuẩn + phụ cấp + hoa hồng (T
   Hệ thống › Duyệt thao tác — mọi loại phiếu duyệt / từ chối / rút lại qua server), khớp / bỏ qua / gỡ khớp, nhắc học phí, giá / ưu đãi / đóng đợt gọi API.
   Ghi danh / cho nghỉ / chuyển lớp / lên lớp / chốt lead không còn tạo hóa đơn giả — tải lại hóa đơn sau khi Finance lập ở nền; chốt lead "thu ngay" chờ hóa đơn rồi ghi khoản thu.
   Đối soát: bỏ nút mô phỏng giao dịch (giao dịch thật đến qua webhook), "Đưa về chưa khớp" cho giao dịch đã bỏ qua nhầm. Cổng HV / PH: VietQR theo tài khoản chi nhánh server trả.
+- **Chốt giai đoạn 22 (lương, hoa hồng):**
+  - **Ghi nhận Sale (TC-04.E5)** lưu trên hóa đơn: `invoices.sale_id` + `sale_assigned_by` (null = hệ thống tự chọn). Chọn **lúc lập hóa đơn** (`SaleAttribution`):
+    Sale lead đã chốt › Sale lead mới nhất (đọc `Crm.Contracts`) › chia đều Sale đang làm ở chi nhánh theo HV (cố định — cùng HV luôn ra cùng Sale) › không có Sale → null.
+    Kế toán gán lại (TC-12 bước 4) ghi đè và không bị tự chọn lại; gán lại không đổi số đã chốt ở tháng cũ.
+  - **Bậc hoa hồng** sửa cả bảng 1 lần (`PUT commission-tiers` thay toàn bộ): mã lỗi TC-12.E1 `finance.commission.zero_tier_required`, `finance.commission.duplicate_tier`.
+    Hoa hồng = thực thu tháng × % bậc của thực thu (cả số, không lũy tiến), âm → 0. Thực thu tháng = Σ thu − Σ hoàn có **thời điểm trong tháng (giờ VN)** → TC-12.E3 tự đúng.
+  - **Tham số lương** (`PayrollRules.Default`, khớp `features/finance/constants.ts`): thưởng dạy thay 50.000đ / buổi, phạt GV đi muộn 30.000đ / buổi, công chuẩn 26,
+    BHXH + BHYT + BHTN 10,5% lương cứng (thử việc không đóng), phạt NV đi muộn 50.000đ / ngày, quên check-out 30.000đ / ngày, giảm trừ bản thân 11.000.000đ,
+    thuế TNCN lũy tiến 7 bậc (5 / 10 / 18 / 32 / 52 / 80 triệu: 5% → 35%). Chưa đưa vào Cài đặt chung (đổi luật → sửa 1 chỗ).
+  - **Nguồn dữ liệu:** buổi dạy (vai trò, online, check-in / out, đi muộn, đã xác nhận, đã hủy) đọc `Academic.Contracts`; đơn giá GV, lương cứng, phụ cấp,
+    trạng thái hợp đồng đọc `Hr.Contracts`; công NV (đi làm, nghỉ có lương / không lương, vắng, muộn, quên check-out — TC-14.E1 đã tính theo ngày vào làm) đọc
+    `Hr.Contracts` (bảng công giai đoạn 21). Không có bảng công → lấy công chuẩn + nhãn (TC-14.E2).
+  - **Chốt / mở khóa / đã chi** (`PayrollLock`): chốt lần đầu tạo snapshot; mở khóa (`unlocked_at/by`) → chặn nếu đã chi (`finance.payroll.already_paid`, TC-13.E3);
+    chốt lại = ghi đè snapshot cùng dòng (TC-13.E4); "Đã chi" chỉ khi đang khóa (`finance.payroll.not_locked`), không chi 2 lần. Tháng đang khóa → điều chỉnh / xác nhận buổi
+    trả `finance.payroll.locked` (TC-13.E2 — Academic hỏi `Finance.Contracts.IPayrollLocks` trước khi xác nhận / bỏ xác nhận buổi). Chốt phát `PayrollLocked`.
+  - Tháng `YYYY-MM` sai định dạng → `finance.payroll.invalid_month`. Hạn chốt = ngày `payroll.lockDay` tháng sau (`PayrollMonth.LockDeadline`).

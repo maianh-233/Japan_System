@@ -1,5 +1,6 @@
 using JPCenter.SharedKernel.Domain;
 using JPCenter.SharedKernel.Primitives;
+using JPCenter.Modules.Finance.Domain.Commissions;
 using JPCenter.Modules.Finance.Domain.Invoices.Events;
 using JPCenter.Modules.Finance.Domain.Pricing;
 
@@ -49,6 +50,10 @@ public sealed class Invoice : AggregateRoot<InvoiceId>, IBranchScoped, IAuditabl
     public string? VoidReason { get; private set; }
     public Guid? VoidRequestedBy { get; private set; }
     public Guid? VoidApprovedBy { get; private set; }
+    /// <summary>Hr.Employee — Sale được ghi nhận doanh số / hoa hồng (TC-04.E5, TC-12); null = chưa có Sale</summary>
+    public Guid? SaleId { get; private set; }
+    /// <summary>Kế toán gán tay (ghi đè, không tự chọn lại); null = hệ thống tự chọn (<c>SaleAttribution</c>)</summary>
+    public Guid? SaleAssignedBy { get; private set; }
     public IReadOnlyList<Payment> Payments => _payments;
     public IReadOnlyList<Refund> Refunds => _refunds;
     public IReadOnlyList<InvoiceRequest> Requests => _requests;
@@ -88,6 +93,25 @@ public sealed class Invoice : AggregateRoot<InvoiceId>, IBranchScoped, IAuditabl
         if (inv.Total == Money.Zero) inv.Raise(new InvoicePaid(inv.Id, studentId, branchId));
         return inv;
     }
+
+    /// <summary>TC-04.E5 — hệ thống ghi nhận Sale lúc lập hóa đơn; đã có gán tay thì giữ nguyên</summary>
+    public void AttributeSale(Guid? saleId)
+    {
+        if (SaleAssignedBy is null) SaleId = saleId;
+    }
+
+    /// <summary>TC-12 bước 4 — kế toán gán lại Sale (ghi đè). Không đổi số đã chốt tháng cũ (chốt là snapshot).</summary>
+    public Result ReassignSale(Guid saleId, Guid by)
+    {
+        if (saleId == Guid.Empty) return CommissionErrors.SaleRequired;
+        (SaleId, SaleAssignedBy) = (saleId, by);
+        return Result.Success();
+    }
+
+    /// <summary>Thực thu trong khoảng [from, to): Σ thu − Σ hoàn có thời điểm trong khoảng — hoàn tháng sau trừ vào tháng hoàn (TC-12.E3)</summary>
+    public decimal NetCollectedBetween(DateTimeOffset from, DateTimeOffset to) =>
+        _payments.Where(p => p.PaidAt >= from && p.PaidAt < to).Sum(p => p.Amount.Amount)
+        - _refunds.Where(r => r.RefundedAt >= from && r.RefundedAt < to).Sum(r => r.Amount.Amount);
 
     /// <summary>Tình trạng + số liệu tại ngày <paramref name="today"/> (giờ VN)</summary>
     public InvoiceSummary Summarize(DateOnly today)

@@ -82,12 +82,12 @@ internal sealed class SystemSeeder(SystemDbContext db, IPasswordHasher hasher, I
 
         foreach (var s in data.Integrations)
         {
-            var integration = Integration.Create(s.Id, s.Name, s.Description, SnakeCaseEnumConverter<IntegrationCategory>.Parse(s.Category));
+            if (Integration.Create(s.Id, s.Name, s.Description) is not { IsSuccess: true, Value: var integration }) continue;
             if (s.Status != "disconnected" && s.ConnectedAt is { } at)
-                integration.Connect(s.Config, s.Account, ByName(s.ConnectedBy) ?? Guid.Empty, at);
+                integration.Connect(s.Config.ToDictionary(k => k.Key, string? (k) => k.Value), s.Account, ByName(s.ConnectedBy) ?? Guid.Empty, at);
             if (s.Status == "error") integration.MarkError(s.Error ?? "Lỗi kết nối");
             if (s.LastSyncAt is { } sync) integration.MarkSynced(sync);
-            foreach (var e in s.Events) integration.ToggleEvent(e.Key, e.On);
+            foreach (var e in s.Events) integration.SetEvent(e.Key, e.On);
             integration.SetWebhook(s.Webhook);
             db.AddWithId(integration, SeedData.IdOf("integration:" + s.Id));
         }
