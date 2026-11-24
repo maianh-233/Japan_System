@@ -628,7 +628,7 @@ Khóa chính (scope, key).
 | at | timestamptz | Thời điểm |
 
 ### 30. jlpt_sessions
-**Chức năng:** Kỳ thi JLPT (tháng 7 & 12): ngày thi, hạn nhận hồ sơ, ngày có kết quả, lệ phí, địa điểm. Entity `JlptSession`.
+**Chức năng:** Kỳ thi JLPT (tháng 7 & 12): ngày thi, hạn nhận hồ sơ, ngày có kết quả, lệ phí, địa điểm. Entity `JlptSession`. UQ `exam_date`.
 
 | Thuộc tính | Kiểu | Giải thích |
 |---|---|---|
@@ -641,7 +641,7 @@ Khóa chính (scope, key).
 | venues | text[] | Địa điểm thi |
 
 ### 31. jlpt_registrations
-**Chức năng:** Học viên đăng ký thi JLPT qua trung tâm: hồ sơ, lệ phí, nộp hội đồng, phiếu dự thi, điểm, nhận & phát chứng chỉ gốc. Entity `JlptRegistration`.
+**Chức năng:** Học viên đăng ký thi JLPT qua trung tâm: hồ sơ, lệ phí, nộp hội đồng, phiếu dự thi, điểm, nhận & phát chứng chỉ gốc. Entity `JlptRegistration`. UQ (session_id, student_id) khi `status <> 'cancelled'`.
 
 | Thuộc tính | Kiểu | Giải thích |
 |---|---|---|
@@ -1968,4 +1968,5 @@ sĩ số, chuyên cần, lấp đầy phòng). Thêm view nào thì ghi vào đ�
 | 2026-11-24 | Giai đoạn 22 phase 1 (user story 08 TC-12 → 14, story 15): `invoices` + `sale_id`, `sale_assigned_by` (Sale ghi nhận doanh số); `payroll_locks` + `unlocked_at`, `unlocked_by` (mở khóa / chốt lại); `pay_adjustments.reason` ≤ 500; `integrations.key` dùng khóa trùng id frontend (`zalo-oa`…), `category` / trường `config` / `events` theo danh mục `IntegrationCatalog`; `integration_logs.message` ≤ 1000 |
 | 2026-11-24 | Giai đoạn 22 phase 2: tạo bảng `pay_adjustments` (chỉ mục (month, employee_id), `amount` numeric(18,0) có dấu), `payroll_locks` (UQ kind, month, branch_id; `lines` jsonb), `commission_tiers` (`percent` numeric(5,2)), `sale_targets` (UQ employee_id, month); `invoices` + `sale_id` (chỉ mục), `sale_assigned_by` — migration `FinancePayroll`. Nhân viên / chi nhánh không FK (schema khác). Dữ liệu: `payroll.seed.json` từ mock (điều chỉnh, bảng lương tháng trước đã chốt + đã chi với snapshot rỗng, bậc hoa hồng, chỉ tiêu 3 tháng; Sale ghi nhận của hóa đơn mẫu theo quy tắc frontend — DB cũ được bổ sung khi chưa hóa đơn nào có Sale). `integrations.config`: trường bí mật mã hóa Data Protection (tiền tố `enc:`), dữ liệu cũ tự mã hóa khi khởi động (`IntegrationSecretsSeeder`) — không đổi cấu trúc bảng |
 | 2026-11-24 | Giai đoạn 23 phase 1 (user story 16 thư viện, HV-15 → 17): `document_views` + `viewer_role`, `ended_at`, `minutes` giới hạn 0 → 240; `documents.title` ≤ 200, `tags` chuẩn hóa; `certificates.exception` ≤ 500 chỉ lưu khi chưa đủ điều kiện; `jlpt_sessions.fees` đủ N5 → N1; `jlpt_registrations.passed` tự tính từ `scores` |
+| 2026-11-24 | Giai đoạn 23 phase 2: tạo bảng `jlpt_sessions` (UQ exam_date, `fees` jsonb), `jlpt_registrations` (UQ session_id + student_id trừ lượt hủy, chứng chỉ gốc cột `cert_*`), `abroad_cases` (`intake` varchar(7)), `abroad_documents`, `abroad_notes` — migration `StudentsPrograms`; `library.documents` (chỉ mục gin `levels`, `branch_ids`; `avg_minutes` numeric(8,1)), `document_views` (chỉ mục (document_id, started_at), (viewer_type, viewer_id); `minutes` numeric(6,1)) — migration `LibraryDocuments`. Người phụ trách / người xem / chi nhánh không FK (schema khác). Dữ liệu: `programs.seed.json` (kỳ thi, đăng ký JLPT, hồ sơ du học — chi nhánh theo HV; lệch quy tắc trong mock được chỉnh cho khớp domain), `library.seed.json` + `documents` (lượt xem dựng lại từ `daily` / `top` của mock, số liệu tổng tính lại) |
 | 2026-11-17 | Chốt thiết kế (user story 08): `invoices.status` chỉ lưu `open` / `cancelled` / `voided`, các trạng thái tiền tính khi đọc; `payments.method` dùng `vietqr` (không `viet_qr`). Domain `InvoiceStatus`, `PaymentMethod` sửa theo khi code module Tài chính |

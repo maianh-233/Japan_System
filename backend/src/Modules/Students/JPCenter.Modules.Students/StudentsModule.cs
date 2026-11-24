@@ -47,6 +47,7 @@ public sealed class StudentsModule : IModule
 
         services.AddScoped<IDataSeeder, StudentSeeder>();
         services.AddScoped<IDataSeeder, CareSeeder>();
+        services.AddScoped<IDataSeeder, ProgramsSeeder>();
 
         if (JobServiceCollectionExtensions.IsEnabled(configuration))
         {

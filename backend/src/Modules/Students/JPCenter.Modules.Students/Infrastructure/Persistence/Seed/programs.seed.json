@@ -1,0 +1,1833 @@
+{
+  "generatedAt": "2026-11-24T04:18:55.939Z",
+  "jlptSessions": [
+    {
+      "id": "2026-12",
+      "label": "Tháng 12/2026",
+      "examDate": "2026-12-06",
+      "regClose": "2026-08-25",
+      "resultDate": "2027-01-26",
+      "fees": {
+        "N1": 700000,
+        "N2": 650000,
+        "N3": 600000,
+        "N4": 550000,
+        "N5": 550000
+      },
+      "venues": [
+        "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+        "Hà Nội — ĐH Hà Nội",
+        "TP.HCM — ĐH KHXH&NV",
+        "Đà Nẵng — ĐH Ngoại ngữ Đà Nẵng"
+      ]
+    },
+    {
+      "id": "2026-07",
+      "label": "Tháng 7/2026",
+      "examDate": "2026-07-05",
+      "regClose": "2026-04-03",
+      "resultDate": "2026-08-25",
+      "fees": {
+        "N1": 700000,
+        "N2": 650000,
+        "N3": 600000,
+        "N4": 550000,
+        "N5": 550000
+      },
+      "venues": [
+        "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+        "Hà Nội — ĐH Hà Nội",
+        "TP.HCM — ĐH KHXH&NV",
+        "Đà Nẵng — ĐH Ngoại ngữ Đà Nẵng"
+      ]
+    },
+    {
+      "id": "2025-12",
+      "label": "Tháng 12/2025",
+      "examDate": "2025-12-07",
+      "regClose": "2025-08-26",
+      "resultDate": "2026-01-26",
+      "fees": {
+        "N1": 700000,
+        "N2": 650000,
+        "N3": 600000,
+        "N4": 550000,
+        "N5": 550000
+      },
+      "venues": [
+        "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+        "Hà Nội — ĐH Hà Nội",
+        "TP.HCM — ĐH KHXH&NV",
+        "Đà Nẵng — ĐH Ngoại ngữ Đà Nẵng"
+      ]
+    }
+  ],
+  "jlptRegistrations": [
+    {
+      "studentId": "ST-1",
+      "sessionId": "2026-12",
+      "level": "N3",
+      "venue": "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+      "status": "admit",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-08-16T04:18:55.936Z",
+      "admitNo": "N310000-0001",
+      "id": "JR-1",
+      "createdAt": "2026-08-06T04:18:55.936Z"
+    },
+    {
+      "studentId": "ST-2",
+      "sessionId": "2026-12",
+      "level": "N5",
+      "venue": "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+      "status": "submitted",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-08-17T04:18:55.936Z",
+      "id": "JR-2",
+      "createdAt": "2026-08-07T04:18:55.936Z"
+    },
+    {
+      "studentId": "ST-3",
+      "sessionId": "2026-12",
+      "level": "N2",
+      "venue": "TP.HCM — ĐH KHXH&NV",
+      "status": "paid",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-08-18T04:18:55.936Z",
+      "id": "JR-3",
+      "createdAt": "2026-08-08T04:18:55.936Z"
+    },
+    {
+      "studentId": "ST-4",
+      "sessionId": "2026-12",
+      "level": "N4",
+      "venue": "Đà Nẵng — ĐH Ngoại ngữ Đà Nẵng",
+      "status": "registered",
+      "docs": {
+        "photo": true,
+        "idCard": false,
+        "form": false
+      },
+      "id": "JR-4",
+      "createdAt": "2026-08-09T04:18:55.936Z"
+    },
+    {
+      "studentId": "ST-9",
+      "sessionId": "2026-12",
+      "level": "N5",
+      "venue": "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+      "status": "admit",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-08-20T04:18:55.936Z",
+      "admitNo": "N510148-0005",
+      "id": "JR-5",
+      "createdAt": "2026-08-10T04:18:55.936Z"
+    },
+    {
+      "studentId": "ST-28",
+      "sessionId": "2026-12",
+      "level": "N5",
+      "venue": "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+      "status": "admit",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-08-21T04:18:55.936Z",
+      "admitNo": "N510185-0006",
+      "id": "JR-6",
+      "createdAt": "2026-08-11T04:18:55.936Z"
+    },
+    {
+      "studentId": "ST-20",
+      "sessionId": "2026-12",
+      "level": "N3",
+      "venue": "TP.HCM — ĐH KHXH&NV",
+      "status": "cancelled",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "note": "Đổi sang thi kỳ 7/2027 — chưa đủ thời gian ôn",
+      "id": "JR-7",
+      "createdAt": "2026-08-12T04:18:55.936Z"
+    },
+    {
+      "studentId": "ST-6",
+      "sessionId": "2026-12",
+      "level": "N3",
+      "venue": "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+      "status": "admit",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": false
+      },
+      "paidAt": "2026-08-23T04:18:55.936Z",
+      "admitNo": "N310259-0008",
+      "id": "JR-8",
+      "createdAt": "2026-08-13T04:18:55.936Z"
+    },
+    {
+      "studentId": "ST-8",
+      "sessionId": "2026-12",
+      "level": "N4",
+      "venue": "Đà Nẵng — ĐH Ngoại ngữ Đà Nẵng",
+      "status": "submitted",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-08-24T04:18:55.936Z",
+      "id": "JR-9",
+      "createdAt": "2026-08-14T04:18:55.936Z"
+    },
+    {
+      "studentId": "ST-10",
+      "sessionId": "2026-12",
+      "level": "N5",
+      "venue": "TP.HCM — ĐH KHXH&NV",
+      "status": "paid",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-08-25T04:18:55.936Z",
+      "id": "JR-10",
+      "createdAt": "2026-08-15T04:18:55.936Z"
+    },
+    {
+      "studentId": "ST-13",
+      "sessionId": "2026-12",
+      "level": "N5",
+      "venue": "TP.HCM — ĐH KHXH&NV",
+      "status": "registered",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "id": "JR-11",
+      "createdAt": "2026-08-16T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-14",
+      "sessionId": "2026-12",
+      "level": "N4",
+      "venue": "Đà Nẵng — ĐH Ngoại ngữ Đà Nẵng",
+      "status": "admit",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": false
+      },
+      "paidAt": "2026-08-27T04:18:55.937Z",
+      "admitNo": "N410407-0012",
+      "id": "JR-12",
+      "createdAt": "2026-08-17T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-16",
+      "sessionId": "2026-12",
+      "level": "N5",
+      "venue": "TP.HCM — ĐH KHXH&NV",
+      "status": "admit",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-08-28T04:18:55.937Z",
+      "admitNo": "N510444-0013",
+      "id": "JR-13",
+      "createdAt": "2026-08-18T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-18",
+      "sessionId": "2026-12",
+      "level": "N4",
+      "venue": "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+      "status": "cancelled",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "note": "Đổi sang thi kỳ 7/2027 — chưa đủ thời gian ôn",
+      "id": "JR-14",
+      "createdAt": "2026-08-19T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-21",
+      "sessionId": "2026-12",
+      "level": "N5",
+      "venue": "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+      "status": "admit",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-08-30T04:18:55.937Z",
+      "admitNo": "N510518-0015",
+      "id": "JR-15",
+      "createdAt": "2026-08-20T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-22",
+      "sessionId": "2026-12",
+      "level": "N5",
+      "venue": "TP.HCM — ĐH KHXH&NV",
+      "status": "submitted",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": false
+      },
+      "paidAt": "2026-08-31T04:18:55.937Z",
+      "id": "JR-16",
+      "createdAt": "2026-08-21T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-24",
+      "sessionId": "2026-12",
+      "level": "N3",
+      "venue": "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+      "status": "paid",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-09-01T04:18:55.937Z",
+      "id": "JR-17",
+      "createdAt": "2026-08-22T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-26",
+      "sessionId": "2026-12",
+      "level": "N4",
+      "venue": "Đà Nẵng — ĐH Ngoại ngữ Đà Nẵng",
+      "status": "registered",
+      "docs": {
+        "photo": false,
+        "idCard": false,
+        "form": false
+      },
+      "id": "JR-18",
+      "createdAt": "2026-08-23T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-29",
+      "sessionId": "2026-12",
+      "level": "N4",
+      "venue": "Đà Nẵng — ĐH Ngoại ngữ Đà Nẵng",
+      "status": "admit",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-09-03T04:18:55.937Z",
+      "admitNo": "N410666-0019",
+      "id": "JR-19",
+      "createdAt": "2026-08-24T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-30",
+      "sessionId": "2026-12",
+      "level": "N5",
+      "venue": "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+      "status": "admit",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": false
+      },
+      "paidAt": "2026-09-04T04:18:55.937Z",
+      "admitNo": "N510703-0020",
+      "id": "JR-20",
+      "createdAt": "2026-08-25T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-32",
+      "sessionId": "2026-12",
+      "level": "N4",
+      "venue": "Đà Nẵng — ĐH Ngoại ngữ Đà Nẵng",
+      "status": "cancelled",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "note": "Đổi sang thi kỳ 7/2027 — chưa đủ thời gian ôn",
+      "id": "JR-21",
+      "createdAt": "2026-08-26T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-34",
+      "sessionId": "2026-12",
+      "level": "N5",
+      "venue": "TP.HCM — ĐH KHXH&NV",
+      "status": "admit",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-09-06T04:18:55.937Z",
+      "admitNo": "N510777-0022",
+      "id": "JR-22",
+      "createdAt": "2026-08-27T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-1",
+      "sessionId": "2026-07",
+      "level": "N4",
+      "venue": "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-03-19T04:18:55.937Z",
+      "admitNo": "N420000-0001",
+      "scores": [
+        34,
+        26
+      ],
+      "id": "JR-23",
+      "createdAt": "2026-03-19T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-2",
+      "sessionId": "2026-07",
+      "level": "N5",
+      "venue": "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-03-19T04:18:55.937Z",
+      "admitNo": "N520053-0002",
+      "scores": [
+        78,
+        48
+      ],
+      "id": "JR-24",
+      "createdAt": "2026-03-19T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-3",
+      "sessionId": "2026-07",
+      "level": "N3",
+      "venue": "TP.HCM — ĐH KHXH&NV",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-03-19T04:18:55.937Z",
+      "admitNo": "N320106-0003",
+      "scores": [
+        50,
+        48,
+        16
+      ],
+      "note": "Đỗ N3 tháng 7",
+      "id": "JR-25",
+      "createdAt": "2026-03-19T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-4",
+      "sessionId": "2026-07",
+      "level": "N4",
+      "venue": "Đà Nẵng — ĐH Ngoại ngữ Đà Nẵng",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-03-19T04:18:55.937Z",
+      "admitNo": "N420159-0004",
+      "scores": [
+        57,
+        23
+      ],
+      "id": "JR-26",
+      "createdAt": "2026-03-19T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-5",
+      "sessionId": "2026-07",
+      "level": "N5",
+      "venue": "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-03-19T04:18:55.937Z",
+      "admitNo": "N520212-0005",
+      "scores": [
+        101,
+        45
+      ],
+      "id": "JR-27",
+      "createdAt": "2026-03-19T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-6",
+      "sessionId": "2026-07",
+      "level": "N3",
+      "venue": "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+      "status": "absent",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-03-19T04:18:55.937Z",
+      "admitNo": "N320265-0006",
+      "id": "JR-28",
+      "createdAt": "2026-03-19T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-7",
+      "sessionId": "2026-07",
+      "level": "N3",
+      "venue": "TP.HCM — ĐH KHXH&NV",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-03-19T04:18:55.937Z",
+      "admitNo": "N320318-0007",
+      "scores": [
+        25,
+        34,
+        28
+      ],
+      "id": "JR-29",
+      "createdAt": "2026-03-19T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-8",
+      "sessionId": "2026-07",
+      "level": "N5",
+      "venue": "Đà Nẵng — ĐH Ngoại ngữ Đà Nẵng",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-03-19T04:18:55.937Z",
+      "admitNo": "N520371-0008",
+      "scores": [
+        95,
+        41
+      ],
+      "id": "JR-30",
+      "createdAt": "2026-03-19T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-9",
+      "sessionId": "2026-07",
+      "level": "N5",
+      "venue": "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-03-19T04:18:55.937Z",
+      "admitNo": "N520424-0009",
+      "scores": [
+        84,
+        36
+      ],
+      "id": "JR-31",
+      "createdAt": "2026-03-19T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-10",
+      "sessionId": "2026-07",
+      "level": "N5",
+      "venue": "TP.HCM — ĐH KHXH&NV",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-03-19T04:18:55.937Z",
+      "admitNo": "N520477-0010",
+      "scores": [
+        74,
+        31
+      ],
+      "id": "JR-32",
+      "createdAt": "2026-03-19T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-11",
+      "sessionId": "2026-07",
+      "level": "N4",
+      "venue": "Đà Nẵng — ĐH Ngoại ngữ Đà Nẵng",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-03-19T04:18:55.937Z",
+      "admitNo": "N420530-0011",
+      "scores": [
+        34,
+        26
+      ],
+      "id": "JR-33",
+      "createdAt": "2026-03-19T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-12",
+      "sessionId": "2026-07",
+      "level": "N3",
+      "venue": "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-03-19T04:18:55.937Z",
+      "admitNo": "N320583-0012",
+      "scores": [
+        39,
+        48,
+        42
+      ],
+      "id": "JR-34",
+      "createdAt": "2026-03-19T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-13",
+      "sessionId": "2026-07",
+      "level": "N5",
+      "venue": "TP.HCM — ĐH KHXH&NV",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-03-19T04:18:55.937Z",
+      "admitNo": "N520636-0013",
+      "scores": [
+        67,
+        28
+      ],
+      "id": "JR-35",
+      "createdAt": "2026-03-19T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-14",
+      "sessionId": "2026-07",
+      "level": "N4",
+      "venue": "Đà Nẵng — ĐH Ngoại ngữ Đà Nẵng",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-03-19T04:18:55.937Z",
+      "admitNo": "N420689-0014",
+      "scores": [
+        57,
+        23
+      ],
+      "id": "JR-36",
+      "createdAt": "2026-03-19T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-15",
+      "sessionId": "2026-07",
+      "level": "N4",
+      "venue": "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+      "status": "absent",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-03-19T04:18:55.937Z",
+      "admitNo": "N420742-0015",
+      "id": "JR-37",
+      "createdAt": "2026-03-19T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-16",
+      "sessionId": "2026-07",
+      "level": "N3",
+      "venue": "TP.HCM — ĐH KHXH&NV",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-03-19T04:18:55.937Z",
+      "admitNo": "N320795-0016",
+      "scores": [
+        30,
+        39,
+        33
+      ],
+      "id": "JR-38",
+      "createdAt": "2026-03-19T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-18",
+      "sessionId": "2026-07",
+      "level": "N4",
+      "venue": "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2026-03-19T04:18:55.937Z",
+      "admitNo": "N420901-0018",
+      "scores": [
+        95,
+        41
+      ],
+      "id": "JR-39",
+      "createdAt": "2026-03-19T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-7",
+      "sessionId": "2025-12",
+      "level": "N3",
+      "venue": "TP.HCM — ĐH KHXH&NV",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2025-09-30T04:18:55.937Z",
+      "admitNo": "N320000-0001",
+      "scores": [
+        25,
+        34,
+        28
+      ],
+      "id": "JR-40",
+      "createdAt": "2025-09-30T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-8",
+      "sessionId": "2025-12",
+      "level": "N5",
+      "venue": "Đà Nẵng — ĐH Ngoại ngữ Đà Nẵng",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2025-09-30T04:18:55.937Z",
+      "admitNo": "N520053-0002",
+      "scores": [
+        40,
+        29
+      ],
+      "id": "JR-41",
+      "createdAt": "2025-09-30T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-9",
+      "sessionId": "2025-12",
+      "level": "N5",
+      "venue": "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2025-09-30T04:18:55.937Z",
+      "admitNo": "N520106-0003",
+      "scores": [
+        105,
+        15
+      ],
+      "id": "JR-42",
+      "createdAt": "2025-09-30T04:18:55.937Z"
+    },
+    {
+      "studentId": "ST-10",
+      "sessionId": "2025-12",
+      "level": "N5",
+      "venue": "TP.HCM — ĐH KHXH&NV",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2025-09-30T04:18:55.938Z",
+      "admitNo": "N520159-0004",
+      "scores": [
+        73,
+        31
+      ],
+      "id": "JR-43",
+      "createdAt": "2025-09-30T04:18:55.938Z"
+    },
+    {
+      "studentId": "ST-11",
+      "sessionId": "2025-12",
+      "level": "N4",
+      "venue": "Đà Nẵng — ĐH Ngoại ngữ Đà Nẵng",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2025-09-30T04:18:55.938Z",
+      "admitNo": "N420212-0005",
+      "scores": [
+        63,
+        26
+      ],
+      "id": "JR-44",
+      "createdAt": "2025-09-30T04:18:55.938Z"
+    },
+    {
+      "studentId": "ST-12",
+      "sessionId": "2025-12",
+      "level": "N3",
+      "venue": "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+      "status": "absent",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2025-09-30T04:18:55.938Z",
+      "admitNo": "N320265-0006",
+      "id": "JR-45",
+      "createdAt": "2025-09-30T04:18:55.938Z"
+    },
+    {
+      "studentId": "ST-13",
+      "sessionId": "2025-12",
+      "level": "N5",
+      "venue": "TP.HCM — ĐH KHXH&NV",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2025-09-30T04:18:55.938Z",
+      "admitNo": "N520318-0007",
+      "scores": [
+        67,
+        42
+      ],
+      "id": "JR-46",
+      "createdAt": "2025-09-30T04:18:55.938Z"
+    },
+    {
+      "studentId": "ST-14",
+      "sessionId": "2025-12",
+      "level": "N4",
+      "venue": "Đà Nẵng — ĐH Ngoại ngữ Đà Nẵng",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2025-09-30T04:18:55.938Z",
+      "admitNo": "N420371-0008",
+      "scores": [
+        57,
+        22
+      ],
+      "id": "JR-47",
+      "createdAt": "2025-09-30T04:18:55.938Z"
+    },
+    {
+      "studentId": "ST-15",
+      "sessionId": "2025-12",
+      "level": "N4",
+      "venue": "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2025-09-30T04:18:55.938Z",
+      "admitNo": "N420424-0009",
+      "scores": [
+        101,
+        44
+      ],
+      "id": "JR-48",
+      "createdAt": "2025-09-30T04:18:55.938Z"
+    },
+    {
+      "studentId": "ST-16",
+      "sessionId": "2025-12",
+      "level": "N3",
+      "venue": "TP.HCM — ĐH KHXH&NV",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2025-09-30T04:18:55.938Z",
+      "admitNo": "N320477-0010",
+      "scores": [
+        45,
+        39,
+        33
+      ],
+      "id": "JR-49",
+      "createdAt": "2025-09-30T04:18:55.938Z"
+    },
+    {
+      "studentId": "ST-18",
+      "sessionId": "2025-12",
+      "level": "N4",
+      "venue": "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2025-09-30T04:18:55.938Z",
+      "admitNo": "N420583-0012",
+      "scores": [
+        40,
+        29
+      ],
+      "id": "JR-50",
+      "createdAt": "2025-09-30T04:18:55.938Z"
+    },
+    {
+      "studentId": "ST-19",
+      "sessionId": "2025-12",
+      "level": "N5",
+      "venue": "TP.HCM — ĐH KHXH&NV",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2025-09-30T04:18:55.938Z",
+      "admitNo": "N520636-0013",
+      "scores": [
+        84,
+        36
+      ],
+      "id": "JR-51",
+      "createdAt": "2025-09-30T04:18:55.938Z"
+    },
+    {
+      "studentId": "ST-20",
+      "sessionId": "2025-12",
+      "level": "N3",
+      "venue": "TP.HCM — ĐH KHXH&NV",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2025-09-30T04:18:55.938Z",
+      "admitNo": "N320689-0014",
+      "scores": [
+        37,
+        31,
+        40
+      ],
+      "id": "JR-52",
+      "createdAt": "2025-09-30T04:18:55.938Z"
+    },
+    {
+      "studentId": "ST-21",
+      "sessionId": "2025-12",
+      "level": "N5",
+      "venue": "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+      "status": "absent",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2025-09-30T04:18:55.938Z",
+      "admitNo": "N520742-0015",
+      "id": "JR-53",
+      "createdAt": "2025-09-30T04:18:55.938Z"
+    },
+    {
+      "studentId": "ST-22",
+      "sessionId": "2025-12",
+      "level": "N5",
+      "venue": "TP.HCM — ĐH KHXH&NV",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2025-09-30T04:18:55.938Z",
+      "admitNo": "N520795-0016",
+      "scores": [
+        77,
+        48
+      ],
+      "id": "JR-54",
+      "createdAt": "2025-09-30T04:18:55.938Z"
+    },
+    {
+      "studentId": "ST-23",
+      "sessionId": "2025-12",
+      "level": "N5",
+      "venue": "Đà Nẵng — ĐH Ngoại ngữ Đà Nẵng",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2025-09-30T04:18:55.938Z",
+      "admitNo": "N520848-0017",
+      "scores": [
+        67,
+        42
+      ],
+      "id": "JR-55",
+      "createdAt": "2025-09-30T04:18:55.938Z"
+    },
+    {
+      "studentId": "ST-24",
+      "sessionId": "2025-12",
+      "level": "N5",
+      "venue": "Hà Nội — ĐH Ngoại ngữ (ĐHQGHN)",
+      "status": "done",
+      "docs": {
+        "photo": true,
+        "idCard": true,
+        "form": true
+      },
+      "paidAt": "2025-09-30T04:18:55.938Z",
+      "admitNo": "N520901-0018",
+      "scores": [
+        57,
+        22
+      ],
+      "id": "JR-56",
+      "createdAt": "2025-09-30T04:18:55.938Z"
+    }
+  ],
+  "abroadCases": [
+    {
+      "id": "AB-1",
+      "studentId": "ST-4",
+      "program": "tts",
+      "partner": "Nghiệp đoàn Chubu Kyodo",
+      "destination": "Aichi",
+      "job": "Chế biến thực phẩm",
+      "intake": "2027-03",
+      "jlptRequired": "N4",
+      "stage": "coe",
+      "docs": [
+        {
+          "name": "Hộ chiếu",
+          "state": "verified"
+        },
+        {
+          "name": "CCCD",
+          "state": "verified"
+        },
+        {
+          "name": "Sơ yếu lý lịch",
+          "state": "verified"
+        },
+        {
+          "name": "Giấy khám sức khỏe",
+          "state": "verified"
+        },
+        {
+          "name": "Bằng cấp",
+          "state": "verified"
+        },
+        {
+          "name": "Chứng chỉ JLPT",
+          "state": "verified"
+        },
+        {
+          "name": "Chứng chỉ kỹ năng ngành",
+          "state": "verified"
+        },
+        {
+          "name": "Ảnh 4×3",
+          "state": "verified"
+        }
+      ],
+      "interview": {
+        "date": "2026-10-05",
+        "result": "pass"
+      },
+      "coe": {
+        "submittedAt": "2026-10-25"
+      },
+      "fee": {
+        "total": 120000000,
+        "paid": 90000000
+      },
+      "assignee": "Võ Thị Hạnh (Phụ trách XKLĐ)",
+      "notes": [
+        {
+          "text": "Đỗ phỏng vấn đơn hàng bánh kẹo Aichi (3 năm).",
+          "by": "Võ Thị Hạnh (Phụ trách XKLĐ)",
+          "at": "2026-08-11T04:18:55.938Z",
+          "byId": "t-hanh"
+        },
+        {
+          "text": "Đã nộp hồ sơ COE qua nghiệp đoàn.",
+          "by": "Võ Thị Hạnh (Phụ trách XKLĐ)",
+          "at": "2026-08-26T04:18:55.938Z",
+          "byId": "t-hanh"
+        }
+      ],
+      "createdAt": "2026-07-27T04:18:55.938Z",
+      "assigneeId": "t-hanh"
+    },
+    {
+      "id": "AB-2",
+      "studentId": "ST-3",
+      "program": "engineer",
+      "partner": "Công ty TNHH Sakura IT Solutions",
+      "destination": "Tokyo",
+      "job": "Kỹ sư phần mềm",
+      "intake": "2027-01",
+      "jlptRequired": "N3",
+      "stage": "visa",
+      "docs": [
+        {
+          "name": "Hộ chiếu",
+          "state": "verified"
+        },
+        {
+          "name": "CCCD",
+          "state": "verified"
+        },
+        {
+          "name": "Sơ yếu lý lịch",
+          "state": "verified"
+        },
+        {
+          "name": "Giấy khám sức khỏe",
+          "state": "verified"
+        },
+        {
+          "name": "Bằng cấp",
+          "state": "verified"
+        },
+        {
+          "name": "Chứng chỉ JLPT",
+          "state": "verified"
+        },
+        {
+          "name": "Chứng chỉ kỹ năng ngành",
+          "state": "verified"
+        },
+        {
+          "name": "Ảnh 4×3",
+          "state": "verified"
+        }
+      ],
+      "interview": {
+        "date": "2026-09-10",
+        "result": "pass"
+      },
+      "coe": {
+        "submittedAt": "2026-09-25",
+        "grantedAt": "2026-11-18"
+      },
+      "visa": {
+        "appliedAt": "2026-11-22"
+      },
+      "fee": {
+        "total": 35000000,
+        "paid": 35000000
+      },
+      "assignee": "Lý Thanh Vy (Tư vấn du học)",
+      "notes": [
+        {
+          "text": "Đã nhận COE bản gốc qua bưu điện.",
+          "by": "Lý Thanh Vy (Tư vấn du học)",
+          "at": "2026-07-12T04:18:55.938Z",
+          "byId": "e-vy"
+        },
+        {
+          "text": "Nộp visa tại ĐSQ Nhật Hà Nội.",
+          "by": "Lý Thanh Vy (Tư vấn du học)",
+          "at": "2026-07-27T04:18:55.938Z",
+          "byId": "e-vy"
+        }
+      ],
+      "createdAt": "2026-06-27T04:18:55.938Z",
+      "assigneeId": "e-vy"
+    },
+    {
+      "id": "AB-3",
+      "studentId": "ST-6",
+      "program": "study",
+      "partner": "Trường Nhật ngữ Osaka YMCA",
+      "destination": "Osaka",
+      "intake": "2027-04",
+      "jlptRequired": "N5",
+      "stage": "coe",
+      "docs": [
+        {
+          "name": "Hộ chiếu",
+          "state": "verified"
+        },
+        {
+          "name": "Bằng tốt nghiệp + học bạ",
+          "state": "verified"
+        },
+        {
+          "name": "Chứng chỉ JLPT / NAT",
+          "state": "verified"
+        },
+        {
+          "name": "Giấy khai sinh",
+          "state": "verified"
+        },
+        {
+          "name": "Sổ tiết kiệm (chứng minh tài chính)",
+          "state": "verified"
+        },
+        {
+          "name": "Xác nhận thu nhập người bảo lãnh",
+          "state": "verified"
+        },
+        {
+          "name": "Ảnh 4×3",
+          "state": "verified"
+        }
+      ],
+      "interview": {
+        "date": "2026-11-04",
+        "result": "pass"
+      },
+      "coe": {
+        "submittedAt": "2026-11-12"
+      },
+      "fee": {
+        "total": 180000000,
+        "paid": 120000000
+      },
+      "assignee": "Lý Thanh Vy (Tư vấn du học)",
+      "notes": [
+        {
+          "text": "Phỏng vấn online với trường — đạt.",
+          "by": "Lý Thanh Vy (Tư vấn du học)",
+          "at": "2026-09-10T04:18:55.938Z",
+          "byId": "e-vy"
+        },
+        {
+          "text": "Kỳ tháng 4/2027: Cục XNC trả COE khoảng cuối tháng 2.",
+          "by": "Lý Thanh Vy (Tư vấn du học)",
+          "at": "2026-09-25T04:18:55.938Z",
+          "byId": "e-vy"
+        }
+      ],
+      "createdAt": "2026-08-26T04:18:55.938Z",
+      "assigneeId": "e-vy"
+    },
+    {
+      "id": "AB-4",
+      "studentId": "ST-9",
+      "program": "study",
+      "partner": "Học viện Nhật ngữ Fukuoka",
+      "destination": "Fukuoka",
+      "intake": "2027-04",
+      "jlptRequired": "N5",
+      "stage": "documents",
+      "docs": [
+        {
+          "name": "Hộ chiếu",
+          "state": "verified"
+        },
+        {
+          "name": "Bằng tốt nghiệp + học bạ",
+          "state": "verified"
+        },
+        {
+          "name": "Chứng chỉ JLPT / NAT",
+          "state": "verified"
+        },
+        {
+          "name": "Giấy khai sinh",
+          "state": "verified"
+        },
+        {
+          "name": "Sổ tiết kiệm (chứng minh tài chính)",
+          "state": "received"
+        },
+        {
+          "name": "Xác nhận thu nhập người bảo lãnh",
+          "state": "missing"
+        },
+        {
+          "name": "Ảnh 4×3",
+          "state": "missing"
+        }
+      ],
+      "fee": {
+        "total": 170000000,
+        "paid": 30000000
+      },
+      "assignee": "Lý Thanh Vy (Tư vấn du học)",
+      "notes": [
+        {
+          "text": "Thiếu sổ tiết kiệm + xác nhận thu nhập của bố.",
+          "by": "Lý Thanh Vy (Tư vấn du học)",
+          "at": "2026-10-30T04:18:55.938Z",
+          "byId": "e-vy"
+        }
+      ],
+      "createdAt": "2026-10-15T04:18:55.938Z",
+      "assigneeId": "e-vy"
+    },
+    {
+      "id": "AB-5",
+      "studentId": "ST-12",
+      "program": "tokutei",
+      "partner": "Công ty Kaigo Hikari",
+      "destination": "Saitama",
+      "job": "Điều dưỡng (Kaigo)",
+      "intake": "2027-02",
+      "jlptRequired": "N4",
+      "stage": "interview",
+      "docs": [
+        {
+          "name": "Hộ chiếu",
+          "state": "verified"
+        },
+        {
+          "name": "CCCD",
+          "state": "verified"
+        },
+        {
+          "name": "Sơ yếu lý lịch",
+          "state": "verified"
+        },
+        {
+          "name": "Giấy khám sức khỏe",
+          "state": "verified"
+        },
+        {
+          "name": "Bằng cấp",
+          "state": "verified"
+        },
+        {
+          "name": "Chứng chỉ JLPT",
+          "state": "verified"
+        },
+        {
+          "name": "Chứng chỉ kỹ năng ngành",
+          "state": "verified"
+        },
+        {
+          "name": "Ảnh 4×3",
+          "state": "received"
+        }
+      ],
+      "interview": {
+        "date": "2026-11-29"
+      },
+      "fee": {
+        "total": 60000000,
+        "paid": 30000000
+      },
+      "assignee": "Võ Thị Hạnh (Phụ trách XKLĐ)",
+      "notes": [
+        {
+          "text": "Đã đỗ kỳ thi kỹ năng Kaigo + tiếng Nhật JFT-Basic.",
+          "by": "Võ Thị Hạnh (Phụ trách XKLĐ)",
+          "at": "2026-10-10T04:18:55.938Z",
+          "byId": "t-hanh"
+        }
+      ],
+      "createdAt": "2026-09-25T04:18:55.938Z",
+      "assigneeId": "t-hanh"
+    },
+    {
+      "id": "AB-6",
+      "studentId": "ST-15",
+      "program": "tts",
+      "partner": "Nghiệp đoàn Kyushu Build",
+      "destination": "Kumamoto",
+      "job": "Xây dựng — cốp pha",
+      "intake": "2027-05",
+      "jlptRequired": "N4",
+      "stage": "documents",
+      "docs": [
+        {
+          "name": "Hộ chiếu",
+          "state": "verified"
+        },
+        {
+          "name": "CCCD",
+          "state": "verified"
+        },
+        {
+          "name": "Sơ yếu lý lịch",
+          "state": "verified"
+        },
+        {
+          "name": "Giấy khám sức khỏe",
+          "state": "received"
+        },
+        {
+          "name": "Bằng cấp",
+          "state": "missing"
+        },
+        {
+          "name": "Chứng chỉ JLPT",
+          "state": "missing"
+        },
+        {
+          "name": "Chứng chỉ kỹ năng ngành",
+          "state": "missing"
+        },
+        {
+          "name": "Ảnh 4×3",
+          "state": "missing"
+        }
+      ],
+      "fee": {
+        "total": 110000000,
+        "paid": 20000000
+      },
+      "assignee": "Võ Thị Hạnh (Phụ trách XKLĐ)",
+      "notes": [],
+      "createdAt": "2026-10-30T04:18:55.938Z",
+      "assigneeId": "t-hanh"
+    },
+    {
+      "id": "AB-7",
+      "studentId": "ST-18",
+      "program": "study",
+      "partner": "Trường Nhật ngữ ISI Tokyo",
+      "destination": "Tokyo",
+      "intake": "2027-07",
+      "jlptRequired": "N5",
+      "stage": "consult",
+      "docs": [
+        {
+          "name": "Hộ chiếu",
+          "state": "received"
+        },
+        {
+          "name": "Bằng tốt nghiệp + học bạ",
+          "state": "missing"
+        },
+        {
+          "name": "Chứng chỉ JLPT / NAT",
+          "state": "missing"
+        },
+        {
+          "name": "Giấy khai sinh",
+          "state": "missing"
+        },
+        {
+          "name": "Sổ tiết kiệm (chứng minh tài chính)",
+          "state": "missing"
+        },
+        {
+          "name": "Xác nhận thu nhập người bảo lãnh",
+          "state": "missing"
+        },
+        {
+          "name": "Ảnh 4×3",
+          "state": "missing"
+        }
+      ],
+      "fee": {
+        "total": 190000000,
+        "paid": 0
+      },
+      "assignee": "Lý Thanh Vy (Tư vấn du học)",
+      "notes": [
+        {
+          "text": "Phụ huynh muốn kỳ tháng 7 hoặc tháng 10.",
+          "by": "Lý Thanh Vy (Tư vấn du học)",
+          "at": "2026-11-23T04:18:55.938Z",
+          "byId": "e-vy"
+        }
+      ],
+      "createdAt": "2026-11-16T04:18:55.938Z",
+      "assigneeId": "e-vy"
+    },
+    {
+      "id": "AB-8",
+      "studentId": "ST-21",
+      "program": "tokutei",
+      "partner": "Công ty Nhà hàng Washoku Group",
+      "destination": "Kanagawa",
+      "job": "Nhà hàng",
+      "intake": "2027-03",
+      "jlptRequired": "N4",
+      "stage": "consult",
+      "docs": [
+        {
+          "name": "Hộ chiếu",
+          "state": "received"
+        },
+        {
+          "name": "CCCD",
+          "state": "missing"
+        },
+        {
+          "name": "Sơ yếu lý lịch",
+          "state": "missing"
+        },
+        {
+          "name": "Giấy khám sức khỏe",
+          "state": "missing"
+        },
+        {
+          "name": "Bằng cấp",
+          "state": "missing"
+        },
+        {
+          "name": "Chứng chỉ JLPT",
+          "state": "missing"
+        },
+        {
+          "name": "Chứng chỉ kỹ năng ngành",
+          "state": "missing"
+        },
+        {
+          "name": "Ảnh 4×3",
+          "state": "missing"
+        }
+      ],
+      "fee": {
+        "total": 55000000,
+        "paid": 5000000
+      },
+      "assignee": "Võ Thị Hạnh (Phụ trách XKLĐ)",
+      "notes": [],
+      "createdAt": "2026-11-19T04:18:55.938Z",
+      "assigneeId": "t-hanh"
+    },
+    {
+      "id": "AB-9",
+      "studentId": "ST-24",
+      "program": "tts",
+      "partner": "Nghiệp đoàn Chubu Kyodo",
+      "destination": "Gifu",
+      "job": "Cơ khí",
+      "intake": "2026-12",
+      "jlptRequired": "N4",
+      "stage": "departed",
+      "docs": [
+        {
+          "name": "Hộ chiếu",
+          "state": "verified"
+        },
+        {
+          "name": "CCCD",
+          "state": "verified"
+        },
+        {
+          "name": "Sơ yếu lý lịch",
+          "state": "verified"
+        },
+        {
+          "name": "Giấy khám sức khỏe",
+          "state": "verified"
+        },
+        {
+          "name": "Bằng cấp",
+          "state": "verified"
+        },
+        {
+          "name": "Chứng chỉ JLPT",
+          "state": "verified"
+        },
+        {
+          "name": "Chứng chỉ kỹ năng ngành",
+          "state": "verified"
+        },
+        {
+          "name": "Ảnh 4×3",
+          "state": "verified"
+        }
+      ],
+      "interview": {
+        "date": "2026-05-08",
+        "result": "pass"
+      },
+      "coe": {
+        "submittedAt": "2026-06-27",
+        "grantedAt": "2026-09-05"
+      },
+      "visa": {
+        "appliedAt": "2026-09-25",
+        "issuedAt": "2026-10-05"
+      },
+      "flightDate": "2026-11-04",
+      "fee": {
+        "total": 115000000,
+        "paid": 115000000
+      },
+      "assignee": "Võ Thị Hạnh (Phụ trách XKLĐ)",
+      "notes": [
+        {
+          "text": "Đã xuất cảnh, nghiệp đoàn đón tại sân bay Chubu.",
+          "by": "Võ Thị Hạnh (Phụ trách XKLĐ)",
+          "at": "2026-03-24T04:18:55.938Z",
+          "byId": "t-hanh"
+        }
+      ],
+      "createdAt": "2026-03-09T04:18:55.938Z",
+      "assigneeId": "t-hanh"
+    },
+    {
+      "id": "AB-10",
+      "studentId": "ST-27",
+      "program": "tts",
+      "partner": "Nghiệp đoàn Chubu Kyodo",
+      "destination": "Aichi",
+      "job": "Chế biến thực phẩm",
+      "intake": "2026-12",
+      "jlptRequired": "N4",
+      "stage": "visa",
+      "docs": [
+        {
+          "name": "Hộ chiếu",
+          "state": "verified"
+        },
+        {
+          "name": "CCCD",
+          "state": "verified"
+        },
+        {
+          "name": "Sơ yếu lý lịch",
+          "state": "verified"
+        },
+        {
+          "name": "Giấy khám sức khỏe",
+          "state": "verified"
+        },
+        {
+          "name": "Bằng cấp",
+          "state": "verified"
+        },
+        {
+          "name": "Chứng chỉ JLPT",
+          "state": "verified"
+        },
+        {
+          "name": "Chứng chỉ kỹ năng ngành",
+          "state": "verified"
+        },
+        {
+          "name": "Ảnh 4×3",
+          "state": "verified"
+        }
+      ],
+      "interview": {
+        "date": "2026-07-27",
+        "result": "pass"
+      },
+      "coe": {
+        "submittedAt": "2026-08-26",
+        "grantedAt": "2026-10-15"
+      },
+      "visa": {
+        "appliedAt": "2026-11-04",
+        "issuedAt": "2026-11-16"
+      },
+      "flightDate": "2026-12-06",
+      "fee": {
+        "total": 120000000,
+        "paid": 120000000
+      },
+      "assignee": "Võ Thị Hạnh (Phụ trách XKLĐ)",
+      "notes": [
+        {
+          "text": "Đã có visa. Vé máy bay HAN → NGO.",
+          "by": "Võ Thị Hạnh (Phụ trách XKLĐ)",
+          "at": "2026-05-23T04:18:55.939Z",
+          "byId": "t-hanh"
+        }
+      ],
+      "createdAt": "2026-05-08T04:18:55.939Z",
+      "assigneeId": "t-hanh"
+    },
+    {
+      "id": "AB-11",
+      "studentId": "ST-30",
+      "program": "tts",
+      "partner": "Nghiệp đoàn Kyushu Build",
+      "destination": "Fukuoka",
+      "job": "Xây dựng",
+      "intake": "2027-03",
+      "jlptRequired": "N4",
+      "stage": "interview",
+      "cancelled": {
+        "reason": "Trượt phỏng vấn đơn hàng — chờ đơn hàng khác",
+        "at": "2026-11-15T04:18:55.938Z"
+      },
+      "docs": [
+        {
+          "name": "Hộ chiếu",
+          "state": "verified"
+        },
+        {
+          "name": "CCCD",
+          "state": "verified"
+        },
+        {
+          "name": "Sơ yếu lý lịch",
+          "state": "verified"
+        },
+        {
+          "name": "Giấy khám sức khỏe",
+          "state": "verified"
+        },
+        {
+          "name": "Bằng cấp",
+          "state": "verified"
+        },
+        {
+          "name": "Chứng chỉ JLPT",
+          "state": "verified"
+        },
+        {
+          "name": "Chứng chỉ kỹ năng ngành",
+          "state": "received"
+        },
+        {
+          "name": "Ảnh 4×3",
+          "state": "missing"
+        }
+      ],
+      "interview": {
+        "date": "2026-11-14",
+        "result": "fail"
+      },
+      "fee": {
+        "total": 110000000,
+        "paid": 20000000
+      },
+      "assignee": "Võ Thị Hạnh (Phụ trách XKLĐ)",
+      "notes": [],
+      "createdAt": "2026-09-15T04:18:55.939Z",
+      "assigneeId": "t-hanh"
+    },
+    {
+      "id": "AB-12",
+      "studentId": "ST-33",
+      "program": "study",
+      "partner": "Trường Nhật ngữ Kyoto Minsai",
+      "destination": "Kyoto",
+      "intake": "2027-04",
+      "jlptRequired": "N5",
+      "stage": "interview",
+      "docs": [
+        {
+          "name": "Hộ chiếu",
+          "state": "verified"
+        },
+        {
+          "name": "Bằng tốt nghiệp + học bạ",
+          "state": "verified"
+        },
+        {
+          "name": "Chứng chỉ JLPT / NAT",
+          "state": "verified"
+        },
+        {
+          "name": "Giấy khai sinh",
+          "state": "verified"
+        },
+        {
+          "name": "Sổ tiết kiệm (chứng minh tài chính)",
+          "state": "verified"
+        },
+        {
+          "name": "Xác nhận thu nhập người bảo lãnh",
+          "state": "verified"
+        },
+        {
+          "name": "Ảnh 4×3",
+          "state": "verified"
+        }
+      ],
+      "interview": {
+        "date": "2026-11-26"
+      },
+      "fee": {
+        "total": 175000000,
+        "paid": 50000000
+      },
+      "assignee": "Lý Thanh Vy (Tư vấn du học)",
+      "notes": [],
+      "createdAt": "2026-10-05T04:18:55.939Z",
+      "assigneeId": "e-vy"
+    }
+  ]
+}

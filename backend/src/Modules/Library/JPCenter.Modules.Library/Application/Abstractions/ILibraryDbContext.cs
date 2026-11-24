@@ -1,3 +1,4 @@
+using JPCenter.Modules.Library.Domain.Documents;
 using JPCenter.Modules.Library.Domain.TeacherDocuments;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,6 +8,8 @@ namespace JPCenter.Modules.Library.Application.Abstractions;
 public interface ILibraryDbContext
 {
     DbSet<TeacherDocument> TeacherDocuments { get; }
+    DbSet<LibraryDocument> Documents { get; }
+    DbSet<DocumentView> DocumentViews { get; }
 
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

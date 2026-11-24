@@ -189,5 +189,6 @@ Xóa → **xóa mềm** vào Thùng rác (story 10, TR-xx); dọn Thùng rác m�
 
 - **Phase 1:** story này + chỉnh HV-15 → 17 ([06](06-hoc-vien.md)); domain `LibraryDocument` (tạo / sửa / bảo vệ / ai xem được), `DocumentView` (bắt đầu / kết thúc, giới hạn phút),
   `LibraryStats` (tổng hợp, 14 ngày, top 6), `Watermark`; Students: điều kiện + mã chứng nhận, quy chế điểm JLPT, bước hồ sơ du học.
-- **Phase 2:** cấu hình EF + migration `library.documents`, `document_views`, các bảng chứng nhận / JLPT / du học + dữ liệu mẫu từ mock.
+- **Phase 2:** ✅ cấu hình EF + migration `LibraryDocuments` (`documents`, `document_views`), `StudentsPrograms` (JLPT, du học — bảng chứng nhận đã có từ GĐ 14)
+  + dữ liệu mẫu từ mock (lượt xem dựng lại từ `daily` / `top`, tối đa 200 lượt cũ hơn 14 ngày / tài liệu).
 - **Phase 3:** API trên + job không cần (số liệu cập nhật khi ghi lượt xem). **Phase 4:** nối frontend, dọn mock.

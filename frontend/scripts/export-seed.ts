@@ -161,9 +161,22 @@ const { MOCK_ASSIGNMENTS } = await import('@/mocks/data/classes');
 const { MOCK_SUBMISSIONS, MOCK_EXAM_RESULTS } = await import('@/mocks/data/submissions');
 const { MOCK_TEACHER_REVIEWS, MOCK_ANNOUNCEMENTS } = await import('@/mocks/data/classExtras');
 const { MOCK_DECKS, MOCK_CARD_PROGRESS, MOCK_TEACHER_DOCS } = await import('@/mocks/data/portal');
+// Thư viện điện tử (user story 16 — giai đoạn 23): tài liệu + số liệu đọc giả lập (seeder dựng lượt xem từ daily / top)
+const { MOCK_LIBRARY } = await import('@/mocks/data/library');
 const learning = learningSeed();
 write(resolve(backend, 'Academic', 'JPCenter.Modules.Academic', 'Infrastructure', 'Persistence', 'Seed', 'learning.seed.json'), learning.academic);
 write(resolve(backend, 'Library', 'JPCenter.Modules.Library', 'Infrastructure', 'Persistence', 'Seed', 'library.seed.json'), learning.library);
+
+// Nhóm HV riêng (HV-16, HV-17 — giai đoạn 23): kỳ thi + đăng ký JLPT, hồ sơ du học / XKLĐ (Students). Chi nhánh lấy theo học viên khi nạp
+const { MOCK_JLPT } = await import('@/mocks/data/jlpt');
+const { MOCK_ABROAD } = await import('@/mocks/data/abroad');
+const { JLPT_SESSIONS, JLPT_FEE, JLPT_VENUES } = await import('@/features/student/jlpt/jlpt');
+write(resolve(backend, 'Students', 'JPCenter.Modules.Students', 'Infrastructure', 'Persistence', 'Seed', 'programs.seed.json'), {
+  generatedAt: new Date().toISOString(),
+  jlptSessions: JLPT_SESSIONS.map((x) => ({ ...x, fees: JLPT_FEE, venues: JLPT_VENUES })),
+  jlptRegistrations: MOCK_JLPT,
+  abroadCases: MOCK_ABROAD.map((c) => ({ ...c, assigneeId: personId(c.assignee), notes: c.notes.map((n) => ({ ...n, byId: personId(n.by) })) })),
+});
 
 // Nhân sự mở rộng + Công việc (user story 13, 14 — giai đoạn 21): chấm công, đơn từ, tuyển dụng, onboarding (Hr) · task, ca, bàn giao (Work)
 const hrOps = await import('@/mocks/data/hr');
@@ -257,6 +270,7 @@ function learningSeed() {
     library: {
       generatedAt: new Date().toISOString(),
       teacherDocs: MOCK_TEACHER_DOCS,
+      documents: MOCK_LIBRARY.map((d) => ({ ...d, uploadedById: personId(d.uploadedBy), branchIds: d.branchIds === 'all' ? [] : d.branchIds })),
     },
   };
 }
@@ -440,6 +454,10 @@ const seedIds = [
   ...learning.academic.decks.flatMap((d) => [d.id, ...d.cards.map((c) => c.id)]),
   ...learning.academic.cardProgress.map((x) => x.id),
   ...learning.library.teacherDocs.map((x) => x.id),
+  ...learning.library.documents.map((x) => x.id),
+  ...JLPT_SESSIONS.map((x) => x.id),
+  ...MOCK_JLPT.map((x) => x.id),
+  ...MOCK_ABROAD.map((x) => x.id),
   ...hrWork.hr.requests.map((x) => x.id),
   ...hrWork.hr.jobs.map((x) => x.id),
   ...hrWork.hr.candidates.map((x) => x.id),

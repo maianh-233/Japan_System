@@ -82,6 +82,246 @@ namespace JPCenter.Modules.Library.Infrastructure.Persistence.Migrations
                     b.ToTable("outbox_messages", "library");
                 });
 
+            modelBuilder.Entity("JPCenter.Modules.Library.Domain.Documents.DocumentView", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("document_id");
+
+                    b.Property<DateTimeOffset?>("EndedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ended_at");
+
+                    b.Property<decimal>("Minutes")
+                        .HasPrecision(6, 1)
+                        .HasColumnType("numeric(6,1)")
+                        .HasColumnName("minutes");
+
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_at");
+
+                    b.Property<Guid>("ViewerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("viewer_id");
+
+                    b.Property<string>("ViewerName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("viewer_name");
+
+                    b.Property<string>("ViewerRole")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("viewer_role");
+
+                    b.Property<string>("ViewerType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("viewer_type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_document_views");
+
+                    b.HasIndex("DocumentId", "StartedAt")
+                        .HasDatabaseName("ix_document_views_document_id_started_at");
+
+                    b.HasIndex("ViewerType", "ViewerId")
+                        .HasDatabaseName("ix_document_views_viewer_type_viewer_id");
+
+                    b.ToTable("document_views", "library");
+                });
+
+            modelBuilder.Entity("JPCenter.Modules.Library.Domain.Documents.LibraryDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("AllowDownload")
+                        .HasColumnType("boolean")
+                        .HasColumnName("allow_download");
+
+                    b.Property<string[]>("Audience")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("audience");
+
+                    b.Property<decimal>("AvgMinutes")
+                        .HasPrecision(8, 1)
+                        .HasColumnType("numeric(8,1)")
+                        .HasColumnName("avg_minutes");
+
+                    b.Property<Guid[]>("BranchIds")
+                        .IsRequired()
+                        .HasColumnType("uuid[]")
+                        .HasColumnName("branch_ids");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("category");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description");
+
+                    b.Property<int?>("Duration")
+                        .HasColumnType("integer")
+                        .HasColumnName("duration");
+
+                    b.Property<string>("FileKey")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("file_key");
+
+                    b.Property<string>("FileName")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("file_name");
+
+                    b.Property<string>("FileType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("file_type");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTimeOffset?>("LastViewedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_viewed_at");
+
+                    b.Property<string[]>("Levels")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("levels");
+
+                    b.Property<int?>("Pages")
+                        .HasColumnType("integer")
+                        .HasColumnName("pages");
+
+                    b.Property<string>("Publisher")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("publisher");
+
+                    b.Property<int>("ReaderCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("reader_count");
+
+                    b.Property<long?>("Size")
+                        .HasColumnType("bigint")
+                        .HasColumnName("size");
+
+                    b.Property<string[]>("Skills")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("skills");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Subtitle")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("subtitle");
+
+                    b.PrimitiveCollection<List<string>>("Tags")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("tags");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<DateTimeOffset>("UploadedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("uploaded_at");
+
+                    b.Property<Guid>("UploadedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("uploaded_by");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("view_count");
+
+                    b.Property<bool>("Watermark")
+                        .HasColumnType("boolean")
+                        .HasColumnName("watermark");
+
+                    b.Property<int?>("Year")
+                        .HasColumnType("integer")
+                        .HasColumnName("year");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_documents");
+
+                    b.HasIndex("BranchIds")
+                        .HasDatabaseName("ix_documents_branch_ids");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("BranchIds"), "gin");
+
+                    b.HasIndex("Levels")
+                        .HasDatabaseName("ix_documents_levels");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Levels"), "gin");
+
+                    b.HasIndex("Status", "Category")
+                        .HasDatabaseName("ix_documents_status_category");
+
+                    b.ToTable("documents", "library");
+                });
+
             modelBuilder.Entity("JPCenter.Modules.Library.Domain.TeacherDocuments.TeacherDocument", b =>
                 {
                     b.Property<Guid>("Id")
@@ -183,6 +423,16 @@ namespace JPCenter.Modules.Library.Infrastructure.Persistence.Migrations
                     b.ToTable("teacher_documents", "library");
                 });
 
+            modelBuilder.Entity("JPCenter.Modules.Library.Domain.Documents.DocumentView", b =>
+                {
+                    b.HasOne("JPCenter.Modules.Library.Domain.Documents.LibraryDocument", null)
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_document_views_documents_document_id");
+                });
+
             modelBuilder.Entity("JPCenter.Modules.Library.Domain.TeacherDocuments.TeacherDocument", b =>
                 {
                     b.OwnsMany("JPCenter.Modules.Library.Domain.TeacherDocuments.TeacherDocumentView", "Views", b1 =>
@@ -192,7 +442,6 @@ namespace JPCenter.Modules.Library.Infrastructure.Persistence.Migrations
                                 .HasColumnName("teacher_document_id");
 
                             b1.Property<Guid>("StudentId")
-                                .ValueGeneratedOnAdd()
                                 .HasColumnType("uuid")
                                 .HasColumnName("student_id");
 
