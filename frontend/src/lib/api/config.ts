@@ -8,7 +8,8 @@
  *    Nội dung học (bài tập upload / quiz, kỳ thi online / giấy, thông báo lớp, đánh giá GV, flashcard, tài liệu GV),
  *    Nhân sự mở rộng (chấm công, đơn từ duyệt nhiều cấp, tuyển dụng, onboarding) + Công việc (task, giao việc cấp dưới, xếp ca, bàn giao ca),
  *    Tài chính đợt 2 (lương GV / NV, chốt / mở khóa / đã chi, hoa hồng & KPI Sale, phiếu lương ở cổng GV), Tích hợp (Zalo / SMS / email / VietQR / Zoom),
- *    Thư viện tài liệu (watermark, chặn tải, thống kê; cổng HV / PH / GV), chứng nhận hoàn thành (+ trang tra cứu /verify), thi JLPT, du học / XKLĐ gọi backend thật
+ *    Thư viện tài liệu (watermark, chặn tải, thống kê; cổng HV / PH / GV), chứng nhận hoàn thành (+ trang tra cứu /verify), thi JLPT, du học / XKLĐ,
+ *    Báo cáo + bảng điều khiển (thẻ chỉ số, Cần xử lý, Việc hôm nay, báo cáo 3 / 6 / 12 tháng, xuất Excel nhiều sheet) gọi backend thật
  *    (cần chạy API + Docker — xem backend/README.md).
  *  - "mock": toàn bộ chạy bằng dữ liệu giả trong trình duyệt như trước (không cần backend).
  * Đặt trong frontend/.env.local:  VITE_API_MODE=mock

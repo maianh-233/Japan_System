@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import dayjs from 'dayjs';
-import { AlarmClock, ClipboardCheck, Inbox, PhoneCall, Receipt, ScanLine, type LucideIcon } from 'lucide-react';
+import { AlarmClock, ClipboardCheck, Inbox, ListChecks, PhoneCall, Receipt, ScanLine, type LucideIcon } from 'lucide-react';
+import { useNotify } from '@/components/common';
 import { useClassStore } from '@/features/academic/classes/classStore';
 import { useAdmissionStore } from '@/features/crm/admission/admissionStore';
 import { slaOf } from '@/features/crm/admission/routing';
@@ -8,9 +9,12 @@ import { courseLabel, saleName } from '@/features/crm/constants';
 import { useCrmStore } from '@/features/crm/crmStore';
 import { useFinanceStore } from '@/features/finance/financeStore';
 import { useInvoiceRows } from '@/features/finance/financeUtils';
+import { errorText } from '@/features/crm/crmApi';
+import { loadTodayWork, useServerData, type ServerWorkBoard } from '@/features/reports/reportsApi';
 import { INBOX_KIND, useInbox } from '@/features/inbox/useInbox';
 import { useMe } from '@/features/me/useMe';
 import { useAuth } from '@/hooks/useAuth';
+import { USE_API } from '@/lib/api/config';
 import { formatCurrency } from '@/lib/format';
 import { ALL_BRANCHES } from '@/types/auth';
 
@@ -21,6 +25,7 @@ import { ALL_BRANCHES } from '@/types/auth';
  *  - Kế toán: hóa đơn đến hạn / quá hạn, giao dịch VietQR chưa khớp
  * Vai trò suy ra từ QUYỀN (không theo tên vai trò) → Admin / QL chi nhánh thấy đủ 3 nhóm.
  * Nhân viên phòng Sale chỉ thấy lead của chính mình; quản lý thấy cả chi nhánh.
+ * Chế độ API: server dựng sẵn (GET /api/v1/reporting/today-work — BC-02), ở đây chỉ gắn biểu tượng theo khóa nhóm.
  */
 
 export type WorkTone = 'danger' | 'warning' | 'info';
@@ -64,6 +69,23 @@ const DUE_SOON_DAYS = 3;
 const sortByTone = (a: WorkItem, b: WorkItem) => toneRank(a.tone) - toneRank(b.tone);
 const toneRank = (t: WorkTone) => (t === 'danger' ? 0 : t === 'warning' ? 1 : 2);
 
+const GROUP_ICON: Record<string, LucideIcon> = { sla: AlarmClock, callback: PhoneCall, attendance: ClipboardCheck, requests: Inbox, due: Receipt, txn: ScanLine };
+
+const fromServer = (boards: ServerWorkBoard[]): RoleBoard[] =>
+  boards.map((b) => ({
+    role: b.role,
+    label: b.label,
+    count: b.count,
+    groups: b.groups.map((g) => ({
+      key: g.key,
+      label: g.label,
+      icon: GROUP_ICON[g.key] ?? ListChecks,
+      allPath: g.allPath,
+      empty: g.empty,
+      items: g.items.map((i) => ({ key: i.key, title: i.title, subtitle: i.subtitle ?? undefined, meta: i.meta, tone: i.tone, path: i.path })),
+    })),
+  }));
+
 function humanMinutes(min: number): string {
   if (min < 60) return `${min} phút`;
   if (min < 60 * 24) return `${Math.floor(min / 60)} giờ`;
@@ -80,8 +102,11 @@ export function useTodayWork(): RoleBoard[] {
   const txns = useFinanceStore((s) => s.txns);
   const invoiceRows = useInvoiceRows();
   const inbox = useInbox();
+  const notify = useNotify();
+  const server = useServerData(() => loadTodayWork(branchId), [branchId], (e) => notify.toast.error(errorText(e, 'Không tải được việc hôm nay')));
 
-  return useMemo(() => {
+  const local = useMemo(() => {
+    if (USE_API) return [];
     const now = dayjs();
     const endOfToday = now.endOf('day');
     const today = now.format('YYYY-MM-DD');
@@ -240,4 +265,6 @@ export function useTodayWork(): RoleBoard[] {
 
     return boards;
   }, [can, branchId, me, leads, rules, classes, sessions, txns, invoiceRows, inbox]);
+
+  return USE_API ? fromServer(server ?? []) : local;
 }

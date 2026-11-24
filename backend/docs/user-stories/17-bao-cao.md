@@ -216,3 +216,7 @@ chuyên cần cả kỳ, thực thu cả kỳ, thực thu tháng này, công n�
 | `POST /api/v1/reporting/reports/export` `{ branchId, months }` | BC-07 | `dashboard.reports.export` |
 
 **Mã lỗi:** `reporting.period.invalid`.
+
+**Frontend (giai đoạn 24 phase 4):** `features/reports/reportsApi.ts` (tải báo cáo / bảng điều khiển / việc hôm nay, đổi GUID trong đường dẫn về Id frontend,
+gắn nhãn nguồn lead + tuổi nợ), `features/reports/reportExport.ts` (BC-07: 1 file .xlsx 4 sheet — `buildWorkbook` trong `lib/spreadsheet.ts`).
+Chế độ mock vẫn tính từ store (`useReports`, `useTodayWork`). Tháng chưa điểm danh: biểu đồ vẽ 0, thẻ "Chuyên cần tháng này" hiện "—" (BC-05.E1).

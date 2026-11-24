@@ -16,13 +16,15 @@ import { ALL_BRANCHES } from '@/types/auth';
 
 /**
  * Số liệu BÁO CÁO tính trực tiếp từ các store (lead, ghi danh, hóa đơn, buổi học, phòng).
- * Khi có backend: thay bằng API tổng hợp phía server — giữ nguyên hình dạng dữ liệu trả về.
+ * Chế độ API: số liệu lấy từ server (reportsApi.ts — /api/v1/reporting/reports) cùng hình dạng; hook này chỉ còn cho chế độ mock.
  */
 
 export interface MonthPoint {
   month: string;
   label: string;
   value: number;
+  /** Không có số (vd chuyên cần tháng chưa điểm danh buổi nào) — biểu đồ vẽ 0, thẻ hiện "—" */
+  empty?: boolean;
 }
 
 const pct = (a: number, b: number) => (b ? Math.round((a / b) * 100) : undefined);
@@ -106,7 +108,7 @@ export function useReports(branchId: string, months: number) {
           if (r.status === 'present' || r.status === 'late') att++;
         });
       });
-      return { month: m, label: label(m), value: pct(att, tot) ?? 0 };
+      return { month: m, label: label(m), value: pct(att, tot) ?? 0, empty: tot === 0 || undefined };
     });
     const ongoing = classes.filter((c) => (c.status === 'ongoing' || c.status === 'enrolling') && inB(c.branchId));
     const fill = ongoing

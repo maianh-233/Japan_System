@@ -1,33 +1,48 @@
 import { useState } from 'react';
 import { Tabs } from 'antd';
 import { Banknote, CalendarCheck, DoorOpen, GraduationCap, Percent, Target, TrendingUp, Wallet } from 'lucide-react';
-import { Button, DataTable, PageHeader, Select, StatCard, StatusTag, useNotify, type DataColumn } from '@/components/common';
+import { Button, DataTable, LoadingSkeleton, PageHeader, Select, StatCard, StatusTag, useNotify, type DataColumn } from '@/components/common';
 import { LEAD_STATUS_OPTIONS } from '@/features/crm/constants';
 import { BarList, ChartCard, ColumnChart, shortMoney } from '@/features/reports/charts';
-import { useReports, type ReportData } from '@/features/reports/useReports';
+import { errorText } from '@/features/crm/crmApi';
+import { downloadReport } from '@/features/reports/reportExport';
+import { exportReport, useReportData } from '@/features/reports/reportsApi';
+import type { ReportData } from '@/features/reports/useReports';
 import { useSystemStore } from '@/features/system/systemStore';
 import { useActor } from '@/features/system/useActor';
 import { useAuth } from '@/hooks/useAuth';
+import { USE_API } from '@/lib/api/config';
 import { cn } from '@/lib/cn';
 import { formatCurrency } from '@/lib/format';
 
 type BranchRow = ReportData['branches'][number];
 const pctTxt = (v?: number) => (v === undefined ? '—' : `${v}%`);
 
-/** Báo cáo: tuyển sinh · doanh thu & công nợ · đào tạo · so sánh chi nhánh. Số liệu tính từ dữ liệu hệ thống (giả). */
+/** Báo cáo (user story 17): tuyển sinh · doanh thu & công nợ · đào tạo · so sánh chi nhánh. Chế độ API: số liệu từ /api/v1/reporting/reports. */
 export default function ReportsPage() {
   const { branchId, currentBranch } = useAuth();
   const notify = useNotify();
   const { actor } = useActor();
   const audit = useSystemStore((s) => s.audit);
   const [months, setMonths] = useState(6);
-  const r = useReports(branchId, months);
-  const curMonth = r.monthKeys[r.monthKeys.length - 1];
-  const growth = r.money.prevMonth ? Math.round(((r.money.thisMonth - r.money.prevMonth) / r.money.prevMonth) * 1000) / 10 : undefined;
+  const [exporting, setExporting] = useState(false);
+  const report = useReportData(branchId, months, (e) => notify.toast.error(errorText(e, 'Không tải được báo cáo')));
 
-  const exportXlsx = () => {
-    audit(actor, { category: 'export', severity: 'warning', action: 'Xuất báo cáo', target: `Báo cáo ${months} tháng · ${currentBranch?.name ?? 'Toàn hệ thống'}` });
-    notify.toast.info('Xuất Excel (giả lập) — đã ghi nhật ký hệ thống');
+  // BC-07 — chế độ API: server ghi nhật ký + trả số liệu mới nhất; chế độ mock: ghi nhật ký giả rồi xuất số đang xem
+  const exportXlsx = async () => {
+    if (!report) return;
+    setExporting(true);
+    try {
+      let data = report;
+      if (USE_API) data = await exportReport(branchId, months);
+      else audit(actor, { category: 'export', severity: 'warning', action: 'Xuất báo cáo', target: `Báo cáo ${months} tháng · ${currentBranch?.name ?? 'Toàn hệ thống'}` });
+      downloadReport(data, months, currentBranch?.name);
+      notify.toast.success('Đã xuất báo cáo Excel — đã ghi nhật ký hệ thống');
+    } catch (e) {
+      notify.toast.error(errorText(e, 'Không xuất được báo cáo'));
+    } finally {
+      setExporting(false);
+    }
   };
 
   const branchCols: DataColumn<BranchRow>[] = [
@@ -42,7 +57,7 @@ export default function ReportsPage() {
     { key: 'overdue', title: 'Quá hạn', width: 140, align: 'right', mobile: 'aside', sorter: (a, b) => a.overdue - b.overdue, render: (_, b) => <span className={cn('tabular', b.overdue > 0 && 'text-danger-700')}>{formatCurrency(b.overdue)}</span> },
   ];
 
-  return (
+  const header = (
     <>
       <PageHeader
         title="Báo cáo"
@@ -59,11 +74,29 @@ export default function ReportsPage() {
               className="!w-32"
               aria-label="Kỳ báo cáo"
             />
-            <Button action="export" variant="outline" collapseOnMobile onClick={exportXlsx} />
+            <Button action="export" variant="outline" collapseOnMobile onClick={exportXlsx} loading={exporting} disabled={!report} />
           </>
         }
       />
+    </>
+  );
 
+  if (!report) {
+    return (
+      <>
+        {header}
+        <LoadingSkeleton variant="stats" rows={4} />
+      </>
+    );
+  }
+  const r = report;
+  const curMonth = r.monthKeys[r.monthKeys.length - 1];
+  const growth = r.money.prevMonth ? Math.round(((r.money.thisMonth - r.money.prevMonth) / r.money.prevMonth) * 1000) / 10 : undefined;
+  const attNow = r.study.attendanceByMonth[r.study.attendanceByMonth.length - 1];
+
+  return (
+    <>
+      {header}
       <Tabs
         items={[
           {
@@ -161,7 +194,7 @@ export default function ReportsPage() {
                 <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
                   <StatCard label="Học viên đang học" value={r.study.studying} icon={GraduationCap} tone="primary" />
                   <StatCard label="Lớp đang học" value={r.study.ongoing} icon={CalendarCheck} tone="info" hint={`${r.study.fill.length - r.study.ongoing} lớp chờ khai giảng`} />
-                  <StatCard label="Chuyên cần tháng này" value={pctTxt(r.study.attendanceByMonth[r.study.attendanceByMonth.length - 1]?.value)} icon={CalendarCheck} tone="success" />
+                  <StatCard label="Chuyên cần tháng này" value={pctTxt(attNow?.empty ? undefined : attNow?.value)} icon={CalendarCheck} tone="success" />
                   <StatCard label="Phòng dùng tuần này" value={pctTxt(r.study.roomUse.length ? Math.round(r.study.roomUse.reduce((n, x) => n + x.rate, 0) / r.study.roomUse.length) : undefined)} icon={DoorOpen} tone="warning" hint="TB công suất các phòng" />
                 </div>
                 <div className="mb-4 grid gap-4 lg:grid-cols-2">

@@ -1,27 +1,41 @@
 import dayjs from 'dayjs';
 import { AlarmClock, BarChart3, CalendarDays, ClipboardCheck, Inbox, PlugZap, Target, TriangleAlert, Users, Video, Wallet } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Button, PageHeader, StatCard, StatusTag, UserCell } from '@/components/common';
+import { Button, PageHeader, StatCard, StatusTag, UserCell, useNotify } from '@/components/common';
 import { useClassStore } from '@/features/academic/classes/classStore';
 import { teacherNames } from '@/features/academic/classes/constants';
 import { sessionRoom, sessionTeachers } from '@/features/academic/classes/sessionUtils';
 import { useAdmissionStore } from '@/features/crm/admission/admissionStore';
 import { slaOf } from '@/features/crm/admission/routing';
+import { errorText } from '@/features/crm/crmApi';
 import { isSlaOverdue, useCrmStore } from '@/features/crm/crmStore';
 import { TodayWork } from '@/features/dashboard/TodayWork';
 import { REQUEST_TYPES } from '@/features/hr/constants';
 import { useInbox, sortPending } from '@/features/inbox/useInbox';
 import { shortCode } from '@/features/portal/usePortal';
 import { shortMoney } from '@/features/reports/charts';
+import { loadDashboard, useServerData, type DashboardAlert } from '@/features/reports/reportsApi';
 import { useReports } from '@/features/reports/useReports';
 import { useSystemStore } from '@/features/system/systemStore';
 import { useAuth } from '@/hooks/useAuth';
+import { USE_API } from '@/lib/api/config';
 import { cn } from '@/lib/cn';
 import { fromNow } from '@/lib/date';
 import { formatCurrency } from '@/lib/format';
 import { ALL_BRANCHES } from '@/types/auth';
 
-/** Bảng điều khiển nhân viên — số liệu thật theo chi nhánh đang chọn */
+const ALERT_ICON: Record<DashboardAlert['kind'], typeof AlarmClock> = {
+  lead_sla_overdue: AlarmClock,
+  unconfirmed_sessions: ClipboardCheck,
+  missing_teacher_logs: ClipboardCheck,
+  low_fill_classes: Users,
+  integration_error: PlugZap,
+};
+
+/**
+ * Bảng điều khiển nhân viên — số liệu theo chi nhánh đang chọn (BC-01).
+ * Chế độ API: 4 thẻ + "Cần xử lý" từ GET /api/v1/reporting/dashboard; buổi học hôm nay, đơn chờ duyệt dùng store đã nối API.
+ */
 export default function StaffDashboard() {
   const { user, branchId, currentBranch } = useAuth();
   const navigate = useNavigate();
@@ -32,6 +46,8 @@ export default function StaffDashboard() {
   const rules = useAdmissionStore((s) => s.rules);
   const integrations = useSystemStore((s) => s.integrations);
   const inbox = useInbox();
+  const notify = useNotify();
+  const dash = useServerData(() => loadDashboard(branchId), [branchId], (e) => notify.toast.error(errorText(e, 'Không tải được bảng điều khiển')));
 
   const inB = (b?: string) => branchId === ALL_BRANCHES || b === branchId;
   const clsOf = (id: string) => classes.find((c) => c.id === id);
@@ -49,13 +65,39 @@ export default function StaffDashboard() {
   const leadThis = report.lead.byMonth[report.lead.byMonth.length - 1]?.value ?? 0;
   const leadPrev = report.lead.byMonth[report.lead.byMonth.length - 2]?.value ?? 0;
 
-  const todos = [
+  const localTodos = [
     { show: slaLeads > 0, icon: AlarmClock, tone: 'danger', text: `${slaLeads} lead mới quá hạn liên hệ (SLA)`, to: '/admin/crm/lead-rules' },
     { show: unconfirmed > 0, icon: ClipboardCheck, tone: 'warning', text: `${unconfirmed} buổi đã dạy chưa xác nhận (ảnh hưởng lương GV)`, to: '/admin/academic/sessions' },
     { show: noLog > 0, icon: ClipboardCheck, tone: 'warning', text: `${noLog} buổi tuần qua GV chưa ghi nhật ký`, to: '/admin/academic/sessions' },
     { show: lowFill.length > 0, icon: Users, tone: 'warning', text: `${lowFill.length} lớp lấp đầy dưới 50%: ${lowFill.slice(0, 3).map((c) => c.label).join(', ')}`, to: '/admin/academic/classes' },
     ...badIntegrations.map((i) => ({ show: true, icon: PlugZap, tone: 'danger', text: `Tích hợp ${i.name} lỗi: ${i.error?.split('—')[0] ?? ''}`, to: '/admin/system/integrations' })),
   ].filter((t) => t.show);
+  const todos = USE_API
+    ? (dash?.alerts ?? []).map((a) => ({ show: true, icon: ALERT_ICON[a.kind] ?? TriangleAlert, tone: a.tone, text: a.text, to: a.path }))
+    : localTodos;
+
+  // 4 thẻ chỉ số: API lấy từ server, mock tính từ store
+  const kpi = USE_API
+    ? {
+        studying: dash?.studying ?? 0,
+        ongoing: dash?.ongoingClasses ?? 0,
+        leadThis: dash?.leadsThisMonth ?? 0,
+        leadTrend: dash?.leadGrowth,
+        thisMonth: dash?.collectedThisMonth ?? 0,
+        growth: dash?.revenueGrowth,
+        overdue: dash?.overdue ?? 0,
+        debt: dash?.debt ?? 0,
+      }
+    : {
+        studying: report.study.studying,
+        ongoing: report.study.ongoing,
+        leadThis,
+        leadTrend: leadPrev ? Math.round(((leadThis - leadPrev) / leadPrev) * 100) : undefined,
+        thisMonth: report.money.thisMonth,
+        growth,
+        overdue: report.money.overdue,
+        debt: report.money.debt,
+      };
 
   return (
     <>
@@ -70,10 +112,10 @@ export default function StaffDashboard() {
       />
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Học viên đang học" value={report.study.studying} icon={Users} hint={`${report.study.ongoing} lớp đang học`} onClick={() => navigate('/admin/students/profiles')} />
-        <StatCard label="Lead mới tháng này" value={leadThis} icon={Target} tone="info" trend={leadPrev ? Math.round(((leadThis - leadPrev) / leadPrev) * 100) : undefined} trendLabel="so với tháng trước" onClick={() => navigate('/admin/crm/leads')} />
-        <StatCard label="Thực thu tháng này" value={formatCurrency(report.money.thisMonth)} icon={Wallet} tone="success" trend={growth} trendLabel="so với tháng trước" onClick={() => navigate('/admin/finance/invoices')} />
-        <StatCard label="Công nợ quá hạn" value={shortMoney(report.money.overdue)} icon={TriangleAlert} tone="warning" hint={`Tổng còn phải thu ${shortMoney(report.money.debt)}`} onClick={() => navigate('/admin/finance/debts')} />
+        <StatCard label="Học viên đang học" value={kpi.studying} icon={Users} hint={`${kpi.ongoing} lớp đang học`} onClick={() => navigate('/admin/students/profiles')} />
+        <StatCard label="Lead mới tháng này" value={kpi.leadThis} icon={Target} tone="info" trend={kpi.leadTrend} trendLabel="so với tháng trước" onClick={() => navigate('/admin/crm/leads')} />
+        <StatCard label="Thực thu tháng này" value={formatCurrency(kpi.thisMonth)} icon={Wallet} tone="success" trend={kpi.growth} trendLabel="so với tháng trước" onClick={() => navigate('/admin/finance/invoices')} />
+        <StatCard label="Công nợ quá hạn" value={shortMoney(kpi.overdue)} icon={TriangleAlert} tone="warning" hint={`Tổng còn phải thu ${shortMoney(kpi.debt)}`} onClick={() => navigate('/admin/finance/debts')} />
       </div>
 
       <div className="mt-6">

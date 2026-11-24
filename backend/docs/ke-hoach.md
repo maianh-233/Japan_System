@@ -17,7 +17,7 @@
 | Notifications (chuông) | ✅ | ✅ |
 | Finance đợt 1 (hóa đơn, thu / hoàn / hủy, giá, ưu đãi, đối soát, công nợ) | ✅ | ✅ |
 | Finance đợt 2 (lương, hoa hồng), Library | Chỉ có domain | ❌ |
-| Reporting | Chưa có | ❌ |
+| Reporting (báo cáo, bảng điều khiển, việc hôm nay) | ✅ (chỉ đọc qua Contracts — ADR 0004) | ✅ |
 | System: cài đặt chung, nhật ký, thùng rác, tích hợp | ✅ (trừ tích hợp — GĐ 22) | ✅ |
 | Academic: ngân hàng câu hỏi | ✅ | ✅ |
 | Academic: bài tập, bài thi, flashcard, thông báo lớp, đánh giá GV (+ tài liệu GV — Library) | ✅ | ✅ |
@@ -34,7 +34,7 @@
 | 21 | **Nhân sự mở rộng + Công việc**: chấm công NV, đơn từ duyệt nhiều cấp, tuyển dụng, onboarding, task / Kanban, giao việc cấp dưới, xếp ca, bàn giao ca, trang cá nhân. Story [13](user-stories/13-cham-cong-don-tu-tuyen-dung.md), [14](user-stories/14-cong-viec-xep-ca-ban-giao.md) | 16 | ✅ 2026-11-23 |
 | 22 | **Tài chính đợt 2 + tích hợp**: lương GV (DT-15.E5 khóa bảng lương), lương NV, hoa hồng / KPI Sale; Zalo OA, SMS, ngân hàng, Zoom / Meet. Story [08](user-stories/08-tai-chinh.md) TC-12 → 14, [15](user-stories/15-tich-hop.md) | 18, 19, 21 | ✅ 2026-11-24 |
 | 23 | **Thư viện + nhóm HV riêng**: thư viện (watermark, chặn tải, thống kê), HV-15 chứng nhận, HV-16 JLPT, HV-17 du học / XKLĐ. Story [16](user-stories/16-thu-vien.md), [06](user-stories/06-hoc-vien.md) HV-15 → 17 | 16 | ✅ 2026-11-24 |
-| 24 | **Báo cáo + bảng điều khiển** (Reporting, chỉ đọc): việc cần làm theo vai trò, chuyển đổi, doanh thu, công nợ, chuyên cần, lấp đầy phòng, so sánh chi nhánh, xuất Excel. Story [17](user-stories/17-bao-cao.md), [ADR 0004](decisions/0004-bao-cao-doc-qua-contracts.md) | tất cả | 🚧 phase 3 |
+| 24 | **Báo cáo + bảng điều khiển** (Reporting, chỉ đọc): việc cần làm theo vai trò, chuyển đổi, doanh thu, công nợ, chuyên cần, lấp đầy phòng, so sánh chi nhánh, xuất Excel. Story [17](user-stories/17-bao-cao.md), [ADR 0004](decisions/0004-bao-cao-doc-qua-contracts.md) | tất cả | ✅ 2026-11-24 |
 | 25 | **Sẵn sàng chạy thật**: bỏ chế độ mock, E2E Playwright luồng chính, rà bảo mật + hiệu năng, Docker 1 instance, backup Postgres, Seq, CI, hướng dẫn vận hành | tất cả | |
 
 **Có thể đổi thứ tự:** 19 lên trước 18 nếu cần doanh thu sớm (chỉ thiếu ghi danh từ lead).

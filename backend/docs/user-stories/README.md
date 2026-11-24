@@ -23,7 +23,7 @@ Mỗi file = 1 nhóm nghiệp vụ. Viết từ giao diện frontend đã dựng
 | 14 | [Công việc: task / Kanban, giao việc cấp dưới, xếp ca, bàn giao ca](14-cong-viec-xep-ca-ban-giao.md) | `CV-xx`, `XC-xx`, `BG-xx` | ✅ Giai đoạn 21 |
 | 15 | [Tích hợp: Zalo OA, SMS, email, webhook ngân hàng, Zoom / Meet](15-tich-hop.md) | `TH-xx` | ✅ Giai đoạn 22 |
 | 16 | [Thư viện tài liệu điện tử (watermark, chặn tải, thống kê lượt đọc, cổng HV / GV)](16-thu-vien.md) | `TV-xx` | ✅ Giai đoạn 23 |
-| 17 | [Báo cáo & bảng điều khiển (việc hôm nay, tuyển sinh, doanh thu, công nợ, đào tạo, so sánh chi nhánh, xuất Excel)](17-bao-cao.md) | `BC-xx` | 🚧 Giai đoạn 24 |
+| 17 | [Báo cáo & bảng điều khiển (việc hôm nay, tuyển sinh, doanh thu, công nợ, đào tạo, so sánh chi nhánh, xuất Excel)](17-bao-cao.md) | `BC-xx` | ✅ Giai đoạn 24 |
 
 **Chưa có nhóm story riêng** (trang frontend đã dựng — viết khi bắt đầu làm module): Phòng học & báo hỏng. Thứ tự làm: [../ke-hoach.md](../ke-hoach.md).
 

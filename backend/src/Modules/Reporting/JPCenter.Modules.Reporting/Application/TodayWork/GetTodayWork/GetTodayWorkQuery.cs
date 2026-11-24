@@ -72,7 +72,7 @@ public sealed class GetTodayWorkHandler(ReportingAccess access, ILeadReportSourc
             .Select(l => (Lead: l, At: Local(l.NextFollowUpAt!.Value)))
             .Select(x => (x.Lead, x.At, Urgency: WorkRules.FollowUp(x.At, now)))
             .Where(x => x.Urgency is not null)
-            .Select(x => new WorkItem($"cb:{x.Lead.Id}", x.Lead.FullName, Join(x.Lead.Phone, x.Lead.Interest, ownOnly ? null : x.Lead.AssigneeName),
+            .Select(x => new WorkItem($"cb:{x.Lead.Id}", x.Lead.FullName, Join(x.Lead.Phone, ownOnly ? null : x.Lead.AssigneeName),
                 x.Urgency!, LeadPath(x.Lead.Id), x.At));
 
         return Board("sale", "Sale",
